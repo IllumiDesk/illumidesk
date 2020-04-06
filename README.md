@@ -376,4 +376,4 @@ This project enforces the [Contributor Covenant](./CODE_OF_CONDUCT.md). Be kind 
 
 ### License
 
-BSD-3-Clause
+MIT
