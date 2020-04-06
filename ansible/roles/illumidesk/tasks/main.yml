@@ -1,0 +1,20 @@
+---
+- name: synchronize illumidesk directory to working directory
+  synchronize:
+    src: ../../../../src
+    dest: "{{ working_dir }}"
+    rsync_opts:
+      - "--no-motd"
+      - "--exclude=.pyc"
+      - "--exclude=__pycache__"
+
+- name: create a zip archive of the illumidesk package
+  archive:
+    path: "{{ working_dir }}/src"
+    dest: "{{ working_dir }}/illumidesk.zip"
+    format: zip
+
+- name: create lti 11 configuration file from template
+  template:
+    src: lti11-cartridge.xml.j2
+    dest: "{{ working_dir }}/lti11-cartridge.xml"

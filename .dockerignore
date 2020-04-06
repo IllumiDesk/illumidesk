@@ -1,0 +1,9 @@
+examples
+jupyterhub_cookie_secret
+jupyterhub.sqlite
+node_modules
+docs
+.git
+dist
+build
+env.*

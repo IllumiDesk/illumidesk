@@ -1,0 +1,17 @@
+# used in tests
+ansible-lint
+black
+coverage
+dockerspawner==0.11.1
+flake8
+git+git://github.com/jupyterhub/jupyterhub.git@22f86ad76c437d37bc26c28d9fecfa5457ef5974
+jupyterhub-ltiauthenticator==0.4.0
+mock
+nbgrader==0.6.1
+pre-commit
+pytest
+pytest-asyncio
+pytest-cov
+pytest-html
+pytest-mock
+requests

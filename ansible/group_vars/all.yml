@@ -1,0 +1,51 @@
+---
+# Ansible working directory on remote host
+working_dir: "{{ ansible_env.PWD }}/illumidesk_deployment"
+
+# End-user account info
+org_name: "{{ org_name_param | default('my-edu') }}"
+course_id: "{{ course_id_param | default('intro101') }}"
+tld: "{{ tld_param | default('localhost') }}"
+
+## Upstream jupyterhub/jupyterhub and jupyter/docker-stacks hash commits
+# https://github.com/jupyter/docker-stacks/commit/e00fd05364dffa4f0547498afe16d9a35f7f0eef
+git_nb_hash_commit: "{{ git_nb_hash_commit_param | default('e00fd05364dffa4f0547498afe16d9a35f7f0eef') }}"
+# https://github.com/jupyterhub/jupyterhub/commit/65de8c49167738fde9d7e88245593301a2a6a42a
+git_jhub_hash_commit: "{{ git_jhub_hash_commit_param | default('22f86ad76c437d37bc26c28d9fecfa5457ef5974') }}"
+
+# upstream source images
+docker_notebook_hash_commit: "{{ git_nb_hash_commit[0:12] }}"
+docker_notebook_base_image: "{{ docker_notebook_base_image_param | default('jupyter/datascience-notebook:') }}{{ docker_notebook_hash_commit }}"
+docker_jhub_hash_commit: "{{ git_jhub_hash_commit[0:12] }}"
+docker_jhub_base_image: "{{ docker_jhub_base_image_param | default('jupyterhub/jupyterhub:1.2.0dev') }}"
+
+## Docker
+# dockerfiles
+docker_jupyterhub_dockerfile: "{{ docker_jupyterhub_dockerfile_param | default('Dockerfile.jhub') }}"
+docker_notebook_base_dockerfile: "{{ docker_notebook_base_dockerfile_param | default('Dockerfile.base') }}"
+docker_notebook_learner_dockerfile: "{{ docker_notebook_learner_dockerfile_param | default('Dockerfile.learner') }}"
+docker_notebook_instructor_dockerfile: "{{ docker_notebook_instructor_dockerfile_param | default('Dockerfile.instructor') }}"
+docker_notebook_grader_dockerfile: "{{ docker_notebook_grader_dockerfile_param | default('Dockerfile.grader') }}"
+
+# built jupyterhub image
+docker_illumidesk_jhub_image: "{{ docker_illumidesk_jhub_image_param | default('illumidesk/jupyterhub:') }}{{ docker_jhub_hash_commit }}"
+
+# illumidesk notebooks base and custom images
+docker_illumidesk_notebook_base_image: "{{ docker_illumidesk_notebook_base_image_param | default('illumidesk/datascience-notebook:base-') }}{{ docker_notebook_hash_commit }}"
+docker_illumidesk_notebook_learner_image: "{{ docker_illumidesk_notebook_learner_image_param | default('illumidesk/notebook:learner') }}-{{ docker_notebook_hash_commit }}"
+docker_illumidesk_notebook_grader_image: "{{ docker_illumidesk_notebook_grader_image_param | default('illumidesk/notebook:grader') }}-{{ org_name }}-{{ docker_notebook_hash_commit }}"
+docker_illumidesk_notebook_instructor_image: "{{ docker_illumidesk_notebook_instructor_image_param | default('illumidesk/notebook:instructor') }}-{{ docker_notebook_hash_commit }}"
+
+# reverse-proxy image
+docker_proxy_image: "{{ docker_proxy_image_param | default('jupyterhub/configurable-http-proxy:4.2.0') }}"
+
+## Jupyterhub
+## Jupyter Notebook config
+jupyter_notebook_config: "{{ jupyter_notebook_config_param | default('jupyter_notebook_config.py') }}"
+
+# Mount directories
+mnt_root: "{{ mnt_root_param | default('/mnt') }}"
+
+# LTI 1.1 credentials
+lti11_consumer_key: "{{ lti11_consumer_key_param | default('my_consumer_key') }}"
+lti11_shared_secret: "{{ lti11_shared_secret_param | default('my_shared_secret') }}"

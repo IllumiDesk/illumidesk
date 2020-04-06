@@ -1,0 +1,75 @@
+---
+- name: create base notebook dockerfile from template
+  template:
+    src: "{{ docker_notebook_base_dockerfile }}.j2"
+    dest: "{{ working_dir }}/{{ docker_notebook_base_dockerfile }}"
+
+- name: create instructor dockerfile
+  template:
+    src: "{{ docker_notebook_instructor_dockerfile }}.j2"
+    dest: "{{ working_dir }}/{{ docker_notebook_instructor_dockerfile }}"
+
+- name: create learner dockerfile
+  template:
+    src: "{{ docker_notebook_learner_dockerfile }}.j2"
+    dest: "{{ working_dir }}/{{ docker_notebook_learner_dockerfile }}"
+
+- name: create grader notebook dockerfile from template
+  template:
+    dest: "{{ working_dir }}/{{ docker_notebook_grader_dockerfile }}"
+    src: "{{ docker_notebook_grader_dockerfile }}.j2"
+
+- name: copy the jupyter notebook configuration file
+  copy:
+    src: jupyter_notebook_config.py
+    dest: "{{ working_dir }}/jupyter_notebook_config.py"
+
+- name: copy requirements.txt for base notebook image
+  copy:
+    src: requirements.txt
+    dest: "{{ working_dir }}/jupyter-notebook-requirements.txt"
+
+- name: pull base jupyter/datascience notebook image
+  docker_image:
+    name: "{{ docker_notebook_base_image }}"
+    source: pull
+
+- name: build base notebook image
+  docker_image:
+    name: "{{ docker_illumidesk_notebook_base_image }}"
+    build:
+      path: "{{ working_dir }}"
+      dockerfile: "{{ docker_notebook_base_dockerfile }}"
+      pull: no
+    source: build
+    force_source: yes
+
+- name: build custom grader notebook image
+  docker_image:
+    name: "{{ docker_illumidesk_notebook_grader_image }}"
+    build:
+      path: "{{ working_dir }}"
+      dockerfile: "{{ docker_notebook_grader_dockerfile }}"
+      pull: no
+    source: build
+    force_source: yes
+
+- name: build custom instructor notebook image
+  docker_image:
+    name: "{{ docker_illumidesk_notebook_instructor_image }}"
+    build:
+      path: "{{ working_dir }}"
+      dockerfile: "{{ docker_notebook_instructor_dockerfile }}"
+      pull: no
+    source: build
+    force_source: yes
+
+- name: build custom learner notebook image
+  docker_image:
+    name: "{{ docker_illumidesk_notebook_learner_image }}"
+    build:
+      path: "{{ working_dir }}"
+      dockerfile: "{{ docker_notebook_learner_dockerfile }}"
+      pull: no
+    source: build
+    force_source: yes

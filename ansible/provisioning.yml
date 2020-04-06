@@ -1,0 +1,48 @@
+---
+  # play 1
+  - name: Common
+    hosts: illumidesk
+    become: true
+    gather_facts: true
+    roles:
+      - { role: common, tags: common }
+
+  # play 2
+  - name: IllumiDesk
+    hosts: illumidesk
+    become: true
+    gather_facts: false
+    roles:
+      - { role: illumidesk, tags: illumidesk }
+
+  # play 3
+  - name: JupyterHub
+    hosts: illumidesk
+    become: true
+    gather_facts: false
+    roles:
+      - { role: jupyterhub, tags: jupyterhub }
+
+  # play 4
+  - name: Grader Service
+    hosts: illumidesk
+    become: true
+    gather_facts: false
+    roles:
+      - { role: nbgrader, tags: nbgrader }
+
+  # play 5
+  - name: User Notebooks
+    hosts: illumidesk
+    become: true
+    gather_facts: false
+    roles:
+      - { role: notebooks, tags: notebooks }
+
+  # play 6
+  - name: Launch stack
+    hosts: illumidesk
+    become: true
+    gather_facts: false
+    roles:
+      - { role: launch, tags: launch }

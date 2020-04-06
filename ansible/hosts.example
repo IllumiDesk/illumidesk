@@ -1,0 +1,1 @@
+illumidesk ansible_ssh_host=<add_ip_address_here> ansible_ssh_port=22
