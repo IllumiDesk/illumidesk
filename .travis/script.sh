@@ -5,6 +5,7 @@ set -e
 run_linters () {
   echo "Running linters ..."
   flake8 src/
+  ansible-lint
 }
 
 run_unit_tests () {
