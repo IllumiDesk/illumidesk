@@ -377,4 +377,4 @@ This project enforces the [Contributor Covenant](./CODE_OF_CONDUCT.md). Be kind 
 
 ### License
 
-MIT
+Please refer to the included [license](./LICENSE) in this repository's root directory.
