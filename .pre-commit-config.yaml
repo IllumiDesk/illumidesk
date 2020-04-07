@@ -11,3 +11,8 @@ repos:
     hooks:
       - id: ansible-lint
         files: \.(yaml|yml)$
+
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: v3.7.9
+    hooks:
+      - id: flake8
