@@ -19,3 +19,5 @@ matrix:
         - bash .travis/install.sh
       script:
         - bash .travis/script.sh
+      after_success:
+        - bash .travis/after_success.sh
