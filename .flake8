@@ -16,10 +16,6 @@ builtins = c, get_config
 exclude =
     .cache,
     .github,
-    docs,
-    jupyterhub/alembic*,
-    onbuild,
-    scripts,
-    share,
-    tools,
-    setup.py
+    .travis,
+    ansible,
+    docs
