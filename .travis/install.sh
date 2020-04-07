@@ -9,7 +9,7 @@ install_requirements () {
 
 install_illumidesk_package () {
   echo "Install illumidesk package ..."
-  python3 -m pip install -e .
+  python3 -m pip install -e src/.
 }
 
 main() {
