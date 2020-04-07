@@ -2,10 +2,14 @@
 
 set -o errexit
 
-# free up port 5432
 install_requirements () {
   echo "Install requirements ..."
   python3 -m pip install -r dev-requirements.txt
+}
+
+install_illumidesk_package () {
+  echo "Install illumidesk package ..."
+  python3 -m pip install -e .
 }
 
 main() {
