@@ -1,0 +1,21 @@
+sudo: required
+services:
+  - docker
+branches:
+  only:
+    - master
+    - production
+notifications:
+  email: false
+  
+matrix:
+  include:
+    - language: python
+      python:
+        - "3.8"
+      before_install:
+        - bash .travis/before_install.sh
+      install:
+        - bash .travis/install.sh
+      script:
+        - bash .travis/script.sh
