@@ -14,6 +14,7 @@ install_illumidesk_package () {
 
 main() {
   install_requirements
+  install_illumidesk_package
 }
 
 main
