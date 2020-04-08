@@ -86,6 +86,12 @@ You may add any of the variables listed in `ansible/group_vars/all.yml` when run
 - **Instructor Role**: instructor1
 - **Student Role**: student1
 
+> **Tip**: To confirm the values you will need for `ansible-playbook`, log into your remote instance with SSH. This will allow you to confirm:
+
+> - Which user you connect with
+> - Whether or not you need a PEM key file
+> - Your remote IP address
+
 ### Initial Course Setup
 
 By default, this setup uses the `FirstUseAuthenticator` and as such accepts any password you designate when first logging into the system.
