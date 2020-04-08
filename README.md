@@ -17,30 +17,50 @@ On remote host:
 
 On machine running `ansible-playbook`:
 
-- [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+- [Virtualenv](https://pypi.org/project/virtualenv/1.7.1.2/)
 
 ## Quick Start
 
-### Initial Server Setup
+### Set up virtual environment and install requirements
+
+1. Clone this repo:
+
+    git clone https://github.com/IllumiDesk/illumidesk
+
+2. Activate a virtual environment with Python 3.6+:
+
+    virtualenv -p python3 venv
+    source venv/bin/activate
+
+3. Install requirements:
+
+    python3 -m pip install -r requirements.txt
 
 > `Note`: depending on your server's resource the ansible script can take anywhere between 5/10 minutes. Most of this time is spent building the images themselves as they are not stored in a docker registry.
 
-1. Create a `ansible/hosts` file from the provided `ansible/hosts.example`:
+### Prepare configuration to run ansible playbook
 
-    cp `ansible/hosts.example` `ansible/hosts`
-
-2. Update `private_key_file` in the `hosts` file with the PEM key to access VM instance.
-
-3. Update `ansible_ssh_host` with your instance's IPv4 address.
-
-4. Change into the ansible directory:
+1. Change into the ansible directory:
 
     cd ansible
 
-5. Run `ansible-playbook` using the flags below:
+2. Create a `ansible/hosts` file from the provided `ansible/hosts.example`:
 
-- Remote server SSH private key: `--private-key`
+    cp `ansible/hosts.example` `ansible/hosts`
+
+3. Update `ansible_ssh_host` with your instance's IPv4 address.
+
+4. Run `ansible-playbook` using the flags below:
+
+- (Not required for all instances) Remote server SSH private key: `--private-key`
 - Remote user: `-u`
+- Extra variables: `--extra-vars`
+  - Organization name: `org_name`
+  - Top level domain name: `tld`
+
+The combination of the `org_name` and the `tld` create the remot host's domain name. For example, if `org_name` is `my-edu` and `tld` is `example.com`, then the remote host's domain name is `my-edu.example.com`.
+
+> **NOTE**: some instances disable the `root` user by default. If you use a user other than `root`, ensure that you use a user that is a member of the `sudoers` group.
 
 For example:
 
@@ -50,12 +70,10 @@ ansible-playbook \
   --private-key /path/to/server/private/key \
   -u ubuntu \
   --extra-vars \
-  "org_name_param=my-edu"
+  "org_name=my-edu \
+  tld=example.com" \
   -v
 ```
-
-- Extra variables: `--extra-vars`
-  - Organization name: `org_name`
 
 You may add any of the variables listed in `ansible/group_vars/all.yml` when running the playbook.
 
@@ -67,6 +85,12 @@ You may add any of the variables listed in `ansible/group_vars/all.yml` when run
 
 - **Instructor Role**: instructor1
 - **Student Role**: student1
+
+> **Tip**: To confirm the values you will need for `ansible-playbook`, log into your remote instance with SSH. This will allow you to confirm:
+
+> - Which user you connect with
+> - Whether or not you need a PEM key file
+> - Your remote IP address
 
 ### Initial Course Setup
 
@@ -377,4 +401,4 @@ This project enforces the [Contributor Covenant](./CODE_OF_CONDUCT.md). Be kind 
 
 ### License
 
-MIT
+Please refer to the included [license](./LICENSE) in this repository's root directory.
