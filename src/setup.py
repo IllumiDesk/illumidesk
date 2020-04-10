@@ -38,6 +38,8 @@ setup(
         'ansible>=2.9' 'jupyterhub-ltiauthenticator>=0.4.0',
         'nbgrader>=0.6.1',
         'jupyterhub>=1.1.0',
+        'quart>=0.11.5',
+        'docker'
     ],
     package_data={'': ['*.html'],},
     entry_points={
