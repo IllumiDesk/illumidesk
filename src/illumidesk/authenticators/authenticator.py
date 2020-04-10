@@ -18,7 +18,7 @@ from traitlets import Dict
 from traitlets.config import LoggingConfigurable
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
-from illumidesk.nbgrader.course_app import SetupUtils
+from illumidesk.setup_course.utils import SetupUtils
 from .utils import LTI11_LAUNCH_PARAMS_REQUIRED
 from .utils import LTIUtils
 from .validator import LTI11LaunchValidator
