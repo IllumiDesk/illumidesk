@@ -12,10 +12,13 @@ from tornado import gen
 from tornado.httputil import parse_body_arguments
 from tornado.web import HTTPError
 from tornado.web import RequestHandler
+from tornado.httpclient import AsyncHTTPClient
 
 from traitlets import Dict
 from traitlets.config import LoggingConfigurable
 
+from illumidesk.apis.jupyterhub_api import JupyterHubAPI
+from illumidesk.nbgrader.course_app import SetupUtils
 from .utils import LTI11_LAUNCH_PARAMS_REQUIRED
 from .utils import LTIUtils
 from .validator import LTI11LaunchValidator
@@ -165,7 +168,47 @@ class LTI11Authenticator(LTIAuthenticator):
                     'user_role': user_role,
                 },
             }
+    async def post_auth_hook(self, authenticator, handler, authentication):
+        """
+            Calls the microservice to setup up a new course in case it does not exist.          
+            The data needed is received from auth_State
+        """
+        username = authentication['name']
+        lms_user_id = authentication['auth_state']['lms_user_id']
 
+        course_id = authentication['auth_state']['course_id']
+        role =  authentication['auth_state']['user_role']
+        org = os.environ.get('ORGANIZATION_NAME')
+        jupyterhub_api = JupyterHubAPI()
+        # TODO: verify the logic to simplify groups creation and membership
+        if role == 'Student' or role == 'Learner':
+            # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook 
+            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+            await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
+        elif role == 'Instructor':
+            # assign the user in 'formgrade-<course_id>' group
+            await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
+        client = AsyncHTTPClient()
+        data = {
+            'org': org,
+            'course_id': course_id,
+            'domain': handler.request.host,
+        }
+        service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME')
+        port = os.environ.get('DOCKER_SETUP_COURSE_PORT')
+        url = f'http://{service_name}:{port}'
+        headers = {
+            'Content-Type': 'application/json'
+        }
+        response = await client.fetch(url, headers=headers, body=json.dumps(data), method='POST')
+        self.log.debug('New setup with response %s from setup-course service' % response['is_new_setup'])
+        # if the course is a new setup then restart the jupyterhub to read services configuration file
+        if response['is_new_setup'] == True:
+            utils = SetupUtils()
+            utils.restart_jupyterhub()
+
+        return authentication
+        
 
 class LTI11AuthenticateHandler(BaseHandler):
     """
