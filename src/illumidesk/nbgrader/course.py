@@ -2,10 +2,14 @@ import os
 import shutil
 import sys
 import logging
+import requests
 from pathlib import Path
 from secrets import token_hex
-
 import docker
+
+from .constants import NB_GRADER_CONFIG_TEMPLATE
+from illumidesk.apis.jupyterhub_api import JupyterHubAPI
+
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -24,7 +28,7 @@ class Course:
         grader_root: Grader's home path
         course_root: Course's root path
         token: JupyterHub API token used to authenticat requests with the Hub
-        jupyterhub_lock: Lock file to manage jupyterhub_config.py
+        
         uid: Grader's user id
         gid: Grader's group id
         is_new_setup: True indicates a new setup, False otherwise
@@ -33,6 +37,7 @@ class Course:
         self.org = org
         self.course_id = course_id
         self.domain = domain
+
         self.exchange_root = Path(os.environ.get('NFS_ROOT'), self.org, 'exchange')
         self.grader_name = f'grader-{course_id}'
         self.grader_root = Path(
@@ -44,11 +49,27 @@ class Course:
         self.course_root = self.grader_root / course_id
         self.token = token_hex(32)
         self.client = docker.from_env()
-        self.jupyterhub_lock = os.environ.get('JUPYTERHUB_CONFIG_PATH') + '/jhub.lock'
+        
         self.uid = int(os.environ.get('NB_UID'))
         self.gid = int(os.environ.get('NB_GID'))
         self.is_new_setup = False
+        self.jupyterhub_api = JupyterHubAPI()
 
+    async def setup(self):
+        """
+        Function to bootstrap new course setup
+        
+        Returns:
+            is_new_setup: boolean to indicate whether or not the this setup
+            function executed the functions to set up a new course.
+        """
+        if self.should_setup():
+            self.create_directories()
+            await self.add_jupyterhub_grader_group()
+            await self.add_jupyterhub_student_group()
+            self.run()
+        return self.is_new_setup
+    
     def should_setup(self):
         """
         If the grader container exists then the setup_course boolean is set to
@@ -66,22 +87,6 @@ class Course:
             return True
         
         return False
-
-    def setup(self):
-        """
-        Function to bootstrap new course setup
-        
-        Returns:
-            is_new_setup: boolean to indicate whether or not the this setup
-            function executed the functions to set up a new course.
-        """
-        if self.should_setup():
-            self.create_directories()
-            self.add_jupyterhub_grader_group()
-            self.add_jupyterhub_student_group()
-            self.run()
-            self.update_jupyterhub_config()
-        return self.is_new_setup
 
     def create_directories(self):
         """
@@ -127,7 +132,7 @@ class Course:
             self.gid)
         )
 
-    def add_jupyterhub_grader_group(self):
+    async def add_jupyterhub_grader_group(self):
         """
         Add formgrader group with JupyterHub's REST API by sending a 
         POST request to the the endpoint ../groups/formgrade-{course_id}.
@@ -135,18 +140,12 @@ class Course:
         Returns:
             Response from JupyterHub's add group endpoint
         """
-        logger.debug('Adding grader group formgrade-%s with JupyterHub REST API' % self.course_id)
-        jupyterhub_api_url = os.environ.get('JUPYTERHUB_API_URL')
-        token = os.environ.get('JUPYTERHUB_API_TOKEN')
-        response = requests.post(f'{jupyterhub_api_url}/groups/formgrade-{self.course_id}',
-            headers={
-                    'Authorization': f'token {token}',
-            }
-        )
-        logger.debug('Response object when adding formgrader group: %s' % response.json())
-        return response.json()
+        group_name = f'formgrade-{self.course_id}'
+        logger.debug(f'Adding grader group {group_name} with JupyterHub REST API')
+        result = await self.jupyterhub_api.create_group(group_name)
+        logger.debug('Response object when adding formgrader group: %s' % result)
 
-    def add_jupyterhub_student_group(self):
+    async def add_jupyterhub_student_group(self):
         """
         Add nbgrader group with JupyterHub's REST API by sending a 
         POST request to the the endpoint ../groups/nbgrader-{course_id}.
@@ -154,19 +153,10 @@ class Course:
         Returns:
             Response from JupyterHub's add group endpoint
         """
-        logger.debug('Adding student group nbgrader-%s with JupyterHub REST API' % self.course_id)
-        jupyterhub_api_url = os.environ.get('JUPYTERHUB_API_URL')
-        logger.debug('Adding student group by posting to %s' % jupyterhub_api_url)
-        token = os.environ.get('JUPYTERHUB_API_TOKEN')
-        logger.debug('Using token %s to add student group' % token)
-        response = requests.post(f'{jupyterhub_api_url}/groups/nbgrader-{self.course_id}',
-            headers={
-                    'Authorization': f'token {token}',
-            }
-        )
-        logger.debug('Adding group nbgrader-%s' % self.course_id)
-        logger.debug('Response object when adding nbgrader group: %s' % response.json())
-        return response.json()
+        group_name = f'nbgrader-{self.course_id}'
+        logger.debug(f'Adding student group {group_name} with JupyterHub REST API')
+        result = await self.jupyterhub_api.create_group(group_name)
+        logger.debug('Response object when adding nbgrader group: %s' % result)
 
     def run(self):
         """
@@ -207,13 +197,10 @@ class Course:
             restart_policy={'Name': 'on-failure', 'MaximumRetryCount': 5}
         )
 
-    def update_jupyterhub_config(self):
+    def get_service_config(self) -> dict:
         """
-        We can add groups and users with the REST API, but not services. Therefore
-        add new services to the JupyterHub.services section within the jupyterhub 
-        configuration file (jupyterhub_config.py).
+            Creates service config definition that is used in jupyterhub's services section
         """
-        jupyterhub_config_json = Path(JSON_FILE_PATH)
         url = f'http://{self.grader_name}:8888'
         service_config = {
             'name': self.course_id,
@@ -222,11 +209,4 @@ class Course:
             'admin': True,
             'api_token': self.token
         }
-        load_group = {f'formgrade-{self.course_id}': [self.grader_name]}
-        if not any(s for s in cache['services'] if s['url'] == service_config['url']):
-            cache['services'].append(service_config)
-        cache['load_groups'].update(load_group)
-        lock = FileLock(str(self.jupyterhub_lock))
-        with lock:
-            with jupyterhub_config_json.open('r+') as config:
-                json.dump(cache, config)
+        return service_config

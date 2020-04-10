@@ -3,7 +3,6 @@ import logging
 import os
 import pprint
 import re
-import requests
 import shutil
 import sys
 import time
@@ -15,15 +14,15 @@ from secrets import token_hex
 
 import docker
 from docker.errors import APIError
-from flask import Flask
-from flask import request
+from quart import Quart
+from quart import request
 from .course import Course
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-app = Flask("setup-course-app")
+app = Quart("setup-course-app")
 
 
 JSON_FILE_PATH = os.environ.get('JUPYTERHUB_CONFIG_PATH') + '/jupyterhub_config.json'
@@ -41,18 +40,21 @@ with Path(JSON_FILE_PATH).open('w+') as config:
 
 
 @app.route("/", methods=['POST'])
-def main():
+async def main():
     data = request.get_json()
     logger.debug('Received data payload %s' % data)
     try:
-        is_new_setup = Course(**data).setup()
-        logger.debug('Is this a new setup? %s' % is_new_setup)
+        new_course = Course(**data)
+        is_new = await new_course.setup()
+        logger.debug('Is this a new setup? %s' % is_new)
+        # update the jupyterhub config to include new service info
+        update_jupyterhub_config(new_course)
     except Exception as e:
         logger.error("Unable to complete course setup", exc_info=True)
         return {'error': 500}
     return {
         'message': 'OK',
-        'is_new_setup': f'{is_new_setup}'
+        'is_new_setup': f'{is_new}'
     }
 
 @app.route("/config", methods=['GET'])
@@ -70,6 +72,28 @@ def restart():
         logger.error("Unable to restart the container", exc_info=True)
         return {'error': 500}
     return {'message': 'OK'}
+
+def update_jupyterhub_config(course: Course):
+    """
+    We can add groups and users with the REST API, but not services. Therefore
+    add new services to the JupyterHub.services section within the jupyterhub 
+    configuration file (jupyterhub_config.py).
+    
+    """
+    jupyterhub_config_json = Path(JSON_FILE_PATH)
+    # Lock file to manage jupyterhub_config.py
+    jupyterhub_lock = os.environ.get('JUPYTERHUB_CONFIG_PATH') + '/jhub.lock'
+    service_config = course.get_service_config()
+
+    load_group = {f'formgrade-{course.course_id}': [course.grader_name]}
+    if not any(s for s in cache['services'] if s['url'] == service_config['url']):
+        cache['services'].append(service_config)
+    cache['load_groups'].update(load_group)
+    lock = FileLock(str(jupyterhub_lock))
+    with lock:
+        with jupyterhub_config_json.open('r+') as config:
+            json.dump(cache, config)
+
 
 
 class SetupUtils:
@@ -92,4 +116,4 @@ class SetupUtils:
                 container.restart()
             except docker.errors.NotFound:
                 logger.error('Grader container not found')
-
+    
