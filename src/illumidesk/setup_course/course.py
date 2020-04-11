@@ -33,7 +33,7 @@ class Course:
         gid: Grader's group id
         is_new_setup: True indicates a new setup, False otherwise
     """
-    def __init__(self, *, org: str, course_id: str, domain: str):
+    def __init__(self, org: str, course_id: str, domain: str):
         self.org = org
         self.course_id = course_id
         self.domain = domain
