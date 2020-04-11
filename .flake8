@@ -17,6 +17,8 @@ exclude =
     .cache,
     .github,
     .travis,
+    .vscode,
     ansible,
     docs,
+    node_modules,
     venv
