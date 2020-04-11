@@ -18,4 +18,5 @@ exclude =
     .github,
     .travis,
     ansible,
-    docs
+    docs,
+    venv
