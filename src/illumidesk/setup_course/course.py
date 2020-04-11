@@ -55,6 +55,14 @@ class Course:
         self.is_new_setup = False
         self.jupyterhub_api = JupyterHubAPI()
 
+    @property
+    def jupyter_config_path(self):
+        return self.grader_root / '.jupyter'
+
+    @property
+    def nbgrader_config_path(self):
+        return self.jupyter_config_path / 'nbgrader_config.py'
+
     async def setup(self):
         """
         Function to bootstrap new course setup
@@ -113,19 +121,19 @@ class Course:
             self.gid)
         )
         shutil.chown(str(self.course_root), user=self.uid, group=self.gid)
-        jupyter_config_path = self.grader_root / '.jupyter'
-        logger.debug('Course jupyter config path %s' % jupyter_config_path)
-        jupyter_config_path.mkdir(parents=True, exist_ok=True)
-        shutil.chown(str(jupyter_config_path), user=self.uid, group=self.gid)
+        
+        logger.debug('Course jupyter config path %s' % self.jupyter_config_path)
+        self.jupyter_config_path.mkdir(parents=True, exist_ok=True)
+        shutil.chown(str(self.jupyter_config_path), user=self.uid, group=self.gid)
         logger.debug('Change course jupyter config permissions to %s:%s' % (self.uid, self.gid))
-        nbgrader_config_path = jupyter_config_path / 'nbgrader_config.py'
-        logger.debug('Course nbgrader_config.py path %s' % nbgrader_config_path)
+        
+        logger.debug('Course nbgrader_config.py path %s' % self.nbgrader_config_path)
         nbgrader_config = NB_GRADER_CONFIG_TEMPLATE.format(
             grader_name=self.grader_name,
             course_id=self.course_id
         )
-        nbgrader_config_path.write_text(nbgrader_config)
-        shutil.chown(str(nbgrader_config_path), user=self.uid, group=self.gid)
+        self.nbgrader_config_path.write_text(nbgrader_config)
+        shutil.chown(str(self.nbgrader_config_path), user=self.uid, group=self.gid)
         logger.debug('Added nbgrader config %s with permissions %s:%s' %
             (nbgrader_config,
             self.uid,
