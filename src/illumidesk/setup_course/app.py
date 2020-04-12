@@ -14,6 +14,7 @@ from secrets import token_hex
 
 from quart import Quart
 from quart import request
+from quart.exceptions import BadRequest
 from .course import Course
 from .utils import SetupUtils
 
@@ -40,7 +41,9 @@ with Path(JSON_FILE_PATH).open('w+') as config:
 
 @app.route("/", methods=['POST'])
 async def main():
-    data = request.get_json()
+    data = await request.get_json()
+    if data is None:
+        raise BadRequest()
     logger.debug('Received data payload %s' % data)
     try:
         new_course = Course(**data)
@@ -50,7 +53,7 @@ async def main():
         update_jupyterhub_config(new_course)
     except Exception as e:
         logger.error("Unable to complete course setup", exc_info=True)
-        return {'error': 500}
+        return {'error': 500, 'detail': str(e)}
     return {
         'message': 'OK',
         'is_new_setup': f'{is_new}'
