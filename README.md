@@ -119,12 +119,11 @@ For example:
 
 ```bash
 ansible-playbook \
-  provisioning.yml \
-  --private-key /path/to/server/private/key \
-  -u ubuntu \
+  -i ansible/hosts \
+  ansible/provisioning.yml \
   --extra-vars \
-  "org_name=my-edu \
-  tld=example.com" \
+  "org_name=fsu \
+  tld=illumidesk.com" \
   -v
 ```
 
