@@ -37,12 +37,17 @@ On remote host:
 
 1. Clone and change directories into this repo's root:
 
-    git clone https://github.com/IllumiDesk/illumidesk
-    cd illumidesk
+```
+git clone https://github.com/IllumiDesk/illumidesk
+cd illumidesk
+```
+
 
 2. Create a new hosts file from the provided YML template.
 
-    cp ansible/hosts.example ansible/hosts
+```
+cp ansible/hosts.example ansible/hosts
+```
 
 3. Update the `ansible/hosts` file:
   
@@ -54,7 +59,7 @@ On remote host:
 
 4. Run the deployment script (the script will prompt you for certain values):
 
-    make deploy
+    `make deploy`
 
 5. Once the ansible playbook has finished running the JupyterHub should be available at:
 
