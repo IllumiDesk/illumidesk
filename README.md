@@ -105,29 +105,26 @@ You may customize your setup by using the `--extra-args` flag and passing additi
 
 For example, you can run the `ansible-playbook` using the flags below:
 
-- (Not required for all instances) Remote server SSH private key: `--private-key`
+- Remote server SSH private key: `--private-key`
 - Remote user: `-u`
 - Extra variables: `--extra-vars`
   - Organization name: `org_name`
-  - Top level domain name: `tld`
 
-The combination of the `org_name` and the `tld` create the remot host's domain name. For example, if `org_name` is `my-edu` and `tld` is `example.com`, then the remote host's domain name is `my-edu.example.com`.
-
-> **NOTE**: some instances disable the `root` user by default. If you use a user other than `root`, ensure that you use a user that is a member of the `sudoers` group.
-
-For example:
+Then the playbook is run with:
 
 ```bash
 ansible-playbook \
   -i ansible/hosts \
   ansible/provisioning.yml \
   --extra-vars \
-  "org_name=fsu \
-  tld=illumidesk.com" \
+  "org_name=my-edu \
+  tld=example.com" \
   -v
 ```
 
 You may add any of the variables listed in `ansible/group_vars/all.yml` when running the playbook.
+
+> **NOTE**: some instances disable the `root` user by default. If you use a user other than `root`, ensure that you use a user that is a member of the `sudoers` group.
 
 ### LTI 1.1 Authenticator
 
