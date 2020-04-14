@@ -35,10 +35,11 @@ setup(
     license='3 Clause BSD',
     packages=find_packages(),
     install_requires=[
-        'ansible>=2.9' 'jupyterhub-ltiauthenticator>=0.4.0',
-        'nbgrader>=0.6.1',
         'jupyterhub>=1.1.0',
+        'jupyterhub-ltiauthenticator>=0.4.0',
+        'nbgrader>=0.6.1',        
         'quart>=0.11.5',
+        'filelock',
         'docker'
     ],
     package_data={'': ['*.html'],},

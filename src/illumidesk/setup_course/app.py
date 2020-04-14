@@ -24,8 +24,12 @@ logger = logging.getLogger(__name__)
 
 app = Quart("setup-course-app")
 
+configs_path = os.environ.get('JUPYTERHUB_CONFIG_PATH', '/srv/jupyterhub')
 
-JSON_FILE_PATH = os.environ.get('JUPYTERHUB_CONFIG_PATH') + '/jupyterhub_config.json'
+Path(configs_path).mkdir(exist_ok=True, parents=True)
+
+
+JSON_FILE_PATH =  configs_path + '/jupyterhub_config.json'
 
 cache = {'services': [], 'load_groups': {}}
 

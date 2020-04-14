@@ -168,6 +168,7 @@ class LTI11Authenticator(LTIAuthenticator):
                     'user_role': user_role,
                 },
             }
+
     async def post_auth_hook(self, authenticator, handler, authentication):
         """
             Calls the microservice to setup up a new course in case it does not exist.          
