@@ -1,0 +1,20 @@
+---
+- name: Copy setup-course dockerfile
+  copy:
+    src: Dockerfile
+    dest: "{{ working_dir }}/Dockerfile.setup-course"
+
+- name: Create the setup course env var file from template
+  template:
+    src: "env.setup_course.j2"
+    dest: "{{ working_dir }}/env.setup_course"
+
+- name: Build setup-course microservice image
+  docker_image:
+    name: illumidesk/setup-course
+    build:
+      path: "{{ working_dir }}"
+      dockerfile: Dockerfile.setup-course
+      pull: no
+    source: build
+    force_source: yes

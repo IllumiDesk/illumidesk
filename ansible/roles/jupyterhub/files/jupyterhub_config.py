@@ -240,3 +240,21 @@ c.DockerSpawner.volumes = {
 ##########################################
 # END CUSTOM DOCKERSPAWNER
 ##########################################
+
+# Dynamic config to setup new courses
+
+# course setup service name
+service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME', 'setup-course')
+
+# course setup service port
+port = os.environ.get('DOCKER_SETUP_COURSE_PORT', '8000')
+
+# get the response from course setup app endpoint
+response = requests.get(f'http://{service_name}:{port}/config')
+
+# store course setup configuration
+config = response.json()
+
+# load k/v's when starting jupyterhub
+c.JupyterHub.load_groups.update(config['load_groups'])
+c.JupyterHub.services.extend(config['services'])
