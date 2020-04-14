@@ -46,15 +46,15 @@
   set_fact:
     lti11_shared_secret_result={{ _lti11_shared_secret_result.stdout }}
 
-- name: copy the jupyterhub configuration file
-  copy:
-    src: jupyterhub_config.py
-    dest: "{{ working_dir }}/jupyterhub_config.py"
-
 - name: copy requirements.txt for base jupyterhub image
   copy:
     src: requirements.txt
     dest: "{{ working_dir }}/jupyterhub-requirements.txt"
+
+- name: copy the jupyterhub configuration file
+  copy:
+    src: jupyterhub_config.py
+    dest: "{{ working_dir }}/jupyterhub_config.py"
 
 - name: copy postgres utility scripts
   copy:
