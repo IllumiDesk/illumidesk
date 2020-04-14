@@ -1,1 +1,9 @@
-illumidesk ansible_ssh_host=<add_ip_address_here> ansible_ssh_port=22
+all:
+  hosts:
+    illumidesk:
+      ansible_host: 127.0.0.1
+      ansible_port: 22
+      ansible_user: root
+      ansible_ssh_private_key_file: /path/to/my/key/file
+      # add a password only if your remote instance uses userid/password for SSH authentication
+      ansible_password:

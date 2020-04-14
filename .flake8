@@ -18,6 +18,8 @@ exclude =
     __pycache__,
     .github,
     .travis,
+    .vscode,
     ansible,
     docs,
-    venv/
+    node_modules,
+    venv

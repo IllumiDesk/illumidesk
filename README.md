@@ -7,90 +7,74 @@
 
 ## Overview
 
-JupyterHub + docker + nbgrader
+[Jupyter Notebooks](https://jupyter.org) are a great **education tool** for a variety of subjects since it offers instructors and learners a unified document standard to combine markdown, code, and rich visualizations. With the proper setup, Jupyter Notebooks allow organizations to enhance their learning experiences.
 
-## Prerequisites
+When combined with the [nbgrader](https://github.com/jupyter/nbgrader) package instructors are able to automate much of tasks associated with grading and providing feedback for their users.
+
+## Why?
+
+Running a multi-user setup using [JupyterHub](https://github.com/jupyterhub/jupyterhub) and `nbgrader` with `docker containers` requires some additional setup. Some of the questions this distribution attempts to answer are:
+
+- How do we manage authentication when the user isn't a system user within the JupyterHub or Jupyter Notebook container?
+- How do we manage permissions for student and instructor folders?
+- How do we securely syncronize information with the Learning Management System (LMS) using the [LTI 1.1 and LTI 1.3](https://www.imsglobal.org/activity/learning-tools-interoperability) standards?
+- How do we improve the developer experience to provide more consistency with versions used in production, such as with Kubernetes?
+- How should deployment tools reflect these container-based requirements and also (to the extent possible) offer users an option that is cloud-vendor agnostic?
+
+Our goal is to remove these obstacles so that you can get on with the teaching!
+
+## Quick Start
+
+Follow these instructions to install the system with a set of sensible defaults. Refer to the [customization](#customization) section for more advanced setup options.
+
+### Prerequisites
 
 On remote host:
 
 - Tested with Ubuntu 18.04
 
-On machine running `ansible-playbook`:
+### Prepare your setup
 
-- [Virtualenv](https://pypi.org/project/virtualenv/1.7.1.2/)
+1. Clone and change directories into this repo's root:
 
-## Quick Start
-
-### Set up virtual environment and install requirements
-
-1. Clone this repo:
-
-    git clone https://github.com/IllumiDesk/illumidesk
-
-2. Activate a virtual environment with Python 3.6+:
-
-    virtualenv -p python3 venv
-    source venv/bin/activate
-
-3. Install requirements:
-
-    python3 -m pip install -r requirements.txt
-
-> `Note`: depending on your server's resource the ansible script can take anywhere between 5/10 minutes. Most of this time is spent building the images themselves as they are not stored in a docker registry.
-
-### Prepare configuration to run ansible playbook
-
-1. Change into the ansible directory:
-
-    cd ansible
-
-2. Create a `ansible/hosts` file from the provided `ansible/hosts.example`:
-
-    cp `ansible/hosts.example` `ansible/hosts`
-
-3. Update `ansible_ssh_host` with your instance's IPv4 address.
-
-4. Run `ansible-playbook` using the flags below:
-
-- (Not required for all instances) Remote server SSH private key: `--private-key`
-- Remote user: `-u`
-- Extra variables: `--extra-vars`
-  - Organization name: `org_name`
-  - Top level domain name: `tld`
-
-The combination of the `org_name` and the `tld` create the remot host's domain name. For example, if `org_name` is `my-edu` and `tld` is `example.com`, then the remote host's domain name is `my-edu.example.com`.
-
-> **NOTE**: some instances disable the `root` user by default. If you use a user other than `root`, ensure that you use a user that is a member of the `sudoers` group.
-
-For example:
-
-```bash
-ansible-playbook \
-  provisioning.yml \
-  --private-key /path/to/server/private/key \
-  -u ubuntu \
-  --extra-vars \
-  "org_name=my-edu \
-  tld=example.com" \
-  -v
+```
+git clone https://github.com/IllumiDesk/illumidesk
+cd illumidesk
 ```
 
-You may add any of the variables listed in `ansible/group_vars/all.yml` when running the playbook.
 
-6. Once the ansible playbook has finished running the JupyterHub should be available at:
+2. Create a new hosts file from the provided YML template.
 
-    `http://<public_ipv4>:8000/`
+```
+cp ansible/hosts.example ansible/hosts
+```
 
-7. Login with either the instructor or student accounts:
+3. Update the `ansible/hosts` file:
+  
+    - ansible_host: target server IPv4 address
+    - ansible_port: target server port (default 22)
+    - ansible_user: target server username
+    - ansible_ssh_private_key_file: full path to SSH private key file used for SSH
+    - ansible_password: optional value used when the target server requires a username/password
+
+4. Run the deployment script (the script will prompt you for certain values):
+
+    `make deploy`
+
+5. Once the ansible playbook has finished running the JupyterHub should be available at:
+
+    `http://<target_ipv4>:8000/`
+
+6. Login with either the instructor or student accounts:
 
 - **Instructor Role**: instructor1
 - **Student Role**: student1
 
-> **Tip**: To confirm the values you will need for `ansible-playbook`, log into your remote instance with SSH. This will allow you to confirm:
+> **Tip**: To confirm the values you will need for `ansible-playbook`, log into your remote instance with SSH. This will allow you to confirm settings such as:
 
-> - Which user you connect with
-> - Whether or not you need a PEM key file
-> - Your remote IP address
+> - The username for the target server
+> - The private key required for the target server's SSH key
+> - Etc
 
 ### Initial Course Setup
 
@@ -122,9 +106,34 @@ By default, this setup uses the `FirstUseAuthenticator` and as such accepts any 
 
 ## Customization
 
-### LTI Authenticator
+You may customize your setup by using the `--extra-args` flag and passing additional variables and their values to override the provided defaults.
 
-Open the JupyterHub configuration file located in `ansible/roles/jupyterhub/files/jupyterhub_config.py`. Change the `JupyterHub.uthenticator_class` from `firstuseauthenticator.FirstUseAuthenticator` to `LTI11Authenticator`. For example:
+For example, you can run the `ansible-playbook` using the flags below:
+
+- Remote server SSH private key: `--private-key`
+- Remote user: `-u`
+- Extra variables: `--extra-vars`
+  - Organization name: `org_name`
+
+Then the playbook is run with:
+
+```bash
+ansible-playbook \
+  -i ansible/hosts \
+  ansible/provisioning.yml \
+  --extra-vars \
+  "org_name=my-edu \
+  tld=example.com" \
+  -v
+```
+
+You may add any of the variables listed in `ansible/group_vars/all.yml` when running the playbook.
+
+> **NOTE**: some instances disable the `root` user by default. If you use a user other than `root`, ensure that you use a user that is a member of the `sudoers` group.
+
+### LTI 1.1 Authenticator
+
+Open the JupyterHub configuration file located in `ansible/roles/jupyterhub/files/jupyterhub_config.py`. Change the `JupyterHub.authenticator_class` from `firstuseauthenticator.FirstUseAuthenticator` to `LTI11Authenticator`. For example:
 
 Default authenticator setting:
 
