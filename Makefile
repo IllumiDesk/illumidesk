@@ -31,8 +31,8 @@ venv:
 	${PYTHON} -m pip install -r requirements.txt
 	${PYTHON} -m pip install -r dev-requirements.txt
 
-deploy:
-	ansible-playbook -i ansible/hosts \
+deploy: prepare
+	${VENV_BIN}/ansible-playbook -i ansible/hosts \
       ansible/provisioning.yml
 
 lint: venv
