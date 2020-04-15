@@ -9,13 +9,17 @@
 # F811: redefinition of unused `name` from line `N`
 # F841: local variable assigned but never used
 # E402: module level import not at top of file
-# I100: Import statements are in the wrong order
-# I101: Imported names are in the wrong order. Should be
+# I100: your import statements are in the wrong order.
+# I101: the names in your from import are in the wrong order.
+# D400: first line should end with a period.
+# E203: colons should not have any space before them.
+# E501: line lengths are recommended to be no greater than 79 characters. 
+# E503: there is no need for backslashes between brackets.
 select = F
 ignore = E, C, W, F401, F403, F811, F841, E402, I100, I101, D400, E501, E503
+extend-ignore = E203
 max-complexity = 15
 max-line-length = 88
-extend-ignore = E203
 builtins = c, get_config
 exclude =
     .cache,
