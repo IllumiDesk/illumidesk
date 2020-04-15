@@ -206,6 +206,7 @@ class LTI11Authenticator(LTIAuthenticator):
         self.log.debug('New setup with response %s from setup-course service' % resp_json['is_new_setup'])
         # if the course is a new setup then restart the jupyterhub to read services configuration file
         if 'is_new_setup' in resp_json and resp_json['is_new_setup'] == True:
+            self.log.debug('The jupyterhub container is going to be restarted')
             utils = SetupUtils()
             utils.restart_jupyterhub()
 

@@ -60,6 +60,7 @@ services:
       - env.setup_course
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
+      - {{mnt_root}}:{{mnt_root}}
       - data:/srv/jupyterhub
 
 volumes:
