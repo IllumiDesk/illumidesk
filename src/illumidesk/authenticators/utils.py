@@ -1,18 +1,9 @@
-import random
 import re
-import secrets
-import time
-import uuid
 
-from jupyterhub.handlers import BaseHandler
-
-from tornado.web import HTTPError
 from tornado.web import RequestHandler
 
-from typing import Any
 from typing import Dict
 from typing import List
-from typing import Tuple
 
 from traitlets.config import LoggingConfigurable
 
@@ -104,7 +95,7 @@ class LTIUtils(LoggingConfigurable):
         container names.
 
         Args:
-          name: The string to normalize for docker container and volume 
+          name: The string to normalize for docker container and volume
             names (e.g. Dev-IllumiDesk)
 
         Returns:
@@ -129,7 +120,7 @@ class LTIUtils(LoggingConfigurable):
     def email_to_username(self, email: str) -> str:
         """
         Normalizes an email to get a username. This function
-        calculates the username by getting the string before the 
+        calculates the username by getting the string before the
         @ symbol, removing special characters, removing comments,
         converting string to lowercase, and adds 1 if the username
         has an integer value already in the string.
@@ -155,10 +146,10 @@ class LTIUtils(LoggingConfigurable):
 
     def get_client_protocol(self, handler: RequestHandler) -> Dict[str, str]:
         """
-        This is a copy of the jupyterhub-ltiauthenticator logic to get the first 
+        This is a copy of the jupyterhub-ltiauthenticator logic to get the first
         protocol value from the x-forwarded-proto list, assuming there is more than
         one value. Otherwise, this returns the value as-is.
-        
+
         Extracted as a method to facilitate testing.
 
         Args:

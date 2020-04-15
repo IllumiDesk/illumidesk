@@ -71,7 +71,7 @@ class JupyterHubAPI(LoggingConfigurable):
 
         Args:
           group_name: the group name to create
-        
+
         Returns:
           Response from the endpoint
         """
@@ -119,7 +119,7 @@ class JupyterHubAPI(LoggingConfigurable):
         Args:
           group_name: the group name
           usernam: the user's unique name
-        
+
         Returns:
           Response from the endpoint
         """

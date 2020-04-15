@@ -1,55 +1,43 @@
-import os
-import sys
 import time
 
 from collections import OrderedDict
 
-from jupyterhub.utils import url_path_join
-
-from ltiauthenticator import LTILaunchValidator
-
-from oauthlib.oauth1 import RequestValidator
 from oauthlib.oauth1.rfc5849 import signature
 
-from tornado.auth import OAuthMixin
 from tornado.web import HTTPError
-from tornado.web import RequestHandler
 
 from traitlets.config import LoggingConfigurable
 
 from typing import Any
 from typing import Dict
-from typing import Optional
 
 from .utils import LTI11_LAUNCH_PARAMS_REQUIRED
 from .utils import LTI11_OAUTH_ARGS
-from .utils import LTIUtils
 
 
 class LTI11LaunchValidator(LoggingConfigurable):
     """
     This class closely mimics the jupyterhub/ltiauthenticator LTILaunchValidator
     base class. Inherits from the LoggingConfigurable traitlet to support logging.
-    
+
     Allows JupyterHub to verify LTI 1.1 compatible requests as a tool
     provider (TP).
-    
+
     For an instance of this class to work, you need to set the consumer key and
     shared secret key(s)/value(s) in `LTI11Authenticator` settings, which inherits
-    from the ``ltiauthenticator.LTIAuthenticator`` class. The key/value pairs are 
+    from the ``ltiauthenticator.LTIAuthenticator`` class. The key/value pairs are
     set as are defined as a dict using the ``consumers`` attribute.
 
     Attributes:
       consumers: consumer key and shared secret key/value pair(s)
     """
-
     # Keep a class-wide, global list of nonces so we can detect & reject
     # replay attacks. This possibly makes this non-threadsafe, however.
     nonces = OrderedDict()
-
+    
     def __init__(self, consumers):
         self.consumers = consumers
-
+    
     def validate_launch_request(
         self, launch_url: str, headers: Dict[str, Any], args: Dict[str, Any],
     ) -> bool:
@@ -57,7 +45,7 @@ class LTI11LaunchValidator(LoggingConfigurable):
         Validate a given LTI 1.1 launch request. The arguments' k/v's are either
         required, recommended, or optional. The required/recommended/optional
         keys are listed in the utils.LTI11Utils class.
-        
+
         Args:
           launch_url: URL (base_url + path) that receives the launch request,
             usually from a tool consumer.
