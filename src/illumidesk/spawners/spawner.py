@@ -8,7 +8,7 @@ class IllumiDeskDockerSpawner(DockerSpawner):
     """
     Custom DockerSpawner which assigns a user notebook image
     based on the user's role. This spawner requires:
-    
+
     1. That the `Authenticator.enable_auth_state = True`
     2. That the user's `USER_ROLE` environment variable is set
     """
@@ -16,10 +16,8 @@ class IllumiDeskDockerSpawner(DockerSpawner):
     def _image_from_role(self, user_role: str) -> str:
         """
         Given a user role, return the right image
-        
         Args:
             user_role: the user's role
-        
         Returns:
             docker_image: docker image used to spawn container based on role
         """

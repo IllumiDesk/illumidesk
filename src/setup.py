@@ -39,7 +39,7 @@ setup(
         'nbgrader>=0.6.1',
         'jupyterhub>=1.1.0',
     ],
-    package_data={'': ['*.html'],},
+    package_data={'': ['*.html'], },
     entry_points={
         'jupyterhub.authenticators': [
             'illumidesklti11 = illumidesk.authenticators.authenticator.LTI11Authenticator',

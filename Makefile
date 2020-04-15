@@ -28,7 +28,6 @@ prepare:
 
 venv:
 	test -d $(VENV_NAME) || virtualenv -p python3 $(VENV_NAME)
-
 	${PYTHON} -m pip install -r requirements.txt
 	${PYTHON} -m pip install -r dev-requirements.txt
 
