@@ -106,10 +106,10 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 )
 
 # User authentication class
-c.JupyterHub.authenticator_class = 'firstuseauthenticator.FirstUseAuthenticator'
+# c.JupyterHub.authenticator_class = 'firstuseauthenticator.FirstUseAuthenticator'
 
 # LTI 1.1 authenticator class.
-# c.JupyterHub.authenticator_class = LTI11Authenticator
+c.JupyterHub.authenticator_class = LTI11Authenticator
 
 # Spawn containers with custom dockerspawner class
 c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
@@ -137,16 +137,16 @@ c.ConfigurableHTTPProxy.api_url = f'http://reverse-proxy:8001'
 
 # Our user list for demos when using FirstUseAuthenticator. Uncomment and add initial
 # users as needed. This avoids having the login form which accepts any username/password
-c.Authenticator.whitelist = [
-    'admin',
-    'instructor1',
-    'instructor2',
-    'student1',
-    'bitdiddle',
-    'hacker',
-    'reasoner',
-    os.environ.get('DEMO_GRADER_NAME'),
-]
+# c.Authenticator.whitelist = [
+#     'admin',
+#     'instructor1',
+#     'instructor2',
+#     'student1',
+#     'bitdiddle',
+#     'hacker',
+#     'reasoner',
+#     os.environ.get('DEMO_GRADER_NAME'),
+# ]
 
 # Refrain from creating users within the JupyterHub container
 # c.FirstUseAuthenticator.create_users = False

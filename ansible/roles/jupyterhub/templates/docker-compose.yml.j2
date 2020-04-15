@@ -55,10 +55,11 @@ services:
     restart: on-failure
     image: illumidesk/setup-course
     container_name: setup-course
-    command: hypercorn --bind 0.0.0.0:8000 --workers 1 app:app
+    command: hypercorn --bind 0.0.0.0:8000 --workers 1 illumidesk.setup_course.app:app
     env_file:
       - env.setup_course
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
       - data:/srv/jupyterhub
 
 volumes:
