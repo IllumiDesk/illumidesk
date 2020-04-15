@@ -31,13 +31,14 @@ class LTI11LaunchValidator(LoggingConfigurable):
     Attributes:
       consumers: consumer key and shared secret key/value pair(s)
     """
+
     # Keep a class-wide, global list of nonces so we can detect & reject
     # replay attacks. This possibly makes this non-threadsafe, however.
     nonces = OrderedDict()
-    
+
     def __init__(self, consumers):
         self.consumers = consumers
-    
+
     def validate_launch_request(
         self, launch_url: str, headers: Dict[str, Any], args: Dict[str, Any],
     ) -> bool:
