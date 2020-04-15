@@ -30,11 +30,11 @@ RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashr
 
 # Install packages from requirements file
 COPY jupyterhub-requirements.txt /tmp/jupyterhub/requirements.txt
-RUN python3 -m pip install --no-cache -r /tmp/jupyterhub/requirements.txt
+RUN python3.8 -m pip install --no-cache -r /tmp/jupyterhub/requirements.txt
 
 # Install illumidesk package
 COPY illumidesk.zip /tmp/illumidesk.zip
-RUN python3 -m pip install --no-cache /tmp/illumidesk.zip
+RUN python3.8 -m pip install --no-cache /tmp/illumidesk.zip
 
 # Copy logo and favicon
 COPY illumidesk-80.png /usr/local/share/jupyterhub/static/images/illumidesk-80.png
