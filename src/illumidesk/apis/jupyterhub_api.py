@@ -63,7 +63,16 @@ class JupyterHubAPI(LoggingConfigurable):
         if not group_name:
             raise ValueError('group_name missing')
         self.log.debug(f'Creating group with path groups/{group_name}')
-        return await self._request(f'groups/{group_name}', body='', method='POST')
+        try:
+            return await self._request(f'groups/{group_name}', body='', method='POST')
+        except HTTPClientError as e:
+            if e.code != 409:
+                self.log.info(
+                    f'Error creating student group {group_name} with exception {e}'                    
+                )
+                return None
+            return await self._request(f'groups/{group_name}')
+        
 
     async def get_group(self, group_name):
         """

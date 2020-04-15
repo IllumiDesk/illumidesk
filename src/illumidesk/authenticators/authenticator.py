@@ -195,16 +195,17 @@ class LTI11Authenticator(LTIAuthenticator):
             'course_id': course_id,
             'domain': handler.request.host,
         }
-        service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME')
-        port = os.environ.get('DOCKER_SETUP_COURSE_PORT')
+        service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME', 'setup-course')
+        port = os.environ.get('DOCKER_SETUP_COURSE_PORT', '8000')
         url = f'http://{service_name}:{port}'
         headers = {
             'Content-Type': 'application/json'
         }
         response = await client.fetch(url, headers=headers, body=json.dumps(data), method='POST')
-        self.log.debug('New setup with response %s from setup-course service' % response['is_new_setup'])
+        resp_json = json.loads(response.body)
+        self.log.debug('New setup with response %s from setup-course service' % resp_json['is_new_setup'])
         # if the course is a new setup then restart the jupyterhub to read services configuration file
-        if response['is_new_setup'] == True:
+        if 'is_new_setup' in resp_json and resp_json['is_new_setup'] == True:
             utils = SetupUtils()
             utils.restart_jupyterhub()
 
