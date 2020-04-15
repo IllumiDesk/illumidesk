@@ -2,8 +2,13 @@
 
 set -o errexit
 
-install_requirements () {
-  echo "Install requirements ..."
+install_node_requirements () {
+  echo "Install node requirements ..."
+  npx semantic-release
+}
+
+install_python_requirements () {
+  echo "Install python requirements ..."
   python3 -m pip install -r dev-requirements.txt
 }
 
@@ -13,7 +18,7 @@ install_illumidesk_package () {
 }
 
 main() {
-  install_requirements
+  install_python_requirements
   install_illumidesk_package
 }
 
