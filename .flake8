@@ -11,7 +11,11 @@
 # E402: module level import not at top of file
 # I100: Import statements are in the wrong order
 # I101: Imported names are in the wrong order. Should be
-ignore = E, C, W, F401, F403, F811, F841, E402, I100, I101, D400
+select = F
+ignore = E, C, W, F401, F403, F811, F841, E402, I100, I101, D400, E501, E503
+max-complexity = 15
+max-line-length = 88
+extend-ignore = E203
 builtins = c, get_config
 exclude =
     .cache,
