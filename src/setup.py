@@ -35,8 +35,8 @@ setup(
     license='3 Clause BSD',
     packages=find_packages(),
     install_requires=[
-        'jupyterhub>=1.1.0',
-        'jupyterhub-ltiauthenticator>=0.4.0',
+        'jupyterhub>=1.1.0',        
+        'dockerspawner==0.11.1',
         'nbgrader>=0.6.1',        
         'quart>=0.11.5',
         'filelock',
