@@ -203,7 +203,8 @@ class LTI11Authenticator(LTIAuthenticator):
         }
         response = await client.fetch(url, headers=headers, body=json.dumps(data), method='POST')
         resp_json = json.loads(response.body)
-        self.log.debug('New setup with response %s from setup-course service' % resp_json['is_new_setup'])
+        self.log.debug(f'Setup-Course service response: {resp_json}')
+        
         # if the course is a new setup then restart the jupyterhub to read services configuration file
         if 'is_new_setup' in resp_json and resp_json['is_new_setup'] == True:
             self.log.debug('The jupyterhub container is going to be restarted')

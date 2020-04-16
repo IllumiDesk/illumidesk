@@ -51,16 +51,15 @@ async def main():
     logger.debug('Received data payload %s' % data)
     try:
         new_course = Course(**data)
-        is_new = await new_course.setup()
-        logger.debug('Is this a new setup? %s' % is_new)
-        # update the jupyterhub config to include new service info
+        await new_course.setup()
         update_jupyterhub_config(new_course)
+            
     except Exception as e:
         logger.error("Unable to complete course setup", exc_info=True)
         return {'error': 500, 'detail': str(e)}
     return {
         'message': 'OK',
-        'is_new_setup': f'{is_new}'
+        'is_new_setup': new_course.is_new_setup
     }
 
 @app.route("/config", methods=['GET'])
@@ -72,8 +71,8 @@ def restart():
     logger.debug('Received request to restart jupyterhub')
     utils = SetupUtils()
     try:
-        utils.restart_jupyterhub()
         logger.debug('Restarting jupyterhub')
+        utils.restart_jupyterhub()
     except Exception as e:
         logger.error("Unable to restart the container", exc_info=True)
         return {'error': 500}
@@ -89,11 +88,24 @@ def update_jupyterhub_config(course: Course):
     jupyterhub_config_json = Path(JSON_FILE_PATH)
     # Lock file to manage jupyterhub_config.py
     jupyterhub_lock = os.environ.get('JUPYTERHUB_CONFIG_PATH') + '/jhub.lock'
-    service_config = course.get_service_config()
-
+    new_service_config = course.get_service_config()
     load_group = {f'formgrade-{course.course_id}': [course.grader_name]}
-    if not any(s for s in cache['services'] if s['url'] == service_config['url']):
-        cache['services'].append(service_config)
+    logger.debug(f'Course service definition: {new_service_config}')
+
+    # find the service definition
+    current_service_definition = None    
+    for service in cache['services']:
+        if service['url'] == new_service_config['url']:
+            logger.debug(f"service definition with url:{service['url']} found in json file")
+            current_service_definition = service
+    
+    if current_service_definition and course.is_new_setup:
+        logger.debug(f'Updating the api_token in service definition with: {course.token}')
+        # update the service definition with the newest token
+        current_service_definition['api_token'] = course.token
+    else:
+        cache['services'].append(new_service_config)
+
     cache['load_groups'].update(load_group)
     lock = FileLock(str(jupyterhub_lock))
     with lock:

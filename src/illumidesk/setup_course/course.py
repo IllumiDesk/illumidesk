@@ -76,7 +76,6 @@ class Course:
             await self.add_jupyterhub_grader_group()
             await self.add_jupyterhub_student_group()
             self.run()
-        return self.is_new_setup
     
     def should_setup(self):
         """
