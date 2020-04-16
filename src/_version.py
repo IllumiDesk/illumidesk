@@ -1,10 +1,11 @@
 """illumidesk version info"""
 
+# for now, update the version so that its the same as the one reflected
+# within the repo's root package.json
 version_info = (
     0,
     1,
-    0,
-    "dev",  # comment-out this line for a release
+    1,
 )
 __version__ = ".".join(map(str, version_info[:3]))
 

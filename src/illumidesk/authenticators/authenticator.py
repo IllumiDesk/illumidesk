@@ -1,25 +1,12 @@
-import re
-import logging
-import json
 import os
-
-from jupyterhub.auth import Authenticator
+import json
 from jupyterhub.handlers import BaseHandler
 
 from ltiauthenticator import LTIAuthenticator
-
-from tornado import gen
-from tornado.httputil import parse_body_arguments
 from tornado.web import HTTPError
-from tornado.web import RequestHandler
 from tornado.httpclient import AsyncHTTPClient
-
-from traitlets import Dict
-from traitlets.config import LoggingConfigurable
-
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.setup_course.utils import SetupUtils
-from .utils import LTI11_LAUNCH_PARAMS_REQUIRED
 from .utils import LTIUtils
 from .validator import LTI11LaunchValidator
 
@@ -27,8 +14,8 @@ from .validator import LTI11LaunchValidator
 class LTI11Authenticator(LTIAuthenticator):
     """
     JupyterHub LTI 1.1 Authenticator which extends the ltiauthenticator.LTIAuthenticator class.
-    Messages sent to this authenticator are sent from a tool consumer (TC), such as 
-    an LMS. JupyterHub, as the authenticator, works as the tool provider (TP), also 
+    Messages sent to this authenticator are sent from a tool consumer (TC), such as
+    an LMS. JupyterHub, as the authenticator, works as the tool provider (TP), also
     known as the external tool.
 
     The LTIAuthenticator base class defines the consumers, defined as 1 or (n) consumer key
@@ -223,5 +210,5 @@ class LTI11AuthenticateHandler(BaseHandler):
     """
 
     async def post(self):
-        user = await self.login_user()
+        user = await self.login_user()  # noqa: F841
         self.redirect(self.get_body_argument('custom_next', self.get_next_url()))

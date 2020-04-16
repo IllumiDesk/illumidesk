@@ -5,6 +5,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 # setup logic from github.com/jupyterhub/jupyterhub
+# TODO: consolidate release mechanism with the root package.json
 v = sys.version_info
 if v[:2] < (3, 6):
     error = 'ERROR: IllumiDesk requires Python version 3.6 or above.'
@@ -30,17 +31,18 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url='https://github.com/illumidesk/illumidesk',
-    author='Greg Werner',
-    author_email='werner.greg@gmail.com',
-    license='3 Clause BSD',
+    author='The IllumiDesk Team',
+    author_email='hello@illumidesk.com',
+    license='MIT',
     packages=find_packages(),
     install_requires=[
-        'jupyterhub>=1.1.0',        
+        'jupyterhub>=1.1.0',
+        'jupyterhub-ltiauthenticator>=0.4.0',    
         'dockerspawner==0.11.1',
         'nbgrader>=0.6.1',        
-        'quart>=0.11.5',
-        'filelock',
-        'docker'
+        'quart==0.11.5',
+        'filelock==3.0.12',
+        'docker==4.2.0'
     ],
     package_data={'': ['*.html'],},
     entry_points={

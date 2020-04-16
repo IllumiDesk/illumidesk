@@ -1,0 +1,18 @@
+{
+    "name": "illumidesk",
+    "version": "0.1.1",
+    "description": "Teach and learning with web-based notebooks!",
+    "scripts": {
+        "release": "standard-version"
+    },
+    "author": "The IllumiDesk Team",
+    "homepage": "https://illumidesk.com/",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/IllumiDesk/illumidesk.git"
+    },
+    "license": "MIT",
+    "devDependencies": {
+        "standard-version": "^7.1.0"
+    }
+}
