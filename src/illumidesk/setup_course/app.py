@@ -29,7 +29,7 @@ configs_path = os.environ.get('JUPYTERHUB_CONFIG_PATH', '/srv/jupyterhub')
 Path(configs_path).mkdir(exist_ok=True, parents=True)
 
 
-JSON_FILE_PATH =  configs_path + '/jupyterhub_config.json'
+JSON_FILE_PATH = configs_path + '/jupyterhub_config.json'
 
 cache = {'services': [], 'load_groups': {}}
 
@@ -53,18 +53,17 @@ async def main():
         new_course = Course(**data)
         await new_course.setup()
         update_jupyterhub_config(new_course)
-            
+
     except Exception as e:
         logger.error("Unable to complete course setup", exc_info=True)
         return {'error': 500, 'detail': str(e)}
-    return {
-        'message': 'OK',
-        'is_new_setup': new_course.is_new_setup
-    }
+    return {'message': 'OK', 'is_new_setup': new_course.is_new_setup}
+
 
 @app.route("/config", methods=['GET'])
 def config():
     return json.dumps(cache)
+
 
 @app.route("/restart", methods=['POST'])
 def restart():
@@ -77,6 +76,7 @@ def restart():
         logger.error("Unable to restart the container", exc_info=True)
         return {'error': 500}
     return {'message': 'OK'}
+
 
 def update_jupyterhub_config(course: Course):
     """
@@ -93,14 +93,18 @@ def update_jupyterhub_config(course: Course):
     logger.debug(f'Course service definition: {new_service_config}')
 
     # find the service definition
-    current_service_definition = None    
+    current_service_definition = None
     for service in cache['services']:
         if service['url'] == new_service_config['url']:
-            logger.debug(f"service definition with url:{service['url']} found in json file")
+            logger.debug(
+                f"service definition with url:{service['url']} found in json file"
+            )
             current_service_definition = service
-    
+
     if current_service_definition and course.is_new_setup:
-        logger.debug(f'Updating the api_token in service definition with: {course.token}')
+        logger.debug(
+            f'Updating the api_token in service definition with: {course.token}'
+        )
         # update the service definition with the newest token
         current_service_definition['api_token'] = course.token
     elif current_service_definition is None:

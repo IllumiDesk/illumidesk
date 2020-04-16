@@ -37,12 +37,12 @@ setup(
     packages=find_packages(),
     install_requires=[
         'jupyterhub>=1.1.0',
-        'jupyterhub-ltiauthenticator>=0.4.0',    
+        'jupyterhub-ltiauthenticator>=0.4.0',
         'dockerspawner==0.11.1',
-        'nbgrader>=0.6.1',        
+        'nbgrader>=0.6.1',
         'quart==0.11.5',
         'filelock==3.0.12',
-        'docker==4.2.0'
+        'docker==4.2.0',
     ],
     package_data={'': ['*.html'],},
     entry_points={

@@ -68,11 +68,10 @@ class JupyterHubAPI(LoggingConfigurable):
         except HTTPClientError as e:
             if e.code != 409:
                 self.log.info(
-                    f'Error creating student group {group_name} with exception {e}'                    
+                    f'Error creating student group {group_name} with exception {e}'
                 )
                 return None
             return await self._request(f'groups/{group_name}')
-        
 
     async def get_group(self, group_name):
         """

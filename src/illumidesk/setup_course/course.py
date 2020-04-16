@@ -14,6 +14,7 @@ from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
 class Course:
     """
     Class to manage new course setups.
@@ -33,6 +34,7 @@ class Course:
         gid: Grader's group id
         is_new_setup: True indicates a new setup, False otherwise
     """
+
     def __init__(self, org: str, course_id: str, domain: str):
         self.org = org
         self.course_id = course_id
@@ -41,15 +43,12 @@ class Course:
         self.exchange_root = Path(os.environ.get('NFS_ROOT'), self.org, 'exchange')
         self.grader_name = f'grader-{course_id}'
         self.grader_root = Path(
-            os.environ.get('NFS_ROOT'),
-            org,
-            'home',
-            self.grader_name,
+            os.environ.get('NFS_ROOT'), org, 'home', self.grader_name,
         )
         self.course_root = self.grader_root / course_id
         self.token = token_hex(32)
         self.client = docker.from_env()
-        
+
         self.uid = int(os.environ.get('NB_UID'))
         self.gid = int(os.environ.get('NB_GID'))
         self.is_new_setup = False
@@ -76,7 +75,7 @@ class Course:
             await self.add_jupyterhub_grader_group()
             await self.add_jupyterhub_student_group()
             self.run()
-    
+
     def should_setup(self):
         """
         If the grader container exists then the setup_course boolean is set to
@@ -92,7 +91,7 @@ class Course:
             logger.error('Grader container not found')
             self.is_new_setup = True
             return True
-        
+
         return False
 
     def create_directories(self):
@@ -107,36 +106,32 @@ class Course:
         self.exchange_root.chmod(0o777)
         self.course_root.mkdir(parents=True, exist_ok=True)
         logger.debug(
-            'Creating grader directory and permissions with path %s to %s:%s ' %  
-            (self.grader_root,
-            self.uid,
-            self.gid)
+            'Creating grader directory and permissions with path %s to %s:%s '
+            % (self.grader_root, self.uid, self.gid)
         )
         shutil.chown(str(self.grader_root), user=self.uid, group=self.gid)
         logger.debug(
-            'Changing course directory permissions with path %s to %s:%s ' %
-            (self.course_root,
-            self.uid,
-            self.gid)
+            'Changing course directory permissions with path %s to %s:%s '
+            % (self.course_root, self.uid, self.gid)
         )
         shutil.chown(str(self.course_root), user=self.uid, group=self.gid)
-        
+
         logger.debug('Course jupyter config path %s' % self.jupyter_config_path)
         self.jupyter_config_path.mkdir(parents=True, exist_ok=True)
         shutil.chown(str(self.jupyter_config_path), user=self.uid, group=self.gid)
-        logger.debug('Change course jupyter config permissions to %s:%s' % (self.uid, self.gid))
-        
+        logger.debug(
+            'Change course jupyter config permissions to %s:%s' % (self.uid, self.gid)
+        )
+
         logger.debug('Course nbgrader_config.py path %s' % self.nbgrader_config_path)
         nbgrader_config = NB_GRADER_CONFIG_TEMPLATE.format(
-            grader_name=self.grader_name,
-            course_id=self.course_id
+            grader_name=self.grader_name, course_id=self.course_id
         )
         self.nbgrader_config_path.write_text(nbgrader_config)
         shutil.chown(str(self.nbgrader_config_path), user=self.uid, group=self.gid)
-        logger.debug('Added nbgrader config %s with permissions %s:%s' %
-            (nbgrader_config,
-            self.uid,
-            self.gid)
+        logger.debug(
+            'Added nbgrader config %s with permissions %s:%s'
+            % (nbgrader_config, self.uid, self.gid)
         )
 
     async def add_jupyterhub_grader_group(self):
@@ -172,11 +167,17 @@ class Course:
         is defined as an externally managed service and the docker client is what manages this 
         grader service.
         """
-        logger.debug('Running grader container with exchange root %s' % self.exchange_root)
+        logger.debug(
+            'Running grader container with exchange root %s' % self.exchange_root
+        )
         jupyterhub_api_url = os.environ.get('JUPYTERHUB_API_URL')
         jupyterhub_api_token = os.environ.get('JUPYTERHUB_API_TOKEN')
-        logger.debug('Grader container JUPYTERHUB_API_URL set to %s' % jupyterhub_api_url)
-        logger.debug('Grader container JUPYTERHUB_API_TOKEN set to %s' % jupyterhub_api_token)
+        logger.debug(
+            'Grader container JUPYTERHUB_API_URL set to %s' % jupyterhub_api_url
+        )
+        logger.debug(
+            'Grader container JUPYTERHUB_API_TOKEN set to %s' % jupyterhub_api_token
+        )
         self.client.containers.run(
             detach=True,
             image=os.environ.get('GRADER_SERVICE_IMAGE'),
@@ -201,7 +202,7 @@ class Course:
             user='root',
             working_dir=f'/home/{self.grader_name}',
             network=os.environ.get('DOCKER_NETWORK'),
-            restart_policy={'Name': 'on-failure', 'MaximumRetryCount': 5}
+            restart_policy={'Name': 'on-failure', 'MaximumRetryCount': 5},
         )
 
     def get_service_config(self) -> dict:
@@ -214,6 +215,6 @@ class Course:
             'url': url,
             'oauth_no_confirm': True,
             'admin': True,
-            'api_token': self.token
+            'api_token': self.token,
         }
         return service_config
