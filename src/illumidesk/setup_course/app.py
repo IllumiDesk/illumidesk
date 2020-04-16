@@ -103,7 +103,7 @@ def update_jupyterhub_config(course: Course):
         logger.debug(f'Updating the api_token in service definition with: {course.token}')
         # update the service definition with the newest token
         current_service_definition['api_token'] = course.token
-    else:
+    elif current_service_definition is None:
         cache['services'].append(new_service_config)
 
     cache['load_groups'].update(load_group)
