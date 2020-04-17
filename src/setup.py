@@ -40,11 +40,11 @@ setup(
         'jupyterhub-ltiauthenticator>=0.4.0',
         'nbgrader>=0.6.1',
         'jupyterhub>=1.1.0',
-    ],
-    package_data={'': ['*.html'],},
+    ],  # noqa: E231
+    package_data={'': ['*.html'],},  # noqa: E231
     entry_points={
         'jupyterhub.authenticators': [
             'illumidesklti11 = illumidesk.authenticators.authenticator.LTI11Authenticator',
-        ],
+        ],  # noqa: E231
     },
 )
