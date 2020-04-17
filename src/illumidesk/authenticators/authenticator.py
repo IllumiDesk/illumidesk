@@ -139,7 +139,7 @@ class LTI11Authenticator(LTIAuthenticator):
 
     async def post_auth_hook(self, authenticator, handler, authentication):
         """
-        Calls the microservice to setup up a new course in case it does not exist.          
+        Calls the microservice to setup up a new course in case it does not exist.
         The data needed is received from auth_State within authentication object
 
         This function requires `Authenticator.enable_auth_state = True`.
@@ -164,9 +164,7 @@ class LTI11Authenticator(LTIAuthenticator):
         if role == 'Student' or role == 'Learner':
             # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
             await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
-            await jupyterhub_api.add_user_to_nbgrader_gradebook(
-                course_id, username, lms_user_id
-            )
+            await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
         elif role == 'Instructor':
             # assign the user in 'formgrade-<course_id>' group
             await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
@@ -176,20 +174,16 @@ class LTI11Authenticator(LTIAuthenticator):
             'course_id': course_id,
             'domain': handler.request.host,
         }
-        service_name = os.environ.get(
-            'DOCKER_SETUP_COURSE_SERVICE_NAME', 'setup-course'
-        )
-        port = os.environ.get('DOCKER_SETUP_COURSE_PORT', '8000')
+        service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
+        port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
         url = f'http://{service_name}:{port}'
         headers = {'Content-Type': 'application/json'}
-        response = await client.fetch(
-            url, headers=headers, body=json.dumps(data), method='POST'
-        )
+        response = await client.fetch(url, headers=headers, body=json.dumps(data), method='POST')
         resp_json = json.loads(response.body)
         self.log.debug(f'Setup-Course service response: {resp_json}')
 
         # if the course is a new setup then restart the jupyterhub to read services configuration file
-        if 'is_new_setup' in resp_json and resp_json['is_new_setup'] == True:
+        if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
             self.log.debug('The jupyterhub container is going to be restarted')
             utils = SetupUtils()
             utils.restart_jupyterhub()

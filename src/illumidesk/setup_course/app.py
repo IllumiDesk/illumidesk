@@ -1,16 +1,10 @@
 import json
 import logging
 import os
-import pprint
-import re
-import shutil
 import sys
-import time
 
 from filelock import FileLock
-from io import StringIO
 from pathlib import Path
-from secrets import token_hex
 
 from quart import Quart
 from quart import request
@@ -81,7 +75,7 @@ def restart():
 def update_jupyterhub_config(course: Course):
     """
     We can add groups and users with the REST API, but not services. Therefore
-    add new services to the JupyterHub.services section within the jupyterhub 
+    add new services to the JupyterHub.services section within the jupyterhub
     configuration file (jupyterhub_config.py).
     
     """
@@ -96,15 +90,11 @@ def update_jupyterhub_config(course: Course):
     current_service_definition = None
     for service in cache['services']:
         if service['url'] == new_service_config['url']:
-            logger.debug(
-                f"service definition with url:{service['url']} found in json file"
-            )
+            logger.debug(f"service definition with url:{service['url']} found in json file")
             current_service_definition = service
 
     if current_service_definition and course.is_new_setup:
-        logger.debug(
-            f'Updating the api_token in service definition with: {course.token}'
-        )
+        logger.debug(f'Updating the api_token in service definition with: {course.token}')
         # update the service definition with the newest token
         current_service_definition['api_token'] = course.token
     elif current_service_definition is None:

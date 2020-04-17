@@ -1,22 +1,14 @@
-import json
-import os
 import secrets
 import time
-import unittest
 
 import pytest
 
 from typing import Dict
-from typing import Any
-
-from unittest.mock import Mock
-from unittest.mock import patch
 
 from tornado.web import HTTPError
 
 from oauthlib.oauth1.rfc5849 import signature
 
-from tornado.httputil import HTTPServerRequest
 from tornado.web import HTTPError
 
 from illumidesk.authenticators.authenticator import LTI11LaunchValidator
