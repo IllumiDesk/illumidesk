@@ -46,9 +46,7 @@ class IllumiDeskDockerSpawner(DockerSpawner):
             return
         self.log.debug('auth_state_hook set with %s role' % auth_state['user_role'])
         self.environment['USER_ROLE'] = auth_state['user_role']
-        self.log.debug(
-            'Assigned USER_ROLE env var to %s' % self.environment['USER_ROLE']
-        )
+        self.log.debug('Assigned USER_ROLE env var to %s' % self.environment['USER_ROLE'])
 
     # Create a new user directory if it does not exist on the host, regardless
     # of whether or not its mounted with NFS.
@@ -67,9 +65,7 @@ class IllumiDeskDockerSpawner(DockerSpawner):
         if not os.path.exists(user_path):
             os.mkdir(user_path)
             shutil.chown(
-                user_path,
-                user=int(os.environ.get('MNT_HOME_DIR_UID')),
-                group=int(os.environ.get('MNT_HOME_DIR_GID')),
+                user_path, user=int(os.environ.get('MNT_HOME_DIR_UID')), group=int(os.environ.get('MNT_HOME_DIR_GID')),
             )
             os.chmod(user_path, 0o755)
 
