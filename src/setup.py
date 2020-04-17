@@ -42,11 +42,11 @@ setup(
         'nbgrader>=0.6.1',
         'quart==0.11.5',
         'filelock==3.0.12',
-    ],
-    package_data={'': ['*.html'],},
+    ],  # noqa: E231
+    package_data={'': ['*.html'],},  # noqa: E231
     entry_points={
         'jupyterhub.authenticators': [
             'illumidesklti11 = illumidesk.authenticators.authenticator.LTI11Authenticator',
-        ],
+        ],  # noqa: E231
     },
 )

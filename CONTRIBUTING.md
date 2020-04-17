@@ -56,6 +56,19 @@ $ git push origin branch-name-here
 15. Make changes to the pull request if the reviewing maintainer recommends them.
 16. Celebrate your success after your pull request is merged! :tada:
 
+## Coding Style
+
+This project uses Python and Javascript (for the most part). We use the following tools to enforce coding style:
+
+- Format code with [black](https://github.com/psf/black). For those of you familiar with go, this is equivalent to `go fmt`.
+- Check code style with `flake8`. The rules to check code style using flake8 are aligned with black's rules to avoid conflicts.
+- We document code wherever possible using docstrings. Generally speaking we align ourselves to [Google's python style guide](http://google.github.io/styleguide/pyguide.html).
+- Verify coding style for domain specific languages, such as ansible, with independent tools, even though they may be based on python and/or javascript.
+
+Linters and formatters are set up with pre-commit-hooks. If you aren't used to pre-commit hooks you may gasp for oxygen once you attempt to commit your changes for the first time. Even when you do get used to it the idea of having to run the same add/commit multiple times may be nerve racking. (Ok so there is a little drama in there, its not that bad). Having the pre-commit-hooks in place helps speed up the PR review process so we can focus on the important stuff.
+
+The CI/CD pipeline will check coding style but will not error out. There may be situations where minor coding style errors are less important that in important merges to the master trunk. However, these are considered on a case-by-case basis.
+
 ## Commit Messages, Changelog, and Releases
 
 ### For Contributors

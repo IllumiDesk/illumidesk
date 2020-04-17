@@ -74,11 +74,7 @@ LTI11_OAUTH_ARGS = [
 
 LAUNCH_PARAMS_REQUIRED = LTI11_LAUNCH_PARAMS_REQUIRED + LTI11_OAUTH_ARGS
 
-LAUNCH_PARAMS_ALL = (
-    LTI11_LAUNCH_PARAMS_REQUIRED
-    + LTI11_LAUNCH_PARAMS_RECOMMENDED
-    + LTI11_LAUNCH_PARAMS_OTIONAL
-)
+LAUNCH_PARAMS_ALL = LTI11_LAUNCH_PARAMS_REQUIRED + LTI11_LAUNCH_PARAMS_RECOMMENDED + LTI11_LAUNCH_PARAMS_OTIONAL
 
 
 class LTIUtils(LoggingConfigurable):
@@ -159,19 +155,14 @@ class LTIUtils(LoggingConfigurable):
           A decoded dict with keys/values extracted from the request's arguments
         """
         if 'x-forwarded-proto' in handler.request.headers:
-            hops = [
-                h.strip()
-                for h in handler.request.headers['x-forwarded-proto'].split(',')
-            ]
+            hops = [h.strip() for h in handler.request.headers['x-forwarded-proto'].split(',')]
             protocol = hops[0]
         else:
             protocol = handler.request.protocol
 
         return protocol
 
-    def convert_request_to_dict(
-        self, arguments: Dict[str, List[bytes]]
-    ) -> Dict[str, str]:
+    def convert_request_to_dict(self, arguments: Dict[str, List[bytes]]) -> Dict[str, str]:
         """
         Converts the arguments obtained from a request to a dict.
 
@@ -183,7 +174,5 @@ class LTIUtils(LoggingConfigurable):
         """
         args = {}
         for k, values in arguments.items():
-            args[k] = (
-                values[0].decode() if len(values) == 1 else [v.decode() for v in values]
-            )
+            args[k] = values[0].decode() if len(values) == 1 else [v.decode() for v in values]
         return args

@@ -96,42 +96,25 @@ class LTI11Authenticator(LTIAuthenticator):
             username = ''
             if lms_vendor == 'canvas':
                 self.log.debug('TC is a Canvas LMS instance')
-                if (
-                    'custom_canvas_user_login_id' in args
-                    and args['custom_canvas_user_login_id'] is not None
-                ):
+                if 'custom_canvas_user_login_id' in args and args['custom_canvas_user_login_id'] is not None:
                     custom_canvas_user_id = args['custom_canvas_user_login_id']
                     username = lti_utils.email_to_username(custom_canvas_user_id)
                     self.log.debug('using custom_canvas_user_id for username')
                 elif (
-                    'lis_person_contact_email_primary' in args
-                    and args['lis_person_contact_email_primary'] is not None
+                    'lis_person_contact_email_primary' in args and args['lis_person_contact_email_primary'] is not None
                 ):
                     email = args['lis_person_contact_email_primary']
                     username = lti_utils.email_to_username(email)
-                    self.log.debug(
-                        'using lis_person_contact_email_primary for username'
-                    )
-                elif (
-                    'lis_person_sourcedid' in args
-                    and args['lis_person_sourcedid'] is not None
-                ):
+                    self.log.debug('using lis_person_contact_email_primary for username')
+                elif 'lis_person_sourcedid' in args and args['lis_person_sourcedid'] is not None:
                     username = args['lis_person_sourcedid']
                     self.log.debug('using lis_person_sourcedid for username')
             else:
-                if (
-                    'lis_person_contact_email_primary' in args
-                    and args['lis_person_contact_email_primary'] is not None
-                ):
+                if 'lis_person_contact_email_primary' in args and args['lis_person_contact_email_primary'] is not None:
                     email = args['lis_person_contact_email_primary']
                     username = lti_utils.email_to_username(email)
-                    self.log.debug(
-                        'using lis_person_contact_email_primary for username'
-                    )
-                elif (
-                    'lis_person_sourcedid' in args
-                    and args['lis_person_sourcedid'] is not None
-                ):
+                    self.log.debug('using lis_person_contact_email_primary for username')
+                elif 'lis_person_sourcedid' in args and args['lis_person_sourcedid'] is not None:
                     username = args['lis_person_sourcedid']
                     self.log.debug('using lis_person_sourcedid for username')
             if username == '':
@@ -139,9 +122,7 @@ class LTI11Authenticator(LTIAuthenticator):
                 if 'user_id' in args and args['user_id'] is not None:
                     username = args['user_id']
                 else:
-                    raise HTTPError(
-                        400, 'Unable to get username from request arguments'
-                    )
+                    raise HTTPError(400, 'Unable to get username from request arguments')
             self.log.debug('Assigned username is: %s' % username)
 
             # use the user_id as the lms_user_id, used to map usernames to lms user ids
@@ -153,7 +134,7 @@ class LTI11Authenticator(LTIAuthenticator):
                     'course_id': course_id,
                     'lms_user_id': lms_user_id,
                     'user_role': user_role,
-                },
+                },  # noqa: E231
             }
 
     async def post_auth_hook(self, authenticator, handler, authentication):

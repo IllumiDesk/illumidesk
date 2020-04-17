@@ -101,9 +101,7 @@ class JupyterHubAPI(LoggingConfigurable):
         if not users:
             raise ValueError('users missing')
         self.log.debug('Creating users body %s' % json.dumps({'usernames': users}))
-        return await self._request(
-            'users', body=json.dumps({'usernames': users}), method='POST'
-        )
+        return await self._request('users', body=json.dumps({'usernames': users}), method='POST')
 
     async def create_user(self, username):
         """
@@ -136,13 +134,9 @@ class JupyterHubAPI(LoggingConfigurable):
         if not username:
             raise ValueError('username missing')
         self.log.debug(f'Adding user to group with path groups/{group_name}/users')
-        self.log.debug(
-            'Adding user %s to group %s' % (json.dumps({'users': username}), group_name)
-        )
+        self.log.debug('Adding user %s to group %s' % (json.dumps({'users': username}), group_name))
         return await self._request(
-            f'groups/{group_name}/users',
-            body=json.dumps({'users': [f'{username}']}),
-            method='POST',
+            f'groups/{group_name}/users', body=json.dumps({'users': [f'{username}']}), method='POST',
         )
 
     async def add_user_to_nbgrader_gradebook(self, course_id, username, lms_user_id):
@@ -171,10 +165,7 @@ class JupyterHubAPI(LoggingConfigurable):
         gradebook = Gradebook(f'sqlite:///{db_url}', course_id=course_id)
         try:
             gradebook.update_or_create_student(username, lms_user_id=lms_user_id)
-            self.log.debug(
-                'Added user %s with lms_user_id %s to gradebook'
-                % (username, lms_user_id)
-            )
+            self.log.debug('Added user %s with lms_user_id %s to gradebook' % (username, lms_user_id))
         except InvalidEntry as e:
             self.log.debug('Error during adding student to gradebook: %s' % e)
         gradebook.close()
@@ -199,10 +190,7 @@ class JupyterHubAPI(LoggingConfigurable):
             await self.create_group(group_name)
         except HTTPClientError as e:
             if e.code != 409:
-                self.log.error(
-                    'Error creating student group %s with exception %s'
-                    % (group_name, e)
-                )
+                self.log.error('Error creating student group %s with exception %s' % (group_name, e))
         await self._add_user_to_jupyterhub_group(student, group_name)
 
     async def add_instructor_to_jupyterhub_group(self, course_id, instructor):
@@ -258,6 +246,4 @@ class JupyterHubAPI(LoggingConfigurable):
                 await self.add_group_member(group_name, username)
             except HTTPClientError as http_error:
                 if http_error.code != 409:
-                    self.log.error(
-                        'Error adding user to jupyterhub group %s' % http_error
-                    )
+                    self.log.error('Error adding user to jupyterhub group %s' % http_error)

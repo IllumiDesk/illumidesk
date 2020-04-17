@@ -39,9 +39,7 @@ class LTI11LaunchValidator(LoggingConfigurable):
     def __init__(self, consumers):
         self.consumers = consumers
 
-    def validate_launch_request(
-        self, launch_url: str, headers: Dict[str, Any], args: Dict[str, Any],
-    ) -> bool:
+    def validate_launch_request(self, launch_url: str, headers: Dict[str, Any], args: Dict[str, Any],) -> bool:
         """
         Validate a given LTI 1.1 launch request. The arguments' k/v's are either
         required, recommended, or optional. The required/recommended/optional
@@ -62,13 +60,9 @@ class LTI11LaunchValidator(LoggingConfigurable):
         # Ensure that required oauth_* body arguments are included in the request
         for param in LTI11_OAUTH_ARGS:
             if param not in args.keys():
-                raise HTTPError(
-                    400, 'Required oauth arg %s not included in request' % param
-                )
+                raise HTTPError(400, 'Required oauth arg %s not included in request' % param)
             if not args.get(param):
-                raise HTTPError(
-                    400, 'Required oauth arg %s does not have a value' % param
-                )
+                raise HTTPError(400, 'Required oauth arg %s does not have a value' % param)
 
         # Ensure that consumer key is registered in in jupyterhub_config.py
         # LTIAuthenticator.consumers defined in parent class
@@ -78,13 +72,9 @@ class LTI11LaunchValidator(LoggingConfigurable):
         # Ensure that required LTI 1.1 body arguments are included in the request
         for param in LTI11_LAUNCH_PARAMS_REQUIRED:
             if param not in args.keys():
-                raise HTTPError(
-                    400, 'Required LTI arg %s not included in request' % param
-                )
+                raise HTTPError(400, 'Required LTI arg %s not included in request' % param)
             if not args.get(param):
-                raise HTTPError(
-                    400, 'Required LTI arg %s does not have a value' % param
-                )
+                raise HTTPError(400, 'Required LTI arg %s does not have a value' % param)
 
         # Inspiration to validate nonces/timestamps from OAuthlib
         # https://github.com/oauthlib/oauthlib/blob/master/oauthlib/oauth1/rfc5849/endpoints/base.py#L147
@@ -102,10 +92,7 @@ class LTI11LaunchValidator(LoggingConfigurable):
                     'Timestamp given is invalid, differ from '
                     'allowed by over %s seconds.' % str(int(time.time() - ts)),
                 )
-            if (
-                ts in LTI11LaunchValidator.nonces
-                and args['oauth_nonce'] in LTI11LaunchValidator.nonces[ts]
-            ):
+            if ts in LTI11LaunchValidator.nonces and args['oauth_nonce'] in LTI11LaunchValidator.nonces[ts]:
                 raise HTTPError(401, 'oauth_nonce + oauth_timestamp already used')
             LTI11LaunchValidator.nonces.setdefault(ts, set()).add(args['oauth_nonce'])
 
@@ -115,9 +102,7 @@ class LTI11LaunchValidator(LoggingConfigurable):
         base_string = signature.signature_base_string(
             'POST',
             signature.base_string_uri(launch_url),
-            signature.normalize_parameters(
-                signature.collect_parameters(body=args_list, headers=headers)
-            ),
+            signature.normalize_parameters(signature.collect_parameters(body=args_list, headers=headers)),
         )
         consumer_secret = self.consumers[args['oauth_consumer_key']]
         sign = signature.sign_hmac_sha1(base_string, consumer_secret, None)
