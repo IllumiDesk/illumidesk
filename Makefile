@@ -11,14 +11,14 @@ PYTHON=${VENV_BIN}/python3
 TEST?=bar
 
 all:
+	@echo "make deploy"
+	@echo "    Run deployment scripts."
 	@echo "make prepare"
 	@echo "    Create python virtual environment and install dependencies."
 	@echo "make lint"
-	@echo "    Run list on project."
+	@echo "    Run lint and formatting on project."
 	@echo "make test"
 	@echo "    Run tests on project."
-	@echo "make deploy"
-	@echo "    Run deployment scripts."
 	@echo "make clean"
 	@echo "    Remove python artifacts and virtualenv."
 
@@ -38,6 +38,7 @@ deploy: prepare
 lint: venv
 	${VENV_BIN}/flake8 src
 	${VENV_BIN}/ansible-lint
+	${VENV_BIN}/black .
 
 test: venv
 	${PYTHON} -m pytest -vv tests
