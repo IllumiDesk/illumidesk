@@ -2,7 +2,6 @@
 [flake8]
 # Explicitly ignore rules to maintain better compatibility with black.
 # 
-# F401: module imported but unused
 # F403: import *
 # F811: redefinition of unused `name` from line `N`
 # F841: local variable assigned but never used
@@ -16,7 +15,7 @@
 # W293: line break before binary operator
 # W293: blank line contains whitespace
 select = E,F,W,C
-ignore = F401, F403, F811, F841, E402, I100, I101, D400, E501, E503, W293, W503
+ignore = F403, F811, F841, E402, I100, I101, D400, E501, E503, W293, W503
 extend-ignore = E203
 max-complexity = 15
 # https://docs.djangoproject.com/en/dev/internals/contributing/writing-code/coding-style/
