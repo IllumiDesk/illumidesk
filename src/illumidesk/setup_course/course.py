@@ -51,7 +51,7 @@ class Course:
 
         self.uid = int(os.environ.get('NB_UID'))
         self.gid = int(os.environ.get('NB_GID'))
-        self.is_new_setup = False
+        self._is_new_setup = False
         self.jupyterhub_api = JupyterHubAPI()
 
     @property
@@ -61,6 +61,10 @@ class Course:
     @property
     def nbgrader_config_path(self):
         return self.jupyter_config_path / 'nbgrader_config.py'
+    
+    @property
+    def is_new_setup(self):
+        return self._is_new_setup
 
     async def setup(self):
         """
@@ -89,7 +93,7 @@ class Course:
             logger.debug('Grader container exists %s' % self.grader_name)
         except docker.errors.NotFound:
             logger.error('Grader container not found')
-            self.is_new_setup = True
+            self._is_new_setup = True
             return True
 
         return False
