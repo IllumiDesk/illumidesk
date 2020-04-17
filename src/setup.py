@@ -42,7 +42,6 @@ setup(
         'nbgrader>=0.6.1',
         'quart==0.11.5',
         'filelock==3.0.12',
-        'docker==4.2.0',
     ],
     package_data={'': ['*.html'],},
     entry_points={

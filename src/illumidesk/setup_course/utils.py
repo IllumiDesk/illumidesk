@@ -23,9 +23,10 @@ class SetupUtils:
           ContainerException if the container could not be restarted.
         """
         logger.debug('Received request to restart JupyterHub')
-        jupyterhub_container_name = os.environ.get(
-            'JUPYTERHUB_SERVICE_NAME', 'jupyterhub'
+        jupyterhub_container_name = (
+            os.environ.get('JUPYTERHUB_SERVICE_NAME') or 'jupyterhub'
         )
+
         containers = self.docker_client.containers.list(
             filters={'name': f'{jupyterhub_container_name}'}
         )

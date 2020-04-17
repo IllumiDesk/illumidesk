@@ -158,8 +158,19 @@ class LTI11Authenticator(LTIAuthenticator):
 
     async def post_auth_hook(self, authenticator, handler, authentication):
         """
-            Calls the microservice to setup up a new course in case it does not exist.          
-            The data needed is received from auth_State
+        Calls the microservice to setup up a new course in case it does not exist.          
+        The data needed is received from auth_State within authentication object
+
+        This function requires `Authenticator.enable_auth_state = True`.
+
+        Args:
+            authenticator: the JupyterHub Authenticator object
+            handler: the JupyterHub handler object
+            authentication: the authentication object returned by the
+            authenticator class
+
+        Returns:
+            authentication (Required): updated authentication object
         """
         username = authentication['name']
         lms_user_id = authentication['auth_state']['lms_user_id']

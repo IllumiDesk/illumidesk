@@ -202,7 +202,7 @@ c.Spawner.mem_limit = '1G'
 # Allow container to use any ip address
 c.DockerSpawner.host_ip = '0.0.0.0'
 
-spawn_cmd = os.environ.get('DOCKER_SPAWN_CMD', 'start-singleuser.sh')
+spawn_cmd = os.environ.get('DOCKER_SPAWN_CMD') or 'start-singleuser.sh'
 c.DockerSpawner.extra_create_kwargs.update({'command': spawn_cmd})
 
 # Tell the user containers to connect to our docker network
@@ -243,10 +243,10 @@ c.DockerSpawner.volumes = {
 if c.JupyterHub.authenticator_class == 'illumidesk.authenticators.authenticator.LTI11Authenticator':
 
     # course setup service name
-    service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME', 'setup-course')
+    service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
 
     # course setup service port
-    port = os.environ.get('DOCKER_SETUP_COURSE_PORT', '8000')
+    port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
 
     # get the response from course setup app endpoint
     response = requests.get(f'http://{service_name}:{port}/config')

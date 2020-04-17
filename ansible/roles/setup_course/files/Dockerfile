@@ -5,17 +5,18 @@ WORKDIR /usr/src/app
 RUN apk update \
  && apk upgrade \
  && apk add --no-cache \
-    curl    
+    curl
 
 RUN apk update \
-    && apk add --no-cache \
-    gcc \
-    libressl-dev \
-    musl-dev \
-    libffi-dev \
-    openssl-dev \
-    python3-dev \
-    linux-headers zeromq-dev
+ && apk add --no-cache \
+ gcc \
+ libffi-dev \
+ libressl-dev \
+ linux-headers \
+ musl-dev \
+ openssl-dev \
+ python3-dev \
+ zeromq-dev
  
 RUN pip install --no-cache-dir \
     hypercorn

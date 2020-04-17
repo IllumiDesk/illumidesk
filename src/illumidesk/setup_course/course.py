@@ -207,7 +207,7 @@ class Course:
 
     def get_service_config(self) -> dict:
         """
-            Creates service config definition that is used in jupyterhub's services section
+        Creates service config definition that is used in jupyterhub's services section
         """
         url = f'http://{self.grader_name}:8888'
         service_config = {

@@ -53,7 +53,7 @@ services:
       start-notebook.sh --group=formgrade-{{course_id}} --allow-root
   setup-course:
     restart: on-failure
-    image: illumidesk/setup-course
+    image: {{docker_setup_course_image}}
     container_name: setup-course
     command: hypercorn --bind 0.0.0.0:8000 --workers 1 illumidesk.setup_course.app:app
     env_file:

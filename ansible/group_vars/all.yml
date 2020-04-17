@@ -17,6 +17,7 @@ docker_notebook_hash_commit: "{{ git_nb_hash_commit[0:12] }}"
 docker_notebook_base_image: "{{ docker_notebook_base_image_param | default('jupyter/datascience-notebook:') }}{{ docker_notebook_hash_commit }}"
 docker_jhub_hash_commit: "{{ git_jhub_hash_commit[0:12] }}"
 docker_jhub_base_image: "{{ docker_jhub_base_image_param | default('jupyterhub/jupyterhub:1.2.0dev') }}"
+docker_setup_course_image: "{{ docker_setup_course_image_param | default('illumidesk/setup-course') }}"
 
 ## Docker
 # dockerfiles
@@ -25,6 +26,7 @@ docker_notebook_base_dockerfile: "{{ docker_notebook_base_dockerfile_param | def
 docker_notebook_learner_dockerfile: "{{ docker_notebook_learner_dockerfile_param | default('Dockerfile.learner') }}"
 docker_notebook_instructor_dockerfile: "{{ docker_notebook_instructor_dockerfile_param | default('Dockerfile.instructor') }}"
 docker_notebook_grader_dockerfile: "{{ docker_notebook_grader_dockerfile_param | default('Dockerfile.grader') }}"
+docker_setup_course_dockerfile: "{{ docker_setup_course_dockerfile_param | default('Dockerfile.setup-course') }}"
 
 # built jupyterhub image
 docker_illumidesk_jhub_image: "{{ docker_illumidesk_jhub_image_param | default('illumidesk/jupyterhub:') }}{{ docker_jhub_hash_commit }}"
