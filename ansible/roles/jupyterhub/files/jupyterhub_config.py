@@ -1,3 +1,4 @@
+import sys
 import asyncio
 import json
 import logging
@@ -88,6 +89,11 @@ c.JupyterHub.services = [
         'admin': True,
         'command': 'python3 /srv/jupyterhub/cull_idle_servers.py --timeout=3600'.split(),
         'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
+    },
+    {
+        'name': 'announcement',
+        'url': 'http://0.0.0.0:8889',
+        'command': 'python3 /srv/jupyterhub/announcement.py --port 8889 --api-prefix /services/announcement'.split()
     },
 ]
 

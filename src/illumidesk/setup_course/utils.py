@@ -30,17 +30,19 @@ class SetupUtils:
 
         containers = self.docker_client.containers.list(filters={'label': [f'com.docker.compose.service={jupyterhub_container_name}']})
         for container in containers:
-            logger.debug('Found container %s, restarting ...' % container.id)
+            logger.debug(f'Found a jupyterhub container (running): {container.id}')
             try:
                 # launch a new one to be attached in the proxy
-                logger.info('Try to scale jupyterhub with docker-compose')
+                logger.info('Trying to scale jupyterhub with docker-compose')
                 subprocess.check_output(f'docker-compose --compatibility up -d --scale {jupyterhub_container_name}=2'.split(), cwd=f'{illumidesk_dir}')
                 
                 time.sleep(3)
+                logger.debug(f'The container: {container.id} is stopping...')
                 container.stop()
-                # subprocess.check_output(f'docker-compose --compatibility up -d --scale {jupyterhub_container_name}=1'.split(), cwd=f'{illumidesk_dir}')
+                time.sleep(1)
             except docker.errors.NotFound:
                 logger.error('Jupyter container not found to restart it')
             except Exception as er:
-                logger.error(f'Error trying to scale jupyterhub. {er}')
+                logger.error(f'Error trying to scale jupyterhub. {er}')            
             break
+        self.docker_client.containers.prune(filters={'label': [f'com.docker.compose.service={jupyterhub_container_name}']})

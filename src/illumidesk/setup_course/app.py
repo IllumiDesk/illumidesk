@@ -66,7 +66,7 @@ async def restart():
     utils = SetupUtils()
     try:
         logger.debug('Restarting jupyterhub...')
-        await asyncio.sleep(10)
+        await asyncio.sleep(3)
         utils.restart_jupyterhub()
     except Exception as e:
         logger.error("Unable to restart the container", exc_info=True)

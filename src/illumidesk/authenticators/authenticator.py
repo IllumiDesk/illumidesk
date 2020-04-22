@@ -183,12 +183,22 @@ class LTI11Authenticator(LTIAuthenticator):
         self.log.debug(f'Setup-Course service response: {resp_json}')
 
         # if the course is a new setup then restart the jupyterhub to read services configuration file
-        if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
-            self.log.debug('The jupyterhub container is going to be restarted')
+        if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:            
+            # we need to notify user needs to reload only the page
+            url = 'http://localhost:8889/services/announcement'
+            headers['Authorization'] = f'token {os.environ.get("JUPYTERHUB_API_TOKEN")}'
+            body_data = {
+                'announcement': 'A new service was detected, please reload this page...'
+            }            
+            await client.fetch(url, headers=headers, body=json.dumps(body_data), method='POST')
+
+            self.log.debug('The jupyterhub container will be restarted by setup-course service...')
             url = f'http://{service_name}:{port}/restart'
+            # WE'RE NOT AWAIT FOR RESULT
+            # the restart will occur later
+            del headers['Authorization']
             client.fetch(url, headers=headers, body='', method='POST')
-            # utils = SetupUtils()
-            # utils.restart_jupyterhub()
+            
 
         return authentication
 
