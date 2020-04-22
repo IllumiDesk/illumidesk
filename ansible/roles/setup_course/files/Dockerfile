@@ -10,9 +10,11 @@ RUN apk update \
 RUN apk update \
  && apk add --no-cache \
  gcc \
+ libc-dev \
  libffi-dev \
  libressl-dev \
  linux-headers \
+ make \
  musl-dev \
  openssl-dev \
  python3-dev \
@@ -20,6 +22,8 @@ RUN apk update \
  
 RUN pip install --no-cache-dir \
     hypercorn
+
+RUN pip3 install docker-compose
 
 # Install illumidesk package
 # there is a file dependency with illumidesk package existing in the working directory

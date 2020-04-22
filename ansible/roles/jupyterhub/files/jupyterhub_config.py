@@ -103,10 +103,10 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 )
 
 # User authentication class
-c.JupyterHub.authenticator_class = 'firstuseauthenticator.FirstUseAuthenticator'
+# c.JupyterHub.authenticator_class = 'firstuseauthenticator.FirstUseAuthenticator'
 
 # LTI 1.1 authenticator class.
-# c.JupyterHub.authenticator_class = 'illumidesk.authenticators.authenticator.LTI11Authenticator'
+c.JupyterHub.authenticator_class = 'illumidesk.authenticators.authenticator.LTI11Authenticator'
 
 # Spawn containers with custom dockerspawner class
 c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
@@ -120,9 +120,25 @@ c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
 ##########################################
 
 # Use an external service to manage the proxy
-c.ConfigurableHTTPProxy.should_start = False
-c.ConfigurableHTTPProxy.auth_token = os.environ.get('CONFIGURABLE_HTTP_PROXY')
-c.ConfigurableHTTPProxy.api_url = f'http://reverse-proxy:8001'
+from jupyterhub_traefik_proxy import TraefikTomlProxy
+
+# configure JupyterHub to use TraefikTomlProxy
+c.JupyterHub.proxy_class = TraefikTomlProxy
+
+# mark the proxy as externally managed
+c.TraefikTomlProxy.should_start = False
+
+c.TraefikProxy.traefik_api_url = 'http://reverse-proxy:8099'
+
+# traefik api endpoint login password
+c.TraefikTomlProxy.traefik_api_password = "admin"
+
+# traefik api endpoint login username
+c.TraefikTomlProxy.traefik_api_username = "api_admin"
+
+# traefik's dynamic configuration file
+c.TraefikTomlProxy.toml_dynamic_config_file = "/etc/traefik/rules.toml"
+
 
 ##########################################
 # END REVERSE PROXY
@@ -134,16 +150,16 @@ c.ConfigurableHTTPProxy.api_url = f'http://reverse-proxy:8001'
 
 # Our user list for demos when using FirstUseAuthenticator. Uncomment and add initial
 # users as needed. This avoids having the login form which accepts any username/password
-c.Authenticator.whitelist = [
-    'admin',
-    'instructor1',
-    'instructor2',
-    'student1',
-    'bitdiddle',
-    'hacker',
-    'reasoner',
-    os.environ.get('DEMO_GRADER_NAME'),
-]
+# c.Authenticator.whitelist = [
+#     'admin',
+#     'instructor1',
+#     'instructor2',
+#     'student1',
+#     'bitdiddle',
+#     'hacker',
+#     'reasoner',
+#     os.environ.get('DEMO_GRADER_NAME'),
+# ]
 
 # Refrain from creating users within the JupyterHub container
 # c.FirstUseAuthenticator.create_users = False

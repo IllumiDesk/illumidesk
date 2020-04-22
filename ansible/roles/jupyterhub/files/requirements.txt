@@ -4,6 +4,9 @@ psycopg2-binary==2.8.5
 # nbgrader
 nbgrader==0.6.1
 
+# traefik (reverse proxy)
+jupyterhub-traefik-proxy
+
 # Authenticators
 jupyterhub-firstuseauthenticator==0.12
 jupyterhub-ltiauthenticator==0.4.0

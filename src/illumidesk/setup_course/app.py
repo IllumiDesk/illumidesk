@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sys
+import asyncio
 
 from filelock import FileLock
 from pathlib import Path
@@ -60,11 +61,12 @@ def config():
 
 
 @app.route("/restart", methods=['POST'])
-def restart():
-    logger.debug('Received request to restart jupyterhub')
+async def restart():
+    logger.debug('Received request to restart jupyterhub.')
     utils = SetupUtils()
     try:
-        logger.debug('Restarting jupyterhub')
+        logger.debug('Restarting jupyterhub...')
+        await asyncio.sleep(10)
         utils.restart_jupyterhub()
     except Exception as e:
         logger.error("Unable to restart the container", exc_info=True)

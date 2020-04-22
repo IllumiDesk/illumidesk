@@ -4,7 +4,6 @@ services:
   jupyterhub:
     restart: on-failure
     image: {{docker_illumidesk_jhub_image}}
-    container_name: jupyterhub
     depends_on:
       - reverse-proxy
       - jupyterhub-db
@@ -12,10 +11,14 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - {{mnt_root}}/{{org_name}}/home:/home
       - data:/data
+      - ./reverse-proxy:/etc/traefik
     env_file:
       - env.jhub
     command: >
       jupyterhub -f /etc/jupyterhub/jupyterhub_config.py --debug
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.jhub_router.service=jupyterhub"
   jupyterhub-db:
     image: postgres:11.6-alpine
     container_name: jupyterhub-db
@@ -25,20 +28,16 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
   reverse-proxy:
-    restart: on-failure
-    image: jupyterhub/configurable-http-proxy:4.2.0
+    image: traefik:v1.7
     container_name: reverse-proxy
     ports:
-      - 8000:8000
-    environment:
-      - CONFIGURABLE_HTTP_PROXY={{config_auth_proxy_token}}
-    command: >
-      configurable-http-proxy
-      --port 8000
-      --api-ip 0.0.0.0
-      --api-port 8001
-      --default-target=http://jupyterhub:8081
-      --error-target=http://jupyterhub:8081/hub/error
+      - "8000:8000"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - ./reverse-proxy/:/etc/traefik/
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: on-failure    
   {{course_id}}:
     restart: on-failure
     image: {{docker_illumidesk_notebook_grader_image}}
@@ -62,6 +61,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - {{mnt_root}}:{{mnt_root}}
       - data:/srv/jupyterhub
+      - {{ working_dir }}:{{ working_dir }}
 
 volumes:
   data:
