@@ -6,7 +6,6 @@ from ltiauthenticator import LTIAuthenticator
 from tornado.web import HTTPError
 from tornado.httpclient import AsyncHTTPClient
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
-from illumidesk.setup_course.utils import SetupUtils
 from .utils import LTIUtils
 from .validator import LTI11LaunchValidator
 
@@ -183,13 +182,11 @@ class LTI11Authenticator(LTIAuthenticator):
         self.log.debug(f'Setup-Course service response: {resp_json}')
 
         # if the course is a new setup then restart the jupyterhub to read services configuration file
-        if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:            
+        if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
             # we need to notify user needs to reload only the page
             url = 'http://localhost:8889/services/announcement'
             headers['Authorization'] = f'token {os.environ.get("JUPYTERHUB_API_TOKEN")}'
-            body_data = {
-                'announcement': 'A new service was detected, please reload this page...'
-            }            
+            body_data = {'announcement': 'A new service was detected, please reload this page...'}
             await client.fetch(url, headers=headers, body=json.dumps(body_data), method='POST')
 
             self.log.debug('The jupyterhub container will be restarted by setup-course service...')
@@ -198,7 +195,6 @@ class LTI11Authenticator(LTIAuthenticator):
             # the restart will occur later
             del headers['Authorization']
             client.fetch(url, headers=headers, body='', method='POST')
-            
 
         return authentication
 
