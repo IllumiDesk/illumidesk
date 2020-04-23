@@ -50,3 +50,5 @@ mnt_root: "{{ mnt_root_param | default('/mnt') }}"
 # LTI 1.1 credentials
 lti11_consumer_key: "{{ lti11_consumer_key_param | default('my_consumer_key') }}"
 lti11_shared_secret: "{{ lti11_shared_secret_param | default('my_shared_secret') }}"
+
+jhub_uses_lti11: "{{ jhub_uses_lti11_param | default('no')}}"

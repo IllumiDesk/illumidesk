@@ -108,9 +108,6 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
     db=os.environ.get('POSTGRES_DB'),
 )
 
-# User authentication class
-# c.JupyterHub.authenticator_class = 'firstuseauthenticator.FirstUseAuthenticator'
-
 # LTI 1.1 authenticator class.
 c.JupyterHub.authenticator_class = 'illumidesk.authenticators.authenticator.LTI11Authenticator'
 
@@ -150,29 +147,6 @@ c.TraefikTomlProxy.toml_dynamic_config_file = "/etc/traefik/rules.toml"
 # END REVERSE PROXY
 ##########################################
 
-##########################################
-# BEGIN FIRSTUSE AUTHENTICATION
-##########################################
-
-# Our user list for demos when using FirstUseAuthenticator. Uncomment and add initial
-# users as needed. This avoids having the login form which accepts any username/password
-# c.Authenticator.whitelist = [
-#     'admin',
-#     'instructor1',
-#     'instructor2',
-#     'student1',
-#     'bitdiddle',
-#     'hacker',
-#     'reasoner',
-#     os.environ.get('DEMO_GRADER_NAME'),
-# ]
-
-# Refrain from creating users within the JupyterHub container
-# c.FirstUseAuthenticator.create_users = False
-
-##########################################
-# END FIRSTUSE AUTHENTICATION
-##########################################
 
 ##########################################
 # BEGIN LTI 1.1 AUTHENTICATOR
@@ -260,22 +234,28 @@ c.DockerSpawner.volumes = {
 # END CUSTOM DOCKERSPAWNER
 ##########################################
 
+
+##########################################
+# SETUP COURSE SERVICE
+##########################################
 # Dynamic config to setup new courses
 
-if c.JupyterHub.authenticator_class == 'illumidesk.authenticators.authenticator.LTI11Authenticator':
+# course setup service name
+service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
 
-    # course setup service name
-    service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
+# course setup service port
+port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
 
-    # course setup service port
-    port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
+# get the response from course setup app endpoint
+response = requests.get(f'http://{service_name}:{port}/config')
 
-    # get the response from course setup app endpoint
-    response = requests.get(f'http://{service_name}:{port}/config')
+# store course setup configuration
+config = response.json()
 
-    # store course setup configuration
-    config = response.json()
+# load k/v's when starting jupyterhub
+c.JupyterHub.load_groups.update(config['load_groups'])
+c.JupyterHub.services.extend(config['services'])
 
-    # load k/v's when starting jupyterhub
-    c.JupyterHub.load_groups.update(config['load_groups'])
-    c.JupyterHub.services.extend(config['services'])
+##########################################
+# END SETUP COURSE SERVICE
+##########################################
