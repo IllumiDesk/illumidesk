@@ -25,7 +25,9 @@ Our goal is to remove these obstacles so that you can get on with the teaching!
 
 ## Quick Start
 
-Follow these instructions to install the system with a set of sensible defaults. Refer to the [customization](#customization) section for more advanced setup options.
+Follow these instructions to install the system with a set of sensible defaults.
+
+Refer to the [customization](#customization) section for more advanced setup options, such as enabling LTI to handle requests from your LMS.
 
 ### Prerequisites
 
@@ -42,7 +44,6 @@ git clone https://github.com/IllumiDesk/illumidesk
 cd illumidesk
 ```
 
-
 2. Create a new hosts file from the provided YML template.
 
 ```
@@ -53,15 +54,27 @@ cp ansible/hosts.example ansible/hosts
   
     - ansible_host: target server IPv4 address
     - ansible_port: target server port (default 22)
-    - ansible_user: target server username
+    - ansible_user: target server username for SSH access
     - ansible_ssh_private_key_file: full path to SSH private key file used for SSH
     - ansible_password: optional value used when the target server requires a username/password
 
+By default this setup uses the `FristUseAuthenticator`. Refer to the [customization](#customization) section if you would like to use LTI 1.1 with your LMS.
+
 4. Run the deployment script (the script will prompt you for certain values):
 
-    `make deploy`
+    ```bash
+    make deploy
+    ```
 
-5. Once the ansible playbook has finished running the JupyterHub should be available at:
+Use the `ARGS="-v"` option to deploy the stack with verbosity enabled. For example:
+
+    ```bash
+    make deploy ARGS="-v"
+    ```
+
+Set `ARGS` to `-vv` to enable more verbosity or `-vvv` for super duper verbosity.
+
+5. Once the ansible playbook has finished running the stack should be available at:
 
     `http://<target_ipv4>:8000/`
 
@@ -70,11 +83,13 @@ cp ansible/hosts.example ansible/hosts
 - **Instructor Role**: instructor1
 - **Student Role**: student1
 
-> **Tip**: To confirm the values you will need for `ansible-playbook`, log into your remote instance with SSH. This will allow you to confirm settings such as:
+> **Tip**: To confirm the values you will need for the `make deploy` command to successfully connect to your instance, log into your remote instance with SSH. For example, a successfull connection with the `ssh -i my-ssh-key.pem ubuntu@1.2.3.4` command means that the values map to:
 
-> - The username for the target server
-> - The private key required for the target server's SSH key
-> - Etc
+> - ansible_host: 1.2.3.4
+> - ansible_port: 22
+> - ansible_user: ubuntu
+> - ansible_ssh_private_key_file: my-ssh-key.pem
+> - ansible_password: (none)
 
 ### Initial Course Setup
 
@@ -82,7 +97,7 @@ By default, this setup uses the `FirstUseAuthenticator` and as such accepts any 
 
 1. Log in with the instructor account which by default is `instructor1`
 
-2. Access the shared grader notebook accessible by clicking on `Control Panel --> Services --> Course ID` (intro101 by default)
+2. Access the shared grader notebook accessible by clicking on `Control Panel --> Services --> Course ID` (`intro101` by default)
 
 3. Open a Jupyter terminal by clicking on `New --> Terminal`.
 
@@ -106,50 +121,19 @@ By default, this setup uses the `FirstUseAuthenticator` and as such accepts any 
 
 ## Customization
 
-You may customize your setup by using the `--extra-args` flag and passing additional variables and their values to override the provided defaults.
+You may customize your setup by customizing additional variables in the `hosts` file. For example, you can run the `make deploy` command to set your own organization name and top level domain when using this setup behind a reverse-proxy with TLS termination.
 
-For example, you can run the `ansible-playbook` using the flags below:
-
-- Remote server SSH private key: `--private-key`
-- Remote user: `-u`
-- Extra variables: `--extra-vars`
-  - Organization name: `org_name`
-
-Then the playbook is run with:
-
-```bash
-ansible-playbook \
-  -i ansible/hosts \
-  ansible/provisioning.yml \
-  --extra-vars \
-  "org_name=my-edu \
-  tld=example.com" \
-  -v
-```
-
-You may add any of the variables listed in `ansible/group_vars/all.yml` when running the playbook.
-
-> **NOTE**: some instances disable the `root` user by default. If you use a user other than `root`, ensure that you use a user that is a member of the `sudoers` group.
+> **NOTE**: You may add any of the variables listed in `ansible/group_vars/all.yml` within your `hosts` file before running the `make deploy` command.
 
 ### LTI 1.1 Authenticator
 
-Open the JupyterHub configuration file located in `ansible/roles/jupyterhub/files/jupyterhub_config.py`. Change the `JupyterHub.authenticator_class` from `firstuseauthenticator.FirstUseAuthenticator` to `LTI11Authenticator`. For example:
+> **New in Version 0.2.0**: with LTI 1.1 enabled, courses and user membership are automatically set for you based on the information located within the LTI 1.1 launch request. This feature allows you to dynamically support multiple classes with multiple teacher/learner memberships from the same deployment without haveing to update the configuration files.
 
-Default authenticator setting:
+To launch the stack with LTI 1.1 enabled simply change the `lti11_enabled` variable in your hosts file to `true`.
+By default both the `consumer key` and `shared secret` are created for you. If you would like to add your own
+values then assign them to the `lti11_consumer_key` and `lti11_shared_secret` variables in the `hosts` file.
 
-```python
-c.JupyterHub.authenticator_class = 'firstuseauthenticator.FirstUseAuthenticator'
-```
-
-LTI 1.1 authenticator:
-
-```python
-c.JupyterHub.authenticator_class = LTI11Authenticator
-```
-
-By default the consumer key is `my_consumer_key` and the shared secret is `my_shared_secret`. If you would like to change these values, update the `LTIAuthenticator.consumers` dictionary within the `jupyterhub_config.py` file.
-
-Then, rerun the ansible playbook to update your system's settings.
+Then, rerun the `make deploy` copmmand to update your stack's settings.
 
 ### Configuration Files
 
