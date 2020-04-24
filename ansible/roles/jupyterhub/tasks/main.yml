@@ -53,19 +53,13 @@
 
 - name: is lti11 enabled
   debug:
-    msg: "lti11 enabled?: {{ jhub_uses_lti11 }}"
+    msg: "is lti11 enabled?: {{ lti11_enabled }}"
 
 - name: copy the jupyterhub configuration file
   copy:
     src: jupyterhub_config_fu.py
     dest: "{{ working_dir }}/jupyterhub_config.py"
-  when: not jhub_uses_lti11|bool
-
-- name: copy the jupyterhub configuration file
-  copy:
-    src: jupyterhub_config_lti11.py
-    dest: "{{ working_dir }}/jupyterhub_config.py"
-  when: jhub_uses_lti11|bool
+  when: not lti11_enabled|bool
 
 - name: copy postgres utility scripts
   copy:

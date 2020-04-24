@@ -1,9 +1,42 @@
 all:
   hosts:
     illumidesk:
+      ## Required settings
+      #-------------------
+      # IPv4 host address
       ansible_host: 127.0.0.1
+
+      # IPv4 host address
       ansible_port: 22
+
+      # IPv4 host address
       ansible_user: root
+
+      # IPv4 host address
       ansible_ssh_private_key_file: /path/to/my/key/file
+
       # add a password only if your remote instance uses userid/password for SSH authentication
       ansible_password:
+
+      ## Optional settings
+      #-------------------
+      # organization name, also used for the sub-domain, such as acme
+      org_name:
+
+      # top level domain, such as example.com
+      tld:
+
+      # course label, such as finance101
+      course_id:
+
+      # lti 1.1 consumer key, by default this is set dynamically. add
+      # own value to override setting. we recommend using the openssl
+      # command to create secure strings: openssl rand -hex 16 
+      lti11_consumer_key:
+
+      # lti 1.1 shared secret, by default set dynamically. set to at 
+      # least 32 random bytes: openssl rand -hex 32
+      lti11_shared_secret:
+
+      # set to yes to use LTI 1.1
+      lti11_enabled: false

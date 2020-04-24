@@ -38,7 +38,7 @@
     gather_facts: false
     roles:
       - { role: notebooks, tags: notebooks }
-  
+
   # play 6
   - name: Setup-Course app
     hosts: illumidesk
@@ -54,7 +54,7 @@
     gather_facts: false
     roles:
       - { role: reverse-proxy, tags: proxy }
-      
+
 # play 8      
   - name: Launch stack
     hosts: illumidesk
