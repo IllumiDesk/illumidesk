@@ -349,7 +349,6 @@ The services included with this setup rely on environment variables to work prop
 
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
-| CONFIGURABLE_HTTP_PROXY | `string` | Random string used to authenticate the proxy with JupyterHub and vs. | `<random_string_value>` |
 | COURSE_ID | `string` | Demo course id, equivalent to course name or course label. | `intro101` |
 | DEMO_INSTRUCTOR_NAME | `string` | Demo instructor user name. | `instructor1` |
 | DEMO_INSTRUCTOR_GROUP | `string` | Demo instructor group name. | `formgrade-{course_id}` |

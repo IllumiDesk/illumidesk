@@ -191,7 +191,7 @@ class LTI11Authenticator(LTIAuthenticator):
             await client.fetch(url, headers=headers, body=json.dumps(body_data), method='POST')
 
             self.log.debug('The current jupyterhub instance will be updated by setup-course service...')
-            url = f'http://{service_name}:{port}/rolling-update' 
+            url = f'http://{service_name}:{port}/rolling-update'
             # our setup-course not requires auth
             del headers['Authorization']
             # WE'RE NOT USING <<<AWAIT>>> because the rolling update should occur later
