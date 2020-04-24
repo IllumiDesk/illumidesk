@@ -33,7 +33,7 @@ venv:
 
 deploy: prepare
 	${VENV_BIN}/ansible-playbook -i ansible/hosts \
-      ansible/provisioning.yml
+      ansible/provisioning.yml $(ARGS)
 
 lint: venv
 	${VENV_BIN}/flake8 src
