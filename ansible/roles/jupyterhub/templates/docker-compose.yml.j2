@@ -7,6 +7,7 @@ services:
     depends_on:
       - reverse-proxy
       - jupyterhub-db
+      - setup-course
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - {{mnt_root}}/{{org_name}}/home:/home

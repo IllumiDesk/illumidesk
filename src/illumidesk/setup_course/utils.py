@@ -19,10 +19,11 @@ class SetupUtils:
 
     def restart_jupyterhub(self):
         """
-        Restart jupyterhub using the docker client after updating configs.
+        Make a jupyterhubb rolling update
+        In order to load changes in configuration file, the jupyterhub container is
+        replaced with new one, then the older is stopped.
+        Trafik can redirect the traffic to new one service few seconds later
 
-        Raises:
-          ContainerException if the container could not be restarted.
         """
         logger.debug('Received request to restart JupyterHub')
         jupyterhub_container_name = os.environ.get('JUPYTERHUB_SERVICE_NAME') or 'jupyterhub'
@@ -46,7 +47,7 @@ class SetupUtils:
                 container.stop()
                 time.sleep(1)
             except docker.errors.NotFound:
-                logger.error('Jupyter container not found to restart it')
+                logger.error('Jupyterhub container not found to be stopped')
             except Exception as er:
                 logger.error(f'Error trying to scale jupyterhub. {er}')
             break

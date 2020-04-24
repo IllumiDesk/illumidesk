@@ -76,6 +76,7 @@ c.JupyterHub.admin_access = True
 # and the group has to match the name of the DEMO_GRADER_NAME group defined above.
 # The cull_idle service conserves resources.
 course_id = os.environ.get('COURSE_ID')
+announcement_port = os.environ.get("ANNOUNCEMENT_SERVICE_PORT") or '8889'
 c.JupyterHub.services = [
     {
         'name': os.environ.get('COURSE_ID'),
@@ -92,8 +93,8 @@ c.JupyterHub.services = [
     },
     {
         'name': 'announcement',
-        'url': 'http://0.0.0.0:8889',
-        'command': 'python3 /srv/jupyterhub/announcement.py --port 8889 --api-prefix /services/announcement'.split()
+        'url': f'http://0.0.0.0:{int(announcement_port)}', # allow external connections with 0.0.0.0
+        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix /services/announcement'.split()
     },
 ]
 
@@ -131,7 +132,8 @@ c.JupyterHub.proxy_class = TraefikTomlProxy
 # mark the proxy as externally managed
 c.TraefikTomlProxy.should_start = False
 
-c.TraefikProxy.traefik_api_url = 'http://reverse-proxy:8099'
+# indicate the proxy url to allow register new routes 
+c.TraefikProxy.traefik_api_url = os.environ.get('PROXY_API_URL') or 'http://reverse-proxy:8099'
 
 # traefik api endpoint login password
 c.TraefikTomlProxy.traefik_api_password = "admin"

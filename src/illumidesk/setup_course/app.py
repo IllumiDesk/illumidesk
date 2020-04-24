@@ -60,9 +60,9 @@ def config():
     return json.dumps(cache)
 
 
-@app.route("/restart", methods=['POST'])
+@app.route("/rolling-update", methods=['POST'])
 async def restart():
-    logger.debug('Received request to restart jupyterhub.')
+    logger.debug('Received request to make a rolling-update.')
     utils = SetupUtils()
     try:
         logger.debug('Restarting jupyterhub...')

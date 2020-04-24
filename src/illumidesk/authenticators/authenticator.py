@@ -152,6 +152,7 @@ class LTI11Authenticator(LTIAuthenticator):
         Returns:
             authentication (Required): updated authentication object
         """
+        announcement_port = os.environ.get("ANNOUNCEMENT_SERVICE_PORT") or '8889'
         username = authentication['name']
         lms_user_id = authentication['auth_state']['lms_user_id']
 
@@ -181,19 +182,19 @@ class LTI11Authenticator(LTIAuthenticator):
         resp_json = json.loads(response.body)
         self.log.debug(f'Setup-Course service response: {resp_json}')
 
-        # if the course is a new setup then restart the jupyterhub to read services configuration file
+        # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
         if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
-            # we need to notify user needs to reload only the page
-            url = 'http://localhost:8889/services/announcement'
+            # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
+            url = f'http://localhost:{int(announcement_port)}/services/announcement'
             headers['Authorization'] = f'token {os.environ.get("JUPYTERHUB_API_TOKEN")}'
             body_data = {'announcement': 'A new service was detected, please reload this page...'}
             await client.fetch(url, headers=headers, body=json.dumps(body_data), method='POST')
 
-            self.log.debug('The jupyterhub container will be restarted by setup-course service...')
-            url = f'http://{service_name}:{port}/restart'
-            # WE'RE NOT AWAIT FOR RESULT
-            # the restart will occur later
+            self.log.debug('The current jupyterhub instance will be updated by setup-course service...')
+            url = f'http://{service_name}:{port}/rolling-update' 
+            # our setup-course not requires auth
             del headers['Authorization']
+            # WE'RE NOT USING <<<AWAIT>>> because the rolling update should occur later
             client.fetch(url, headers=headers, body='', method='POST')
 
         return authentication
