@@ -4,7 +4,7 @@
 # within the repo's root package.json
 version_info = (
     0,
-    1,
+    2,
     1,
 )
 __version__ = ".".join(map(str, version_info[:3]))
