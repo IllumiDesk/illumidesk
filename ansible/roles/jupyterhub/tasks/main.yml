@@ -61,6 +61,12 @@
     dest: "{{ working_dir }}/jupyterhub_config.py"
   when: not lti11_enabled|bool
 
+- name: copy the jupyterhub configuration file
+  copy:
+    src: jupyterhub_config_lti11.py
+    dest: "{{ working_dir }}/jupyterhub_config.py"
+  when: lti11_enabled|bool
+
 - name: copy postgres utility scripts
   copy:
     src: wait-for-postgres.sh
