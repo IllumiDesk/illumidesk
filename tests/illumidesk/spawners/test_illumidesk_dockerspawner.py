@@ -1,6 +1,3 @@
-import time
-import os
-
 import pytest
 
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner

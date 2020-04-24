@@ -1,3 +1,4 @@
+import sys
 import asyncio
 import json
 import logging
@@ -8,9 +9,6 @@ import shutil
 import requests
 
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
-from illumidesk.authenticators.authenticator import LTI11Authenticator
-
-from ltiauthenticator import LTIAuthenticator
 
 c = get_config()
 
@@ -78,6 +76,7 @@ c.JupyterHub.admin_access = True
 # and the group has to match the name of the DEMO_GRADER_NAME group defined above.
 # The cull_idle service conserves resources.
 course_id = os.environ.get('COURSE_ID')
+announcement_port = os.environ.get("ANNOUNCEMENT_SERVICE_PORT") or '8889'
 c.JupyterHub.services = [
     {
         'name': os.environ.get('COURSE_ID'),
@@ -92,6 +91,11 @@ c.JupyterHub.services = [
         'command': 'python3 /srv/jupyterhub/cull_idle_servers.py --timeout=3600'.split(),
         'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
     },
+    {
+        'name': 'announcement',
+        'url': f'http://0.0.0.0:{int(announcement_port)}', # allow external connections with 0.0.0.0
+        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix /services/announcement'.split()
+    },
 ]
 
 # Refrain from cleaning up servers when restarting the hub
@@ -105,11 +109,8 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
     db=os.environ.get('POSTGRES_DB'),
 )
 
-# User authentication class
-c.JupyterHub.authenticator_class = 'firstuseauthenticator.FirstUseAuthenticator'
-
 # LTI 1.1 authenticator class.
-# c.JupyterHub.authenticator_class = LTI11Authenticator
+c.JupyterHub.authenticator_class = 'illumidesk.authenticators.authenticator.LTI11Authenticator'
 
 # Spawn containers with custom dockerspawner class
 c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
@@ -123,37 +124,31 @@ c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
 ##########################################
 
 # Use an external service to manage the proxy
-c.ConfigurableHTTPProxy.should_start = False
-c.ConfigurableHTTPProxy.auth_token = os.environ.get('CONFIGURABLE_HTTP_PROXY')
-c.ConfigurableHTTPProxy.api_url = f'http://reverse-proxy:8001'
+from jupyterhub_traefik_proxy import TraefikTomlProxy
+
+# configure JupyterHub to use TraefikTomlProxy
+c.JupyterHub.proxy_class = TraefikTomlProxy
+
+# mark the proxy as externally managed
+c.TraefikTomlProxy.should_start = False
+
+# indicate the proxy url to allow register new routes 
+c.TraefikProxy.traefik_api_url = os.environ.get('PROXY_API_URL') or 'http://reverse-proxy:8099'
+
+# traefik api endpoint login password
+c.TraefikTomlProxy.traefik_api_password = "admin"
+
+# traefik api endpoint login username
+c.TraefikTomlProxy.traefik_api_username = "api_admin"
+
+# traefik's dynamic configuration file
+c.TraefikTomlProxy.toml_dynamic_config_file = "/etc/traefik/rules.toml"
+
 
 ##########################################
 # END REVERSE PROXY
 ##########################################
 
-##########################################
-# BEGIN FIRSTUSE AUTHENTICATION
-##########################################
-
-# Our user list for demos when using FirstUseAuthenticator. Uncomment and add initial
-# users as needed. This avoids having the login form which accepts any username/password
-c.Authenticator.whitelist = [
-    'admin',
-    'instructor1',
-    'instructor2',
-    'student1',
-    'bitdiddle',
-    'hacker',
-    'reasoner',
-    os.environ.get('DEMO_GRADER_NAME'),
-]
-
-# Refrain from creating users within the JupyterHub container
-# c.FirstUseAuthenticator.create_users = False
-
-##########################################
-# END FIRSTUSE AUTHENTICATION
-##########################################
 
 ##########################################
 # BEGIN LTI 1.1 AUTHENTICATOR
@@ -205,7 +200,7 @@ c.Spawner.mem_limit = '1G'
 # Allow container to use any ip address
 c.DockerSpawner.host_ip = '0.0.0.0'
 
-spawn_cmd = os.environ.get('DOCKER_SPAWN_CMD', 'start-singleuser.sh')
+spawn_cmd = os.environ.get('DOCKER_SPAWN_CMD') or 'start-singleuser.sh'
 c.DockerSpawner.extra_create_kwargs.update({'command': spawn_cmd})
 
 # Tell the user containers to connect to our docker network
@@ -239,4 +234,30 @@ c.DockerSpawner.volumes = {
 
 ##########################################
 # END CUSTOM DOCKERSPAWNER
+##########################################
+
+
+##########################################
+# SETUP COURSE SERVICE
+##########################################
+# Dynamic config to setup new courses
+
+# course setup service name
+service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
+
+# course setup service port
+port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
+
+# get the response from course setup app endpoint
+response = requests.get(f'http://{service_name}:{port}/config')
+
+# store course setup configuration
+config = response.json()
+
+# load k/v's when starting jupyterhub
+c.JupyterHub.load_groups.update(config['load_groups'])
+c.JupyterHub.services.extend(config['services'])
+
+##########################################
+# END SETUP COURSE SERVICE
 ##########################################

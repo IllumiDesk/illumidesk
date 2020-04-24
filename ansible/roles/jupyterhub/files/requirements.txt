@@ -1,8 +1,11 @@
 # postgres
-psycopg2-binary==2.7.4
+psycopg2-binary==2.8.5
 
 # nbgrader
 nbgrader==0.6.1
+
+# traefik (reverse proxy)
+jupyterhub-traefik-proxy
 
 # Authenticators
 jupyterhub-firstuseauthenticator==0.12

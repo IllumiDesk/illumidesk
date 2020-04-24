@@ -3,8 +3,6 @@ import re
 from tornado.web import RequestHandler
 
 from unittest.mock import Mock
-from unittest.mock import MagicMock
-from unittest.mock import patch
 
 from illumidesk.authenticators.utils import LTIUtils
 
@@ -29,7 +27,7 @@ def test_normalize_name_for_containers_with_special_characters():
     normalized_container_name = utils.normalize_name_for_containers(container_name)
     regex = re.compile('[@!#$%^&*()<>?/\\|}{~:]')
 
-    assert regex.search(normalized_container_name) == None
+    assert regex.search(normalized_container_name) is None
 
 
 def test_normalize_name_for_containers_with_first_letter_as_alphanumeric():

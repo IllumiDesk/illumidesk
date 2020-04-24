@@ -24,6 +24,7 @@ builtins = c, get_config
 exclude =
     .ansible,
     .cache,
+    __pycache__,
     .github,
     .ipynb_checkpoints,
     .pytest_cache,

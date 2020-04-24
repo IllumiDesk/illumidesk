@@ -1,0 +1,44 @@
+logLevel = "DEBUG"
+# the default entrypoint
+defaultentrypoints = ["http"]
+
+# the api entrypoint
+[api]
+dashboard = true
+entrypoint = "auth_api"
+
+# websockets protocol
+[wss]
+protocol = "http"
+
+
+[retry]
+attempts = 400
+
+[forwardingTimeouts]
+
+# dialTimeout is the amount of time to wait until a connection to a backend server can be established.
+#
+# Optional
+# Default: "30s"
+dialTimeout = "200s"
+
+[respondingTimeouts]
+
+# idleTimeout is the maximum duration an idle (keep-alive) connection will remain idle before closing itself.
+# This needs to be set longer than the GCP load balancer timeout
+idleTimeout = "620s"
+
+
+# the port on localhost where traefik accepts http requests
+[entryPoints.http]
+address = ":8000"
+
+# the port on localhost where the traefik api and dashboard can be found
+[entryPoints.auth_api]
+address = ":8099"
+
+# the dynamic configuration file
+[file]
+filename = "/etc/traefik/rules.toml"
+watch = true

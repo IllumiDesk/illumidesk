@@ -1,10 +1,7 @@
-import os
 import pytest
-import unittest
 import json
 
 from tornado.web import RequestHandler
-from tornado.web import HTTPError
 from tornado.httputil import HTTPServerRequest
 
 from typing import Dict

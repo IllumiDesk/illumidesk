@@ -1,0 +1,10 @@
+---
+- name: create the proxy working directory
+  file:
+    path: "{{ working_dir }}/reverse-proxy"
+    state: directory
+
+- name: copy the traefik configuration file
+  copy:
+    src: traefik.toml
+    dest: "{{ working_dir }}/reverse-proxy/traefik.toml"

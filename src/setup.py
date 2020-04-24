@@ -36,10 +36,12 @@ setup(
     license='MIT',
     packages=find_packages(),
     install_requires=[
-        'ansible>=2.9',
-        'jupyterhub-ltiauthenticator>=0.4.0',
-        'nbgrader>=0.6.1',
         'jupyterhub>=1.1.0',
+        'jupyterhub-ltiauthenticator>=0.4.0',
+        'dockerspawner==0.11.1',
+        'nbgrader>=0.6.1',
+        'quart==0.11.5',
+        'filelock==3.0.12',
     ],  # noqa: E231
     package_data={'': ['*.html'],},  # noqa: E231
     entry_points={
