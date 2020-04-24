@@ -14,7 +14,7 @@
     name: illumidesk/setup-course
     build:
       path: "{{ working_dir }}"
-      dockerfile: "{{docker_setup_course_dockerfile}}"
+      dockerfile: "{{ docker_setup_course_dockerfile }}"
       pull: no
     source: build
     force_source: yes
