@@ -4,6 +4,13 @@
     path: "{{ working_dir }}/reverse-proxy"
     state: directory
 
+- name: create rules.toml file (if not exists)
+  file:
+    path: "{{ working_dir }}/reverse-proxy/rules.toml"
+    state: touch
+  register: rules
+  changed_when: rules.diff.before.state == "absent"
+
 - name: copy the traefik configuration file
   copy:
     src: traefik.toml
