@@ -360,6 +360,7 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_USER | `string` | Postgres database username | `jupyterhub` |
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
+| PRIVATE_KEY | `string` | Private key used with LTI 1.3 | `''` |
 
 ### Environment Variables pertaining to grader service, located in `env.service`
 

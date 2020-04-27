@@ -48,6 +48,12 @@ COPY share/templates/. /usr/local/share/jupyterhub/templates/.
 # /etc/jupyterhub/jupyterhub_config.py by default
 COPY jupyterhub_config.py /etc/jupyterhub/jupyterhub_config.py
 
+# https://github.com/IllumiDesk/lti13authenticator
+WORKDIR /tmp
+COPY lti13authenticator.zip /tmp/lti13authenticator.zip
+RUN python3 -m pip install lti13authenticator.zip && \
+    rm -Rf lti13authenticator.zip
+
 WORKDIR /srv/jupyterhub
 
 # Get cull-idle from jupyterhub examples folder

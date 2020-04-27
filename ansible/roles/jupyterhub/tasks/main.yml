@@ -46,6 +46,11 @@
   set_fact:
     lti11_shared_secret_result={{ _lti11_shared_secret_result.stdout }}
 
+- name: get github lti13authenticator archive from github repo
+  get_url:
+    url: https://api.github.com/repos/IllumiDesk/lti13authenticator/zipball/v0.1.5
+    dest: "{{ working_dir }}/lti13authenticator.zip"
+
 - name: copy requirements.txt for base jupyterhub image
   copy:
     src: requirements.txt
@@ -117,6 +122,10 @@
     src: docker-compose.yml.j2
     dest: "{{ working_dir }}/docker-compose.yml"
 
+- name: create LTI 1.3 private pem key
+  openssl_privatekey:
+    path: "{{working_dir}}/rsa_private.pem"
+  
 - name: lti11 consumer key
   debug:
     msg: "lti consumer key is: {{ lti11_consumer_key_result }}"

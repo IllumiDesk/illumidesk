@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Select file</title>
+</head>
+<body>
+  <form action="{{ action_url }}" method="post" id="fileForm" name="fileForm">
+    <input type="hidden" name="lti_message_type" value="ContentItemSelection" />
+    <input type="hidden" value="{{ lti_version }}" name="lti_version" />
+    <ul>{% for file in files %}
+      <li>
+        <label>
+          <input type="radio" name="content_items" id="url" value="{{ file.content_items|escape }}" />
+          {{ file.path }}
+        </label>
+      </li>
+    {% endfor %}</ul>
+    <button type="submit">Accept</button>
+  </form>
+</body>
+</html>
