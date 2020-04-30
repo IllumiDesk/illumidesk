@@ -176,7 +176,7 @@ c.Authenticator.admin_users = {
 
 # If using an authenticator which requires additional logic,
 # set to True.
-c.Authenticator.enable_auth_state = False
+c.Authenticator.enable_auth_state = True
 
 ##########################################
 # END GENERAL AUTHENTICATION
