@@ -51,4 +51,14 @@ mnt_root: "{{ mnt_root_param | default('/mnt') }}"
 lti11_consumer_key: "{{ lti11_consumer_key_result }}"
 lti11_shared_secret: "{{ lti11_shared_secret_result }}"
 
+# Enable/disable LTI v1.1 config
 lti11_enabled: "{{ lti11_enabled_param | default('false')}}"
+
+# LTI 1.3 config
+lti13_client_id: "{{ lti13_client_id_param | default('125900000000000046')}}"
+lti13_base_endpoint: "{{ lti13_base_endpoint_param | default('https://illumidesk.instructure.com')}}"
+lti13_token_endpoint: "{{ lti13_token_endpoint_param | default('https://illumidesk.instructure.com/login/oauth2/token')}}"
+lti13_authorize_endpoint: "{{ lti13_authorize_endpoint_param | default('https://illumidesk.instructure.com/api/lti/authorize_redirect')}}"
+
+# Enable/disable LTI v1.3 config
+lti13_enabled: "{{ lti13_enabled_param | default('false')}}"

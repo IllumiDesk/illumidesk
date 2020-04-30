@@ -2,6 +2,7 @@ import os
 
 import requests
 
+from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
 c = get_config()
@@ -95,7 +96,7 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 )
 
 # LTI 1.3 authenticator class.
-c.JupyterHub.authenticator_class = 'illumidesk.authenticators.authenticator.LTI13Authenticator'
+c.JupyterHub.authenticator_class = LTI13Authenticator
 
 # Spawn containers with custom dockerspawner class
 c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
@@ -140,11 +141,10 @@ c.TraefikTomlProxy.toml_dynamic_config_file = "/etc/traefik/rules.toml"
 ##########################################
 
 # created after installing app in lms
-c.LTI13Authenticator.client_id = '125900000000000001'
-c.JupyterHub.authenticator_class = 'auth.authenticator.LTI13Authenticator'
-c.LTI13Authenticator.endpoint = 'https://illumidesk.instructure.com'
-c.LTI13Authenticator.token_url = 'https://illumidesk.instructure.com/login/oauth2/token'
-c.LTI13Authenticator.authorize_url = 'https://illumidesk.instructure.com/api/lti/authorize_redirect'
+c.LTI13Authenticator.client_id = (os.environ.get('LTI13_CLIENT_ID'),)
+c.LTI13Authenticator.endpoint = (os.environ.get('LTI13_ENDPOINT'),)
+c.LTI13Authenticator.token_url = (os.environ.get('LTI13_TOKEN_URL'),)
+c.LTI13Authenticator.authorize_url = (os.environ.get('LTI13_AUTHORIZE_URL'),)
 
 ##########################################
 # END LTI 1.3 AUTHENTICATOR

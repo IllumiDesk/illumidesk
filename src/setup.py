@@ -38,7 +38,7 @@ setup(
     install_requires=[
         'jupyterhub>=1.1.0',
         'jupyterhub-ltiauthenticator>=0.4.0',
-        'dockerspawner==0.11.1',
+        'oauthenticator>=0.11.0' 'dockerspawner==0.11.1',
         'nbgrader>=0.6.1',
         'quart==0.11.5',
         'filelock==3.0.12',
@@ -47,6 +47,7 @@ setup(
     entry_points={
         'jupyterhub.authenticators': [
             'illumidesklti11 = illumidesk.authenticators.authenticator.LTI11Authenticator',
+            'illumidesklti13 = illumidesk.authenticators.authenticator.LTI13Authenticator',
         ],  # noqa: E231
     },
 )

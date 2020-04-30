@@ -1,11 +1,4 @@
-import sys
-import asyncio
-import json
-import logging
 import os
-import pwd
-import re
-import shutil
 import requests
 
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
@@ -26,9 +19,7 @@ c.JupyterHub.allow_named_servers = False
 c.JupyterHub.data_files_path = '/usr/local/share/jupyterhub/'
 
 # Use custom logo
-c.JupyterHub.logo_file = os.path.join(
-    '/usr/local/share/jupyterhub/', 'static', 'images', 'illumidesk-80.png'
-)
+c.JupyterHub.logo_file = os.path.join('/usr/local/share/jupyterhub/', 'static', 'images', 'illumidesk-80.png')
 
 # Template files
 c.JupyterHub.template_paths = ('/usr/local/share/jupyterhub/templates',)
@@ -40,9 +31,7 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 c.JupyterHub.hub_connect_ip = 'jupyterhub'
 
 # Provide iframe support
-c.JupyterHub.tornado_settings = {
-    "headers": {"Content-Security-Policy": "frame-ancestors 'self' *"}
-}
+c.JupyterHub.tornado_settings = {"headers": {"Content-Security-Policy": "frame-ancestors 'self' *"}}
 
 # Load data files
 c.JupyterHub.data_files_path = '/usr/local/share/jupyterhub/'
@@ -60,13 +49,8 @@ c.JupyterHub.load_groups = {
         'instructor1',
         'instructor2',
         os.environ.get('DEMO_GRADER_NAME'),
-    ],
-    os.environ.get('DEMO_STUDENT_GROUP'): [
-        'student1',
-        'bitdiddle',
-        'hacker',
-        'reasoner',
-    ],
+    ],  # noqa: E231
+    os.environ.get('DEMO_STUDENT_GROUP'): ['student1', 'bitdiddle', 'hacker', 'reasoner',],  # noqa: E231
 }
 
 # Allow admin access to end-user notebooks
@@ -93,8 +77,8 @@ c.JupyterHub.services = [
     },
     {
         'name': 'announcement',
-        'url': f'http://0.0.0.0:{int(announcement_port)}', # allow external connections with 0.0.0.0
-        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix /services/announcement'.split()
+        'url': f'http://0.0.0.0:{int(announcement_port)}',  # allow external connections with 0.0.0.0
+        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix /services/announcement'.split(),
     },
 ]
 
@@ -132,7 +116,7 @@ c.JupyterHub.proxy_class = TraefikTomlProxy
 # mark the proxy as externally managed
 c.TraefikTomlProxy.should_start = False
 
-# indicate the proxy url to allow register new routes 
+# indicate the proxy url to allow register new routes
 c.TraefikProxy.traefik_api_url = os.environ.get('PROXY_API_URL') or 'http://reverse-proxy:8099'
 
 # traefik api endpoint login password
@@ -155,9 +139,7 @@ c.TraefikTomlProxy.toml_dynamic_config_file = "/etc/traefik/rules.toml"
 ##########################################
 
 c.LTIAuthenticator.consumers = {
-    os.environ.get('LTI_CONSUMER_KEY')
-    or 'consumer_key': os.environ.get('LTI_SHARED_SECRET')
-    or 'shared_secret'
+    os.environ.get('LTI_CONSUMER_KEY') or 'consumer_key': os.environ.get('LTI_SHARED_SECRET') or 'shared_secret'
 }
 
 ##########################################
