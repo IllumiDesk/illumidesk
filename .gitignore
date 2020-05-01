@@ -24,6 +24,7 @@ MANIFEST
 htmlcov
 .idea/
 .vim/
+*pycache*
 .pytest_cache
 pip-wheel-metadata
 *hosts

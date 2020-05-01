@@ -18,7 +18,7 @@ all:
       # add a password only if your remote instance uses userid/password for SSH authentication
       ansible_password:
 
-      ## Optional settings
+      ## (Optional) Endpoint/namespace settings
       #-------------------
       # organization name, also used for the sub-domain, such as acme
       org_name:
@@ -29,14 +29,22 @@ all:
       # course label, such as finance101
       course_id:
 
+      ## Authentication settings
+      #-------------------
+      # set to true to use LTI 1.1
+      lti11_enabled: false
+
       # lti 1.1 consumer key, by default this is set dynamically. add
       # own value to override setting. we recommend using the openssl
-      # command to create secure strings: openssl rand -hex 16 
+      # command to create secure strings: e.g. `openssl rand -hex 16` 
       lti11_consumer_key:
 
       # lti 1.1 shared secret, by default set dynamically. set to at 
-      # least 32 random bytes: openssl rand -hex 32
+      # least 32 random bytes: `openssl rand -hex 32`
       lti11_shared_secret:
+      
+      # set to true to use LTI 1.3
+      lti13_enabled: false
 
-      # set to yes to use LTI 1.1
-      lti11_enabled: false
+      # the client id which represents the tools installation on the platform
+      lti13_client_id:
