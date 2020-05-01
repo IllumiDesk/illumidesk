@@ -189,7 +189,7 @@ class LTIUtils(LoggingConfigurable):
             args[k] = values[0].decode() if len(values) == 1 else [v.decode() for v in values]
         return args
 
-    async def get_lms_access_token(self, iss, token_endpoint, private_key, client_id, scope=None):
+    async def get_lms_access_token(self, iss, token_url, private_key, client_id, scope=None):
         """
         Gets the LTI 1.3 compatible LMS access token used to authenticate requests from
         the external tool to the LMS.
@@ -197,7 +197,7 @@ class LTIUtils(LoggingConfigurable):
         Args:
           iss: launch request Issuer. If the request originates from a Canvas cloud version
             then this value will mostly likely be https://canvas.instructure.com.
-          token_endpoint: token endpoint for the LMS such as https://my.lms.domain/login/oauth2/token
+          token_url: token endpoint for the LMS such as https://my.lms.domain/login/oauth2/token
           private_key: private key used to sign token request
           client_id: client id for installed external tool
           scope: scope desired when requesting token, such as lineitem, score, and results
@@ -207,8 +207,8 @@ class LTIUtils(LoggingConfigurable):
         """
         if not iss:
             raise ValueError('missing iss (Issuer)')
-        if not token_endpoint:
-            raise ValueError('missing token endpoint')
+        if not token_url:
+            raise ValueError('missing token url')
         if not private_key:
             raise ValueError('missing private_key')
         if not client_id:
@@ -216,7 +216,7 @@ class LTIUtils(LoggingConfigurable):
         token_params = {
             'iss': iss,
             'sub': client_id,
-            'aud': token_endpoint,
+            'aud': token_url,
             'exp': int(time.time()) + 600,
             'iat': int(time.time()),
             'jti': uuid.uuid4().hex,
@@ -242,7 +242,7 @@ class LTIUtils(LoggingConfigurable):
         client = AsyncHTTPClient()
         body = urllib.parse.urlencode(params)
         try:
-            resp = await client.fetch(token_endpoint, method='POST', body=body, headers=None)
+            resp = await client.fetch(token_url, method='POST', body=body, headers=None)
         except HTTPClientError as e:
             logging.info('Error fecthing lms access token %s' % e.response.body)
             raise

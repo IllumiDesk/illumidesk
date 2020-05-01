@@ -223,11 +223,33 @@ class LTI11Authenticator(LTIAuthenticator):
 
 class LTI13Authenticator(OAuthenticator):
     login_service = 'LTI13Authenticator'
-    # custom config
-    endpoint = Unicode(config=True)
+    endpoint = Unicode(
+        '',
+        help="""
+        The LTI 1.3 endpoint used to retrieve JWT access tokens.
+        Refer to https://www.imsglobal.org/node/162751 for specific
+        implementation details.
+        """,
+    ).tag(config=True)
+
     # configs defined in OAuthenticator
-    authorize_url = Unicode(config=True)
-    token_url = Unicode(config=True)
+    authorize_url = Unicode(
+        '',
+        help="""
+        Authorization URL which represents the authorization server's endpoint
+        to obtain acccess token based on authorization grant.
+        """,
+    ).tag(config=True)
+
+    token_url = Unicode(
+        '',
+        help="""
+        The LTI 1.3 endpoint used to retrieve JWT access tokens.
+        Refer to https://www.imsglobal.org/node/162751 for specific
+        implementation details.
+        """,
+    ).tag(config=True)
+
     # handlers used for login, callback, and jwks endpoints
     login_handler = LTI13LoginHandler
     callback_handler = LTI13CallbackHandler

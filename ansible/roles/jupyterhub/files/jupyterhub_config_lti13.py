@@ -4,6 +4,8 @@ import requests
 
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
+from illumidesk.authenticators.handlers import LTI13JwksHandler
+from illumidesk.authenticators.handlers import FileSelectHandler
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
 c = get_config()
@@ -131,7 +133,6 @@ c.TraefikTomlProxy.traefik_api_username = "api_admin"
 # traefik's dynamic configuration file
 c.TraefikTomlProxy.toml_dynamic_config_file = "/etc/traefik/rules.toml"
 
-
 ##########################################
 # END REVERSE PROXY
 ##########################################
@@ -146,12 +147,10 @@ c.LTI13Authenticator.endpoint = os.environ.get('LTI13_ENDPOINT')
 c.LTI13Authenticator.token_url = os.environ.get('LTI13_TOKEN_URL')
 c.LTI13Authenticator.authorize_url = os.environ.get('LTI13_AUTHORIZE_URL')
 
-# Handlers used with the file picker and sending grades
+# Handlers used for LTI endpoints
 c.JupyterHub.extra_handlers = [
-    (r'/send-grades/(?P<course_id>\d+)/(?P<assignment>\w+)$', 'illumidesk.authenticators.handlers.SendGradesHandler'),
-    (r'/file-select$', 'illumidesk.authenticators.handlers.FileSelectHandler'),
-    (r'/jwks$', 'illumidesk.authenticators.handlers.LTI13JwksHandler'),
-    (r'/hello$', 'illumidesk.authenticators.handlers.HelloWorldHandler'),
+    (r'/file-select$', FileSelectHandler),
+    (r'/jwks$', LTI13JwksHandler),
 ]
 
 # Post auth hook to setup course

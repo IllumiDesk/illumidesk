@@ -11,8 +11,8 @@
 
 - name: update all packages to the latest version
   apt:
-    upgrade: yes
-    update_cache: yes
+    upgrade: "yes"
+    update_cache: "yes"
     cache_valid_time: '3600'
 
 - name: install required system packages # noqa 403
