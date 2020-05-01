@@ -152,7 +152,7 @@ c.JupyterHub.extra_handlers = [
 ]
 
 # Post auth hook to setup course
-c.JupyterHub.post_auth_hook = setup_course_hook
+c.Authenticator.post_auth_hook = setup_course_hook
 
 ##########################################
 # END LTI 1.3 AUTHENTICATOR
