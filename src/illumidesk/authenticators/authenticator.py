@@ -39,7 +39,7 @@ async def setup_course_hook(authenticator, handler, authentication):
         authenticator: the JupyterHub Authenticator object
         handler: the JupyterHub handler object
         authentication: the authentication object returned by the
-        authenticator class
+          authenticator class
 
     Returns:
         authentication (Required): updated authentication object
@@ -227,8 +227,8 @@ class LTI13Authenticator(OAuthenticator):
         '',
         help="""
         The LTI 1.3 endpoint used to retrieve JWT access tokens.
-        Refer to https://www.imsglobal.org/node/162751 for specific
-        implementation details.
+        Official specification: https://www.imsglobal.org/node/162751
+        section
         """,
     ).tag(config=True)
 
@@ -236,8 +236,9 @@ class LTI13Authenticator(OAuthenticator):
     authorize_url = Unicode(
         '',
         help="""
-        Authorization URL which represents the authorization server's endpoint
-        to obtain acccess token based on authorization grant.
+        Authorization URL that represents the LTI 1.3 / OAuth2 authorization
+        server's endpoint to obtain an acccess token based on authorization
+        grant.
         """,
     ).tag(config=True)
 
@@ -245,8 +246,7 @@ class LTI13Authenticator(OAuthenticator):
         '',
         help="""
         The LTI 1.3 endpoint used to retrieve JWT access tokens.
-        Refer to https://www.imsglobal.org/node/162751 for specific
-        implementation details.
+        Official specification: https://www.imsglobal.org/node/162751.
         """,
     ).tag(config=True)
 
@@ -254,17 +254,28 @@ class LTI13Authenticator(OAuthenticator):
     login_handler = LTI13LoginHandler
     callback_handler = LTI13CallbackHandler
 
-    async def retrieve_matching_jwk(self, token, endpoint, verify):
+    async def _retrieve_matching_jwk(self, token, endpoint, verify):
+        """
+        Retrieves the matching cryptographic key from the platform as a
+        JSON Web Key (JWK).
+
+        Args:
+          token: jwt token
+        """
         client = AsyncHTTPClient()
         resp = await client.fetch(endpoint, validate_cert=verify)
         self.log.debug('Retrieving matching jwk %s' % json.loads(resp.body))
         return json.loads(resp.body)
 
-    async def jwt_decode(self, token, jwks, verify=True, audience=None):
+    async def _jwt_decode(self, token, jwks, verify=True, audience=None):
+        """
+        Decodes the JSON Web Token (JWT) sent from the platform. The JWT should contain claims
+        that represent properties associated with the request.
+        """
         if verify is False:
             self.log.debug('JWK verification is off, returning token %s' % jwt.decode(token, verify=False))
             return jwt.decode(token, verify=False)
-        jwks = await self.retrieve_matching_jwk(token, jwks, verify)
+        jwks = await self._retrieve_matching_jwk(token, jwks, verify)
         jws = JWS.from_compact(bytes(token, 'utf-8'))
         self.log.debug('Retrieving matching jws %s' % jws)
         json_header = jws.signature.protected
@@ -283,6 +294,9 @@ class LTI13Authenticator(OAuthenticator):
         return jwt.decode(token, key, verify, audience=audience)
 
     async def authenticate(self, handler, data=None):
+        """
+        Overrides authenticate from base class to handle LTI 1.3 authentication requests.
+        """
         lti_utils = LTIUtils()
 
         # extract the request arguments to a dict
@@ -301,7 +315,7 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('JWKS endpoint is %s' % jwks)
         id_token = handler.get_argument('id_token')
         self.log.debug('ID token is %s' % id_token)
-        decoded = await self.jwt_decode(id_token, jwks, audience=self.client_id)
+        decoded = await self._jwt_decode(id_token, jwks, audience=self.client_id)
         self.log.debug('Decoded JWT is %s' % decoded)
         self.decoded = decoded
         if self.decoded is None:
@@ -310,9 +324,9 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('course_label is %s' % self.course_id)
         # TODO: add conditional in case the tool installation has setting set to private mode
         username = lti_utils.email_to_username(decoded['email'])
-        self.log.debug('username is %s' % self.username)
+        self.log.debug('username is %s' % username)
         lms_course_id = decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems'].split('/')[-2]
-        self.log.debug('lms_course_id is %s' % self.username)
+        self.log.debug('lms_course_id is %s' % lms_course_id)
         org = handler.request.host.split('.')[0]
         self.log.debug('org is %s' % org)
         user_role = 'Instructor'
@@ -324,12 +338,5 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('user_role is %s' % user_role)
         return {
             'name': username,
-            'auth_state': {
-                'course_id': self.course_id,
-                'user_role': user_role,
-                'lms_instance': self.endpoint,
-                'token': await lti_utils.get_lms_access_token(
-                    url, self.token_url, os.environ['PRIVATE_KEY'], decoded['aud'],
-                ),
-            },
+            'auth_state': {'course_id': self.course_id, 'user_role': user_role,},  # noqa: E231
         }

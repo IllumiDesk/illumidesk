@@ -123,6 +123,7 @@
       path: "{{ working_dir }}"
       dockerfile: "{{ docker_jupyterhub_dockerfile }}"
       pull: no
+    state: present
     source: build
     force_source: yes
 

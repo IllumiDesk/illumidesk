@@ -192,7 +192,7 @@ class LTIUtils(LoggingConfigurable):
     async def get_lms_access_token(self, iss, token_url, private_key, client_id, scope=None):
         """
         Gets the LTI 1.3 compatible LMS access token used to authenticate requests from
-        the external tool to the LMS.
+        the tool with the platform.
 
         Args:
           iss: launch request Issuer. If the request originates from a Canvas cloud version
