@@ -36,12 +36,18 @@ setup(
     license='MIT',
     packages=find_packages(),
     install_requires=[
+        'dockerspawner==0.11.1',
+        'filelock==3.0.12',
+        'josepy==1.3.0',
         'jupyterhub>=1.1.0',
         'jupyterhub-ltiauthenticator>=0.4.0',
-        'oauthenticator>=0.11.0' 'dockerspawner==0.11.1',
         'nbgrader>=0.6.1',
+        'oauthenticator==0.11.0',
         'quart==0.11.5',
-        'filelock==3.0.12',
+        'pycrypto==2.6.1',
+        'PyJWT==1.7.1',
+        'pyjwkest==1.4.2',
+        'pycryptodome==3.9.7',
     ],  # noqa: E231
     package_data={'': ['*.html'],},  # noqa: E231
     entry_points={

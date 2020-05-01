@@ -1,6 +1,7 @@
 import os
 import json
 import jwt
+import logging
 
 from josepy.jws import JWS
 from josepy.jws import Header
@@ -21,6 +22,76 @@ from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.authenticators.validator import LTI11LaunchValidator
+
+
+logger = logging.getLogger(__name__)
+
+
+async def setup_course_hook(authenticator, handler, authentication):
+    """
+    Calls the microservice to setup up a new course in case it does not exist.
+    The data needed is received from auth_State within authentication object
+
+    This function requires `Authenticator.enable_auth_state = True` and is intended
+    to be used as a post_auth_hook.
+
+    Args:
+        authenticator: the JupyterHub Authenticator object
+        handler: the JupyterHub handler object
+        authentication: the authentication object returned by the
+        authenticator class
+
+    Returns:
+        authentication (Required): updated authentication object
+    """
+    announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
+    username = authentication['name']
+    if 'lms_user_id' in authentication['auth_state']:
+        lms_user_id = authentication['auth_state']['lms_user_id']
+
+    course_id = authentication['auth_state']['course_id']
+    role = authentication['auth_state']['user_role']
+    org = os.environ.get('ORGANIZATION_NAME')
+    jupyterhub_api = JupyterHubAPI()
+    # TODO: verify the logic to simplify groups creation and membership
+    if role == 'Student' or role == 'Learner':
+        # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
+        await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+        await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
+    elif role == 'Instructor':
+        # assign the user in 'formgrade-<course_id>' group
+        await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
+    client = AsyncHTTPClient()
+    data = {
+        'org': org,
+        'course_id': course_id,
+        'domain': handler.request.host,
+    }
+    service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
+    port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
+    url = f'http://{service_name}:{port}'
+    headers = {'Content-Type': 'application/json'}
+    response = await client.fetch(url, headers=headers, body=json.dumps(data), method='POST')
+    resp_json = json.loads(response.body)
+    logger.debug(f'Setup-Course service response: {resp_json}')
+
+    # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
+    if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
+        # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
+        url = f'http://localhost:{int(announcement_port)}/services/announcement'
+        jupyterhub_api_token = os.environ.get('JUPYTERHUB_API_TOKEN')
+        headers['Authorization'] = f'token {jupyterhub_api_token}'
+        body_data = {'announcement': 'A new service was detected, please reload this page...'}
+        await client.fetch(url, headers=headers, body=json.dumps(body_data), method='POST')
+
+        logger.debug('The current jupyterhub instance will be updated by setup-course service...')
+        url = f'http://{service_name}:{port}/rolling-update'
+        # our setup-course not requires auth
+        del headers['Authorization']
+        # WE'RE NOT USING <<<AWAIT>>> because the rolling update should occur later
+        client.fetch(url, headers=headers, body='', method='POST')
+
+    return authentication
 
 
 class LTI11Authenticator(LTIAuthenticator):
@@ -149,80 +220,17 @@ class LTI11Authenticator(LTIAuthenticator):
                 },  # noqa: E231
             }
 
-    async def post_auth_hook(self, authenticator, handler, authentication):
-        """
-        Calls the microservice to setup up a new course in case it does not exist.
-        The data needed is received from auth_State within authentication object
-
-        This function requires `Authenticator.enable_auth_state = True`.
-
-        Args:
-            authenticator: the JupyterHub Authenticator object
-            handler: the JupyterHub handler object
-            authentication: the authentication object returned by the
-            authenticator class
-
-        Returns:
-            authentication (Required): updated authentication object
-        """
-        announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
-        username = authentication['name']
-        lms_user_id = authentication['auth_state']['lms_user_id']
-
-        course_id = authentication['auth_state']['course_id']
-        role = authentication['auth_state']['user_role']
-        org = os.environ.get('ORGANIZATION_NAME')
-        jupyterhub_api = JupyterHubAPI()
-        # TODO: verify the logic to simplify groups creation and membership
-        if role == 'Student' or role == 'Learner':
-            # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
-            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
-            await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
-        elif role == 'Instructor':
-            # assign the user in 'formgrade-<course_id>' group
-            await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
-        client = AsyncHTTPClient()
-        data = {
-            'org': org,
-            'course_id': course_id,
-            'domain': handler.request.host,
-        }
-        service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
-        port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
-        url = f'http://{service_name}:{port}'
-        headers = {'Content-Type': 'application/json'}
-        response = await client.fetch(url, headers=headers, body=json.dumps(data), method='POST')
-        resp_json = json.loads(response.body)
-        self.log.debug(f'Setup-Course service response: {resp_json}')
-
-        # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
-        if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
-            # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
-            url = f'http://localhost:{int(announcement_port)}/services/announcement'
-            jupyterhub_api_token = os.environ.get('JUPYTERHUB_API_TOKEN')
-            headers['Authorization'] = f'token {jupyterhub_api_token}'
-            body_data = {'announcement': 'A new service was detected, please reload this page...'}
-            await client.fetch(url, headers=headers, body=json.dumps(body_data), method='POST')
-
-            self.log.debug('The current jupyterhub instance will be updated by setup-course service...')
-            url = f'http://{service_name}:{port}/rolling-update'
-            # our setup-course not requires auth
-            del headers['Authorization']
-            # WE'RE NOT USING <<<AWAIT>>> because the rolling update should occur later
-            client.fetch(url, headers=headers, body='', method='POST')
-
-        return authentication
-
 
 class LTI13Authenticator(OAuthenticator):
-    login_service = 'LTI13'
-
-    login_handler = LTI13LoginHandler
-    callback_handler = LTI13CallbackHandler
-
+    login_service = 'LTI13Authenticator'
+    # custom config
     endpoint = Unicode(config=True)
+    # configs defined in OAuthenticator
     authorize_url = Unicode(config=True)
     token_url = Unicode(config=True)
+    # handlers used for login, callback, and jwks endpoints
+    login_handler = LTI13LoginHandler
+    callback_handler = LTI13CallbackHandler
 
     async def retrieve_matching_jwk(self, token, endpoint, verify):
         client = AsyncHTTPClient()
@@ -230,7 +238,7 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('Retrieving matching jwk %s' % json.loads(resp.body))
         return json.loads(resp.body)
 
-    async def lti_jwt_decode(self, token, jwks, verify=True, audience=None):
+    async def jwt_decode(self, token, jwks, verify=True, audience=None):
         if verify is False:
             self.log.debug('JWK verification is off, returning token %s' % jwt.decode(token, verify=False))
             return jwt.decode(token, verify=False)
@@ -255,13 +263,23 @@ class LTI13Authenticator(OAuthenticator):
     async def authenticate(self, handler, data=None):
         lti_utils = LTIUtils()
 
-        url = f'https://{handler.request.host}'
+        # extract the request arguments to a dict
+        args = lti_utils.convert_request_to_dict(handler.request.arguments)
+        self.log.debug('Decoded args from request: %s' % args)
+
+        # get the origin protocol
+        protocol = lti_utils.get_client_protocol(handler)
+        self.log.debug('Origin protocol is: %s' % protocol)
+
+        # build the url used for
+        url = f'{protocol}://{handler.request.host}'
+
         self.log.debug('Request host URL %s' % url)
         jwks = f'{self.endpoint}/api/lti/security/jwks'
         self.log.debug('JWKS endpoint is %s' % jwks)
         id_token = handler.get_argument('id_token')
         self.log.debug('ID token is %s' % id_token)
-        decoded = await self.lti_jwt_decode(id_token, jwks, audience=self.client_id)
+        decoded = await self.jwt_decode(id_token, jwks, audience=self.client_id)
         self.log.debug('Decoded JWT is %s' % decoded)
         self.decoded = decoded
         if self.decoded is None:
@@ -293,67 +311,3 @@ class LTI13Authenticator(OAuthenticator):
                 ),
             },
         }
-
-    async def post_auth_hook(self, authenticator, handler, authentication):
-        """
-        Calls the microservice to setup up a new course in case it does not exist.
-        The data needed is received from auth_State within authentication object
-
-        This function requires `Authenticator.enable_auth_state = True`.
-
-        Args:
-            authenticator: the JupyterHub Authenticator object
-            handler: the JupyterHub handler object
-            authentication: the authentication object returned by the
-            authenticator class
-
-        Returns:
-            authentication (Required): updated authentication object
-        """
-        announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
-        username = authentication['name']
-        lms_user_id = authentication['auth_state']['lms_user_id']
-
-        course_id = authentication['auth_state']['course_id']
-        role = authentication['auth_state']['user_role']
-        org = os.environ.get('ORGANIZATION_NAME')
-        jupyterhub_api = JupyterHubAPI()
-        # TODO: verify the logic to simplify groups creation and membership
-        if role == 'Student' or role == 'Learner':
-            # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
-            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
-            await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
-        elif role == 'Instructor':
-            # assign the user in 'formgrade-<course_id>' group
-            await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
-        client = AsyncHTTPClient()
-        data = {
-            'org': org,
-            'course_id': course_id,
-            'domain': handler.request.host,
-        }
-        service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
-        port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
-        url = f'http://{service_name}:{port}'
-        headers = {'Content-Type': 'application/json'}
-        response = await client.fetch(url, headers=headers, body=json.dumps(data), method='POST')
-        resp_json = json.loads(response.body)
-        self.log.debug(f'Setup-Course service response: {resp_json}')
-
-        # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
-        if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
-            # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
-            url = f'http://localhost:{int(announcement_port)}/services/announcement'
-            jupyterhub_api_token = os.environ.get('JUPYTERHUB_API_TOKEN')
-            headers['Authorization'] = f'token {jupyterhub_api_token}'
-            body_data = {'announcement': 'A new service was detected, please reload this page...'}
-            await client.fetch(url, headers=headers, body=json.dumps(body_data), method='POST')
-
-            self.log.debug('The current jupyterhub instance will be updated by setup-course service...')
-            url = f'http://{service_name}:{port}/rolling-update'
-            # our setup-course not requires auth
-            del headers['Authorization']
-            # WE'RE NOT USING <<<AWAIT>>> because the rolling update should occur later
-            client.fetch(url, headers=headers, body='', method='POST')
-
-        return authentication
