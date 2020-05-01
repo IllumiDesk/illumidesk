@@ -37,7 +37,6 @@ deploy: prepare
 
 lint: venv
 	${VENV_BIN}/flake8 src
-	${VENV_BIN}/ansible-lint
 	${VENV_BIN}/black .
 
 test: venv
