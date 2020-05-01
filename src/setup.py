@@ -50,10 +50,4 @@ setup(
         'pycryptodome==3.9.7',
     ],  # noqa: E231
     package_data={'': ['*.html'],},  # noqa: E231
-    entry_points={
-        'jupyterhub.authenticators': [
-            'illumidesklti11 = illumidesk.authenticators.authenticator.LTI11Authenticator',
-            'illumidesklti13 = illumidesk.authenticators.authenticator.LTI13Authenticator',
-        ],  # noqa: E231
-    },
 )
