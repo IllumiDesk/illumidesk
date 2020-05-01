@@ -1,6 +1,7 @@
 import os
 import requests
 
+from illumidesk.authenticators.authenticator import setup_course_hook
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
 c = get_config()
@@ -95,6 +96,9 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 
 # LTI 1.1 authenticator class.
 c.JupyterHub.authenticator_class = 'illumidesk.authenticators.authenticator.LTI11Authenticator'
+
+# Post auth hook to setup course
+c.JupyterHub.post_auth_hook = setup_course_hook
 
 # Spawn containers with custom dockerspawner class
 c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
