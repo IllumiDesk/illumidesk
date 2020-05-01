@@ -1,13 +1,16 @@
 import os
 import json
+
 from jupyterhub.handlers import BaseHandler
 
 from ltiauthenticator import LTIAuthenticator
+
 from tornado.web import HTTPError
 from tornado.httpclient import AsyncHTTPClient
+
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
-from .utils import LTIUtils
-from .validator import LTI11LaunchValidator
+from illumidesk.authenticators.utils import LTIUtils
+from illumidesk.authenticators.validator import LTI11LaunchValidator
 
 
 class LTI11Authenticator(LTIAuthenticator):
