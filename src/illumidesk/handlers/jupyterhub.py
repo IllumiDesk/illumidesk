@@ -27,22 +27,25 @@ class SendGradesHandler(BaseHandler):
 class LTIGradesSenderControlFile:
     # TODO: re-think to centralize files like this or replace all of them with a little DB (sqlite)
     # this file must be at same level of gradebook
-    # the path is not calculated here but is like: /<mnt_root>/<org_name>/home/grader-<course-id>/<course-id>
+    # the path is not calculated here but is like: /home/grader-<course-id>/<course-id>
     FILE_NAME = 'lti_grades_sender_info.json'
+    FILE_LOADED = False
     cache_sender_data = {'grades_sender_assignments': []}
 
-    def __init__(self, config_file_path):
-        self.config_path = config_file_path
-        if not LTIGradesSenderControlFile.sender_config:
+    def __init__(self, course_dir):
+        self.config_path = course_dir
+        if not LTIGradesSenderControlFile.FILE_LOADED:
+            logger.debug('First reading of control file')
             # try to read first time
-            self.loadFromFile()
+            self._loadFromFile()
 
     @property
     def config_fullname(self):        
         return os.path.join(self.config_path, LTIGradesSenderControlFile.FILE_NAME)
     
-    def loadFromFile(self):
-        # TODO: apply a file lock         
+    def _loadFromFile(self):
+        # TODO: apply a file lock
+        logger.debug('Try to read the control file...')
         with Path(self.config_fullname).open('w+') as file:
             try:
                 cache_sender_data = json.load(file)
@@ -51,8 +54,13 @@ class LTIGradesSenderControlFile:
                     raise
                 else:
                     json.dump(cache_sender_data, file)
-    
+            logger.debug('Control file was loaded.')
+
     def register_data(self, assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid):
+        """
+        Registers some information about where sent the assignment grades: like the url, sourcedid.
+        This information is used later when the teacher finishes its work in nbgrader console
+        """
         assignment_reg = None
         # if the assignment does not exist then register it
         for item in self.sender_data['grades_sender_assignments']:
@@ -90,10 +98,9 @@ class LTIGradesSenderControlFile:
 
 class LTIGradeSender:
 
-    def __init__(self, log: any, course_id: str, assignment_name: str):
+    def __init__(self, course_id: str, assignment_name: str):
         self.course_id = course_id
-        self.assignment_name = assignment_name
-        self.log = log
+        self.assignment_name = assignment_name        
         
     def _message_identifier(self):
         return '{:.0f}'.format(time.time())
@@ -115,10 +122,10 @@ class LTIGradeSender:
 
         out = []
         # Create the connection to the gradebook database
-        with Gradebook(f'sqlite:///{db_url}', course_id=course_id) as gb:        
+        with Gradebook(f'sqlite:///{db_url}', course_id=self.course_id) as gb:        
             try:
-                submissions = gb.assignment_submissions(assignment_name)
-                logger.debug(f'Found {len(submissions)} submissions for assignment: {assignment_name}')
+                submissions = gb.assignment_submissions(self.assignment_name)
+                logger.debug(f'Found {len(submissions)} submissions for assignment: {self.assignment_name}')
             except MissingEntry as e:
                 logger.debug('Submission is missing: %s' % e)            
             
@@ -161,6 +168,14 @@ class LTIGradeSender:
                 # todo: if 0 <= score <= 1.0:
                 lms_xml = generate_request_xml(msg_id, student['lis_result_sourcedid'], score)
                 # send to lms
+                if not post_message(
+                    pylti_consumers, consumer_key,
+                        url, lms_xml):
+
+                    logger.error('An error occurred while saving your score. '
+                        'Please try again.')
+                else:
+                    logger.info('Your score was submitted. Great job!')
 
 
 def generate_request_xml(message_identifier_id: str,
