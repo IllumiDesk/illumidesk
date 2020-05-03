@@ -1,7 +1,0 @@
-Type: Jupyter Notebook Extension
-Compatibility: 6.x
-Name: IllumiDesk Grades Submission
-Main: main.js
-Link: README.md
-Description: |
-  Submits an assignment to the IllumiDesk LTI backend, which, in turn, submits the assignment to the LMS on the student's behalf.

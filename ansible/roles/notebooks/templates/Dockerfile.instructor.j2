@@ -5,15 +5,8 @@ ARG USER_ROLE=Instructor
 
 USER $NB_UID
 
-COPY src/illumidesk/nbextensions/grade_submission/ $CONDA_DIR/share/jupyter/nbextensions/grade_submission/
-
-# COPY src/illumidesk/server_extensions/grade_submission
-
 RUN jupyter nbextension enable --sys-prefix assignment_list/main --section=tree \
  && jupyter serverextension enable --sys-prefix nbgrader.server_extensions.assignment_list \
  && jupyter serverextension enable --sys-prefix nbgrader.server_extensions.course_list
-
-RUN jupyter nbextension install $CONDA_DIR/share/jupyter/nbextensions/grade_submission/ --sys-prefix
-RUN jupyter nbextension enable --sys-prefix grade_submission/main --section=tree
 
 WORKDIR /home/$NB_USER
