@@ -31,3 +31,4 @@ hosts
 .env
 *.ipynb
 venv
+*.retry
