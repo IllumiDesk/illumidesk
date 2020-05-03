@@ -224,15 +224,14 @@ var AssignmentUI = Backbone.View.extend({
                    .attr("aria-hidden", "true")));
         }
         //  grades submission
-        //if (num_submissions > 0) {
+        if (num_submissions > 0) {
             this.$submit_grades.append($("<a/>")
             .attr("href", "#")
                     .click(_.bind(this.submit_grades, this))
             .append($("<span/>")
             .addClass("glyphicon glyphicon-send")
                     .attr("aria-hidden", "true")));
-        //}
-
+        }
     },
 
     assign: function () {
@@ -435,8 +434,36 @@ var AssignmentUI = Backbone.View.extend({
         this.clear();
         this.$name.text("Please wait...");
         $.post(get_jhub_base_url() + "/submit-grades/" + get_course_id_from_url() + "/" + this.model.get("name"))
-            .done((response) => alert('success'))
-            .fail(() => alert('error'));
+            .done(_.bind(this.submit_grades_success, this))
+            .fail(_.bind(this.submit_grades_failure, this));
+    },
+
+    submit_grades_success: function (response) {
+        this.model.fetch();
+        response = JSON.parse(response);
+        if (response["success"]) {
+            createLogModal(
+                "success-modal",
+                "Success",
+                "Successfully submitted grades of '" + this.model.get("name") + "'.",
+                response["log"]);
+
+        } else {
+            createLogModal(
+                "error-modal",
+                "Error",
+                "There was an error submitting grades of '" + this.model.get("name") + "':",
+                response["log"],
+                response["error"]);
+        }
+    },
+
+    submit_grades_failure: function () {
+        this.model.fetch();
+        createModal(
+            "error-modal",
+            "Error",
+            "There was an error submitting grades of '" + this.model.get("name") + "'.");
     },
 
     release_feedback: function () {

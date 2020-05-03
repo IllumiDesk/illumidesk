@@ -40,7 +40,7 @@ class SendGradesHandler(BaseHandler):
             raise web.HTTPError(400, 'There are no grades yet to submit')
         except GradesSenderMissingInfoException:
             raise web.HTTPError(400, 'Impossible to send grades. There are missing values, please check logs.')
-        self.finish(json.dumps({'message': 'OK'}))
+        self.write(json.dumps({"success": True}))
 
 
 class LTIGradesSenderControlFile:
