@@ -238,7 +238,7 @@ c.DockerSpawner.volumes = {
 
 # Custom Handlers used to send grades to LMS
 c.JupyterHub.extra_handlers= [
-    (r'/submit-grades/(?P<course_id>\w+)/(?P<assignment_name>\w+)', 'illumidesk.handlers.jupyterhub.SendGradesHandler'),
+    (r'/submit-grades/(?P<course_id>\w+)/(?P<assignment_name>\w+)', 'illumidesk.handlers.lms_grades.SendGradesHandler'),
 ]
 
 ##########################################

@@ -6,7 +6,7 @@ from ltiauthenticator import LTIAuthenticator
 from tornado.web import HTTPError
 from tornado.httpclient import AsyncHTTPClient
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
-from illumidesk.handlers.jupyterhub import LTIGradesSenderControlFile
+from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
 from .utils import LTIUtils
 from .validator import LTI11LaunchValidator
 
