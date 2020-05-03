@@ -15,9 +15,8 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class SendGradesHandler(BaseHandler):
-    async def post(self, course_id, assignment_name):
-        self.log.debug(f'course_id received: {course_id}')
-        self.log.debug(f'assignment_name received: {assignment_name}')
+    async def post(self, course_id, assignment_name):        
+        self.log.debug(f'Data received to send grades-> course:{course_id}, assignment:{assignment_name}')
         
         lti_grade_sender = LTIGradeSender(course_id, assignment_name)
         lti_grade_sender.send_grades()
@@ -35,7 +34,7 @@ class LTIGradesSenderControlFile:
     def __init__(self, course_dir):
         self.config_path = course_dir
         if not LTIGradesSenderControlFile.FILE_LOADED:
-            logger.debug('First reading of control file')
+            logger.debug('Cache of control file not yet loaded')
             # try to read first time
             self._loadFromFile()
 
@@ -43,18 +42,29 @@ class LTIGradesSenderControlFile:
     def config_fullname(self):        
         return os.path.join(self.config_path, LTIGradesSenderControlFile.FILE_NAME)
     
+    def initialize_control_file(self):
+        with Path(self.config_fullname).open('w+') as new_file:
+            json.dump(LTIGradesSenderControlFile.cache_sender_data, new_file)
+            logger.debug('Control file initialized.')
+    
     def _loadFromFile(self):
         # TODO: apply a file lock
-        logger.debug('Try to read the control file...')
-        with Path(self.config_fullname).open('w+') as file:
+        if Path(self.config_fullname).stat().st_size == 0:
+            self.initialize_control_file()
+            return
+        logger.debug(f'Try to read the control file from:{self.config_fullname}')
+        with Path(self.config_fullname).open('r') as file:
             try:
-                cache_sender_data = json.load(file)
-            except json.JSONDecodeError:
+                LTIGradesSenderControlFile.cache_sender_data = json.load(file)
+                logger.debug(f'Control file found and loaded from:{self.config_fullname}')
+                logger.info(f'Control file content:{LTIGradesSenderControlFile.cache_sender_data}')
+            except json.JSONDecodeError as e:
+                logger.error(f'Error reading the control file:{e}')
                 if Path(self.config_fullname).stat().st_size != 0:
-                    raise
-                else:
-                    json.dump(cache_sender_data, file)
-            logger.debug('Control file was loaded.')
+                    logger.error(f'Control file with wrong format:{e}. It will be initialized instead')                
+                    self.initialize_control_file ()                   
+                    
+            LTIGradesSenderControlFile.FILE_LOADED = True
 
     def register_data(self, assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid):
         """
@@ -63,7 +73,7 @@ class LTIGradesSenderControlFile:
         """
         assignment_reg = None
         # if the assignment does not exist then register it
-        for item in self.sender_data['grades_sender_assignments']:
+        for item in LTIGradesSenderControlFile.cache_sender_data['grades_sender_assignments']:
             if item['lms_name'] == assignment_name:
                 assignment_reg = item
                 break
@@ -85,13 +95,13 @@ class LTIGradesSenderControlFile:
 
     def _write_new_assignment_info(self, data: dict):
         # append new info
-        self.cache_sender_data['grades_sender_assignments'].append(data)
+        LTIGradesSenderControlFile.cache_sender_data['grades_sender_assignments'].append(data)
         # save the file to disk
         with Path(self.config_fullname).open('r+') as file:
-            json.dump(self.cache_sender_data, file)
+            json.dump(LTIGradesSenderControlFile.cache_sender_data, file)
 
     def get_assignment_by_name(self, assignment_name):
-        for item in self.sender_data['grades_sender_assignments']:
+        for item in LTIGradesSenderControlFile.cache_sender_data['grades_sender_assignments']:
             if item['lms_name'] == assignment_name:
                 return item
 
@@ -144,7 +154,7 @@ class LTIGradeSender:
         if not nbgrader_grades:
             logger.info('There are no grades yet to submit')
             return
-        msg_id = self.message_identifier()
+        msg_id = self._message_identifier()
         # create the consumers map {'consumer_key': {'secret': 'shared_secret'}}
         consumer_key = os.environ.get('LTI_CONSUMER_KEY')
         shared_secret = os.environ.get('LTI_SHARED_SECRET')
@@ -160,13 +170,14 @@ class LTIGradeSender:
         url = assignment_info['lis_outcome_service_url']
         logger.debug(f'lis_outcome_service_url found to send grades:{url}')
 
-        for grade in self.nbgrader_grades:
+        for grade in nbgrader_grades:
             # get student lis_result_sourcedid
             student = [s for s in assignment_info['students'] if s['lms_user_id'] == grade['lms_user_id']][:1]
+            # student object is an array [] 
             if student:
-                score = float(grade['score'])
+                score = float(grade['score'])                
                 # todo: if 0 <= score <= 1.0:
-                lms_xml = generate_request_xml(msg_id, student['lis_result_sourcedid'], score)
+                lms_xml = generate_request_xml(msg_id, student[0]['lis_result_sourcedid'], score)
                 # send to lms
                 if not post_message(
                     pylti_consumers, consumer_key,
