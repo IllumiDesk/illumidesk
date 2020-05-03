@@ -14,12 +14,32 @@ from pylti.common import LTIPostMessageException, post_message
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+
+class GradesSenderCriticalError(Exception):
+    pass
+
+
+class AssignmentWithoutGradesException(Exception):
+    pass
+
+
+class GradesSenderMissingInfoException(Exception):
+    pass
+
+
 class SendGradesHandler(BaseHandler):
     async def post(self, course_id, assignment_name):        
         self.log.debug(f'Data received to send grades-> course:{course_id}, assignment:{assignment_name}')
         
         lti_grade_sender = LTIGradeSender(course_id, assignment_name)
-        lti_grade_sender.send_grades()
+        try:
+            lti_grade_sender.send_grades()
+        except GradesSenderCriticalError:
+            raise web.HTTPError(400, 'There was an critical error, please check logs.')
+        except AssignmentWithoutGradesException:
+            raise web.HTTPError(400, 'There are no grades yet to submit')
+        except GradesSenderMissingInfoException:
+            raise web.HTTPError(400, 'Impossible to send grades. There are missing values, please check logs.')
         self.finish(json.dumps({'message': 'OK'}))
 
 
@@ -66,10 +86,24 @@ class LTIGradesSenderControlFile:
                     
             LTIGradesSenderControlFile.FILE_LOADED = True
 
-    def register_data(self, assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid):
+    def register_data(self, assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid, assignment_points: int):
         """
         Registers some information about where sent the assignment grades: like the url, sourcedid.
         This information is used later when the teacher finishes its work in nbgrader console
+
+        Args:
+            assignment_name (str):
+                This value must be the same as nbgrader assigment name
+            lis_outcome_service_url (str):
+                Obtained from lti authentication request ('lis_outcome_service_url'). This url is used to send grades
+            lms_user_id (str):
+                Obtained from lti authentication request ('user_id'). this Id identifies the student in lms and nbgrader
+            lis_result_sourcedid (str):
+                Obtained from lti authentication request ('lis_result_sourcedid'). It's value is unique for each student
+            assignment_points (int):
+                This value is used to calculate the score before sending grades to lms. 
+                For canvas, is obtained from 'custom_canvas_assignment_points_possible'
+
         """
         assignment_reg = None
         # if the assignment does not exist then register it
@@ -82,8 +116,10 @@ class LTIGradesSenderControlFile:
             assignment_reg = {
                 'lms_name': assignment_name,
                 'lis_outcome_service_url': lis_outcome_service_url,
+                'lms_assignment_points': assignment_points,
                 'students': []
             }
+        
         # if the student info not exists then create it
         if not [student for student in assignment_reg['students'] if student['lms_user_id'] == lms_user_id]:
             assignment_reg['students'].append({
@@ -127,8 +163,8 @@ class LTIGradeSender:
         db_url = Path(self.gradebook_dir, 'gradebook.db')
         # raise an error if the database does not exist
         if not db_url.exists():
-            logger.error('Gradebook database file does not exist. impossible to send grades')
-            return
+            logger.error(f'Gradebook database file does not exist at: {db_url}.')
+            raise GradesSenderCriticalError
 
         out = []
         # Create the connection to the gradebook database
@@ -152,8 +188,7 @@ class LTIGradeSender:
     def send_grades(self):
         nbgrader_grades = self._retrieve_grades_from_db()
         if not nbgrader_grades:
-            logger.info('There are no grades yet to submit')
-            return
+            raise AssignmentWithoutGradesException
         msg_id = self._message_identifier()
         # create the consumers map {'consumer_key': {'secret': 'shared_secret'}}
         consumer_key = os.environ.get('LTI_CONSUMER_KEY')
@@ -165,18 +200,29 @@ class LTIGradeSender:
         assignment_info = grades_sender_file.get_assignment_by_name(self.assignment_name)
         if not assignment_info:
             logger.debug(f'There is not info related to assignment: {self.assignment_name}. Check if the config file path is correct')
-            return
+            raise GradesSenderMissingInfoException
         
         url = assignment_info['lis_outcome_service_url']
-        logger.debug(f'lis_outcome_service_url found to send grades:{url}')
+        lms_assignment_points = assignment_info['lms_assignment_points'] or 0
+        logger.debug(f'lis_outcome_service_url found to send grades: {url}')
+
+        if lms_assignment_points == 0:
+            logger.error(f'There is a missing value for the assignment points, this value should be > 0')
+            raise GradesSenderMissingInfoException
+
 
         for grade in nbgrader_grades:
             # get student lis_result_sourcedid
+            logger.debug(f"Retrieving info for student id:{grade['lms_user_id']}")
             student = [s for s in assignment_info['students'] if s['lms_user_id'] == grade['lms_user_id']][:1]
             # student object is an array [] 
             if student:
-                score = float(grade['score'])                
-                # todo: if 0 <= score <= 1.0:
+                logger.debug(f'Student data retrieved sender control file: {student[0]}')
+                score = float(grade['score'])
+                # calculate % based on lms_assignment_points
+                logger.debug(f'Converting score {score} to porcentual value')
+                score = score * 100 / lms_assignment_points / 100
+                # TODO: where put this logic if 0 <= score <= 1.0:
                 lms_xml = generate_request_xml(msg_id, student[0]['lis_result_sourcedid'], score)
                 # send to lms
                 if not post_message(

@@ -95,6 +95,7 @@ class LTI11Authenticator(LTIAuthenticator):
             # custom user id extension by default, else use standar lti values.
             username = ''
             assignment_name = args['resource_link_title'] if 'resource_link_title' in args else 'unknown'
+            assignment_points = 0
             if lms_vendor == 'canvas':
                 self.log.debug('TC is a Canvas LMS instance')
                 if 'custom_canvas_user_login_id' in args and args['custom_canvas_user_login_id'] is not None:
@@ -111,8 +112,9 @@ class LTI11Authenticator(LTIAuthenticator):
                     username = args['lis_person_sourcedid']
                     self.log.debug('using lis_person_sourcedid for username')
                 
-                # retrieve assignment_name from custom property
+                # GRADES-SENDER >>>> retrieve assignment_name from custom property
                 assignment_name = args['custom_canvas_assignment_title'] if 'custom_canvas_assignment_title' in args else 'unknown'
+                assignment_points = args['custom_canvas_assignment_points_possible'] if 'custom_canvas_assignment_points_possible' in args else 0
             else:
                 if 'lis_person_contact_email_primary' in args and args['lis_person_contact_email_primary'] is not None:
                     email = args['lis_person_contact_email_primary']
@@ -137,8 +139,8 @@ class LTI11Authenticator(LTIAuthenticator):
                 control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
                 # the next fields must come in args            
                 lis_outcome_service_url = args['lis_outcome_service_url']
-                lis_result_sourcedid = args['lis_result_sourcedid']
-                control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
+                lis_result_sourcedid = args['lis_result_sourcedid']                
+                control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid, assignment_points)
 
             return {
                 'name': username,
