@@ -111,10 +111,16 @@ class LTI11Authenticator(LTIAuthenticator):
                 elif 'lis_person_sourcedid' in args and args['lis_person_sourcedid'] is not None:
                     username = args['lis_person_sourcedid']
                     self.log.debug('using lis_person_sourcedid for username')
-                
+
                 # GRADES-SENDER >>>> retrieve assignment_name from custom property
-                assignment_name = args['custom_canvas_assignment_title'] if 'custom_canvas_assignment_title' in args else 'unknown'
-                assignment_points = args['custom_canvas_assignment_points_possible'] if 'custom_canvas_assignment_points_possible' in args else 0
+                assignment_name = (
+                    args['custom_canvas_assignment_title'] if 'custom_canvas_assignment_title' in args else 'unknown'
+                )
+                assignment_points = (
+                    args['custom_canvas_assignment_points_possible']
+                    if 'custom_canvas_assignment_points_possible' in args
+                    else 0
+                )
             else:
                 if 'lis_person_contact_email_primary' in args and args['lis_person_contact_email_primary'] is not None:
                     email = args['lis_person_contact_email_primary']
@@ -133,14 +139,16 @@ class LTI11Authenticator(LTIAuthenticator):
 
             # use the user_id as the lms_user_id, used to map usernames to lms user ids
             lms_user_id = args['user_id']
-            
+
             # with all info extracted from lms request, register info for grades sender only if user is a STUDENT
             if user_role == 'Learner':
                 control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
-                # the next fields must come in args            
+                # the next fields must come in args
                 lis_outcome_service_url = args['lis_outcome_service_url']
-                lis_result_sourcedid = args['lis_result_sourcedid']                
-                control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid, assignment_points)
+                lis_result_sourcedid = args['lis_result_sourcedid']
+                control_file.register_data(
+                    assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid, assignment_points
+                )
 
             return {
                 'name': username,
