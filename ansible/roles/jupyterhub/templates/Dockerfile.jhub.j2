@@ -22,6 +22,13 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
     python3.8-dev \
     python3-pip
 
+# Enable nodesource repo
+RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+RUN apt-get install -y \
+    nodejs \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
 ENV PYTHONPATH=/usr/local/lib/python3.8/dist-packages:$PYTHONPATH
 
 # always make sure pip is up to date!
@@ -33,6 +40,14 @@ RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashr
 # Install packages from requirements file
 COPY jupyterhub-requirements.txt /tmp/jupyterhub/requirements.txt
 RUN python3.8 -m pip install --no-cache -r /tmp/jupyterhub/requirements.txt
+
+# Update JupyterHub version, so that its consistent with JupyterHub
+RUN git clone https://github.com/jupyterhub/jupyterhub \
+ && cd jupyterhub \
+ && git checkout -b build {{git_jhub_hash_commit}} \
+ && npm install \
+ && npm install tslib \
+ && python3 -m pip install .
 
 # Install illumidesk package
 COPY illumidesk.zip /tmp/illumidesk.zip

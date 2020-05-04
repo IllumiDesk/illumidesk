@@ -99,9 +99,6 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 # LTI 1.1 authenticator class.
 c.JupyterHub.authenticator_class = LTI11Authenticator
 
-# Post auth hook to setup course
-c.Authenticator.post_auth_hook = setup_course_hook
-
 # Spawn containers with custom dockerspawner class
 c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
 
@@ -155,6 +152,9 @@ c.LTIAuthenticator.consumers = {
 ##########################################
 # BEGIN GENERAL AUTHENTICATION
 ##########################################
+
+# Post auth hook to setup course
+c.Authenticator.post_auth_hook = setup_course_hook
 
 # Add other admin users as needed
 c.Authenticator.admin_users = {

@@ -13,6 +13,9 @@ c = get_config()
 # BEGIN JUPYTERHUB APPLICATION
 ##########################################
 
+# Redirect user to server (if running), instead of control panel.
+c.JupyterHub.redirect_to_server = False
+
 # Set to debug for testing
 c.JupyterHub.log_level = 'DEBUG'
 
@@ -151,9 +154,6 @@ c.JupyterHub.extra_handlers = [
     (r'/jwks$', LTI13JwksHandler),
 ]
 
-# Post auth hook to setup course
-c.Authenticator.post_auth_hook = setup_course_hook
-
 ##########################################
 # END LTI 1.3 AUTHENTICATOR
 ##########################################
@@ -161,6 +161,9 @@ c.Authenticator.post_auth_hook = setup_course_hook
 ##########################################
 # BEGIN GENERAL AUTHENTICATION
 ##########################################
+
+# Post auth hook to setup course
+c.Authenticator.post_auth_hook = setup_course_hook
 
 # Add other admin users as needed
 c.Authenticator.admin_users = {
