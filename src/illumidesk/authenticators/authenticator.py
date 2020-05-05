@@ -140,9 +140,7 @@ class LTI11Authenticator(LTIAuthenticator):
                 # the next fields must come in args
                 lis_outcome_service_url = args['lis_outcome_service_url']
                 lis_result_sourcedid = args['lis_result_sourcedid']
-                control_file.register_data(
-                    assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
-                )
+                control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
 
             return {
                 'name': username,

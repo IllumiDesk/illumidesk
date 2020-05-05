@@ -86,9 +86,7 @@ class LTIGradesSenderControlFile:
 
             LTIGradesSenderControlFile.FILE_LOADED = True
 
-    def register_data(
-        self, assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
-    ):
+    def register_data(self, assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid):
         """
         Registers some information about where sent the assignment grades: like the url, sourcedid.
         This information is used later when the teacher finishes its work in nbgrader console
@@ -117,7 +115,7 @@ class LTIGradesSenderControlFile:
         if assignment_name not in LTIGradesSenderControlFile.cache_sender_data:
             # it's a new assignment
             assignment_reg = {
-                'lis_outcome_service_url': lis_outcome_service_url,                
+                'lis_outcome_service_url': lis_outcome_service_url,
                 'students': [],
             }
         else:
@@ -180,9 +178,7 @@ class LTIGradeSender:
             for submission in submissions:
                 # retrieve the student to use the lms id
                 student = gb.find_student(submission.student_id)
-                out.append(
-                    {'score': submission.score, 'lms_user_id': student.lms_user_id,}
-                )
+                out.append({'score': submission.score, 'lms_user_id': student.lms_user_id})
         logger.debug(f'Grades found: {out}')
         return out
 
