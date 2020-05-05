@@ -87,7 +87,7 @@ class LTIGradesSenderControlFile:
             LTIGradesSenderControlFile.FILE_LOADED = True
 
     def register_data(
-        self, assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid, assignment_points: int
+        self, assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
     ):
         """
         Registers some information about where sent the assignment grades: like the url, sourcedid.
@@ -117,8 +117,7 @@ class LTIGradesSenderControlFile:
         if assignment_name not in LTIGradesSenderControlFile.cache_sender_data:
             # it's a new assignment
             assignment_reg = {
-                'lis_outcome_service_url': lis_outcome_service_url,
-                'lms_assignment_points': assignment_points,
+                'lis_outcome_service_url': lis_outcome_service_url,                
                 'students': [],
             }
         else:
@@ -207,12 +206,6 @@ class LTIGradeSender:
             raise GradesSenderMissingInfoException
 
         url = assignment_info['lis_outcome_service_url']
-        lms_assignment_points = assignment_info['lms_assignment_points'] or 0
-        logger.debug(f'lis_outcome_service_url found to send grades: {url}')
-
-        if lms_assignment_points == 0:
-            logger.error(f'There is a missing value for the assignment points, this value should be > 0')
-            raise GradesSenderMissingInfoException
 
         for grade in nbgrader_grades:
             # get student lis_result_sourcedid
@@ -222,10 +215,6 @@ class LTIGradeSender:
             if student:
                 logger.debug(f'Student data retrieved sender control file: {student[0]}')
                 score = float(grade['score'])
-                # calculate % based on lms_assignment_points
-                # logger.debug(f'Converting score {score} to porcentual value')
-                # score = score * 100 / lms_assignment_points / 100
-                # TODO: where put this logic if 0 <= score <= 1.0:
                 lms_xml = generate_request_xml(msg_id, student[0]['lis_result_sourcedid'], score)
                 # send to lms
                 if not post_message(pylti_consumers, consumer_key, url, lms_xml):
