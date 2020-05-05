@@ -1,5 +1,4 @@
 # used in tests
-ansible-lint==4.2.0
 black==19.10b0
 codecov==2.0.22
 coverage==5.1
@@ -11,9 +10,9 @@ mock==4.0.2
 nbgrader==0.6.1
 pre-commit==2.3.0
 pytest==5.4.1
-pytest-asyncio==0.11.0
+pytest-asyncio==0.12.0
 pytest-cov==2.8.1
 pytest-html==2.1.1
-pytest-metadata==1.8.0
+pytest-metadata==1.9.0
 pytest-mock==3.1.0
 requests==2.23.0

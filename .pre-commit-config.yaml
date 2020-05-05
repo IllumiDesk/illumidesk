@@ -5,12 +5,6 @@ repos:
       - id: black
         language_version: python3.8
 
-  - repo: https://github.com/ansible/ansible-lint.git
-    rev: v4.2.0
-    hooks:
-      - id: ansible-lint
-        files: \.(yaml|yml)$
-
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.7.9
     hooks:
