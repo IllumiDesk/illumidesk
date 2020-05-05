@@ -15,6 +15,7 @@ from illumidesk.handlers.lms_grades import (
 def reset_file_loaded():
     LTIGradesSenderControlFile.FILE_LOADED = False
 
+
 @pytest.mark.usefixtures("reset_file_loaded")
 class TestLTIGradesSenderControlFile:
 
@@ -48,9 +49,9 @@ class TestLTIGradesSenderControlFile:
         ) as mock_loadFromFileMethod:
             mock_loadFromFileMethod.side_effect = _change_flag
             sender_controlfile = LTIGradesSenderControlFile(tmp_path)
-            assert LTIGradesSenderControlFile.FILE_LOADED is True        
+            assert LTIGradesSenderControlFile.FILE_LOADED is True
             # second time invocation
-            _ = LTIGradesSenderControlFile(tmp_path)        
+            _ = LTIGradesSenderControlFile(tmp_path)
             assert mock_loadFromFileMethod.call_count == 1
 
     def test_sender_control_file_registers_new_assignment(self, tmp_path):
@@ -76,7 +77,6 @@ class TestLTIGradesSenderControlFile:
         # student was saved
         assert [s for s in saved['students'] if s['lms_user_id'] == lms_user_id]
 
-
     def test_sender_control_file_registers_multiple_students_in_same_assignment(self, tmp_path):
         """
         Does the LTIGradesSenderControlFile class registers students at same assignment level?
@@ -97,6 +97,7 @@ class TestLTIGradesSenderControlFile:
         # both students in test was saved with same lis_result_sourcedid value
         assert set([s['lms_user_id'] for s in saved['students']]) == {'user1', 'user2'}
 
+
 def test_grades_sender_raises_a_critical_error_when_gradebook_not_exits(tmp_path):
     """
     Does the sender raises an error when gradebook is not found?
@@ -104,6 +105,7 @@ def test_grades_sender_raises_a_critical_error_when_gradebook_not_exits(tmp_path
     sender_controlfile = LTIGradeSender('course1', 'problem1')
     with pytest.raises(GradesSenderCriticalError):
         sender_controlfile.send_grades()
+
 
 def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
     """
@@ -116,6 +118,7 @@ def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
     ):
         with pytest.raises(AssignmentWithoutGradesError):
             sender_controlfile.send_grades()
+
 
 def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(tmp_path):
     """

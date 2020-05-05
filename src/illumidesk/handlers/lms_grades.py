@@ -56,6 +56,7 @@ class LTIGradesSenderControlFile:
     Args:
         course_dir (str): Course directory, normally where the gradebook is (/home/grader-<course-id>/<course-id>)
     """
+
     # TODO: re-think to centralize files like this or replace all of them with a little DB (sqlite)
     FILE_NAME = 'lti_grades_sender_assignments.json'
     FILE_LOADED = False
@@ -83,7 +84,7 @@ class LTIGradesSenderControlFile:
         # TODO: apply a file lock
         if not Path(self.config_fullname).exists() or Path(self.config_fullname).stat().st_size == 0:
             self.initialize_control_file()
-        else:            
+        else:
             with Path(self.config_fullname).open('r') as file:
                 try:
                     LTIGradesSenderControlFile.cache_sender_data = json.load(file)
@@ -142,7 +143,7 @@ class LTIGradesSenderControlFile:
                 self._write_new_assignment_info(assignment_name, assignment_reg)
 
     def _write_new_assignment_info(self, assignment_name, data: dict):
-        # append new info        
+        # append new info
         LTIGradesSenderControlFile.cache_sender_data[assignment_name] = data
         # save the file to disk
         with Path(self.config_fullname).open('r+') as file:
@@ -163,6 +164,7 @@ class LTIGradeSender:
         course_id (str): Course id or name used in nbgrader
         assignment_name (str): Assignment name that needs to be processed and from which the grades are retrieved
     """
+
     def __init__(self, course_id: str, assignment_name: str):
         self.course_id = course_id
         self.assignment_name = assignment_name
