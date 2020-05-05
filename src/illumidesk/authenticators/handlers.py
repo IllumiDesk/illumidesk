@@ -23,6 +23,7 @@ from oauthenticator.oauth2 import STATE_COOKIE_NAME
 from tornado import web
 from tornado.auth import OAuth2Mixin
 
+from .utils import LTIUtils
 
 logger = logging.getLogger(__name__)
 
@@ -146,6 +147,7 @@ class LTI13JwksHandler(BaseHandler):
         tools to install the external tool (tool provider). Requires
         that the PRIVATE_KEY env var is set for the JupyterHub.
         """
+        lti_utils = LTIUtils()
         self.set_header('Content-Type', 'application/json')
         if not os.environ.get('PRIVATE_KEY'):
             raise ValueError('PRIVATE_KEY environment variable not set')
@@ -154,16 +156,64 @@ class LTI13JwksHandler(BaseHandler):
         self.log.debug('kid is %s' % kid)
         public_key = RSA.importKey(private_key).publickey()
         self.log.debug('public_key is %s' % public_key)
+        # get the origin protocol
+        protocol = lti_utils.get_client_protocol(self)
+        self.log.debug('Origin protocol is: %s' % protocol)
+        # build the full target link url value required for the jwks endpoint
+        target_link_url = f'{protocol}://{self.request.host}/hub'
+        self.log.debug('Target link url is: %s' % target_link_url)
         keys = {
-            'keys': [
+            'title': 'IllumiDesk',
+            'scopes': [
+                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/score',
+                'https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly',
+                'https://canvas.instructure.com/lti/public_jwk/scope/update',
+                'https://canvas.instructure.com/lti/data_services/scope/create',
+                'https://canvas.instructure.com/lti/data_services/scope/show',
+                'https://canvas.instructure.com/lti/data_services/scope/update',
+                'https://canvas.instructure.com/lti/data_services/scope/list',
+                'https://canvas.instructure.com/lti/data_services/scope/destroy',
+                'https://canvas.instructure.com/lti/data_services/scope/list_event_types',
+                'https://canvas.instructure.com/lti/feature_flags/scope/show',
+                'https://canvas.instructure.com/lti/account_lookup/scope/show',
+            ],
+            'extensions': [
                 {
-                    'kty': 'RSA',
-                    'alg': 'RS256',
-                    'use': 'sig',
-                    'kid': kid,
-                    'n': long_to_base64(public_key.n),
-                    'e': long_to_base64(public_key.e),
+                    'platform': 'canvas.instructure.com',
+                    'settings': {
+                        'platform': 'canvas.instructure.com',
+                        'placements': [
+                            {
+                                'placement': 'course_navigation',
+                                'message_type': 'LtiResourceLinkRequest',
+                                'windowTarget': '_blank',
+                                'target_link_uri': target_link_url,
+                            },
+                            {
+                                'placement': 'assignment_selection',
+                                'message_type': 'LtiResourceLinkRequest',
+                                'target_link_uri': target_link_url,
+                            },
+                        ],
+                    },
+                    'privacy_level': 'public',
                 }
-            ]
+            ],
+            'public_jwk': {
+                'n': long_to_base64(public_key.n),
+                'e': long_to_base64(public_key.e),
+                'alg': 'RS256',
+                'kid': kid,
+                'kty': 'RSA',
+                'use': 'sig',
+            },
+            'description': 'illumidesk lti tool',
+            'custom_fields': {},
+            'public_jwk_url': f'{target_link_url}/jwks',
+            'target_link_uri': target_link_url,
+            'oidc_initiation_url': f'{target_link_url}/oauth_login',
         }
         self.write(json.dumps(keys))
