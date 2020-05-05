@@ -55,5 +55,5 @@
 
 - name: copy formgrader server extension template
   copy:
-    src: "server_extensions/formgrader/templates/base.tpl"
-    dest: "{{ working_dir }}/nbgrader/server_extensions/formgrader/templates/base.tpl"
+    src: "server_extensions/formgrader"
+    dest: "{{ working_dir }}/nbgrader/server_extensions"

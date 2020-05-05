@@ -160,7 +160,7 @@ c.Authenticator.admin_users = {
 
 # If using an authenticator which requires additional logic,
 # set to True.
-c.Authenticator.enable_auth_state = False
+c.Authenticator.enable_auth_state = True
 
 ##########################################
 # END GENERAL AUTHENTICATION
@@ -220,6 +220,10 @@ c.DockerSpawner.volumes = {
 # END CUSTOM DOCKERSPAWNER
 ##########################################
 
+# Custom Handlers used to send grades to LMS
+c.JupyterHub.extra_handlers= [
+    (r'/submit-grades/(?P<course_id>\w+)/(?P<assignment_name>\w+)', 'illumidesk.handlers.lms_grades.SendGradesHandler'),
+]
 
 ##########################################
 # SETUP COURSE SERVICE
