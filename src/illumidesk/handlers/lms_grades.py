@@ -47,9 +47,9 @@ class LTIGradesSenderControlFile:
     # TODO: re-think to centralize files like this or replace all of them with a little DB (sqlite)
     # this file must be at same level of gradebook
     # the path is not calculated here but is like: /home/grader-<course-id>/<course-id>
-    FILE_NAME = 'lti_grades_sender_info.json'
+    FILE_NAME = 'lti_grades_sender_assignments.json'
     FILE_LOADED = False
-    cache_sender_data = {'grades_sender_assignments': []}
+    cache_sender_data = {}
 
     def __init__(self, course_dir):
         self.config_path = course_dir
@@ -69,7 +69,7 @@ class LTIGradesSenderControlFile:
 
     def _loadFromFile(self):
         # TODO: apply a file lock
-        if Path(self.config_fullname).stat().st_size == 0:
+        if not Path(self.config_fullname).exists() or Path(self.config_fullname).stat().st_size == 0:
             self.initialize_control_file()
             return
         logger.debug(f'Try to read the control file from:{self.config_fullname}')
@@ -107,20 +107,22 @@ class LTIGradesSenderControlFile:
                 For canvas, is obtained from 'custom_canvas_assignment_points_possible'
 
         """
+        logger.info(f'Registering data in grades-sender control file for assignment name: {assignment_name}')
+        logger.info(f'lis_outcome_service_url received: {lis_outcome_service_url}')
+        logger.info(f'lms_user_id received: {lms_user_id}')
+        logger.info(f'lis_result_sourcedid received: {lis_result_sourcedid}')
+
         assignment_reg = None
         # if the assignment does not exist then register it
-        for item in LTIGradesSenderControlFile.cache_sender_data['grades_sender_assignments']:
-            if item['lms_name'] == assignment_name:
-                assignment_reg = item
-                break
-        else:
+        if assignment_name not in LTIGradesSenderControlFile.cache_sender_data:
             # it's a new assignment
             assignment_reg = {
-                'lms_name': assignment_name,
                 'lis_outcome_service_url': lis_outcome_service_url,
                 'lms_assignment_points': assignment_points,
                 'students': [],
             }
+        else:
+            assignment_reg = LTIGradesSenderControlFile.cache_sender_data[assignment_name]
 
         # if the student info not exists then create it
         if not [student for student in assignment_reg['students'] if student['lms_user_id'] == lms_user_id]:
@@ -128,19 +130,20 @@ class LTIGradesSenderControlFile:
                 {'lms_user_id': lms_user_id, 'lis_result_sourcedid': lis_result_sourcedid}
             )
             # only if a new assignment/student info was included save the file
-            self._write_new_assignment_info(assignment_reg)
+            self._write_new_assignment_info(assignment_name, assignment_reg)
 
-    def _write_new_assignment_info(self, data: dict):
+    def _write_new_assignment_info(self, assignment_name, data: dict):
         # append new info
-        LTIGradesSenderControlFile.cache_sender_data['grades_sender_assignments'].append(data)
+        LTIGradesSenderControlFile.cache_sender_data[assignment_name] = data
         # save the file to disk
         with Path(self.config_fullname).open('r+') as file:
             json.dump(LTIGradesSenderControlFile.cache_sender_data, file)
 
     def get_assignment_by_name(self, assignment_name):
-        for item in LTIGradesSenderControlFile.cache_sender_data['grades_sender_assignments']:
-            if item['lms_name'] == assignment_name:
-                return item
+        if assignment_name in LTIGradesSenderControlFile.cache_sender_data:
+            return LTIGradesSenderControlFile.cache_sender_data[assignment_name]
+        else:
+            return None
 
 
 class LTIGradeSender:
@@ -220,8 +223,8 @@ class LTIGradeSender:
                 logger.debug(f'Student data retrieved sender control file: {student[0]}')
                 score = float(grade['score'])
                 # calculate % based on lms_assignment_points
-                logger.debug(f'Converting score {score} to porcentual value')
-                score = score * 100 / lms_assignment_points / 100
+                # logger.debug(f'Converting score {score} to porcentual value')
+                # score = score * 100 / lms_assignment_points / 100
                 # TODO: where put this logic if 0 <= score <= 1.0:
                 lms_xml = generate_request_xml(msg_id, student[0]['lis_result_sourcedid'], score)
                 # send to lms
@@ -263,7 +266,7 @@ def generate_request_xml(
     sourcedid.text = lis_result_sourcedid
     if score is not None:
         result = etree.SubElement(record, 'result')
-        result_score = etree.SubElement(result, 'resultScore')
+        result_score = etree.SubElement(result, 'resultTotalScore')
         language = etree.SubElement(result_score, 'language')
         language.text = 'en'
         text_string = etree.SubElement(result_score, 'textString')
