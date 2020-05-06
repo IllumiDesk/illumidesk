@@ -6,6 +6,10 @@ import logging
 from josepy.jws import JWS
 from josepy.jws import Header
 
+from jupyterhub.auth import Authenticator
+from jupyterhub.app import JupyterHub
+from jupyterhub.handlers import BaseHandler
+
 from ltiauthenticator import LTIAuthenticator
 
 from oauthenticator.oauth2 import OAuthenticator
@@ -13,8 +17,11 @@ from oauthenticator.oauth2 import OAuthenticator
 from tornado import web
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
+from tornado.web import RequestHandler
 
 from traitlets import Unicode
+
+from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
@@ -27,7 +34,9 @@ from illumidesk.authenticators.validator import LTI11LaunchValidator
 logger = logging.getLogger(__name__)
 
 
-async def setup_course_hook(authenticator, handler, authentication):
+async def setup_course_hook(
+    authenticator: Authenticator, handler: BaseHandler, authentication: Dict[str, str]
+) -> Dict[str, str]:
     """
     Calls the microservice to setup up a new course in case it does not exist.
     The data needed is received from auth_State within authentication object
@@ -105,10 +114,10 @@ class LTI11Authenticator(LTIAuthenticator):
     and shared secret k/v's to verify requests from their tool consumer.
     """
 
-    def get_handlers(self, app):
+    def get_handlers(self, app: JupyterHub) -> BaseHandler:
         return [('/lti/launch', LTI11AuthenticateHandler)]
 
-    async def authenticate(self, handler, data=None):
+    async def authenticate(self, handler: BaseHandler, data: Dict[str, str] = None) -> Dict[str, str]:
         """
         LTI 1.1 authenticator which overrides authenticate function from base LTIAuthenticator.
         After validating the LTI 1.1 signuature, this function decodes the dictionary object
@@ -254,7 +263,7 @@ class LTI13Authenticator(OAuthenticator):
     login_handler = LTI13LoginHandler
     callback_handler = LTI13CallbackHandler
 
-    async def _retrieve_matching_jwk(self, token, endpoint, verify):
+    async def _retrieve_matching_jwk(self, endpoint: str, verify: bool) -> Dict[str, str]:
         """
         Retrieves the matching cryptographic key from the platform as a
         JSON Web Key (JWK).
@@ -267,7 +276,7 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('Retrieving matching jwk %s' % json.loads(resp.body))
         return json.loads(resp.body)
 
-    async def _jwt_decode(self, token, jwks, verify=True, audience=None):
+    async def _jwt_decode(self, token: str, jwks: str, verify: bool = True, audience: str = None) -> Dict[str, str]:
         """
         Decodes the JSON Web Token (JWT) sent from the platform. The JWT should contain claims
         that represent properties associated with the request.
@@ -275,7 +284,7 @@ class LTI13Authenticator(OAuthenticator):
         if verify is False:
             self.log.debug('JWK verification is off, returning token %s' % jwt.decode(token, verify=False))
             return jwt.decode(token, verify=False)
-        jwks = await self._retrieve_matching_jwk(token, jwks, verify)
+        jwks = await self._retrieve_matching_jwk(jwks, verify)
         jws = JWS.from_compact(bytes(token, 'utf-8'))
         self.log.debug('Retrieving matching jws %s' % jws)
         json_header = jws.signature.protected
@@ -293,7 +302,7 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (token, key, verify))
         return jwt.decode(token, key, verify, audience=audience)
 
-    async def authenticate(self, handler, data=None):
+    async def authenticate(self, handler: RequestHandler, data=None):
         """
         Overrides authenticate from base class to handle LTI 1.3 authentication requests.
         """
@@ -307,10 +316,11 @@ class LTI13Authenticator(OAuthenticator):
         protocol = lti_utils.get_client_protocol(handler)
         self.log.debug('Origin protocol is: %s' % protocol)
 
-        # build the url used for
+        # build the url used as base url to communicate with consumer
         url = f'{protocol}://{handler.request.host}'
-
         self.log.debug('Request host URL %s' % url)
+
+        # consumer json web key endpoint
         jwks = f'{self.endpoint}/api/lti/security/jwks'
         self.log.debug('JWKS endpoint is %s' % jwks)
         id_token = handler.get_argument('id_token')

@@ -189,7 +189,9 @@ class LTIUtils(LoggingConfigurable):
             args[k] = values[0].decode() if len(values) == 1 else [v.decode() for v in values]
         return args
 
-    async def get_lms_access_token(self, iss, token_url, private_key, client_id, scope=None):
+    async def get_lms_access_token(
+        self, iss: str, token_url: str, private_key: str, client_id: str, scope=None
+    ) -> Dict[str, str]:
         """
         Gets the LTI 1.3 compatible LMS access token used to authenticate requests from
         the tool with the platform.
@@ -206,7 +208,7 @@ class LTIUtils(LoggingConfigurable):
           Valid token in json format
         """
         if not iss:
-            raise ValueError('missing iss (Issuer)')
+            raise ValueError('missing issuer')
         if not token_url:
             raise ValueError('missing token url')
         if not private_key:
