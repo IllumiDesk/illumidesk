@@ -11,9 +11,10 @@ from nbgrader.api import Gradebook
 from nbgrader.api import MissingEntry
 from pylti.common import post_message
 from filelock import FileLock
+from lti.outcome_request import OutcomeRequest
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class GradesSenderError(Exception):
@@ -204,23 +205,29 @@ class LTIGradeSender:
             raise GradesSenderCriticalError
 
         out = []
+        max_score = 0
         # Create the connection to the gradebook database
         with Gradebook(f'sqlite:///{db_url}', course_id=self.course_id) as gb:
             try:
+                # retrieve the assignment record
+                assignment_row = gb.find_assignment(self.assignment_name)
+                max_score = assignment_row.max_score
                 submissions = gb.assignment_submissions(self.assignment_name)
-                logger.debug(f'Found {len(submissions)} submissions for assignment: {self.assignment_name}')
+                logger.info(f'Found {len(submissions)} submissions for assignment: {self.assignment_name}')
             except MissingEntry as e:
-                logger.debug('Submission is missing: %s' % e)
+                logger.info('Assignment or Submission is missing in database: %s' % e)
+                raise GradesSenderMissingInfoError
 
             for submission in submissions:
                 # retrieve the student to use the lms id
                 student = gb.find_student(submission.student_id)
                 out.append({'score': submission.score, 'lms_user_id': student.lms_user_id})
-        logger.debug(f'Grades found: {out}')
-        return out
+        logger.info(f'Grades found: {out}')
+        logger.info('max_score for this assignment %s' % max_score)
+        return max_score, out
 
     def send_grades(self) -> None:
-        nbgrader_grades = self._retrieve_grades_from_db()
+        max_score, nbgrader_grades = self._retrieve_grades_from_db()
         if not nbgrader_grades:
             raise AssignmentWithoutGradesError
         msg_id = self._message_identifier()
@@ -233,66 +240,40 @@ class LTIGradeSender:
         grades_sender_file = LTIGradesSenderControlFile(self.gradebook_dir)
         assignment_info = grades_sender_file.get_assignment_by_name(self.assignment_name)
         if not assignment_info:
-            logger.debug(
+            logger.warning(
                 f'There is not info related to assignment: {self.assignment_name}. Check if the config file path is correct'
             )
             raise GradesSenderMissingInfoError
 
         url = assignment_info['lis_outcome_service_url']
-
+        # for each grade in nbgrader db, use the info saved in control file to process each student submission
         for grade in nbgrader_grades:
             # get student lis_result_sourcedid
-            logger.debug(f"Retrieving info for student id:{grade['lms_user_id']}")
-            student = [s for s in assignment_info['students'] if s['lms_user_id'] == grade['lms_user_id']][:1]
+            logger.info(f"Retrieving info for student id:{grade['lms_user_id']}")
+            student_array = [s for s in assignment_info['students'] if s['lms_user_id'] == grade['lms_user_id']][:1]
             # student object is an array []
-            if student:
-                logger.debug(f'Student data retrieved sender control file: {student[0]}')
+            if student_array:
+                student = student_array[0]
+                logger.info(f'Student data retrieved sender control file: {student}')
+                # detect if sourcedid contains backslash to escape quotes
+                if '\"' in student['lis_result_sourcedid']:
+                    student['lis_result_sourcedid'] = student['lis_result_sourcedid'].replace('\"','"')
+
                 score = float(grade['score'])
-                lms_xml = generate_request_xml(msg_id, student[0]['lis_result_sourcedid'], score)
-                # send to lms
-                if not post_message(pylti_consumers, consumer_key, url, lms_xml):
-
-                    logger.error('An error occurred while saving your score. Please try again.')
-                else:
+                # calculate the percentage
+                max_score = float(max_score)
+                score = score * 100 / max_score / 100
+                outcome_args = {
+                    'lis_outcome_service_url': url,
+                    'lis_result_sourcedid': student['lis_result_sourcedid'],
+                    'consumer_key': consumer_key,
+                    'consumer_secret': shared_secret
+                }
+                req = OutcomeRequest(outcome_args)
+                # send to lms through lti package (we used pylti before but some errors found with moodle)
+                outcome_result = req.post_replace_result(score)
+                if outcome_result.is_success():
                     logger.info('Your score was submitted. Great job!')
-
-
-def generate_request_xml(
-    message_identifier_id: str, lis_result_sourcedid: str, score: float, operation='replaceResult'
-) -> None:
-    """
-    Generates LTI 1.1 XML for posting result to LTI consumer.
-    :param message_identifier_id:
-    :param operation:
-    :param lis_result_sourcedid:
-    :param score:
-    :return: XML string
-    """
-    root = etree.Element(
-        u'imsx_POXEnvelopeRequest', xmlns=u'http://www.imsglobal.org/services/' u'ltiv1p1/xsd/imsoms_v1p0'
-    )
-
-    header = etree.SubElement(root, 'imsx_POXHeader')
-    header_info = etree.SubElement(header, 'imsx_POXRequestHeaderInfo')
-    version = etree.SubElement(header_info, 'imsx_version')
-    version.text = 'V1.0'
-    message_identifier = etree.SubElement(header_info, 'imsx_messageIdentifier')
-    message_identifier.text = message_identifier_id
-    body = etree.SubElement(root, 'imsx_POXBody')
-    xml_request = etree.SubElement(body, '%s%s' % (operation, 'Request'))
-    record = etree.SubElement(xml_request, 'resultRecord')
-
-    guid = etree.SubElement(record, 'sourcedGUID')
-
-    sourcedid = etree.SubElement(guid, 'sourcedId')
-    sourcedid.text = lis_result_sourcedid
-    if score is not None:
-        result = etree.SubElement(record, 'result')
-        result_score = etree.SubElement(result, 'resultTotalScore')
-        language = etree.SubElement(result_score, 'language')
-        language.text = 'en'
-        text_string = etree.SubElement(result_score, 'textString')
-        text_string.text = score.__str__()
-    ret = "<?xml version='1.0' encoding='utf-8'?>\n{}".format(etree.tostring(root, encoding='utf-8').decode('utf-8'))
-
-    return ret
+                else:
+                    logger.error('An error occurred while saving your score. Please try again.')
+                    raise GradesSenderCriticalError
