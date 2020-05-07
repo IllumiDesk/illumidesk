@@ -42,7 +42,6 @@ setup(
         'nbgrader>=0.6.1',
         'quart==0.11.5',
         'filelock==3.0.12',
-        'pylti==0.7.0',
         'lti==0.9.5',
     ],  # noqa: E231
     package_data={'': ['*.html'],},  # noqa: E231
