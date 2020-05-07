@@ -2,14 +2,11 @@ import os
 import json
 import time
 import logging
-import sys
 from pathlib import Path
 from tornado import web
-from xml.etree import ElementTree as etree
 from jupyterhub.handlers import BaseHandler
 from nbgrader.api import Gradebook
 from nbgrader.api import MissingEntry
-from pylti.common import post_message
 from filelock import FileLock
 from lti.outcome_request import OutcomeRequest
 
@@ -21,6 +18,7 @@ class GradesSenderError(Exception):
     """
     Base class for submission errors
     """
+
     pass
 
 
@@ -29,6 +27,7 @@ class GradesSenderCriticalError(GradesSenderError):
     Error to identify when something critical happened
     In this case, the problem will continue until an admin checks the logs
     """
+
     pass
 
 
@@ -36,6 +35,7 @@ class AssignmentWithoutGradesError(GradesSenderError):
     """
     Error to identify when a submission request was made but there are not yet grades in the gradebook.db
     """
+
     pass
 
 
@@ -43,6 +43,7 @@ class GradesSenderMissingInfoError(GradesSenderError):
     """
     Error to identify when a assignment is not related or associated correctly between lms and nbgrader
     """
+
     pass
 
 
@@ -50,6 +51,7 @@ class SendGradesHandler(BaseHandler):
     """
     Defines a POST method to process grades submission for a specific assignment within a course
     """
+
     async def post(self, course_id: str, assignment_name: str) -> None:
         self.log.debug(f'Data received to send grades-> course:{course_id}, assignment:{assignment_name}')
 
@@ -115,7 +117,9 @@ class LTIGradesSenderControlFile:
 
         LTIGradesSenderControlFile.FILE_LOADED = True
 
-    def register_data(self, assignment_name: str, lis_outcome_service_url: str, lms_user_id: str, lis_result_sourcedid: str) -> None:
+    def register_data(
+        self, assignment_name: str, lis_outcome_service_url: str, lms_user_id: str, lis_result_sourcedid: str
+    ) -> None:
         """
         Registers some information about where sent the assignment grades: like the url, sourcedid.
         This information is used later when the teacher finishes its work in nbgrader console
@@ -234,8 +238,6 @@ class LTIGradeSender:
         # create the consumers map {'consumer_key': {'secret': 'shared_secret'}}
         consumer_key = os.environ.get('LTI_CONSUMER_KEY')
         shared_secret = os.environ.get('LTI_SHARED_SECRET')
-        pylti_consumers = {}
-        pylti_consumers[consumer_key] = {'secret': shared_secret}
         # get assignment info from control file
         grades_sender_file = LTIGradesSenderControlFile(self.gradebook_dir)
         assignment_info = grades_sender_file.get_assignment_by_name(self.assignment_name)
@@ -257,7 +259,7 @@ class LTIGradeSender:
                 logger.info(f'Student data retrieved sender control file: {student}')
                 # detect if sourcedid contains backslash to escape quotes
                 if '\"' in student['lis_result_sourcedid']:
-                    student['lis_result_sourcedid'] = student['lis_result_sourcedid'].replace('\"','"')
+                    student['lis_result_sourcedid'] = student['lis_result_sourcedid'].replace('\"', '"')
 
                 score = float(grade['score'])
                 # calculate the percentage
@@ -267,7 +269,7 @@ class LTIGradeSender:
                     'lis_outcome_service_url': url,
                     'lis_result_sourcedid': student['lis_result_sourcedid'],
                     'consumer_key': consumer_key,
-                    'consumer_secret': shared_secret
+                    'consumer_secret': shared_secret,
                 }
                 req = OutcomeRequest(outcome_args)
                 # send to lms through lti package (we used pylti before but some errors found with moodle)
