@@ -330,13 +330,12 @@ class LTI13Authenticator(OAuthenticator):
         self.decoded = decoded
         if self.decoded is None:
             raise web.HTTPError(403)
-        self.course_id = decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
+        course_label = decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
+        self.course_id = lti_utils.normalize_name_for_containers(course_label)
         self.log.debug('course_label is %s' % self.course_id)
         # TODO: add conditional in case the tool installation has setting set to private mode
-        username = lti_utils.email_to_username(decoded['email'])
+        username = lti_utils.email_to_username(decoded['email']) if 'email' in decoded else 'unknown'
         self.log.debug('username is %s' % username)
-        lms_course_id = decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems'].split('/')[-2]
-        self.log.debug('lms_course_id is %s' % lms_course_id)
         org = handler.request.host.split('.')[0]
         self.log.debug('org is %s' % org)
         user_role = 'Instructor'
@@ -348,5 +347,5 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('user_role is %s' % user_role)
         return {
             'name': username,
-            'auth_state': {'course_id': self.course_id, 'user_role': user_role,},  # noqa: E231
+            'auth_state': {'course_id': self.course_id, 'user_role': user_role, 'lms_user_id': username},  # noqa: E231
         }

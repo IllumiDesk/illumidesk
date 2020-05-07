@@ -191,6 +191,7 @@ class LTI13JwksHandler(BaseHandler):
                                 'message_type': 'LtiResourceLinkRequest',
                                 'windowTarget': '_blank',
                                 'target_link_uri': target_link_url,
+                                'custom_fields': {'email': '$Person.email.primary'},
                             },
                             {
                                 'placement': 'assignment_selection',
@@ -211,7 +212,7 @@ class LTI13JwksHandler(BaseHandler):
                 'use': 'sig',
             },
             'description': 'illumidesk lti tool',
-            'custom_fields': {},
+            'custom_fields': {'email': '$Person.email.primary'},
             'public_jwk_url': f'{target_link_url}/jwks',
             'target_link_uri': target_link_url,
             'oidc_initiation_url': f'{target_link_url}/oauth_login',
