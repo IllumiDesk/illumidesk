@@ -5,8 +5,9 @@
     dest: "{{ working_dir }}"
     rsync_opts:
       - "--no-motd"
-      - "--exclude=.git"
-      - "--exclude=.pyc"
+      - "--exclude=build*"
+      - "--exclude=*.egg-info"
+      - "--exclude=*.pyc"
       - "--exclude=__pycache__"
 
 - name: create a zip archive of the illumidesk package
