@@ -17,7 +17,6 @@ from oauthenticator.oauth2 import OAuthenticator
 from tornado import web
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
-from tornado.web import RequestHandler
 
 from traitlets import Unicode
 
@@ -263,13 +262,15 @@ class LTI13Authenticator(OAuthenticator):
     login_handler = LTI13LoginHandler
     callback_handler = LTI13CallbackHandler
 
-    async def _retrieve_matching_jwk(self, endpoint: str, verify: bool) -> Dict[str, str]:
+    async def _retrieve_matching_jwk(self, endpoint: str, verify: bool = True) -> Dict[str, str]:
         """
         Retrieves the matching cryptographic key from the platform as a
         JSON Web Key (JWK).
 
         Args:
+          endpoint: platform endpoint
           token: jwt token
+          verify
         """
         client = AsyncHTTPClient()
         resp = await client.fetch(endpoint, validate_cert=verify)
@@ -280,6 +281,13 @@ class LTI13Authenticator(OAuthenticator):
         """
         Decodes the JSON Web Token (JWT) sent from the platform. The JWT should contain claims
         that represent properties associated with the request.
+
+        Args:
+          token: token issued by the authorization server
+          jwks: JSON web key (publick key)
+          verify: verify whether or not to verify JWT when decoding. Defaults to True.
+          aud: the platform's OAuth2 Audience (aud). This vulue usually coincides with the
+            token endpoint for the platform (LMS) such as https://my.lms.domain/login/oauth2/token
         """
         if verify is False:
             self.log.debug('JWK verification is off, returning token %s' % jwt.decode(token, verify=False))
@@ -302,9 +310,13 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (token, key, verify))
         return jwt.decode(token, key, verify, audience=audience)
 
-    async def authenticate(self, handler: RequestHandler, data=None):
+    async def authenticate(self, handler: BaseHandler, data: Dict[str, str] = None) -> Dict[str, str]:
         """
         Overrides authenticate from base class to handle LTI 1.3 authentication requests.
+
+        Args:
+          handler: handler object
+          data: authentication dictionary
         """
         lti_utils = LTIUtils()
 
@@ -333,7 +345,7 @@ class LTI13Authenticator(OAuthenticator):
         course_label = decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
         self.course_id = lti_utils.normalize_name_for_containers(course_label)
         self.log.debug('course_label is %s' % self.course_id)
-        # TODO: add conditional in case the tool installation has setting set to private mode
+
         username = lti_utils.email_to_username(decoded['email']) if 'email' in decoded else 'unknown'
         self.log.debug('username is %s' % username)
         org = handler.request.host.split('.')[0]

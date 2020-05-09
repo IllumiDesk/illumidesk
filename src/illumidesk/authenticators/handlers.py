@@ -145,13 +145,13 @@ class LTI13JwksHandler(BaseHandler):
         """
         Gets the JWKS keys/values which is used by LTI consumer
         tools to install the external tool (tool provider). Requires
-        that the PRIVATE_KEY env var is set for the JupyterHub.
+        that the LTI13_PRIVATE_KEY env var is set for the JupyterHub.
         """
         lti_utils = LTIUtils()
         self.set_header('Content-Type', 'application/json')
-        if not os.environ.get('PRIVATE_KEY'):
-            raise ValueError('PRIVATE_KEY environment variable not set')
-        private_key = os.environ.get('PRIVATE_KEY')
+        if not os.environ.get('LTI13_PRIVATE_KEY'):
+            raise ValueError('LTI13_PRIVATE_KEY environment variable not set')
+        private_key = os.environ.get('LTI13_PRIVATE_KEY')
         kid = md5(private_key.encode('utf-8')).hexdigest()
         self.log.debug('kid is %s' % kid)
         public_key = RSA.importKey(private_key).publickey()

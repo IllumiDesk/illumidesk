@@ -351,6 +351,7 @@ The services included with this setup rely on environment variables to work prop
 | JUPYTERHUB_API_URL | `string` | Internal API URL corresponding to JupyterHub. | `http://jupyterhub:8081` |
 | LTI_CONSUMER_KEY | `string` | LTI 1.1 consumer key | `my_consumer_key` |
 | LTI_SHARED_SECRET | `string` | LTI 1.1 shared secret | `my_shared_secret` |
+| LTI13_PRIVATE_KEY | `string` | Private key used with LTI 1.3 | `''` |
 | MNT_HOME_DIR_UID | `string` | Host user directory UID | `1000` |
 | MNT_HOME_DIR_GID | `string` | Host user directory GID | `100` |
 | MNT_ROOT | `string` | Host directory root | `/mnt` |
@@ -360,7 +361,6 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_USER | `string` | Postgres database username | `jupyterhub` |
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
-| PRIVATE_KEY | `string` | Private key used with LTI 1.3 | `''` |
 
 ### Environment Variables pertaining to grader service, located in `env.service`
 

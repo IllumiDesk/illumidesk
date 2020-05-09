@@ -97,6 +97,18 @@
     src: share/templates
     dest: "{{ working_dir }}/share"
 
+- name: create lti v1.3 private key in pem format
+  openssl_privatekey:
+    path: "{{working_dir}}/rsa_private.pem"
+
+- name: output private key with shell
+  shell: cat "{{working_dir}}/rsa_private.pem"
+  register: _lti13_private_key
+
+- name: assign rsa lti 1.3 private key from stdout
+  set_fact:
+    lti13_private_key={{ _lti13_private_key.stdout }}
+
 - name: create base jupyterhub dockerfile from template
   template:
     src: Dockerfile.jhub.j2
@@ -111,10 +123,6 @@
   template:
     src: env.jhub.j2
     dest: "{{ working_dir }}/env.jhub"
-
-- name: create LTI v1.3 private key in pem format
-  openssl_privatekey:
-    path: "{{working_dir}}/rsa_private.pem"
 
 - name: build jupyterhub image
   docker_image:
