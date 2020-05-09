@@ -5,6 +5,7 @@
     dest: "{{ working_dir }}"
     rsync_opts:
       - "--no-motd"
+      - "--exclude=.git"
       - "--exclude=.pyc"
       - "--exclude=__pycache__"
 
