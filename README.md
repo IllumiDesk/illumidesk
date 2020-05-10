@@ -349,8 +349,13 @@ The services included with this setup rely on environment variables to work prop
 | JUPYTERHUB_API_TOKEN | `string` | API token used to authenticate grader service with JupyterHub. | `<random_value>` |
 | JUPYTERHUB_API_TOKEN_USER | `string` | Grader service user which owns JUPYTERHUB_API_TOKEN. | `grader-{course_id}` |
 | JUPYTERHUB_API_URL | `string` | Internal API URL corresponding to JupyterHub. | `http://jupyterhub:8081` |
-| LTI_CONSUMER_KEY | `string` | LTI 1.1 consumer key | `my_consumer_key` |
-| LTI_SHARED_SECRET | `string` | LTI 1.1 shared secret | `my_shared_secret` |
+| LTI_CONSUMER_KEY | `string` | LTI 1.1 consumer key | `ild_test_consumer_key` |
+| LTI_SHARED_SECRET | `string` | LTI 1.1 shared secret | `ild_test_shared_secret` |
+| LTI13_AUTHORIZE_URL | `string` | LTI 1.3 authorization URL, such as `https://my.platform.domain/api/lti/authorize_redirect` | `''` |
+| LTI13_CLIENT_ID | `string` | LTI 1.3 client id used to identify the tool's installation, such as `125900000000000071` | `''` |
+| LTI13_ENDPOINT | `string` | LTI 1.3 endpoint, such as `https://my.platform.domain` | `''` |
+| LTI13_PRIVATE_KEY | `string` | Private key used with LTI 1.3 to create public JSON Web Keys (JWK) | `/secrets/keys/rsa_private.pem` |
+| LTI13_TOKEN_URL | `string` | LTI 1.3 token URL, such as `https://my.platform.domain/login/oauth2/token` | `''` |
 | MNT_HOME_DIR_UID | `string` | Host user directory UID | `1000` |
 | MNT_HOME_DIR_GID | `string` | Host user directory GID | `100` |
 | MNT_ROOT | `string` | Host directory root | `/mnt` |
@@ -371,6 +376,21 @@ The services included with this setup rely on environment variables to work prop
 | JUPYTERHUB_SERVICE_PREFIX | `string` | JupyterHub client id used with OAuth2 | /`services/{course_id}` |
 | NB_USER | `string` | Notebook grader user | `grader-{course_id}` |
 | NB_UID | `string` | Notebook grader user id | `10001` |
+
+### Environment Variables pertaining to setup-course service, located in `env.setup-course`
+
+| Variable  |  Type | Description | Default Value |
+|---|---|---|---|
+| DOCKER_NETWORK | `string` | JupyterHub API token | `<randon_value>` |
+| GRADER_SERVICE_IMAGE | `string` | External facing API URL | `http://reverse-proxy:8000/hub/api` |
+| ILLUMIDESK_DIR | `string` | IllumiDesk working directory | `illumidesk_deployment` |
+| JUPYTERHUB_API_TOKEN | `string` | API token to connect with the JupyterHub | `<random value>` |
+| JUPYTERHUB_API_URL | `string` | JupyterHub client id used with OAuth2 | `http://reverse-proxy:8000/hub/api` |
+| JUPYTERHUB_CONFIG_PATH | `string` | Notebook grader user | `/srv/jupyterhub` |
+| JUPYTERHUB_SERVICE_NAME | `string` | Notebook grader user id | `jupyterhub` |
+| MNT_ROOT | `string` | Notebook grader user id | `/mnt` |
+| NB_UID | `string` | Notebook grader user id | `10001` |
+| NB_GID | `string` | Notebook grader user id | `100` |
 
 ---
 
