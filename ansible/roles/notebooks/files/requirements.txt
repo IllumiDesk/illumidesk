@@ -1,4 +1,5 @@
 nbgrader==0.6.1
+yellowbrick==1.1
 
 # Add any additional pip/conda packages here. Included packages
 # are those listed in jupyter/docker-stacks/datascience-notebook

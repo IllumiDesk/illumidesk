@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.3.0 (2020-05-07)
+
+
+### Features
+
+* Add grades submission feature using LTI 1.1 ([#38](https://github.com/IllumiDesk/illumidesk/issues/38)) ([10d1a63](https://github.com/IllumiDesk/illumidesk/commit/10d1a631a4dd16637cfa917beb940267a63bcfd4))
+
 ### 0.2.3 (2020-05-01)
 
 

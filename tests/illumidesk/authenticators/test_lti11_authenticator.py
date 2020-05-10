@@ -16,7 +16,7 @@ from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.utils import LTIUtils
 
 
-def mock_lti11_args(lms_vendor: str) -> Dict[str, str]:
+def mock_lti11_instructor_args(lms_vendor: str) -> Dict[str, str]:
     args = {
         'oauth_consumer_key': ['my_consumer_key'.encode()],
         'oauth_signature_method': ['HMAC-SHA1'.encode()],
@@ -43,7 +43,7 @@ def mock_lti11_args(lms_vendor: str) -> Dict[str, str]:
         'oauth_callback': ['about:blank'.encode()],
         'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
         'resource_link_title': ['IllumiDesk'.encode()],
-        'roles': ['Learner,urn:lti:instrole:ims/lis/Learner'.encode()],
+        'roles': ['Instructor'.encode()],
         'tool_consumer_info_product_family_code': [lms_vendor.encode()],
         'tool_consumer_info_version': ['cloud'.encode()],
         'tool_consumer_instance_contact_email': ['notifications@mylms.com'.encode()],
@@ -56,17 +56,6 @@ def mock_lti11_args(lms_vendor: str) -> Dict[str, str]:
         'oauth_signature': ['abc123'.encode()],
     }
     return args
-
-
-def _side_effect_canvas_lms(lms_vendor: str) -> str:
-    arguments = mock_lti11_args(lms_vendor)
-    arguments['custom_canvas_user_login_id'] = ['mycanvasuser'.encode()]
-    return arguments
-
-
-def _side_effect_other_lms(lms_vendor: str) -> str:
-    arguments = mock_lti11_args(lms_vendor)
-    return arguments
 
 
 @pytest.mark.asyncio
@@ -82,7 +71,7 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authent
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=mock_lti11_args('canvas'), headers={}, items=[],),
+            request=Mock(arguments=mock_lti11_instructor_args('canvas'), headers={}, items=[],),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -90,7 +79,7 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authent
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-                'user_role': 'Learner',
+                'user_role': 'Instructor',
             },
         }
         assert result == expected
@@ -114,7 +103,7 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=mock_lti11_args('moodle'), headers={}, items=[],),
+            request=Mock(arguments=mock_lti11_instructor_args('moodle'), headers={}, items=[],),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -122,7 +111,7 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-                'user_role': 'Learner',
+                'user_role': 'Instructor',
             },
         }
         assert result == expected
@@ -139,8 +128,8 @@ async def test_authenticator_uses_ltivalidator():
         request = HTTPServerRequest(method='POST', connection=Mock(),)
         handler.request = request
 
-        handler.request.arguments = mock_lti11_args('lmsvendor')
-        handler.request.get_argument = lambda x, strip=True: mock_lti11_args(
+        handler.request.arguments = mock_lti11_instructor_args('lmsvendor')
+        handler.request.get_argument = lambda x, strip=True: mock_lti11_instructor_args(
             'lmsvendor'
         )[x][0].decode()
 
@@ -159,8 +148,8 @@ async def test_authenticator_invokes_validator_with_decoded_dict():
         request = HTTPServerRequest(method='POST', uri='/hub', host='example.com')
         handler.request = request
         handler.request.protocol = 'https'
-        handler.request.arguments = mock_lti11_args('canvas')
-        handler.request.get_argument = lambda x, strip=True: mock_lti11_args('canvas')[
+        handler.request.arguments = mock_lti11_instructor_args('canvas')
+        handler.request.get_argument = lambda x, strip=True: mock_lti11_instructor_args('canvas')[
             x
         ][0].decode()
 
@@ -169,7 +158,7 @@ async def test_authenticator_invokes_validator_with_decoded_dict():
         assert mock_validator.called
         decoded_args = {
             k: handler.request.get_argument(k, strip=False)
-            for k, v in mock_lti11_args('canvas').items()
+            for k, v in mock_lti11_instructor_args('canvas').items()
         }
         # check validator was called with correct dict params (decoded)
         mock_validator.assert_called_with('https://example.com/hub', {}, decoded_args)
