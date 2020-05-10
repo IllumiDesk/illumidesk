@@ -157,7 +157,7 @@ class LTI13JwksHandler(BaseHandler):
         private_key = pem.parse_file(key_path)
         kid = private_key[0].sha1_hexdigest
         self.log.debug('kid is %s' % kid)
-        public_key = RSA.import_key(private_key).publickey()
+        public_key = RSA.import_key(private_key[0].as_text()).publickey()
         self.log.debug('public_key is %s' % public_key)
         # get the origin protocol
         protocol = lti_utils.get_client_protocol(self)

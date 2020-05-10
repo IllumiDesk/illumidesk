@@ -59,6 +59,7 @@ lti13_enabled: "{{ lti13_enabled_param | default('false')}}"
 
 # LTI 1.3 config
 lti13_client_id: "{{ lti13_client_id_param | default('')}}"
+lti13_private_key: "{{ lti13_private_key_param | default('/secrets/keys/rsa_private.pem')}}"
 lti13_endpoint: "{{ lti13_endpoint_param | default('https://illumidesk.instructure.com')}}"
 lti13_token_url: "{{ lti13_token_url_param | default('https://illumidesk.instructure.com/login/oauth2/token')}}"
 lti13_authorize_url: "{{ lti13_authorize_url_param | default('https://illumidesk.instructure.com/api/lti/authorize_redirect')}}"

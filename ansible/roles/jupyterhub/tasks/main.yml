@@ -97,18 +97,15 @@
     src: share/templates
     dest: "{{ working_dir }}/share"
 
+- name: ensures {{working_dir}}/keys directory exists
+  file:
+    path: "{{working_dir}}/keys"
+    state: directory
+
 - name: create lti v1.3 private key in pem format
   openssl_privatekey:
-    path: "{{working_dir}}/rsa_private.pem"
-    mode: '0755'
-
-- name: output private key with shell
-  shell: cat "{{working_dir}}/rsa_private.pem"
-  register: _lti13_private_key
-
-- name: assign rsa lti 1.3 private key from stdout
-  set_fact:
-    lti13_private_key={{ _lti13_private_key.stdout }}
+    path: "{{working_dir}}/keys/rsa_private.pem"
+    mode: '0644'
 
 - name: create base jupyterhub dockerfile from template
   template:
@@ -140,11 +137,3 @@
   template:
     src: docker-compose.yml.j2
     dest: "{{ working_dir }}/docker-compose.yml"
-  
-- name: lti11 consumer key
-  debug:
-    msg: "lti consumer key is: {{ lti11_consumer_key_result }}"
-
-- name: lti11 shared secret
-  debug:
-    msg: "lti shared secret is: {{ lti11_shared_secret_result }}"

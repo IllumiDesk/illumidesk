@@ -17,13 +17,11 @@ class SetupUtils:
     def __init__(self):
         self.docker_client = docker.from_env()
 
-    def restart_jupyterhub(self):
+    def restart_jupyterhub(self) -> None:
         """
-        Make a jupyterhubb rolling update
-        In order to load changes in configuration file, the jupyterhub container is
-        replaced with new one, then the older is stopped.
-        Trafik can redirect the traffic to new one service few seconds later
-
+        Initiates a jupyterhubb rolling update. In order to load changes in configuration file,
+        the jupyterhub container is replaced with new one, then the older is stopped.
+        Traefik can redirect the traffic to new one service few seconds later.
         """
         logger.debug('Received request to restart JupyterHub')
         jupyterhub_container_name = os.environ.get('JUPYTERHUB_SERVICE_NAME') or 'jupyterhub'

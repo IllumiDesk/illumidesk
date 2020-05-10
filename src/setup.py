@@ -44,11 +44,11 @@ setup(
         'nbgrader>=0.6.1',
         'oauthenticator==0.11.0',
         'quart==0.11.5',
+        'pem==20.1.0',
         'pycrypto==2.6.1',
         'PyJWT==1.7.1',
         'pyjwkest==1.4.2',
         'pycryptodome==3.9.7',
-        'filelock==3.0.12',
         'pylti==0.7.0',
     ],  # noqa: E231
     package_data={'': ['*.html'],},  # noqa: E231

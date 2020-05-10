@@ -13,6 +13,7 @@ services:
       - {{mnt_root}}/{{org_name}}/home:/home
       - data:/data
       - ./reverse-proxy:/etc/traefik
+      - ./keys:/secrets/keys
     env_file:
       - env.jhub
     command: >

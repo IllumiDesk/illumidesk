@@ -142,7 +142,9 @@ c.TraefikTomlProxy.toml_dynamic_config_file = "/etc/traefik/rules.toml"
 ##########################################
 
 c.LTIAuthenticator.consumers = {
-    os.environ.get('LTI_CONSUMER_KEY') or 'consumer_key': os.environ.get('LTI_SHARED_SECRET') or 'shared_secret'
+    os.environ.get('LTI_CONSUMER_KEY')
+    or 'ild_test_consumer_key': os.environ.get('LTI_SHARED_SECRET')
+    or 'ild_test_shared_secret'
 }
 
 ##########################################
