@@ -20,6 +20,7 @@ class GradesSenderError(Exception):
     """
     Base class for submission errors
     """
+
     pass
 
 
@@ -28,6 +29,7 @@ class GradesSenderCriticalError(GradesSenderError):
     Error to identify when something critical happened
     In this case, the problem will continue until an admin checks the logs
     """
+
     pass
 
 
@@ -35,6 +37,7 @@ class AssignmentWithoutGradesError(GradesSenderError):
     """
     Error to identify when a submission request was made but there are not yet grades in the gradebook.db
     """
+
     pass
 
 
@@ -42,6 +45,7 @@ class GradesSenderMissingInfoError(GradesSenderError):
     """
     Error to identify when a assignment is not related or associated correctly between lms and nbgrader
     """
+
     pass
 
 
@@ -49,6 +53,7 @@ class SendGradesHandler(BaseHandler):
     """
     Defines a POST method to process grades submission for a specific assignment within a course
     """
+
     async def post(self, course_id: str, assignment_name: str) -> None:
         self.log.debug(f'Data received to send grades-> course:{course_id}, assignment:{assignment_name}')
 
@@ -114,7 +119,9 @@ class LTIGradesSenderControlFile:
 
         LTIGradesSenderControlFile.FILE_LOADED = True
 
-    def register_data(self, assignment_name: str, lis_outcome_service_url: str, lms_user_id: str, lis_result_sourcedid: str) -> None:
+    def register_data(
+        self, assignment_name: str, lis_outcome_service_url: str, lms_user_id: str, lis_result_sourcedid: str
+    ) -> None:
         """
         Registers some information about where sent the assignment grades: like the url, sourcedid.
         This information is used later when the teacher finishes its work in nbgrader console
