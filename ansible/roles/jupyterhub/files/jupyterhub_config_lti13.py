@@ -4,7 +4,7 @@ import requests
 
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
-from illumidesk.authenticators.handlers import LTI13ConfigHandler
+from illumidesk.handlers.lti import LTI13ConfigHandler
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
 c = get_config()
