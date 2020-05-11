@@ -138,16 +138,26 @@ class LTI13CallbackHandler(OAuthCallbackHandler):
         self.log.debug('Redirecting user %s to %s' % (user.id, self.get_next_url(user)))
 
 
-class LTI13JwksHandler(BaseHandler):
+class LTI13ConfigHandler(BaseHandler):
     """
-    Class that handles JWKS for LTI 1.3
+    Handles JSON configuration files for LTI 1.3
     """
 
-    async def get(self):
+    async def get(self) -> None:
         """
-        Gets the JWKS keys/values which is used by LTI consumer
-        tools to install the external tool (tool provider). Requires
-        that the LTI13_PRIVATE_KEY env var is set for the JupyterHub.
+        Gets the JSON config which is used by LTI platforms
+        to install the external tool.
+        
+        - This method requires that the LTI13_PRIVATE_KEY environment variable
+        is set with the full path to the RSA private key in PEM format.
+        - The extensions key contains settings for specific vendors, such as canvas,
+        moodle, edx, among others.
+        - The tool uses public settings by default. Users that wish to install the tool with
+        private settings should either copy/paste the json or toggle the application to private
+        after it is installed with the platform.
+        - Usernames are obtained by first attempting to get and normalize values sent when
+        tools are installed with public settings. If private, the username is set using the
+        anonumized user data when requests are sent with private installation settings.
         """
         lti_utils = LTIUtils()
         self.set_header('Content-Type', 'application/json')
@@ -163,7 +173,7 @@ class LTI13JwksHandler(BaseHandler):
         protocol = lti_utils.get_client_protocol(self)
         self.log.debug('Origin protocol is: %s' % protocol)
         # build the full target link url value required for the jwks endpoint
-        target_link_url = f'{protocol}://{self.request.host}/hub'
+        target_link_url = f'{protocol}://{self.request.host}/'
         self.log.debug('Target link url is: %s' % target_link_url)
         keys = {
             'title': 'IllumiDesk',
@@ -214,10 +224,10 @@ class LTI13JwksHandler(BaseHandler):
                 'kty': 'RSA',
                 'use': 'sig',
             },
-            'description': 'illumidesk lti tool',
+            'description': 'IllumiDesk Learning Tools Interoperability (LTI) v1.3 tool.',
             'custom_fields': {'email': '$Person.email.primary'},
             'public_jwk_url': f'{target_link_url}/jwks',
             'target_link_uri': target_link_url,
-            'oidc_initiation_url': f'{target_link_url}/oauth_login',
+            'oidc_initiation_url': f'{target_link_url}/hub/oauth_login',
         }
         self.write(json.dumps(keys))

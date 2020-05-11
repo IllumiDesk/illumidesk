@@ -4,7 +4,7 @@ import requests
 
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
-from illumidesk.authenticators.handlers import LTI13JwksHandler
+from illumidesk.authenticators.handlers import LTI13ConfigHandler
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
 c = get_config()
@@ -151,7 +151,7 @@ c.LTI13Authenticator.authorize_url = os.environ.get('LTI13_AUTHORIZE_URL')
 
 # Handlers used for LTI endpoints
 c.JupyterHub.extra_handlers = [
-    (r'/jwks$', LTI13JwksHandler),
+    (r'/jwks$', LTI13ConfigHandler),
 ]
 
 ##########################################

@@ -347,11 +347,11 @@ class LTI13Authenticator(OAuthenticator):
         url = f'{protocol}://{handler.request.host}'
         self.log.debug('Request host URL %s' % url)
 
-        # consumer json web key endpoint
+        # platform json web key endpoint
         jwks = f'{self.endpoint}/api/lti/security/jwks'
-        self.log.debug('JWKS endpoint is %s' % jwks)
+        self.log.debug('JWKS platform endpoint is %s' % jwks)
         id_token = handler.get_argument('id_token')
-        self.log.debug('ID token is %s' % id_token)
+        self.log.debug('ID token issued by platform is %s' % id_token)
         decoded = await self._jwt_decode(id_token, jwks, audience=self.client_id)
         self.log.debug('Decoded JWT is %s' % decoded)
         self.decoded = decoded
@@ -360,11 +360,11 @@ class LTI13Authenticator(OAuthenticator):
         course_label = decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
         self.course_id = lti_utils.normalize_name_for_containers(course_label)
         self.log.debug('course_label is %s' % self.course_id)
-
+        # TODO: add additional checks to fetch username when app is private
         username = lti_utils.email_to_username(decoded['email']) if 'email' in decoded else 'unknown'
         self.log.debug('username is %s' % username)
         org = handler.request.host.split('.')[0]
-        self.log.debug('org is %s' % org)
+        self.log.debug('organization name is %s' % org)
         user_role = 'Instructor'
         if (
             'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner'
@@ -372,6 +372,7 @@ class LTI13Authenticator(OAuthenticator):
         ):
             user_role = 'Learner'
         self.log.debug('user_role is %s' % user_role)
+        # TODO: return unique user id and set to lms_user_id key
         return {
             'name': username,
             'auth_state': {'course_id': self.course_id, 'user_role': user_role, 'lms_user_id': username},  # noqa: E231
