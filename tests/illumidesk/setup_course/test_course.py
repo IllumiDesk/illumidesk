@@ -12,7 +12,7 @@ def setup_environ(monkeypatch, tmp_path):
     """
     Set the environment variables used in Course class
     """
-    monkeypatch.setenv('NFS_ROOT', str(tmp_path))
+    monkeypatch.setenv('MNT_ROOT', str(tmp_path))
     monkeypatch.setenv('NB_UID', '10001')
     monkeypatch.setenv('NB_GID', '100')
 
@@ -81,12 +81,7 @@ def test_grader_root_path_is_valid(setup_environ):
     """
     course = Course(org='org1', course_id='example', domain='example.com')
     assert course.grader_root is not None
-    assert course.grader_root == Path(
-        os.environ.get('NFS_ROOT'),
-        course.org,
-        'home',
-        course.grader_name,
-    )
+    assert course.grader_root == Path(os.environ.get('MNT_ROOT'), course.org, 'home', course.grader_name,)
 
 
 def test_course_path_is_a_grader_root_subfolder(setup_environ):
@@ -140,6 +135,7 @@ def test_should_setup_method_returns_true_if_container_does_not_exist(mock_docke
 
     def _container_not_exists(name):
         raise NotFound(f'container: {name} not exists')
+
     mock_docker.get.side_effect = lambda name: _container_not_exists(name)
     assert course.should_setup() is True
 
