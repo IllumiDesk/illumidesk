@@ -9,7 +9,7 @@ from jupyterhub.handlers import BaseHandler
 
 from jwkest import long_to_base64
 
-from .utils import LTIUtils
+from illumidesk.authenticators.utils import LTIUtils
 
 
 class LTI13ConfigHandler(BaseHandler):
