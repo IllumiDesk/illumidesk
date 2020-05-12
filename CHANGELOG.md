@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.3.3 (2020-05-12)
+
+
+### Features
+
+* Circumvent initial course setup during deployment when LTI v1.1 or vLTI 1.3 is enabled ([#53](https://github.com/IllumiDesk/illumidesk/issues/53)) ([2ab217e](https://github.com/IllumiDesk/illumidesk/commit/2ab217efa064c889f63773549d34fbf3db0cd7d8))
+
+
+### 0.3.2 (2020-05-12)
+
+
+### Bug Fixes
+
+* **User Interface** Add text to clarify assignment name in modal ([#48](https://github.com/IllumiDesk/illumidesk/issues/48)) ([fcfdd22](https://github.com/IllumiDesk/illumidesk/commit/fcfdd225e6816b9bdf0d9e00a76423958e879fcb))
+
+### 0.3.1 (2020-05-11)
+
+
+### Features
+
+* Update services menu in JupyterHub's control panel ([#46](https://github.com/IllumiDesk/illumidesk/issues/46)) ([f1101c5](https://github.com/IllumiDesk/illumidesk/commit/f1101c59aa5f236c02909b7147ac7366a5a558ac))
+
 ## 0.3.0 (2020-05-07)
 
 

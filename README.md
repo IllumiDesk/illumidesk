@@ -363,6 +363,8 @@ The services included with this setup rely on environment variables to work prop
 
 ### Environment Variables pertaining to grader service, located in `env.service`
 
+> This file is only used when you're using the initial setup with FirstUseAuthenticator
+
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
 | JUPYTERHUB_API_TOKEN | `string` | JupyterHub API token | `<randon_value>` |
