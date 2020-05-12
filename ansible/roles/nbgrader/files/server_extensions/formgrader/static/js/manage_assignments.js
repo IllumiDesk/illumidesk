@@ -583,6 +583,8 @@ var createAssignmentModal = function () {
 
     var body = $("<p/>")
     body.append($("<p id='create-error' class='alert alert-danger' style='display: none'/>"));
+    body.append($("<p id='create-error' class='alert alert-warning'/>").text("Please add an assignment name that only lower case characters. Refrain from using spaces and special characters. This name should be the same as the assignment name registered with the assignment name in your LMS."));
+    
     var table = $("<table/>").addClass("table table-striped form-table");
     body.append(table)
     var name = $("<tr/>");
