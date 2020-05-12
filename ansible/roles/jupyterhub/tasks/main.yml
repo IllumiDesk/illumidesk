@@ -116,6 +116,7 @@
   template:
     src: env.service.j2
     dest: "{{ working_dir }}/env.service"
+  when: not lti11_enabled|bool
 
 - name: create the jupyterhub env var file from template
   template:
