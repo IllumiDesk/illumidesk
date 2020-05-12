@@ -334,6 +334,10 @@ The services included with this setup rely on environment variables to work prop
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
 | COURSE_ID | `string` | Demo course id, equivalent to course name or course label. | `intro101` |
+| DEMO_INSTRUCTOR_NAME | `string` | Demo instructor user name. | `instructor1` |
+| DEMO_INSTRUCTOR_GROUP | `string` | Demo instructor group name. | `formgrade-{course_id}` |
+| DEMO_STUDENT_GROUP | `string` | Demo student group name. | `nbgrader-{course_id}` |
+| DEMO_GRADER_NAME | `string` | Demo grader service name. | `service-{course_id}` |
 | DOCKER_LEARNER_IMAGE | `string` | Docker image used by users with the Learner role. | `illumidesk/notebook:learner` |
 | DOCKER_GRADER_IMAGE | `string` | Docker image used by users with the Grader role. | `illumidesk/notebook:grader` |
 | DOCKER_INSTRUCTOR_IMAGE | `string` | Docker image used by users with the Instructor role. | `illumidesk/notebook:instructor` |

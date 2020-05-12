@@ -47,7 +47,7 @@ c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secr
 c.JupyterHub.admin_access = True
 
 # Define some static services that jupyterhub will manage
-announcement_port = os.environ.get("ANNOUNCEMENT_SERVICE_PORT") or '8889'
+announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
 c.JupyterHub.services = [
     {
         'name': 'cull_idle',
