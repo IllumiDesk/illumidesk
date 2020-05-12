@@ -38,7 +38,8 @@ services:
     volumes:
       - ./reverse-proxy/:/etc/traefik/
       - /var/run/docker.sock:/var/run/docker.sock
-    restart: on-failure    
+    restart: on-failure
+{% if lti11_enabled is sameas false %}
   {{course_id}}:
     restart: on-failure
     image: {{docker_illumidesk_notebook_grader_image}}
@@ -51,6 +52,7 @@ services:
       - env.service
     command: >
       start-notebook.sh --group=formgrade-{{course_id}} --allow-root
+{% endif %}
   setup-course:
     restart: on-failure
     image: {{docker_setup_course_image}}
