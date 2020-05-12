@@ -114,7 +114,7 @@ def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
     sender_controlfile = LTIGradeSender('course1', 'problem1')
     # create a mock for our method that searches grades from gradebook.db
     with patch.object(
-        LTIGradeSender, '_retrieve_grades_from_db', return_value=[]
+        LTIGradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [])
     ):
         with pytest.raises(AssignmentWithoutGradesError):
             sender_controlfile.send_grades()
@@ -134,7 +134,7 @@ def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(t
     ]
     # create a mock for our method that searches grades from gradebook.db
     with patch.object(
-        LTIGradeSender, '_retrieve_grades_from_db', return_value=grades_nbgrader
+        LTIGradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, grades_nbgrader)
     ):
         with pytest.raises(GradesSenderMissingInfoError):
             sender_controlfile.send_grades()
