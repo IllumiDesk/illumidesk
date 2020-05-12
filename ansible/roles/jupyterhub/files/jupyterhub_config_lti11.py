@@ -203,10 +203,12 @@ c.DockerSpawner.volumes = {
 # END CUSTOM DOCKERSPAWNER
 ##########################################
 
-# Custom Handlers used to send grades to LMS
+# Custom Handlers
+# the first one is used to send grades to LMS
+# this url pattern was changed to accept spaces in the assignment name
 c.JupyterHub.extra_handlers = [
     (
-        r'/submit-grades/(?P<course_id>\w+)/(?P<assignment_name>\w+)',
+        r'/submit-grades/(?P<course_id>\w+)/(?P<assignment_name>.*)$',
         'illumidesk.handlers.lms_grades.SendGradesHandler',
     ),
 ]

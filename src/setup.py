@@ -49,6 +49,8 @@ setup(
         'pyjwkest==1.4.2',
         'pycryptodome==3.9.7',
         'pylti==0.7.0',
+        'filelock==3.0.12',
+        'lti==0.9.5',
     ],  # noqa: E231
     package_data={'': ['*.html'],},  # noqa: E231
 )
