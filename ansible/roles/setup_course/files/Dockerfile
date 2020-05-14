@@ -9,10 +9,12 @@ RUN apk update \
 
 RUN apk update \
  && apk add --no-cache \
+ g++ \
  gcc \
  libc-dev \
  libffi-dev \
  libressl-dev \
+ libxslt-dev \
  linux-headers \
  make \
  musl-dev \
