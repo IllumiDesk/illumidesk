@@ -41,10 +41,9 @@ COPY global_nbgrader_config.py /etc/jupyter/nbgrader_config.py
 # global notebook configs if they are present
 COPY jupyter_notebook_config.py /etc/jupyterhub/jupyter_notebook_config.py
 
-# enable classic notebook extensions and widgets
+# enable classic notebook extensions
 # https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/install.html
 RUN jupyter contrib nbextension install --sys-prefix && \
-    jupyter nbextension enable --py widgetsnbextension --sys-prefix && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
