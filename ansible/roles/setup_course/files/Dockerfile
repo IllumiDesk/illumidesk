@@ -9,16 +9,20 @@ RUN apk update \
 
 RUN apk update \
  && apk add --no-cache \
+ g++ \
  gcc \
  libc-dev \
  libffi-dev \
  libressl-dev \
+ libxslt-dev \
  linux-headers \
  make \
  musl-dev \
  openssl-dev \
  python3-dev \
  zeromq-dev
+
+RUN apk add --update --no-cache g++ gcc libxslt-dev
  
 RUN pip install --no-cache-dir \
     hypercorn
