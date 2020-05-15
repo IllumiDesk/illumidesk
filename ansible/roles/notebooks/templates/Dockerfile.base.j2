@@ -41,17 +41,14 @@ COPY global_nbgrader_config.py /etc/jupyter/nbgrader_config.py
 # global notebook configs if they are present
 COPY jupyter_notebook_config.py /etc/jupyterhub/jupyter_notebook_config.py
 
-# install and enable classic notebook extensions
+# enable classic notebook extensions
 # https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/install.html
-RUN python3 -m pip install \
-    ipywidgets \
-    jupyter_contrib_nbextensions \
-    widgetsnbextension \
-    && \
-    jupyter contrib nbextension install --sys-prefix && \
-    jupyter nbextension enable --py widgetsnbextension --sys-prefix && \
+RUN jupyter contrib nbextension install --sys-prefix && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
+
+# install plotly-orca with npm globally
+RUN npm install -g electron@6.1.4 orca
 
 # with nbgrader installed, add scripts/configs and update permissions
 USER root
