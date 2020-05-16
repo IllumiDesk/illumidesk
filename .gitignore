@@ -12,7 +12,6 @@ docs/source/_static/rest-api
 .ipynb_checkpoints
 jupyterhub_cookie_secret
 jupyterhub.sqlite
-package-lock.json
 secrets
 share/jupyterhub/static/components
 share/jupyterhub/static/css/style.min.css
@@ -33,3 +32,4 @@ hosts
 *.ipynb
 venv
 *.retry
+grades-sender.lock
