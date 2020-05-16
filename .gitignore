@@ -32,3 +32,4 @@ hosts
 *.ipynb
 venv
 *.retry
+grades-sender.lock
