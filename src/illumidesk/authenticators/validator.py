@@ -11,8 +11,8 @@ from traitlets.config import LoggingConfigurable
 from typing import Any
 from typing import Dict
 
-from .utils import LTI11_LAUNCH_PARAMS_REQUIRED
-from .utils import LTI11_OAUTH_ARGS
+from .constants import LTI11_LAUNCH_PARAMS_REQUIRED
+from .constants import LTI11_OAUTH_ARGS
 
 
 class LTI11LaunchValidator(LoggingConfigurable):
