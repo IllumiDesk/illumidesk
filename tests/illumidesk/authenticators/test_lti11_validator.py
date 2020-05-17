@@ -15,9 +15,7 @@ from illumidesk.authenticators.authenticator import LTI11LaunchValidator
 from illumidesk.authenticators.utils import LTIUtils
 
 
-def mock_lti11_args(
-    oauth_consumer_key: str, oauth_consumer_secret: str,
-) -> Dict[str, str]:
+def mock_lti11_args(oauth_consumer_key: str, oauth_consumer_secret: str,) -> Dict[str, str]:
 
     utils = LTIUtils()
     oauth_timestamp = str(int(time.time()))
@@ -43,14 +41,10 @@ def mock_lti11_args(
     base_string = signature.signature_base_string(
         'POST',
         signature.base_string_uri(launch_url),
-        signature.normalize_parameters(
-            signature.collect_parameters(body=args, headers=headers)
-        ),
+        signature.normalize_parameters(signature.collect_parameters(body=args, headers=headers)),
     )
 
-    args['oauth_signature'] = signature.sign_hmac_sha1(
-        base_string, oauth_consumer_secret, None
-    )
+    args['oauth_signature'] = signature.sign_hmac_sha1(base_string, oauth_consumer_secret, None)
 
     return args
 
@@ -496,7 +490,7 @@ def test_launch_with_none_or_empty_lti_version():
 
 def test_launch_with_missing_resource_link_id():
     """
-    Does the launch request work with a missing oauth_signature key?
+    Does the launch request work with a missing resource_link_id key?
     """
     oauth_consumer_key = 'my_consumer_key'
     oauth_consumer_secret = 'my_shared_secret'
@@ -515,7 +509,7 @@ def test_launch_with_missing_resource_link_id():
 
 def test_launch_with_none_or_empty_resource_link_id():
     """
-    Does the launch request work with an empty or None oauth_signature value?
+    Does the launch request work with an empty or None resource_link_id value?
     """
     oauth_consumer_key = 'my_consumer_key'
     oauth_consumer_secret = 'my_shared_secret'
