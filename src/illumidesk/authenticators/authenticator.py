@@ -332,6 +332,9 @@ class LTI13Authenticator(OAuthenticator):
         Args:
           handler: handler object
           data: authentication dictionary
+
+        Returns:
+          Authentication dictionary
         """
         lti_utils = LTIUtils()
 
