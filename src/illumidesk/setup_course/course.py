@@ -187,7 +187,7 @@ class Course:
             name=self.grader_name,
             user='root',
             working_dir=f'/home/{self.grader_name}',
-            network=os.environ.get('DOCKER_NETWORK'),
+            network=os.environ.get('DOCKER_NETWORK_NAME'),
             restart_policy={'Name': 'on-failure', 'MaximumRetryCount': 5},
         )
 
