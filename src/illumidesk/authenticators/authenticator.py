@@ -1,10 +1,6 @@
 import os
 import json
-import jwt
 import logging
-
-from josepy.jws import JWS
-from josepy.jws import Header
 
 from jupyterhub.auth import Authenticator
 from jupyterhub.app import JupyterHub
@@ -28,6 +24,7 @@ from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.authenticators.validator import LTI11LaunchValidator
+from illumidesk.authenticators.validator import LTI13LaunchValidator
 from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
 
 
@@ -247,6 +244,14 @@ class LTI11Authenticator(LTIAuthenticator):
 
 class LTI13Authenticator(OAuthenticator):
     login_service = 'LTI13Authenticator'
+    client_ids = Dict(
+        {},
+        help="""
+        The LTI 1.3 client ids that identify the tool installation with the
+        platform.
+        """,
+    ).tag(config=True)
+
     endpoint = Unicode(
         '',
         help="""
@@ -278,54 +283,6 @@ class LTI13Authenticator(OAuthenticator):
     login_handler = LTI13LoginHandler
     callback_handler = LTI13CallbackHandler
 
-    async def _retrieve_matching_jwk(self, endpoint: str, verify: bool = True) -> Dict[str, str]:
-        """
-        Retrieves the matching cryptographic key from the platform as a
-        JSON Web Key (JWK).
-
-        Args:
-          endpoint: platform endpoint
-          token: jwt token
-          verify
-        """
-        client = AsyncHTTPClient()
-        resp = await client.fetch(endpoint, validate_cert=verify)
-        self.log.debug('Retrieving matching jwk %s' % json.loads(resp.body))
-        return json.loads(resp.body)
-
-    async def _jwt_decode(self, token: str, jwks: str, verify: bool = True, audience: str = None) -> Dict[str, str]:
-        """
-        Decodes the JSON Web Token (JWT) sent from the platform. The JWT should contain claims
-        that represent properties associated with the request.
-
-        Args:
-          token: token issued by the authorization server
-          jwks: JSON web key (publick key)
-          verify: verify whether or not to verify JWT when decoding. Defaults to True.
-          aud: the platform's OAuth2 Audience (aud). This vulue usually coincides with the
-            token endpoint for the platform (LMS) such as https://my.lms.domain/login/oauth2/token
-        """
-        if verify is False:
-            self.log.debug('JWK verification is off, returning token %s' % jwt.decode(token, verify=False))
-            return jwt.decode(token, verify=False)
-        jwks = await self._retrieve_matching_jwk(jwks, verify)
-        jws = JWS.from_compact(bytes(token, 'utf-8'))
-        self.log.debug('Retrieving matching jws %s' % jws)
-        json_header = jws.signature.protected
-        header = Header.json_loads(json_header)
-        self.log.debug('Header from decoded jwt %s' % header)
-        key = None
-        for jwk in jwks['keys']:
-            if jwk['kid'] != header.kid:
-                continue
-            key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(jwk))
-            self.log.debug('Get keys from jwks dict  %s' % key)
-        if key is None:
-            self.log.debug('Key is None, returning None')
-            return None
-        self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (token, key, verify))
-        return jwt.decode(token, key, verify, audience=audience)
-
     async def authenticate(self, handler: BaseHandler, data: Dict[str, str] = None) -> Dict[str, str]:
         """
         Overrides authenticate from base class to handle LTI 1.3 authentication requests.
@@ -337,6 +294,7 @@ class LTI13Authenticator(OAuthenticator):
         Returns:
           Authentication dictionary
         """
+        validator = LTI13LaunchValidator(self.client_ids)
         lti_utils = LTIUtils()
 
         # extract the request arguments to a dict
@@ -348,36 +306,42 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('Origin protocol is: %s' % protocol)
 
         # build the url used as base url to communicate with consumer
-        url = f'{protocol}://{handler.request.host}'
-        self.log.debug('Request host URL %s' % url)
+        launch_url = f'{protocol}://{handler.request.host}{handler.request.uri}'
+        self.log.debug('Request host URL %s' % launch_url)
 
-        # platform json web key endpoint
-        jwks = f'{self.endpoint}/api/lti/security/jwks'
-        self.log.debug('JWKS platform endpoint is %s' % jwks)
-        id_token = handler.get_argument('id_token')
-        self.log.debug('ID token issued by platform is %s' % id_token)
-        decoded = await self._jwt_decode(id_token, jwks, audience=self.client_id)
-        self.log.debug('Decoded JWT is %s' % decoded)
-        self.decoded = decoded
-        if self.decoded is None:
-            raise web.HTTPError(403)
-        course_label = decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
-        self.course_id = lti_utils.normalize_name_for_containers(course_label)
-        self.log.debug('course_label is %s' % self.course_id)
-        # TODO: add additional checks to fetch username when app is private
-        username = lti_utils.email_to_username(decoded['email']) if 'email' in decoded else 'unknown'
-        self.log.debug('username is %s' % username)
-        org = handler.request.host.split('.')[0]
-        self.log.debug('organization name is %s' % org)
-        user_role = 'Instructor'
-        if (
-            'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner'
-            in decoded['https://purl.imsglobal.org/spec/lti/claim/roles']
-        ):
-            user_role = 'Learner'
-        self.log.debug('user_role is %s' % user_role)
-        # TODO: return unique user id and set to lms_user_id key
-        return {
-            'name': username,
-            'auth_state': {'course_id': self.course_id, 'user_role': user_role, 'lms_user_id': username},  # noqa: E231
-        }
+        if validator.validate_launch_request(launch_url, handler.request.headers, args):
+
+            # platform json web key endpoint
+            jwks = f'{self.endpoint}/api/lti/security/jwks'
+            self.log.debug('JWKS platform endpoint is %s' % jwks)
+            id_token = handler.get_argument('id_token')
+            self.log.debug('ID token issued by platform is %s' % id_token)
+            decoded = await self._jwt_decode(id_token, jwks, audience=self.client_id)
+            self.log.debug('Decoded JWT is %s' % decoded)
+            self.decoded = decoded
+            if self.decoded is None:
+                raise web.HTTPError(403)
+            course_label = decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
+            self.course_id = lti_utils.normalize_name_for_containers(course_label)
+            self.log.debug('course_label is %s' % self.course_id)
+            # TODO: add additional checks to fetch username when app is private
+            username = lti_utils.email_to_username(decoded['email']) if 'email' in decoded else 'unknown'
+            self.log.debug('username is %s' % username)
+            org = handler.request.host.split('.')[0]
+            self.log.debug('organization name is %s' % org)
+            user_role = 'Instructor'
+            if (
+                'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner'
+                in decoded['https://purl.imsglobal.org/spec/lti/claim/roles']
+            ):
+                user_role = 'Learner'
+            self.log.debug('user_role is %s' % user_role)
+            # TODO: return unique user id and set to lms_user_id key
+            return {
+                'name': username,
+                'auth_state': {
+                    'course_id': self.course_id,
+                    'user_role': user_role,
+                    'lms_user_id': username,
+                },  # noqa: E231
+            }
