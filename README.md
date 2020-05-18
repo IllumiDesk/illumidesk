@@ -378,7 +378,7 @@ The services included with this setup rely on environment variables to work prop
 
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
-| DOCKER_NETWORK | `string` | JupyterHub API token | `<randon_value>` |
+| DOCKER_NETWORK_NAME | `string` | JupyterHub API token | `<randon_value>` |
 | GRADER_SERVICE_IMAGE | `string` | External facing API URL | `http://reverse-proxy:8000/hub/api` |
 | ILLUMIDESK_DIR | `string` | IllumiDesk working directory | `illumidesk_deployment` |
 | JUPYTERHUB_API_TOKEN | `string` | API token to connect with the JupyterHub | `<random value>` |
