@@ -189,7 +189,7 @@ async def test_authenticator_username_with_lis_person_name_given(lti11_authentic
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'foo',
+            'name': 'student1',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
