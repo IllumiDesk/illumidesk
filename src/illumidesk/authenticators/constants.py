@@ -128,6 +128,7 @@ LTI13_LIS_CLAIMS = {
         'course_offering_sourcedid': '',
         'course_section_sourcedid': '',
         'outcome_service_url': '',
+        'person_sourcedid': '',
         'result_sourcedid': '',
     },
 }
@@ -243,7 +244,6 @@ LTI13_ROLE_VOCABULARIES = {
     },
 }
 
-
 # https://www.imsglobal.org/spec/security/v1p0/#securing_web_services
 LTI13_WEB_SERVICES_REQUIRED_CLAIMS = {
     'grant_type': '',
@@ -252,4 +252,52 @@ LTI13_WEB_SERVICES_REQUIRED_CLAIMS = {
     'scope': '',
 }
 
-LTI13_JWT_ACCESS_TOKEN_SCOPES = []
+# https://www.imsglobal.org/spec/security/v1p0/#step-1-third-party-initiated-login
+LTI13_THIRD_PARTY_INITIATED_LOGIN = {
+    'iss': '',
+    'login_hint': '',
+    'target_link_uri': '',
+}
+
+
+# https://www.imsglobal.org/spec/security/v1p0/#step-2-authentication-request
+LTI13_AUTHENTICATION_REQUEST = {
+    'scope': '',
+    'response_type': '',
+    'client_id': '',
+    'redirect_uri': '',
+    'login_hint': '',
+    'state': '',
+    'reponse_mode': '',
+    'nonce': '',
+    'prompt': '',
+}
+
+
+# https://www.imsglobal.org/spec/security/v1p0/#step-2-authentication-request
+LTI13_AUTHENTICATION_RESPONSE = {
+    'state': '',
+    'id_token': '',
+}
+
+# https://www.imsglobal.org/spec/security/v1p0/#id-token
+LTI13_ID_TOKEN_CLAIMS = {
+    'iss': '',
+    'aud': '',
+    'sub': '',
+    'exp': '',
+    'iat': '',
+    'nonce': '',
+    'azp': '',
+}
+
+
+# https://www.imsglobal.org/spec/security/v1p0/#h_key-set-url
+LTI13_KEY_SET = {
+    'e': '',
+    'use': '',
+    'alg': '',
+    'kty': '',
+    'n': '',
+    'kid': '',
+}
