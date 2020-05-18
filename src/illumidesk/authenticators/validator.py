@@ -19,8 +19,8 @@ from typing import Dict
 
 from .constants import LTI11_LAUNCH_PARAMS_REQUIRED
 from .constants import LTI11_OAUTH_ARGS
-from .utils import LTI13_AUTHENTICATION_REQUEST
-from .utils import LTI13_REQUIRED_CLAIMS
+from .constants import LTI13_AUTHENTICATION_REQUEST
+from .constants import LTI13_REQUIRED_CLAIMS
 
 
 class LTI11LaunchValidator(LoggingConfigurable):

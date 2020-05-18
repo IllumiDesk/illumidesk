@@ -15,6 +15,7 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
 
 from traitlets import Unicode
+from traitlets import Dict as traitlets_dict
 
 from typing import Dict
 
@@ -244,7 +245,7 @@ class LTI11Authenticator(LTIAuthenticator):
 
 class LTI13Authenticator(OAuthenticator):
     login_service = 'LTI13Authenticator'
-    client_ids = Dict(
+    client_ids = traitlets_dict(
         {},
         help="""
         The LTI 1.3 client ids that identify the tool installation with the
