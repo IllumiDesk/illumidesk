@@ -186,6 +186,7 @@ class LTI11Authenticator(LTIAuthenticator):
             # Assign the user_id. Check the tool consumer (lms) vendor. If canvas use their
             # custom user id extension by default, else use standar lti values.
             username = ''
+            # GRADES-SENDER >>>> retrieve assignment_name from standard property
             assignment_name = args['resource_link_title'] if 'resource_link_title' in args else 'unknown'
             if lms_vendor == 'canvas':
                 self.log.debug('TC is a Canvas LMS instance')
@@ -193,25 +194,22 @@ class LTI11Authenticator(LTIAuthenticator):
                     custom_canvas_user_id = args['custom_canvas_user_login_id']
                     username = lti_utils.email_to_username(custom_canvas_user_id)
                     self.log.debug('using custom_canvas_user_id for username')
-                elif (
-                    'lis_person_contact_email_primary' in args and args['lis_person_contact_email_primary'] is not None
-                ):
-                    email = args['lis_person_contact_email_primary']
-                    username = lti_utils.email_to_username(email)
-                    self.log.debug('using lis_person_contact_email_primary for username')
-                elif 'lis_person_sourcedid' in args and args['lis_person_sourcedid'] is not None:
-                    username = args['lis_person_sourcedid']
-                    self.log.debug('using lis_person_sourcedid for username')
-
                 # GRADES-SENDER >>>> retrieve assignment_name from custom property
                 assignment_name = (
                     args['custom_canvas_assignment_title'] if 'custom_canvas_assignment_title' in args else 'unknown'
                 )
             else:
-                if 'lis_person_contact_email_primary' in args and args['lis_person_contact_email_primary'] is not None:
+                if (
+                    username == ''
+                    and 'lis_person_contact_email_primary' in args
+                    and args['lis_person_contact_email_primary'] is not None
+                ):
                     email = args['lis_person_contact_email_primary']
                     username = lti_utils.email_to_username(email)
                     self.log.debug('using lis_person_contact_email_primary for username')
+                elif 'lis_person_name_given' in args and args['lis_person_name_given'] is not None:
+                    username = args['lis_person_name_given']
+                    self.log.debug('using lis_person_name_given for username')
                 elif 'lis_person_sourcedid' in args and args['lis_person_sourcedid'] is not None:
                     username = args['lis_person_sourcedid']
                     self.log.debug('using lis_person_sourcedid for username')
@@ -226,12 +224,15 @@ class LTI11Authenticator(LTIAuthenticator):
             # use the user_id as the lms_user_id, used to map usernames to lms user ids
             lms_user_id = args['user_id']
 
-            # with all info extracted from lms request, register info for grades sender only if user is a STUDENT
+            # with all info extracted from lms request, register info for grades sender only if the user has
+            # the Learner role
             if user_role == 'Learner':
                 control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
                 # the next fields must come in args
-                lis_outcome_service_url = args['lis_outcome_service_url']
-                lis_result_sourcedid = args['lis_result_sourcedid']
+                if 'lis_outcome_service_url' in args and args['lis_outcome_service_url'] is not None:
+                    lis_outcome_service_url = args['lis_outcome_service_url']
+                if 'lis_result_sourcedid' in args and args['lis_result_sourcedid'] is not None:
+                    lis_result_sourcedid = args['lis_result_sourcedid']
                 control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
 
             return {

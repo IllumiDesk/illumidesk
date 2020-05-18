@@ -23,6 +23,8 @@ def mock_lti11_instructor_args(lms_vendor: str) -> Dict[str, str]:
         'oauth_timestamp': ['1585947271'.encode()],
         'oauth_nonce': ['01fy8HKIASKuD9gK9vWUcBj9fql1nOCWfOLPzeylsmg'.encode()],
         'oauth_version': ['1.0'.encode()],
+        'custom_canvas_assignment_title': ['test-assignment'.encode()],
+        'custom_canvas_user_login_id': ['student1'.encode()],
         'context_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
         'context_label': ['intro101'.encode()],
         'context_title': ['intro101'.encode()],
@@ -34,11 +36,15 @@ def mock_lti11_instructor_args(lms_vendor: str) -> Dict[str, str]:
             'https: //illumidesk.instructure.com/courses/161/external_content/success/external_tool_redirect'.encode()
         ],
         'launch_presentation_width': ['1000'.encode()],
-        'lis_person_contact_email_primary': ['foo@example.com'.encode()],
+        'lis_outcome_service_url': [
+            'http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ='.encode()
+        ],
+        'lis_person_contact_email_primary': ['student1@example.com'.encode()],
         'lis_person_name_family': ['Bar'.encode()],
         'lis_person_name_full': ['Foo Bar'.encode()],
         'lis_person_name_given': ['Foo'.encode()],
         'lti_message_type': ['basic-lti-launch-request'.encode()],
+        'lis_result_sourcedid': ['feb-123-456-2929::28883'.encode()],
         'lti_version': ['LTI-1p0'.encode()],
         'oauth_callback': ['about:blank'.encode()],
         'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
@@ -47,9 +53,7 @@ def mock_lti11_instructor_args(lms_vendor: str) -> Dict[str, str]:
         'tool_consumer_info_product_family_code': [lms_vendor.encode()],
         'tool_consumer_info_version': ['cloud'.encode()],
         'tool_consumer_instance_contact_email': ['notifications@mylms.com'.encode()],
-        'tool_consumer_instance_guid': [
-            'srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:test-lms'.encode()
-        ],
+        'tool_consumer_instance_guid': ['srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:test-lms'.encode()],
         'tool_consumer_instance_name': ['myorg'.encode()],
         'user_id': ['185d6c59731a553009ca9b59ca3a885100000'.encode()],
         'user_image': ['https://lms.example.com/avatar-50.png'.encode()],
@@ -61,12 +65,10 @@ def mock_lti11_instructor_args(lms_vendor: str) -> Dict[str, str]:
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authenticator):
-    '''
+    """
     Do we get a valid username when sending an argument with the custom canvas id?
-    '''
-    with patch.object(
-        LTI11LaunchValidator, 'validate_launch_request', return_value=True
-    ):
+    """
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
         handler = Mock(
             spec=RequestHandler,
@@ -75,7 +77,7 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authent
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'foo',
+            'name': 'student1',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
@@ -87,18 +89,14 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authent
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
-async def test_authenticator_returns_auth_state_with_other_lms_vendor(
-    lti11_authenticator,
-):
-    '''
+async def test_authenticator_returns_auth_state_with_other_lms_vendor(lti11_authenticator,):
+    """
     Do we get a valid username with lms vendors other than canvas?
-    '''
+    """
     utils = LTIUtils()
     utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
     utils.convert_request_to_dict(3, 4, 5, key='value')
-    with patch.object(
-        LTI11LaunchValidator, 'validate_launch_request', return_value=True
-    ):
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
         handler = Mock(
             spec=RequestHandler,
@@ -107,7 +105,7 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'foo',
+            'name': 'student1',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
@@ -119,9 +117,7 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(
 
 @pytest.mark.asyncio
 async def test_authenticator_uses_ltivalidator():
-    with patch.object(
-        LTI11LaunchValidator, 'validate_launch_request', return_value=True
-    ) as mock_validator:
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True) as mock_validator:
 
         authenticator = LTI11Authenticator()
         handler = Mock(spec=RequestHandler)
@@ -129,9 +125,7 @@ async def test_authenticator_uses_ltivalidator():
         handler.request = request
 
         handler.request.arguments = mock_lti11_instructor_args('lmsvendor')
-        handler.request.get_argument = lambda x, strip=True: mock_lti11_instructor_args(
-            'lmsvendor'
-        )[x][0].decode()
+        handler.request.get_argument = lambda x, strip=True: mock_lti11_instructor_args('lmsvendor')[x][0].decode()
 
         _ = await authenticator.authenticate(handler, None)
         assert mock_validator.called
@@ -139,9 +133,7 @@ async def test_authenticator_uses_ltivalidator():
 
 @pytest.mark.asyncio
 async def test_authenticator_invokes_validator_with_decoded_dict():
-    with patch.object(
-        LTI11LaunchValidator, 'validate_launch_request', return_value=True
-    ) as mock_validator:
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True) as mock_validator:
 
         authenticator = LTI11Authenticator()
         handler = Mock(spec=RequestHandler)
@@ -149,16 +141,133 @@ async def test_authenticator_invokes_validator_with_decoded_dict():
         handler.request = request
         handler.request.protocol = 'https'
         handler.request.arguments = mock_lti11_instructor_args('canvas')
-        handler.request.get_argument = lambda x, strip=True: mock_lti11_instructor_args('canvas')[
-            x
-        ][0].decode()
+        handler.request.get_argument = lambda x, strip=True: mock_lti11_instructor_args('canvas')[x][0].decode()
 
         _ = await authenticator.authenticate(handler, None)
         # check our validator was called
         assert mock_validator.called
         decoded_args = {
-            k: handler.request.get_argument(k, strip=False)
-            for k, v in mock_lti11_instructor_args('canvas').items()
+            k: handler.request.get_argument(k, strip=False) for k, v in mock_lti11_instructor_args('canvas').items()
         }
         # check validator was called with correct dict params (decoded)
         mock_validator.assert_called_with('https://example.com/hub', {}, decoded_args)
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service_url(lti11_authenticator,):
+    """
+    Are we able to handle requests with a missing lis_outcome_service_url key?
+    """
+    utils = LTIUtils()
+    utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
+    utils.convert_request_to_dict(3, 4, 5, key='value')
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = mock_lti11_instructor_args('canvas')
+        del args['lis_outcome_service_url']
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedid(lti11_authenticator,):
+    """
+    Are we able to handle requests with a missing lis_result_sourcedid key?
+    """
+    utils = LTIUtils()
+    utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
+    utils.convert_request_to_dict(3, 4, 5, key='value')
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = mock_lti11_instructor_args('canvas')
+        del args['lis_result_sourcedid']
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(lti11_authenticator,):
+    """
+    Are we able to handle requests with lis_result_sourcedid set to an empty value?
+    """
+    utils = LTIUtils()
+    utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
+    utils.convert_request_to_dict(3, 4, 5, key='value')
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = mock_lti11_instructor_args('canvas')
+        args['lis_result_sourcedid'] = ''
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_url(lti11_authenticator,):
+    """
+    Are we able to handle requests with lis_outcome_service_url set to an empty value?
+    """
+    utils = LTIUtils()
+    utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
+    utils.convert_request_to_dict(3, 4, 5, key='value')
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = mock_lti11_instructor_args('canvas')
+        args['lis_outcome_service_url'] = ''
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+            },
+        }
+        assert result == expected
