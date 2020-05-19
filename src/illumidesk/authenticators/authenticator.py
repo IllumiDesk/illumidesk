@@ -15,7 +15,6 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
 
 from traitlets import Unicode
-from traitlets import Dict as traitlets_dict
 
 from typing import Dict
 
@@ -244,11 +243,28 @@ class LTI11Authenticator(LTIAuthenticator):
 
 
 class LTI13Authenticator(OAuthenticator):
+    """
+    endpoint: The LTI 1.3 endpoint used to retrieve JWT access tokens.
+    Official specification: https://www.imsglobal.org/node/162751 section.
+    authorize_url: Authorization URL that represents the LTI 1.3 / OAuth2 authorization
+    server's endpoint to obtain an acccess token based on authorization grant.
+    token_url: The LTI 1.3 endpoint used to retrieve JWT access tokens. Official
+    specification: https://www.imsglobal.org/node/162751.
+    """
+
     login_service = 'LTI13Authenticator'
-    client_ids = traitlets_dict(
-        {},
+
+    # handlers used for login, callback, and jwks endpoints
+    login_handler = LTI13LoginHandler
+    callback_handler = LTI13CallbackHandler
+
+    # the client_id, endpoint, authorize_url, and token_url config settings
+    # are available in the OAuthenticator base class. the are overrident here
+    # for the sake of clarity.
+    client_ids = Unicode(
+        '',
         help="""
-        The LTI 1.3 client ids that identify the tool installation with the
+        The LTI 1.3 client id that identifies the tool installation with the
         platform.
         """,
     ).tag(config=True)
@@ -256,9 +272,8 @@ class LTI13Authenticator(OAuthenticator):
     endpoint = Unicode(
         '',
         help="""
-        The LTI 1.3 endpoint used to retrieve JWT access tokens.
-        Official specification: https://www.imsglobal.org/node/162751
-        section
+        The LTI 1.3 endpoint used to retrieve JSON Web Keys (public keys). The tool
+        uses the JWKS to verify JWT signatures from the platform (issuer (iss)).
         """,
     ).tag(config=True)
 
@@ -268,7 +283,9 @@ class LTI13Authenticator(OAuthenticator):
         help="""
         Authorization URL that represents the LTI 1.3 / OAuth2 authorization
         server's endpoint to obtain an acccess token based on authorization
-        grant.
+        grant. Unlike traditional OAuth2 authorization servers where a separate logical
+        entity issues tokens based on user credentials (Google, GitHub, etc), LTI 1.3
+        platforms also function as the authorization server.
         """,
     ).tag(config=True)
 
@@ -279,10 +296,6 @@ class LTI13Authenticator(OAuthenticator):
         Official specification: https://www.imsglobal.org/node/162751.
         """,
     ).tag(config=True)
-
-    # handlers used for login, callback, and jwks endpoints
-    login_handler = LTI13LoginHandler
-    callback_handler = LTI13CallbackHandler
 
     async def authenticate(self, handler: BaseHandler, data: Dict[str, str] = None) -> Dict[str, str]:
         """
@@ -295,45 +308,44 @@ class LTI13Authenticator(OAuthenticator):
         Returns:
           Authentication dictionary
         """
-        validator = LTI13LaunchValidator(self.client_ids)
+        validator = LTI13LaunchValidator(self.client_id)
         lti_utils = LTIUtils()
 
+        # get jwks endpoint and token to use as args to decode jwt. we could pass in
+        # self.endpoint directly as arg to jwt_verify_and_decode() but logging the
+        jwks_endpoint = self.endpoint
+        self.log.debug('JWKS platform endpoint is %s' % jwks_endpoint)
+        id_token = handler.get_argument('id_token')
+        self.log.debug('ID token issued by platform is %s' % id_token)
+
         # extract the request arguments to a dict
-        args = lti_utils.convert_request_to_dict(handler.request.arguments)
-        self.log.debug('Decoded args from request: %s' % args)
+        jwt_decoded = await validator.jwt_verify_and_decode(id_token, jwks_endpoint, audience=self.client_id)
+        self.log.debug('Decoded JWT is %s' % jwt_decoded)
 
         # get the origin protocol
         protocol = lti_utils.get_client_protocol(handler)
         self.log.debug('Origin protocol is: %s' % protocol)
 
-        # build the url used as base url to communicate with consumer
-        launch_url = f'{protocol}://{handler.request.host}{handler.request.uri}'
+        # build the url used as base url to communicate with platform
+        launch_url = f'{protocol}://{handler.request.host}'
         self.log.debug('Request host URL %s' % launch_url)
 
-        if validator.validate_launch_request(launch_url, handler.request.headers, args):
+        if validator.validate_launch_request(launch_url, handler.request.headers, jwt_decoded):
 
-            # platform json web key endpoint
-            jwks = f'{self.endpoint}/api/lti/security/jwks'
-            self.log.debug('JWKS platform endpoint is %s' % jwks)
-            id_token = handler.get_argument('id_token')
-            self.log.debug('ID token issued by platform is %s' % id_token)
-            decoded = await self._jwt_decode(id_token, jwks, audience=self.client_id)
-            self.log.debug('Decoded JWT is %s' % decoded)
-            self.decoded = decoded
-            if self.decoded is None:
-                raise web.HTTPError(403)
-            course_label = decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
+            if jwt_decoded is None:
+                raise web.HTTPError(400, 'Missing decoded JWT.')
+            course_label = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
             self.course_id = lti_utils.normalize_name_for_containers(course_label)
-            self.log.debug('course_label is %s' % self.course_id)
+            self.log.debug('Normalized course_label is %s' % self.course_id)
             # TODO: add additional checks to fetch username when app is private
-            username = lti_utils.email_to_username(decoded['email']) if 'email' in decoded else 'unknown'
+            username = lti_utils.email_to_username(jwt_decoded['email']) if 'email' in jwt_decoded else 'unknown'
             self.log.debug('username is %s' % username)
             org = handler.request.host.split('.')[0]
             self.log.debug('organization name is %s' % org)
             user_role = 'Instructor'
             if (
                 'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner'
-                in decoded['https://purl.imsglobal.org/spec/lti/claim/roles']
+                in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/roles']
             ):
                 user_role = 'Learner'
             self.log.debug('user_role is %s' % user_role)

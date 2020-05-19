@@ -352,10 +352,10 @@ The services included with this setup rely on environment variables to work prop
 | LTI_CONSUMER_KEY | `string` | LTI 1.1 consumer key | `ild_test_consumer_key` |
 | LTI_SHARED_SECRET | `string` | LTI 1.1 shared secret | `ild_test_shared_secret` |
 | LTI13_AUTHORIZE_URL | `string` | LTI 1.3 authorization URL, such as `https://my.platform.domain/api/lti/authorize_redirect` | `''` |
-| LTI13_CLIENT_ID | `string` | LTI 1.3 client id used to identify the tool's installation, such as `125900000000000071` | `''` |
-| LTI13_ENDPOINT | `string` | LTI 1.3 endpoint, such as `https://my.platform.domain` | `''` |
+| LTI13_CLIENT_ID | `string` | LTI 1.3 client id used to identify the tool's installation within the platform, such as `125900000000000071` | `''` |
+| LTI13_ENDPOINT | `string` | LTI 1.3 platform endpoint, such as `https://my.platform.domain/api/lti/security/jwks` | `''` |
 | LTI13_PRIVATE_KEY | `string` | Private key used with LTI 1.3 to create public JSON Web Keys (JWK) | `/secrets/keys/rsa_private.pem` |
-| LTI13_TOKEN_URL | `string` | LTI 1.3 token URL, such as `https://my.platform.domain/login/oauth2/token` | `''` |
+| LTI13_TOKEN_URL | `string` | LTI 1.3 token URL surfaced by the platform, such as `https://my.platform.domain/login/oauth2/token` | `''` |
 | MNT_HOME_DIR_UID | `string` | Host user directory UID | `1000` |
 | MNT_HOME_DIR_GID | `string` | Host user directory GID | `100` |
 | MNT_ROOT | `string` | Host directory root | `/mnt` |

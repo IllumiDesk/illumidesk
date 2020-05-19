@@ -19,7 +19,6 @@ from typing import Dict
 
 from .constants import LTI11_LAUNCH_PARAMS_REQUIRED
 from .constants import LTI11_OAUTH_ARGS
-from .constants import LTI13_AUTHENTICATION_REQUEST
 from .constants import LTI13_REQUIRED_CLAIMS
 
 
@@ -51,7 +50,7 @@ class LTI11LaunchValidator(LoggingConfigurable):
         """
         Validate a given LTI 1.1 launch request. The arguments' k/v's are either
         required, recommended, or optional. The required/recommended/optional
-        keys are listed in the utils.LTIUtils class.
+        keys are defined as constants.
 
         Args:
           launch_url: URL (base_url + path) that receives the launch request,
@@ -127,30 +126,36 @@ class LTI13LaunchValidator(LoggingConfigurable):
     """
     Allows JupyterHub to verify LTI 1.3 compatible requests as a tool (known as a tool
     provider with LTI 1.1).
-
-    For an instance of this class to work you need to pass in a valid client_id(s).
-
-    Attributes:
-      consumers: consumer key and shared secret key/value pair(s)
     """
 
-    # Keep a class-wide, global list of nonces so we can detect & reject
-    # replay attacks. This possibly makes this non-threadsafe, however.
-    nonces = OrderedDict()
+    async def _retrieve_matching_jwk(self, endpoint: str, verify: bool = True) -> Dict[str, str]:
+        """
+        Retrieves the matching cryptographic key from the platform as a
+        JSON Web Key (JWK).
 
-    def __init__(self, client_ids):
-        self.client_ids = client_ids
+        Args:
+          endpoint: platform endpoint
+          token: jwt token
+          verify: if true, validate certificate
+        """
+        client = AsyncHTTPClient()
+        resp = await client.fetch(endpoint, validate_cert=verify)
+        self.log.debug('Retrieving matching jwk %s' % json.loads(resp.body))
+        return json.loads(resp.body)
 
-    async def _jwt_decode(self, token: str, jwks: str, verify: bool = True, audience: str = None) -> Dict[str, str]:
+    async def jwt_verify_and_decode(
+        self, token: str, jwks: str, verify: bool = True, audience: str = None
+    ) -> Dict[str, str]:
         """
         Decodes the JSON Web Token (JWT) sent from the platform. The JWT should contain claims
-        that represent properties associated with the request.
+        that represent properties associated with the request. This method implicitly verifies the JWT's
+        signature using the platform's public key.
 
         Args:
           token: token issued by the authorization server
           jwks: JSON web key (publick key)
           verify: verify whether or not to verify JWT when decoding. Defaults to True.
-          aud: the platform's OAuth2 Audience (aud). This vulue usually coincides with the
+          audience: the platform's OAuth2 Audience (aud). This value usually coincides with the
             token endpoint for the platform (LMS) such as https://my.lms.domain/login/oauth2/token
         """
         if verify is False:
@@ -174,58 +179,22 @@ class LTI13LaunchValidator(LoggingConfigurable):
         self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (token, key, verify))
         return jwt.decode(token, key, verify, audience=audience)
 
-    async def _retrieve_matching_jwk(self, endpoint: str, verify: bool = True) -> Dict[str, str]:
+    def validate_launch_request(self, jwt_decoded: Dict[str, Any],) -> bool:
         """
-        Retrieves the matching cryptographic key from the platform as a
-        JSON Web Key (JWK).
+        Validates that a given LTI 1.3 launch request has the required and/or optional claims.
+        The required claims are defined as constants.
 
         Args:
-          endpoint: platform endpoint
-          token: jwt token
-          verify
-        """
-        client = AsyncHTTPClient()
-        resp = await client.fetch(endpoint, validate_cert=verify)
-        self.log.debug('Retrieving matching jwk %s' % json.loads(resp.body))
-        return json.loads(resp.body)
-
-    def validate_launch_request(self, launch_url: str, headers: Dict[str, Any], args: Dict[str, Any],) -> bool:
-        """
-        Validate a given LTI 1.3 launch request. The arguments' k/v's are either
-        required, recommended, or optional. The required/recommended/optional
-        keys are listed in the utils.LTIUtils class.
-
-        Args:
-          launch_url: URL (base_url + path) that receives the launch request,
-            usually from a tool consumer.
-          headers: HTTP headers included with the POST request
-          args: the body sent to the launch url.
+          jwt_decoded: decode JWT payload
 
         Returns:
           True if the validation passes, False otherwise.
 
         Raises:
-          HTTPError if a required argument is not inclued in the POST request.
+          HTTPError if a required argument is not included in the request.
         """
-        # Ensure that required LTI 1.3 authentication request claims are included in the request
-        for claim in LTI13_AUTHENTICATION_REQUEST:
-            if claim not in args.keys():
+        for claim, v in LTI13_REQUIRED_CLAIMS.items():
+            if claim not in jwt_decoded.keys():
                 raise HTTPError(400, 'Required claim %s not included in request' % claim)
-            if not args.get(claim):
-                raise HTTPError(400, 'Required claim %s does not have a value' % claim)
-
-        # Ensure that required claims are included in the request
-        for claim in LTI13_REQUIRED_CLAIMS:
-            if claim not in args.keys():
-                raise HTTPError(400, 'Required claim %s not included in request' % claim)
-            if not args.get(claim):
-                raise HTTPError(400, 'Required claim %s does not have a value' % claim)
-
-        # Ensure that the client_id is registered in jupyterhub_config.py
-        # LTI13Authenticator.client_ids.
-        if args['client_id'] not in self.client_ids:
-            raise HTTPError(401, 'unknown client_id')
-
-        # Verify signature
 
         return True

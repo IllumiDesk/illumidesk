@@ -1,0 +1,86 @@
+from typing import Dict
+
+
+def mock_lti13_resource_link_request(lms_vendor: str) -> Dict[str, str]:
+    jws = {
+        'https://purl.imsglobal.org/spec/lti/claim/message_type': 'LtiResourceLinkRequest',
+        'https://purl.imsglobal.org/spec/lti/claim/version': '1.3.0',
+        'https://purl.imsglobal.org/spec/lti/claim/resource_link': {
+            'id': 'b81accac78543cb7cd239f3792bcfdc7c6efeadb',
+            'description': 'Assignment to introduct who we are',
+            'title': 'Introduction Assignment',
+            'validation_context': None,
+            'errors': {'errors': {}},
+        },
+        'aud': '125900000000000071',
+        'azp': '125900000000000071',
+        'https://purl.imsglobal.org/spec/lti/claim/deployment_id': '847:b81accac78543cb7cd239f3792bcfdc7c6efeadb',
+        'exp': 1589843421,
+        'iat': 1589839821,
+        'iss': 'https://canvas.instructure.com',
+        'nonce': '125687018437687229621589839822',
+        'sub': '8171934b-f5e2-4f4e-bdbd-6d798615b93e',
+        'https://purl.imsglobal.org/spec/lti/claim/target_link_uri': 'https://myedu.illumidesk.com/hub',
+        'https://purl.imsglobal.org/spec/lti/claim/context': {
+            'id': 'b81accac78543cb7cd239f3792bcfdc7c6efeadb',
+            'label': 'intro101',
+            'title': 'intro101',
+            'type': ['http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering'],
+            'validation_context': None,
+            'errors': {'errors': {}},
+        },
+        'https://purl.imsglobal.org/spec/lti/claim/tool_platform': {
+            'guid': 'srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:canvas-lms',
+            'name': 'Illumidesk',
+            'version': 'cloud',
+            'product_family_code': lms_vendor,
+            'validation_context': None,
+            'errors': {'errors': {}},
+        },
+        'https://purl.imsglobal.org/spec/lti/claim/launch_presentation': {
+            'document_target': 'iframe',
+            'height': 400,
+            'width': 800,
+            'return_url': 'https://illumidesk.instructure.com/courses/147/external_content/success/external_tool_redirect',
+            'locale': 'en',
+            'validation_context': None,
+            'errors': {'errors': {}},
+        },
+        'locale': 'en',
+        'https://purl.imsglobal.org/spec/lti/claim/roles': [
+            'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student',
+            'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner',
+            'http://purl.imsglobal.org/vocab/lis/v2/system/person#User',
+        ],
+        'https://purl.imsglobal.org/spec/lti/claim/custom': {'email': 'student1@example.com'},
+        'errors': {'errors': {}},
+        'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint': {
+            'scope': [
+                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/score',
+            ],
+            'lineitems': 'https://illumidesk.instructure.com/api/lti/courses/147/line_items',
+            'validation_context': None,
+            'errors': {'errors': {}},
+        },
+        'picture': 'https://canvas.instructure.com/images/messages/avatar-50.png',
+        'email': 'student1@example.com',
+        'name': 'Student1 Bar',
+        'given_name': 'Student1',
+        'family_name': 'Bar',
+        'https://purl.imsglobal.org/spec/lti/claim/lis': {
+            'person_sourcedid': None,
+            'course_offering_sourcedid': None,
+            'validation_context': None,
+            'errors': {'errors': {}},
+        },
+        'https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice': {
+            'context_memberships_url': 'https://illumidesk.instructure.com/api/lti/courses/147/names_and_roles',
+            'service_versions': ['2.0'],
+            'validation_context': None,
+            'errors': {'errors': {}},
+        },
+    }
+    return jws

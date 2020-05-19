@@ -5,8 +5,6 @@ import pytest
 
 from typing import Dict
 
-from tornado.web import HTTPError
-
 from oauthlib.oauth1.rfc5849 import signature
 
 from tornado.web import HTTPError

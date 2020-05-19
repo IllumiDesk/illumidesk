@@ -69,16 +69,11 @@ LTI11_LAUNCH_PARAMS_ALL = LTI11_LAUNCH_PARAMS_REQUIRED + LTI11_LAUNCH_PARAMS_REC
 # Required message claims
 # http://www.imsglobal.org/spec/lti/v1p3/#required-message-claims
 LTI13_REQUIRED_CLAIMS = {
-    # these first two are set according to the spec
     'https://purl.imsglobal.org/spec/lti/claim/message_type': 'LtiResourceLinkRequest',
     'https://purl.imsglobal.org/spec/lti/claim/version': '1.3.0',
-    # must not exceed 255 ascii chars
     'https://purl.imsglobal.org/spec/lti/claim/deployment_id': '',
-    # should be the same as target_link_url
     'https://purl.imsglobal.org/spec/lti/claim/target_link_uri': '',
-    # only resource_link's id is required
     'https://purl.imsglobal.org/spec/lti/claim/resource_link': {'id': '',},  # noqa: E231
-    # roles is required, but can be empty.
     'https://purl.imsglobal.org/spec/lti/claim/roles': '',
 }
 
@@ -123,6 +118,7 @@ LTI13_OPTIONAL_CLAIMS = {
     },
 }
 
+
 LTI13_LIS_CLAIMS = {
     'https://purl.imsglobal.org/spec/lti/claim/lis': {
         'course_offering_sourcedid': '',
@@ -132,6 +128,7 @@ LTI13_LIS_CLAIMS = {
         'result_sourcedid': '',
     },
 }
+
 
 LTI13_ROLE_VOCABULARIES = {
     'SYSTEM_ROLES': {
@@ -244,60 +241,5 @@ LTI13_ROLE_VOCABULARIES = {
     },
 }
 
-# https://www.imsglobal.org/spec/security/v1p0/#securing_web_services
-LTI13_WEB_SERVICES_REQUIRED_CLAIMS = {
-    'grant_type': '',
-    'client_assertion_type': '',
-    'client_assertion': '',
-    'scope': '',
-}
-
-# https://www.imsglobal.org/spec/security/v1p0/#step-1-third-party-initiated-login
-LTI13_THIRD_PARTY_INITIATED_LOGIN = {
-    'iss': '',
-    'login_hint': '',
-    'target_link_uri': '',
-}
-
-
-# https://www.imsglobal.org/spec/security/v1p0/#step-2-authentication-request
-LTI13_AUTHENTICATION_REQUEST = {
-    'scope': '',
-    'response_type': '',
-    'client_id': '',
-    'redirect_uri': '',
-    'login_hint': '',
-    'state': '',
-    'reponse_mode': '',
-    'nonce': '',
-    'prompt': '',
-}
-
-
-# https://www.imsglobal.org/spec/security/v1p0/#step-2-authentication-request
-LTI13_AUTHENTICATION_RESPONSE = {
-    'state': '',
-    'id_token': '',
-}
-
-# https://www.imsglobal.org/spec/security/v1p0/#id-token
-LTI13_ID_TOKEN_CLAIMS = {
-    'iss': '',
-    'aud': '',
-    'sub': '',
-    'exp': '',
-    'iat': '',
-    'nonce': '',
-    'azp': '',
-}
-
-
-# https://www.imsglobal.org/spec/security/v1p0/#h_key-set-url
-LTI13_KEY_SET = {
-    'e': '',
-    'use': '',
-    'alg': '',
-    'kty': '',
-    'n': '',
-    'kid': '',
-}
+# All claims except LIS claims
+LTI13_CLAIMS_ALL = LTI13_REQUIRED_CLAIMS.update(LTI13_OPTIONAL_CLAIMS)
