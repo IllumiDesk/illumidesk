@@ -63,7 +63,7 @@ def mock_lti11_instructor_args(lms_vendor: str) -> Dict[str, str]:
 
 
 @pytest.mark.asyncio
-@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+@patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authenticator):
     """
     Do we get a valid username when sending an argument with the custom canvas id?
@@ -88,7 +88,7 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authent
 
 
 @pytest.mark.asyncio
-@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+@patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_other_lms_vendor(lti11_authenticator,):
     """
     Do we get a valid username with lms vendors other than canvas?
@@ -116,7 +116,7 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(lti11_auth
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_ltivalidator():
+async def test_authenticator_uses_lti11validator():
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True) as mock_validator:
 
         authenticator = LTI11Authenticator()
@@ -154,7 +154,7 @@ async def test_authenticator_invokes_validator_with_decoded_dict():
 
 
 @pytest.mark.asyncio
-@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+@patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service_url(lti11_authenticator,):
     """
     Are we able to handle requests with a missing lis_outcome_service_url key?
@@ -184,7 +184,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
 
 
 @pytest.mark.asyncio
-@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+@patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedid(lti11_authenticator,):
     """
     Are we able to handle requests with a missing lis_result_sourcedid key?

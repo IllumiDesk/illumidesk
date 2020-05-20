@@ -261,7 +261,7 @@ class LTI13Authenticator(OAuthenticator):
     # the client_id, endpoint, authorize_url, and token_url config settings
     # are available in the OAuthenticator base class. the are overrident here
     # for the sake of clarity.
-    client_ids = Unicode(
+    client_id = Unicode(
         '',
         help="""
         The LTI 1.3 client id that identifies the tool installation with the
@@ -308,29 +308,21 @@ class LTI13Authenticator(OAuthenticator):
         Returns:
           Authentication dictionary
         """
-        validator = LTI13LaunchValidator(self.client_id)
         lti_utils = LTIUtils()
+        validator = LTI13LaunchValidator()
 
         # get jwks endpoint and token to use as args to decode jwt. we could pass in
         # self.endpoint directly as arg to jwt_verify_and_decode() but logging the
-        jwks_endpoint = self.endpoint
-        self.log.debug('JWKS platform endpoint is %s' % jwks_endpoint)
+        self.log.debug('JWKS platform endpoint is %s' % self.endpoint)
         id_token = handler.get_argument('id_token')
         self.log.debug('ID token issued by platform is %s' % id_token)
 
-        # extract the request arguments to a dict
-        jwt_decoded = await validator.jwt_verify_and_decode(id_token, jwks_endpoint, audience=self.client_id)
+        # extract claims from jwt (id_token) sent by the platform. as tool use the jwks (public key)
+        # to verify the jwt's signature.
+        jwt_decoded = await validator.jwt_verify_and_decode(id_token, self.endpoint, False, audience=self.client_id)
         self.log.debug('Decoded JWT is %s' % jwt_decoded)
 
-        # get the origin protocol
-        protocol = lti_utils.get_client_protocol(handler)
-        self.log.debug('Origin protocol is: %s' % protocol)
-
-        # build the url used as base url to communicate with platform
-        launch_url = f'{protocol}://{handler.request.host}'
-        self.log.debug('Request host URL %s' % launch_url)
-
-        if validator.validate_launch_request(launch_url, handler.request.headers, jwt_decoded):
+        if validator.validate_launch_request(jwt_decoded):
 
             if jwt_decoded is None:
                 raise web.HTTPError(400, 'Missing decoded JWT.')
@@ -340,8 +332,6 @@ class LTI13Authenticator(OAuthenticator):
             # TODO: add additional checks to fetch username when app is private
             username = lti_utils.email_to_username(jwt_decoded['email']) if 'email' in jwt_decoded else 'unknown'
             self.log.debug('username is %s' % username)
-            org = handler.request.host.split('.')[0]
-            self.log.debug('organization name is %s' % org)
             user_role = 'Instructor'
             if (
                 'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner'

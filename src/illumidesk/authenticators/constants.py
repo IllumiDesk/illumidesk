@@ -240,6 +240,3 @@ LTI13_ROLE_VOCABULARIES = {
         },
     },
 }
-
-# All claims except LIS claims
-LTI13_CLAIMS_ALL = LTI13_REQUIRED_CLAIMS.update(LTI13_OPTIONAL_CLAIMS)

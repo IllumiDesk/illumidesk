@@ -161,14 +161,14 @@ class LTI13LaunchValidator(LoggingConfigurable):
         if verify is False:
             self.log.debug('JWK verification is off, returning token %s' % jwt.decode(token, verify=False))
             return jwt.decode(token, verify=False)
-        jwks = await self._retrieve_matching_jwk(jwks, verify)
+        retrieved_jwks = await self._retrieve_matching_jwk(jwks, verify)
         jws = JWS.from_compact(bytes(token, 'utf-8'))
         self.log.debug('Retrieving matching jws %s' % jws)
         json_header = jws.signature.protected
         header = Header.json_loads(json_header)
         self.log.debug('Header from decoded jwt %s' % header)
         key = None
-        for jwk in jwks['keys']:
+        for jwk in retrieved_jwks['keys']:
             if jwk['kid'] != header.kid:
                 continue
             key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(jwk))
@@ -196,5 +196,15 @@ class LTI13LaunchValidator(LoggingConfigurable):
         for claim, v in LTI13_REQUIRED_CLAIMS.items():
             if claim not in jwt_decoded.keys():
                 raise HTTPError(400, 'Required claim %s not included in request' % claim)
+        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/message_type'] != 'LtiResourceLinkRequest':
+            raise HTTPError(400, 'Incorrect message type value')
+        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/version'] != '1.3.0':
+            raise HTTPError(400, 'Incorrect version value')
+        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/deployment_id'] == '':
+            raise HTTPError(400, 'Missing deployment_id value')
+        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/resource_link']['id'] == '':
+            raise HTTPError(400, 'Missing resource_link id value')
+        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/target_link_uri'] == '':
+            raise HTTPError(400, 'Missing target_link_uri value')
 
         return True
