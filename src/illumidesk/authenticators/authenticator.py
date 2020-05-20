@@ -330,16 +330,30 @@ class LTI13Authenticator(OAuthenticator):
             self.course_id = lti_utils.normalize_name_for_containers(course_label)
             self.log.debug('Normalized course_label is %s' % self.course_id)
             # TODO: add additional checks to fetch username when app is private
-            username = lti_utils.email_to_username(jwt_decoded['email']) if 'email' in jwt_decoded else 'unknown'
-            self.log.debug('username is %s' % username)
-            user_role = 'Instructor'
-            if (
-                'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner'
-                in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/roles']
+            username = ''
+            if 'email' in jwt_decoded and jwt_decoded['email'] is not None:
+                username = lti_utils.email_to_username(jwt_decoded['email'])
+            elif 'given_name' in jwt_decoded and jwt_decoded['name'] is not None:
+                username = jwt_decoded['name']
+            elif (
+                'person_sourcedid' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']
+                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid'] is not None
             ):
+                username = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid']
+            self.log.debug('username is %s' % username)
+
+            user_role = ''
+            for role in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/roles']:
+                if role.find('Instructor') >= 1:
+                    user_role = 'Instructor'
+                elif role.find('Learner') >= 1 or role.find('Student') >= 1:
+                    user_role = 'Learner'
+            # set role to learner role if instructor or learner/student roles aren't
+            # sent with the request
+            if user_role == '':
                 user_role = 'Learner'
             self.log.debug('user_role is %s' % user_role)
-            # TODO: return unique user id and set to lms_user_id key
+
             return {
                 'name': username,
                 'auth_state': {

@@ -1,14 +1,15 @@
 import json
-import pytest
 from pathlib import Path
+
+import pytest
+
 from unittest.mock import patch
-from illumidesk.handlers.lms_grades import (
-    LTIGradesSenderControlFile,
-    LTIGradeSender,
-    GradesSenderCriticalError,
-    AssignmentWithoutGradesError,
-    GradesSenderMissingInfoError,
-)
+
+from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
+from illumidesk.handlers.lms_grades import LTIGradeSender
+from illumidesk.handlers.lms_grades import GradesSenderCriticalError
+from illumidesk.handlers.lms_grades import AssignmentWithoutGradesError
+from illumidesk.handlers.lms_grades import GradesSenderMissingInfoError
 
 
 @pytest.fixture

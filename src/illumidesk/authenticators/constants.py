@@ -129,7 +129,6 @@ LTI13_LIS_CLAIMS = {
     },
 }
 
-
 LTI13_ROLE_VOCABULARIES = {
     'SYSTEM_ROLES': {
         'CORE': {
@@ -238,5 +237,45 @@ LTI13_ROLE_VOCABULARIES = {
             'http://purl.imsglobal.org/vocab/lis/v2/membership#Officer#Treasurer',
             'http://purl.imsglobal.org/vocab/lis/v2/membership#Officer#Vice-Chair',
         },
+    },
+}
+
+LTI13_ROLES = {
+    'STAFF_ROLES': {
+        'http://purl.imsglobal.org/vocab/lis/v2/system/person#Administrator',
+        'http://purl.imsglobal.org/vocab/lis/v2/system/person#None',
+        'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator',
+        'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Administrator',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#ContentDeveloper',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Manager',
+    },
+    'STUDENT_ROLES': {
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner#ExternalLearner',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner#Instructor',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner#GuestLearner',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner#NonCreditLearner',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner#Learner',
+        'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student',
+        'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner',
+        'http://purl.imsglobal.org/vocab/lis/v2/institution/person#ProspectiveStudent',
+    },
+    'INSTRUCTOR_ROLES': {
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#Grader',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistantOffering',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistantSectionAssociation',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#PrimaryInstructor',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#GuestInstructor',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistantSection',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#SecondaryInstructor',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#Lecturer',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner#Instructor',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistantGroup',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistant',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#ExternalInstructor',
+        'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor#TeachingAssistantTemplate',
+        'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor',
     },
 }
