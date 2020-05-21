@@ -5,8 +5,8 @@ from tornado.web import HTTPError
 from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI13LaunchValidator
+from illumidesk.tests.factory import dummy_lti13_id_token
 from illumidesk.tests.factory import factory_lti13_required_claims
-from illumidesk.tests.factory import factory_platform_jwks
 from illumidesk.tests.factory import factory_empty_platform_jwks
 
 
@@ -16,13 +16,13 @@ async def test_validator_jwt_verify_and_decode_invokes_retrieve_matching_jwk():
     Does the validator jwt_verify_and_decode method invoke the retrieve_matching_jwk method?
     """
     validator = LTI13LaunchValidator()
-    endpoint = 'https://my.platform.domain/api/lti/security/jwks'
+    jwks_endoint = 'https://my.platform.domain/api/lti/security/jwks'
     with patch.object(
-        LTI13LaunchValidator, '_retrieve_matching_jwk', return_value=factory_platform_jwks()
+        LTI13LaunchValidator, '_retrieve_matching_jwk', return_value=factory_empty_platform_jwks()
     ) as mock_retrieve_matching_jwks:
-        result = await validator._retrieve_matching_jwk(endpoint, False)
+        result = await validator.jwt_verify_and_decode(dummy_lti13_id_token, jwks_endoint, False)
 
-        assert mock_retrieve_matching_jwks.called
+    assert result is None
 
 
 @pytest.mark.asyncio
@@ -32,13 +32,13 @@ async def test_validator_jwt_verify_and_decode_returns_none_with_no_retrieved_pl
     retrieve_matching_jwk method?
     """
     validator = LTI13LaunchValidator()
-    endpoint = 'https://my.platform.domain/api/lti/security/jwks'
+    jwks_endoint = 'https://my.platform.domain/api/lti/security/jwks'
     with patch.object(
         LTI13LaunchValidator, '_retrieve_matching_jwk', return_value=factory_empty_platform_jwks()
     ) as mock_retrieve_matching_jwks:
-        result = await validator._retrieve_matching_jwk(endpoint, False)
+        result = await validator.jwt_verify_and_decode(dummy_lti13_id_token, jwks_endoint, True)
 
-        assert mock_retrieve_matching_jwks.called
+    assert result is None
 
 
 def test_validate_empty_roles_claim_value():

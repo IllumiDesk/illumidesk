@@ -8,7 +8,7 @@ from illumidesk.authenticators.validator import LTI13LaunchValidator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 
 from illumidesk.tests.mocks import mock_handler
-from illumidesk.tests.factory import factory_lti13_id_token
+from illumidesk.tests.factory import dummy_lti13_id_token
 from illumidesk.tests.factory import factory_lti13_resource_link_request
 
 
@@ -19,9 +19,7 @@ async def test_authenticator_invokes_lti13validator_handler_get_argument():
     """
     authenticator = LTI13Authenticator()
     request_handler = mock_handler(RequestHandler, authenticator=authenticator)
-    with patch.object(
-        RequestHandler, 'get_argument', return_value=factory_lti13_id_token.encode()
-    ) as mock_get_argument:
+    with patch.object(RequestHandler, 'get_argument', return_value=dummy_lti13_id_token.encode()) as mock_get_argument:
         _ = await authenticator.authenticate(request_handler, None)
 
         assert mock_get_argument.called
@@ -34,9 +32,7 @@ async def test_authenticator_invokes_lti13validator_jwt_verify_and_decode():
     """
     authenticator = LTI13Authenticator()
     request_handler = mock_handler(RequestHandler, authenticator=authenticator)
-    with patch.object(
-        RequestHandler, 'get_argument', return_value=factory_lti13_id_token.encode()
-    ) as mock_get_argument:
+    with patch.object(RequestHandler, 'get_argument', return_value=dummy_lti13_id_token.encode()) as mock_get_argument:
         with patch.object(
             LTI13LaunchValidator, 'jwt_verify_and_decode', return_value=factory_lti13_resource_link_request()
         ) as mock_verify_and_decode:
@@ -52,9 +48,7 @@ async def test_authenticator_invokes_lti13validator_validate_launch_request():
     """
     authenticator = LTI13Authenticator()
     request_handler = mock_handler(RequestHandler, authenticator=authenticator)
-    with patch.object(
-        RequestHandler, 'get_argument', return_value=factory_lti13_id_token.encode()
-    ) as mock_get_argument:
+    with patch.object(RequestHandler, 'get_argument', return_value=dummy_lti13_id_token.encode()) as mock_get_argument:
         with patch.object(
             LTI13LaunchValidator, 'validate_launch_request', return_value=True
         ) as mock_verify_launch_request:
@@ -70,9 +64,7 @@ async def test_authenticator_returns_username_in_auth_state_with_valid_email():
     """
     authenticator = LTI13Authenticator()
     request_handler = mock_handler(RequestHandler, authenticator=authenticator)
-    with patch.object(
-        RequestHandler, 'get_argument', return_value=factory_lti13_id_token.encode()
-    ) as mock_get_argument:
+    with patch.object(RequestHandler, 'get_argument', return_value=dummy_lti13_id_token.encode()) as mock_get_argument:
         with patch.object(
             LTI13LaunchValidator, 'validate_launch_request', return_value=True
         ) as mock_verify_launch_request:
@@ -91,9 +83,7 @@ async def test_authenticator_returns_course_id_in_auth_state_with_valid_resource
     """
     authenticator = LTI13Authenticator()
     request_handler = mock_handler(RequestHandler, authenticator=authenticator)
-    with patch.object(
-        RequestHandler, 'get_argument', return_value=factory_lti13_id_token.encode()
-    ) as mock_get_argument:
+    with patch.object(RequestHandler, 'get_argument', return_value=dummy_lti13_id_token.encode()) as mock_get_argument:
         with patch.object(
             LTI13LaunchValidator, 'validate_launch_request', return_value=True
         ) as mock_verify_launch_request:
@@ -112,9 +102,7 @@ async def test_authenticator_returns_lms_user_id_in_auth_state_with_valid_resour
     """
     authenticator = LTI13Authenticator()
     request_handler = mock_handler(RequestHandler, authenticator=authenticator)
-    with patch.object(
-        RequestHandler, 'get_argument', return_value=factory_lti13_id_token.encode()
-    ) as mock_get_argument:
+    with patch.object(RequestHandler, 'get_argument', return_value=dummy_lti13_id_token.encode()) as mock_get_argument:
         with patch.object(
             LTI13LaunchValidator, 'validate_launch_request', return_value=True
         ) as mock_verify_launch_request:
@@ -133,9 +121,7 @@ async def test_authenticator_returns_learner_role_in_auth_state_with_valid_resou
     """
     authenticator = LTI13Authenticator()
     request_handler = mock_handler(RequestHandler, authenticator=authenticator)
-    with patch.object(
-        RequestHandler, 'get_argument', return_value=factory_lti13_id_token.encode()
-    ) as mock_get_argument:
+    with patch.object(RequestHandler, 'get_argument', return_value=dummy_lti13_id_token.encode()) as mock_get_argument:
         with patch.object(
             LTI13LaunchValidator, 'validate_launch_request', return_value=True
         ) as mock_verify_launch_request:
