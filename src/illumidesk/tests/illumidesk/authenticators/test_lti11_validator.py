@@ -1,50 +1,9 @@
-import secrets
-import time
-
 import pytest
-
-from typing import Dict
-
-from oauthlib.oauth1.rfc5849 import signature
 
 from tornado.web import HTTPError
 
 from illumidesk.authenticators.authenticator import LTI11LaunchValidator
-from illumidesk.authenticators.utils import LTIUtils
-
-
-def mock_lti11_args(oauth_consumer_key: str, oauth_consumer_secret: str,) -> Dict[str, str]:
-
-    utils = LTIUtils()
-    oauth_timestamp = str(int(time.time()))
-    oauth_nonce = secrets.token_urlsafe(32)
-    extra_args = {'my_key': 'this_value'}
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    launch_url = 'http://jupyterhub/hub/lti/launch'
-    args = {
-        'lti_message_type': 'basic-lti-launch-request',
-        'lti_version': 'LTI-1p0'.encode(),
-        'resource_link_id': '88391-e1919-bb3456',
-        'oauth_consumer_key': oauth_consumer_key,
-        'oauth_timestamp': str(int(oauth_timestamp)),
-        'oauth_nonce': str(oauth_nonce),
-        'oauth_signature_method': 'HMAC-SHA1',
-        'oauth_callback': 'about:blank',
-        'oauth_version': '1.0',
-        'user_id': '123123123',
-    }
-
-    args.update(extra_args)
-
-    base_string = signature.signature_base_string(
-        'POST',
-        signature.base_string_uri(launch_url),
-        signature.normalize_parameters(signature.collect_parameters(body=args, headers=headers)),
-    )
-
-    args['oauth_signature'] = signature.sign_hmac_sha1(base_string, oauth_consumer_secret, None)
-
-    return args
+from illumidesk.tests.mocks import mock_lti11_args
 
 
 def test_basic_lti11_launch_request():

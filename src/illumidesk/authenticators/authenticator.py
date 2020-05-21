@@ -326,7 +326,6 @@ class LTI13Authenticator(OAuthenticator):
             course_label = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
             self.course_id = lti_utils.normalize_name_for_containers(course_label)
             self.log.debug('Normalized course_label is %s' % self.course_id)
-            # TODO: add additional checks to fetch username when app is private
             username = ''
             if 'email' in jwt_decoded and jwt_decoded['email'] is not None:
                 username = lti_utils.email_to_username(jwt_decoded['email'])
