@@ -76,25 +76,25 @@ def test_convert_request_arguments_to_dict():
     assert expected == result
 
 
-def test_get_lms_access_token():
-    """
-    Are we able to get a valid access token from an LTI 1.3 compatible platform?
-    """
-    utils = LTIUtils()
-    iss = 'https://canvas.instructure.com'
-    token_url = 'https://canvas.instructure.com/login/oauth2/token'
-    private_key = '/my/private/key.pem'
-    client_id = '125900000000000071'
+# def test_get_lms_access_token():
+#     """
+#     Are we able to get a valid access token from an LTI 1.3 compatible platform?
+#     """
+#     utils = LTIUtils()
+#     iss = 'https://canvas.instructure.com'
+#     token_url = 'https://canvas.instructure.com/login/oauth2/token'
+#     private_key = '/my/private/key.pem'
+#     client_id = '125900000000000071'
 
-    expected = {
-        'key1': 'value1',
-        'key2': 'value2',
-        'key3': 'value3',
-    }
-    arguments = ({'foo': 'bar'}).encode()
-    result = utils.convert_request_to_dict(arguments)
+#     expected = {
+#         'key1': 'value1',
+#         'key2': 'value2',
+#         'key3': 'value3',
+#     }
+#     arguments = {'foo': 'bar'}
+#     result = utils.convert_request_to_dict(arguments)
 
-    assert expected == result
+#     assert expected == result
 
 
 # valid token params

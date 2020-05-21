@@ -4,62 +4,14 @@ import json
 from tornado.web import RequestHandler
 from tornado.httputil import HTTPServerRequest
 
-from typing import Dict
-
 from unittest.mock import Mock
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.authenticator import LTI11Authenticator
-
 from illumidesk.authenticators.utils import LTIUtils
-
-
-def mock_lti11_instructor_args(lms_vendor: str) -> Dict[str, str]:
-    args = {
-        'oauth_consumer_key': ['my_consumer_key'.encode()],
-        'oauth_signature_method': ['HMAC-SHA1'.encode()],
-        'oauth_timestamp': ['1585947271'.encode()],
-        'oauth_nonce': ['01fy8HKIASKuD9gK9vWUcBj9fql1nOCWfOLPzeylsmg'.encode()],
-        'oauth_version': ['1.0'.encode()],
-        'custom_canvas_assignment_title': ['test-assignment'.encode()],
-        'custom_canvas_user_login_id': ['student1'.encode()],
-        'context_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
-        'context_label': ['intro101'.encode()],
-        'context_title': ['intro101'.encode()],
-        'ext_roles': ['urn:lti:instrole:ims/lis/Learner'.encode()],
-        'launch_presentation_document_target': ['iframe'.encode()],
-        'launch_presentation_height': ['1000'.encode()],
-        'launch_presentation_locale': ['en'.encode()],
-        'launch_presentation_return_url': [
-            'https: //illumidesk.instructure.com/courses/161/external_content/success/external_tool_redirect'.encode()
-        ],
-        'launch_presentation_width': ['1000'.encode()],
-        'lis_outcome_service_url': [
-            'http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ='.encode()
-        ],
-        'lis_person_contact_email_primary': ['student1@example.com'.encode()],
-        'lis_person_name_family': ['Bar'.encode()],
-        'lis_person_name_full': ['Foo Bar'.encode()],
-        'lis_person_name_given': ['Foo'.encode()],
-        'lti_message_type': ['basic-lti-launch-request'.encode()],
-        'lis_result_sourcedid': ['feb-123-456-2929::28883'.encode()],
-        'lti_version': ['LTI-1p0'.encode()],
-        'oauth_callback': ['about:blank'.encode()],
-        'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
-        'resource_link_title': ['IllumiDesk'.encode()],
-        'roles': ['Instructor'.encode()],
-        'tool_consumer_info_product_family_code': [lms_vendor.encode()],
-        'tool_consumer_info_version': ['cloud'.encode()],
-        'tool_consumer_instance_contact_email': ['notifications@mylms.com'.encode()],
-        'tool_consumer_instance_guid': ['srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:test-lms'.encode()],
-        'tool_consumer_instance_name': ['myorg'.encode()],
-        'user_id': ['185d6c59731a553009ca9b59ca3a885100000'.encode()],
-        'user_image': ['https://lms.example.com/avatar-50.png'.encode()],
-        'oauth_signature': ['abc123'.encode()],
-    }
-    return args
+from illumidesk.tests.factory import factory_lti11_complete_launch_args
 
 
 @pytest.mark.asyncio
@@ -73,7 +25,7 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authent
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=mock_lti11_instructor_args('canvas'), headers={}, items=[],),
+            request=Mock(arguments=factory_lti11_complete_launch_args('canvas'), headers={}, items=[],),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -101,7 +53,7 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(lti11_auth
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=mock_lti11_instructor_args('moodle'), headers={}, items=[],),
+            request=Mock(arguments=factory_lti11_complete_launch_args('moodle'), headers={}, items=[],),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -124,8 +76,10 @@ async def test_authenticator_uses_lti11validator():
         request = HTTPServerRequest(method='POST', connection=Mock(),)
         handler.request = request
 
-        handler.request.arguments = mock_lti11_instructor_args('lmsvendor')
-        handler.request.get_argument = lambda x, strip=True: mock_lti11_instructor_args('lmsvendor')[x][0].decode()
+        handler.request.arguments = factory_lti11_complete_launch_args('lmsvendor')
+        handler.request.get_argument = lambda x, strip=True: factory_lti11_complete_launch_args('lmsvendor')[x][
+            0
+        ].decode()
 
         _ = await authenticator.authenticate(handler, None)
         assert mock_validator.called
@@ -140,14 +94,17 @@ async def test_authenticator_invokes_validator_with_decoded_dict():
         request = HTTPServerRequest(method='POST', uri='/hub', host='example.com')
         handler.request = request
         handler.request.protocol = 'https'
-        handler.request.arguments = mock_lti11_instructor_args('canvas')
-        handler.request.get_argument = lambda x, strip=True: mock_lti11_instructor_args('canvas')[x][0].decode()
+        handler.request.arguments = factory_lti11_complete_launch_args('canvas')
+        handler.request.get_argument = lambda x, strip=True: factory_lti11_complete_launch_args('canvas')[x][
+            0
+        ].decode()
 
         _ = await authenticator.authenticate(handler, None)
         # check our validator was called
         assert mock_validator.called
         decoded_args = {
-            k: handler.request.get_argument(k, strip=False) for k, v in mock_lti11_instructor_args('canvas').items()
+            k: handler.request.get_argument(k, strip=False)
+            for k, v in factory_lti11_complete_launch_args('canvas').items()
         }
         # check validator was called with correct dict params (decoded)
         mock_validator.assert_called_with('https://example.com/hub', {}, decoded_args)
@@ -164,7 +121,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
     utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = mock_lti11_instructor_args('canvas')
+        args = factory_lti11_complete_launch_args('canvas')
         del args['lis_outcome_service_url']
         handler = Mock(
             spec=RequestHandler,
@@ -194,7 +151,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
     utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = mock_lti11_instructor_args('canvas')
+        args = factory_lti11_complete_launch_args('canvas')
         del args['lis_result_sourcedid']
         handler = Mock(
             spec=RequestHandler,
@@ -224,7 +181,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
     utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = mock_lti11_instructor_args('canvas')
+        args = factory_lti11_complete_launch_args('canvas')
         args['lis_result_sourcedid'] = ''
         handler = Mock(
             spec=RequestHandler,
@@ -254,7 +211,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
     utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = mock_lti11_instructor_args('canvas')
+        args = factory_lti11_complete_launch_args('canvas')
         args['lis_outcome_service_url'] = ''
         handler = Mock(
             spec=RequestHandler,

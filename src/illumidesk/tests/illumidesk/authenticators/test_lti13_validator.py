@@ -5,9 +5,9 @@ from tornado.web import HTTPError
 from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI13LaunchValidator
+from illumidesk.tests.factory import factory_empty_platform_jwks
 from illumidesk.tests.factory import dummy_lti13_id_token
 from illumidesk.tests.factory import factory_lti13_required_claims
-from illumidesk.tests.factory import factory_empty_platform_jwks
 
 
 @pytest.mark.asyncio

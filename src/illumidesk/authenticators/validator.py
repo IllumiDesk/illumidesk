@@ -144,7 +144,7 @@ class LTI13LaunchValidator(LoggingConfigurable):
         return json.loads(resp.body)
 
     async def jwt_verify_and_decode(
-        self, token: str, jwks: str, verify: bool = True, audience: str = None
+        self, id_token: str, jwks_endpoint: str, verify: bool = True, audience: str = None
     ) -> Dict[str, str]:
         """
         Decodes the JSON Web Token (JWT) sent from the platform. The JWT should contain claims
@@ -152,17 +152,17 @@ class LTI13LaunchValidator(LoggingConfigurable):
         signature using the platform's public key.
 
         Args:
-          token: token issued by the authorization server
-          jwks: JSON web key (publick key)
+          id_token: JWT token issued by the platform
+          jwks_endpoint: JSON web key (publick key) endpoint
           verify: verify whether or not to verify JWT when decoding. Defaults to True.
           audience: the platform's OAuth2 Audience (aud). This value usually coincides with the
             token endpoint for the platform (LMS) such as https://my.lms.domain/login/oauth2/token
         """
         if verify is False:
-            self.log.debug('JWK verification is off, returning token %s' % jwt.decode(token, verify=False))
-            return jwt.decode(token, verify=False)
-        retrieved_jwks = await self._retrieve_matching_jwk(jwks, verify)
-        jws = JWS.from_compact(bytes(token, 'utf-8'))
+            self.log.debug('JWK verification is off, returning token %s' % jwt.decode(id_token, verify=False))
+            return jwt.decode(id_token, verify=False)
+        retrieved_jwks = await self._retrieve_matching_jwk(jwks_endpoint, verify)
+        jws = JWS.from_compact(bytes(id_token, 'utf-8'))
         self.log.debug('Retrieving matching jws %s' % jws)
         json_header = jws.signature.protected
         header = Header.json_loads(json_header)
@@ -176,8 +176,8 @@ class LTI13LaunchValidator(LoggingConfigurable):
         if key is None:
             self.log.debug('Key is None, returning None')
             return None
-        self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (token, key, verify))
-        return jwt.decode(token, key, verify, audience=audience)
+        self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (id_token, key, verify))
+        return jwt.decode(id_token, key, verify, audience=audience)
 
     def validate_launch_request(self, jwt_decoded: Dict[str, Any],) -> bool:
         """

@@ -17,6 +17,8 @@ from oauthenticator.oauth2 import STATE_COOKIE_NAME
 from tornado import web
 from tornado.auth import OAuth2Mixin
 
+from typing import Dict
+
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +77,7 @@ class LTI13LoginHandler(OAuthLoginHandler, OAuth2Mixin):
         }
         self.authorize_redirect(**params)
 
-    def get_state(self):
+    def get_state(self) -> Dict[str, str]:
         """
         Overrides OAuthLoginHandler.get_state() to get the user's
         next_url based on LTI's target link uri, also known as
@@ -85,7 +87,7 @@ class LTI13LoginHandler(OAuthLoginHandler, OAuth2Mixin):
         from the request.
 
         Returns:
-          URL for state
+          JupyterHub's next_url and state_id dict
         """
         next_url = self.get_argument('target_link_uri')
         self.log.debug('next_url is %s' % next_url)
