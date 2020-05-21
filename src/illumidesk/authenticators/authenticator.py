@@ -10,7 +10,6 @@ from ltiauthenticator import LTIAuthenticator
 
 from oauthenticator.oauth2 import OAuthenticator
 
-from tornado import web
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
 
@@ -183,7 +182,8 @@ class LTI11Authenticator(LTIAuthenticator):
             # Assign the user_id. Check the tool consumer (lms) vendor. If canvas use their
             # custom user id extension by default, else use standar lti values.
             username = ''
-            # GRADES-SENDER >>>> retrieve assignment_name from standard property
+            # GRADES-SENDER: retrieve assignment_name from standard property vs custom lms
+            # properties, such as custom_canvas_...
             assignment_name = args['resource_link_title'] if 'resource_link_title' in args else 'unknown'
             if lms_vendor == 'canvas':
                 self.log.debug('TC is a Canvas LMS instance')
@@ -323,9 +323,6 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('Decoded JWT is %s' % jwt_decoded)
 
         if validator.validate_launch_request(jwt_decoded):
-
-            if jwt_decoded is None:
-                raise web.HTTPError(400, 'Missing decoded JWT.')
             course_label = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
             self.course_id = lti_utils.normalize_name_for_containers(course_label)
             self.log.debug('Normalized course_label is %s' % self.course_id)
