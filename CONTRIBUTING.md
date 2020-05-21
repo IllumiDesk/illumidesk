@@ -25,6 +25,7 @@ $ git clone https://github.com/github-username/repository-name.git
 
 ```
 $ make dev
+$ source venv/bin/activate
 ```
 
 6.  Create a new branch for your feature or fix using:
