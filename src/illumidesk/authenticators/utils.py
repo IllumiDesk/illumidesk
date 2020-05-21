@@ -122,7 +122,8 @@ class LTIUtils(LoggingConfigurable):
     ) -> Dict[str, str]:
         """
         Gets the LTI 1.3 compatible LMS access token used to authenticate requests from
-        the tool with the platform.
+        the tool with the platform. Example use-cases include sending grades, fetching users
+        by group membership, among others.
 
         Args:
           iss: launch request Issuer. If the request originates from a Canvas cloud version
