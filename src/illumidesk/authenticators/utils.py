@@ -1,14 +1,5 @@
-import logging
-import json
 import re
-import time
-import urllib
-import uuid
 
-import jwt
-
-from tornado.httpclient import AsyncHTTPClient
-from tornado.httpclient import HTTPClientError
 from tornado.web import RequestHandler
 
 from typing import Dict
@@ -116,66 +107,3 @@ class LTIUtils(LoggingConfigurable):
         for k, values in arguments.items():
             args[k] = values[0].decode() if len(values) == 1 else [v.decode() for v in values]
         return args
-
-    async def get_lms_access_token(
-        self, iss: str, token_url: str, private_key: str, client_id: str, scope=None
-    ) -> Dict[str, str]:
-        """
-        Gets the LTI 1.3 compatible LMS access token used to authenticate requests from
-        the tool with the platform. Example use-cases include sending grades, fetching users
-        by group membership, among others.
-
-        Args:
-          iss: launch request Issuer. If the request originates from a Canvas cloud version
-            then this value will mostly likely be https://canvas.instructure.com.
-          token_url: token endpoint for the LMS such as https://my.lms.domain/login/oauth2/token
-          private_key: private key used to sign token request
-          client_id: client id for installed external tool
-          scope: scope desired when requesting token, such as lineitem, score, and results
-
-        Returns:
-          Valid token in json format
-        """
-        if not iss:
-            raise ValueError('missing issuer')
-        if not token_url:
-            raise ValueError('missing token url')
-        if not private_key:
-            raise ValueError('missing private_key')
-        if not client_id:
-            raise ValueError('missing client_id')
-        token_params = {
-            'iss': iss,
-            'sub': client_id,
-            'aud': token_url,
-            'exp': int(time.time()) + 600,
-            'iat': int(time.time()),
-            'jti': uuid.uuid4().hex,
-        }
-        self.logger.debug('Getting lms access token with parameters %s' % token_params)
-        token = jwt.encode(token_params, private_key, algorithm='RS256',)
-        self.logger.debug('Obtaining token %s' % token)
-        scope = scope or ' '.join(
-            [
-                'https://purl.imsglobal.org/spec/lti-ags/scope/score',
-                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly',
-            ]
-        )
-        self.logger.debug('Scope is %s' % scope)
-        params = {
-            'grant_type': 'client_credentials',
-            'client_assertion_type': 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-            'client_assertion': token.decode(),
-            'scope': scope,
-        }
-        self.logger.debug('OAuth parameters are %s' % params)
-        client = AsyncHTTPClient()
-        body = urllib.parse.urlencode(params)
-        try:
-            resp = await client.fetch(token_url, method='POST', body=body, headers=None)
-        except HTTPClientError as e:
-            logging.info('Error fecthing lms access token %s' % e.response.body)
-            raise
-        self.logger.debug('Token response body is %s' % json.loads(resp.body))
-        return json.loads(resp.body)
