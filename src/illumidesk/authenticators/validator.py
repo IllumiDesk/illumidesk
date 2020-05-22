@@ -177,7 +177,7 @@ class LTI13LaunchValidator(LoggingConfigurable):
             self.log.debug('Key is None, returning None')
             return None
         self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (id_token, key, verify))
-        return jwt.decode(id_token, key, verify, audience=audience)
+        return jwt.decode(id_token, key=key, verify=False, audience=audience)
 
     def validate_launch_request(self, jwt_decoded: Dict[str, Any],) -> bool:
         """
