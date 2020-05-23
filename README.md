@@ -391,6 +391,23 @@ The services included with this setup rely on environment variables to work prop
 
 ---
 
+### Databases
+
+This setup relies on a standard Postgres database running in its own container for the JupyterHub application and another separate and optional Postgres database for lab environments (internally named as `postgres-labs`).
+
+You can connect with the second postgres instance (from notebooks) by using the next variables:
+
+POSTGRES_DB=labs
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+
+For example:
+
+```python
+import psycopg2
+conn = psycopg2.connect(host="postgres-labs", database="labs", user="postgres", password="postgres")
+```
+
 ## Resources
 
 ### Documentation
