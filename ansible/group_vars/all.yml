@@ -52,3 +52,5 @@ lti11_consumer_key: "{{ lti11_consumer_key_result }}"
 lti11_shared_secret: "{{ lti11_shared_secret_result }}"
 
 lti11_enabled: "{{ lti11_enabled_param | default('false')}}"
+# Postgres for notebooks labs
+postgres_labs_enabled: "{{ postgres_labs_enabled_param | default('false') }}"
