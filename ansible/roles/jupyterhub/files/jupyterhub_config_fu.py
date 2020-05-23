@@ -1,12 +1,5 @@
 import sys
-import asyncio
-import json
-import logging
 import os
-import pwd
-import re
-import shutil
-import requests
 
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
@@ -26,9 +19,7 @@ c.JupyterHub.allow_named_servers = False
 c.JupyterHub.data_files_path = '/usr/local/share/jupyterhub/'
 
 # Use custom logo
-c.JupyterHub.logo_file = os.path.join(
-    '/usr/local/share/jupyterhub/', 'static', 'images', 'illumidesk-80.png'
-)
+c.JupyterHub.logo_file = os.path.join('/usr/local/share/jupyterhub/', 'static', 'images', 'illumidesk-80.png')
 
 # Template files
 c.JupyterHub.template_paths = ('/usr/local/share/jupyterhub/templates',)
@@ -40,9 +31,7 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 c.JupyterHub.hub_connect_ip = 'jupyterhub'
 
 # Provide iframe support
-c.JupyterHub.tornado_settings = {
-    "headers": {"Content-Security-Policy": "frame-ancestors 'self' *"}
-}
+c.JupyterHub.tornado_settings = {"headers": {"Content-Security-Policy": "frame-ancestors 'self' *"}}
 
 # Load data files
 c.JupyterHub.data_files_path = '/usr/local/share/jupyterhub/'
@@ -60,13 +49,8 @@ c.JupyterHub.load_groups = {
         'instructor1',
         'instructor2',
         os.environ.get('DEMO_GRADER_NAME'),
-    ],
-    os.environ.get('DEMO_STUDENT_GROUP'): [
-        'student1',
-        'bitdiddle',
-        'hacker',
-        'reasoner',
-    ],
+    ],  # noqa: E231
+    os.environ.get('DEMO_STUDENT_GROUP'): ['student1', 'bitdiddle', 'hacker', 'reasoner',],  # noqa: E231
 }
 
 # Allow admin access to end-user notebooks
@@ -85,15 +69,14 @@ c.JupyterHub.services = [
         'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
     },
     {
-        'name': 'cull_idle',
+        'name': 'idle-culler',
         'admin': True,
-        'command': 'python3 /srv/jupyterhub/cull_idle_servers.py --timeout=3600'.split(),
-        'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
+        'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
     },
     {
         'name': 'announcement',
         'url': 'http://0.0.0.0:8889',
-        'command': 'python3 /srv/jupyterhub/announcement.py --port 8889 --api-prefix /services/announcement'.split()
+        'command': 'python3 /srv/jupyterhub/announcement.py --port 8889 --api-prefix /services/announcement'.split(),
     },
 ]
 

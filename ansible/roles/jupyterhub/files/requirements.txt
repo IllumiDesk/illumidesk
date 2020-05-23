@@ -29,3 +29,6 @@ pycryptodome==3.9.7
 pyjwkest==1.4.2
 PyJWT==1.7.1
 pylti==0.7.0
+
+# Cull idle servers
+jupyterhub-idle-culler==1.0
