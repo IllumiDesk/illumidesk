@@ -1,5 +1,6 @@
 import os
 import requests
+import sys
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
@@ -50,10 +51,9 @@ c.JupyterHub.admin_access = True
 announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
 c.JupyterHub.services = [
     {
-        'name': 'cull_idle',
+        'name': 'idle-culler',
         'admin': True,
-        'command': 'python3 /srv/jupyterhub/cull_idle_servers.py --timeout=3600'.split(),
-        'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
+        'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
     },
     {
         'name': 'announcement',
@@ -197,11 +197,14 @@ c.DockerSpawner.volumes = {
 # END CUSTOM DOCKERSPAWNER
 ##########################################
 
-# Custom Handlers 
+# Custom Handlers
 # the first one is used to send grades to LMS
 # this url pattern was changed to accept spaces in the assignment name
-c.JupyterHub.extra_handlers= [
-    (r'/submit-grades/(?P<course_id>\w+)/(?P<assignment_name>.*)$', 'illumidesk.handlers.lms_grades.SendGradesHandler'),
+c.JupyterHub.extra_handlers = [
+    (
+        r'/submit-grades/(?P<course_id>\w+)/(?P<assignment_name>.*)$',
+        'illumidesk.handlers.lms_grades.SendGradesHandler',
+    ),
 ]
 
 ##########################################
