@@ -63,19 +63,9 @@ c.JupyterHub.load_groups = {
 # Allow admin access to end-user notebooks
 c.JupyterHub.admin_access = True
 
-# Start the grader notebook as a service. The port can be whatever you want
-# and the group has to match the name of the DEMO_GRADER_NAME group defined above.
-# The cull_idle service conserves resources.
-course_id = os.environ.get('COURSE_ID')
-announcement_port = os.environ.get("ANNOUNCEMENT_SERVICE_PORT") or '8889'
+# Define some static services that jupyterhub will manage
+announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
 c.JupyterHub.services = [
-    {
-        'name': os.environ.get('COURSE_ID'),
-        'url': f'http://{course_id}:8888',
-        'oauth_no_confirm': True,
-        'admin': True,
-        'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
-    },
     {
         'name': 'cull_idle',
         'admin': True,
