@@ -66,6 +66,18 @@ services:
       - {{mnt_root}}:{{mnt_root}}
       - data:/srv/jupyterhub
       - {{ working_dir }}:{{ working_dir }}
+{% if postgres_labs_enabled is sameas true %}
+  postgres-labs:
+    image: postgres:11.6-alpine
+    container_name: postgres-labs
+    restart: always
+    environment:
+      - POSTGRES_DB=labs
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - db-labs:/var/lib/postgresql/data
+{% endif %}
 
 volumes:
   data:
@@ -74,6 +86,9 @@ volumes:
   db:
     external:
       name: db-data
+  db-labs:
+    external:
+      name: db-labs-data
   
 networks:
   default:

@@ -65,8 +65,6 @@ COPY jupyterhub_config.py /etc/jupyterhub/jupyterhub_config.py
 
 WORKDIR /srv/jupyterhub
 
-# Get cull-idle from jupyterhub examples folder
-RUN wget https://raw.githubusercontent.com/jupyterhub/jupyterhub/d126baa443ad7d893be2ff4a70afe9ef5b8a4a1a/examples/cull-idle/cull_idle_servers.py
 # Get announcement from jupyterhub examples folder
 RUN wget https://raw.githubusercontent.com/jupyterhub/jupyterhub/d126baa443ad7d893be2ff4a70afe9ef5b8a4a1a/examples/service-announcement/announcement.py
 

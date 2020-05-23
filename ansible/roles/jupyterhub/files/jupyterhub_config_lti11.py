@@ -1,5 +1,6 @@
 import os
 import requests
+import sys
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
@@ -51,10 +52,9 @@ c.JupyterHub.admin_access = True
 announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
 c.JupyterHub.services = [
     {
-        'name': 'cull_idle',
+        'name': 'idle-culler',
         'admin': True,
-        'command': 'python3 /srv/jupyterhub/cull_idle_servers.py --timeout=3600'.split(),
-        'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
+        'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
     },
     {
         'name': 'announcement',

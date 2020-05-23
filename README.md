@@ -115,7 +115,7 @@ By default, this setup uses the `FirstUseAuthenticator` and as such accepts any 
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
-* **Databases**: This setup relies on a standard `Postgres` database running in its own container.
+* **Databases**: This setup relies on a standard `postgres` database running in its own container for the JupyterHub application and another separate and optional Postgres database for lab environments (useful to connect from user notebooks).
 
 * **Network**: An external bridge network named `jupyter-network` is used by default. The grader service and the user notebooks are attached to this network.
 
