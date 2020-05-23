@@ -115,7 +115,7 @@ By default, this setup uses the `FirstUseAuthenticator` and as such accepts any 
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
-* **Databases**: This setup relies on a standard `Postgres` database running in its own container.
+* **Databases**: This setup relies on a standard `postgres` database running in its own container for the JupyterHub application and another separate and optional Postgres database for lab environments (useful to connect from user notebooks).
 
 * **Network**: An external bridge network named `jupyter-network` is used by default. The grader service and the user notebooks are attached to this network.
 
@@ -390,23 +390,6 @@ The services included with this setup rely on environment variables to work prop
 | NB_GID | `string` | Notebook grader user id | `100` |
 
 ---
-
-### Databases
-
-This setup relies on a standard Postgres database running in its own container for the JupyterHub application and another separate and optional Postgres database for lab environments (internally named as `postgres-labs`).
-
-You can connect with the second postgres instance (from notebooks) by using the next variables:
-
-POSTGRES_DB=labs
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-
-For example:
-
-```python
-import psycopg2
-conn = psycopg2.connect(host="postgres-labs", database="labs", user="postgres", password="postgres")
-```
 
 ## Resources
 
