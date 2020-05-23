@@ -18,8 +18,8 @@ RUN apt-get update \
 USER $NB_UID
 
 # Install packages from requirements file
-COPY jupyter-notebook-requirements.txt /tmp/jupyterhub/requirements.txt
-RUN python3 -m pip install --no-cache -r /tmp/jupyterhub/requirements.txt
+COPY jupyter-notebook-requirements.txt /tmp/jupyternb/requirements.txt
+RUN python3 -m pip install --no-cache -r /tmp/jupyternb/requirements.txt
 
 # Update JupyterHub version, so that its consistent with JupyterHub
 RUN git clone https://github.com/jupyterhub/jupyterhub \

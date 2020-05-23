@@ -4,7 +4,8 @@ node_modules
 *~
 .cache
 .DS_Store
-/build
+hosts.*
+src/build*
 dist
 docs/_build
 docs/build
@@ -23,6 +24,7 @@ MANIFEST
 htmlcov
 .idea/
 .vim/
+*pycache*
 .pytest_cache
 pip-wheel-metadata
 *hosts

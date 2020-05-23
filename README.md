@@ -342,7 +342,7 @@ The services included with this setup rely on environment variables to work prop
 | DOCKER_GRADER_IMAGE | `string` | Docker image used by users with the Grader role. | `illumidesk/notebook:grader` |
 | DOCKER_INSTRUCTOR_IMAGE | `string` | Docker image used by users with the Instructor role. | `illumidesk/notebook:instructor` |
 | DOCKER_STANDARD_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/notebook:standard` |
-| DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `illumidesk-network` |
+| DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |
 | DOCKER_NOTEBOOK_DIR | `string` | Working directory for Jupyter Notebooks | `/home/jovyan` |
 | EXCHANGE_DIR | `string` | Exchange directory path  | `/srv/nbgrader/exchange` |
 | JUPYTERHUB_CRYPT_KEY | `string` | Cyptographic key used to encrypt cookies. | `<random_value>` |
@@ -351,6 +351,11 @@ The services included with this setup rely on environment variables to work prop
 | JUPYTERHUB_API_URL | `string` | Internal API URL corresponding to JupyterHub. | `http://jupyterhub:8081` |
 | LTI_CONSUMER_KEY | `string` | LTI 1.1 consumer key | `ild_test_consumer_key` |
 | LTI_SHARED_SECRET | `string` | LTI 1.1 shared secret | `ild_test_shared_secret` |
+| LTI13_AUTHORIZE_URL | `string` | LTI 1.3 authorization URL, such as `https://my.platform.domain/api/lti/authorize_redirect` | `''` |
+| LTI13_CLIENT_ID | `string` | LTI 1.3 client id used to identify the tool's installation within the platform, such as `125900000000000071` | `''` |
+| LTI13_ENDPOINT | `string` | LTI 1.3 platform endpoint, such as `https://my.platform.domain/api/lti/security/jwks` | `''` |
+| LTI13_PRIVATE_KEY | `string` | Private key used with LTI 1.3 to create public JSON Web Keys (JWK) | `/secrets/keys/rsa_private.pem` |
+| LTI13_TOKEN_URL | `string` | LTI 1.3 token URL surfaced by the platform, such as `https://my.platform.domain/login/oauth2/token` | `''` |
 | MNT_HOME_DIR_UID | `string` | Host user directory UID | `1000` |
 | MNT_HOME_DIR_GID | `string` | Host user directory GID | `100` |
 | MNT_ROOT | `string` | Host directory root | `/mnt` |
@@ -378,7 +383,7 @@ The services included with this setup rely on environment variables to work prop
 
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
-| DOCKER_NETWORK_NAME | `string` | JupyterHub API token | `<randon_value>` |
+| DOCKER_NETWORK_NAME | `string` | JupyterHub API token | `jupyter-network` |
 | GRADER_SERVICE_IMAGE | `string` | External facing API URL | `http://reverse-proxy:8000/hub/api` |
 | ILLUMIDESK_DIR | `string` | IllumiDesk working directory | `illumidesk_deployment` |
 | JUPYTERHUB_API_TOKEN | `string` | API token to connect with the JupyterHub | `<random value>` |

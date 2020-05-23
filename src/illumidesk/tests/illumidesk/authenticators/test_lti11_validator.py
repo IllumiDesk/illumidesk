@@ -1,52 +1,9 @@
-import secrets
-import time
-
 import pytest
-
-from typing import Dict
-
-from tornado.web import HTTPError
-
-from oauthlib.oauth1.rfc5849 import signature
 
 from tornado.web import HTTPError
 
 from illumidesk.authenticators.authenticator import LTI11LaunchValidator
-from illumidesk.authenticators.utils import LTIUtils
-
-
-def mock_lti11_args(oauth_consumer_key: str, oauth_consumer_secret: str,) -> Dict[str, str]:
-
-    utils = LTIUtils()
-    oauth_timestamp = str(int(time.time()))
-    oauth_nonce = secrets.token_urlsafe(32)
-    extra_args = {'my_key': 'this_value'}
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    launch_url = 'http://jupyterhub/hub/lti/launch'
-    args = {
-        'lti_message_type': 'basic-lti-launch-request',
-        'lti_version': 'LTI-1p0'.encode(),
-        'resource_link_id': '88391-e1919-bb3456',
-        'oauth_consumer_key': oauth_consumer_key,
-        'oauth_timestamp': str(int(oauth_timestamp)),
-        'oauth_nonce': str(oauth_nonce),
-        'oauth_signature_method': 'HMAC-SHA1',
-        'oauth_callback': 'about:blank',
-        'oauth_version': '1.0',
-        'user_id': '123123123',
-    }
-
-    args.update(extra_args)
-
-    base_string = signature.signature_base_string(
-        'POST',
-        signature.base_string_uri(launch_url),
-        signature.normalize_parameters(signature.collect_parameters(body=args, headers=headers)),
-    )
-
-    args['oauth_signature'] = signature.sign_hmac_sha1(base_string, oauth_consumer_secret, None)
-
-    return args
+from illumidesk.tests.factory import factory_lti11_basic_launch_args
 
 
 def test_basic_lti11_launch_request():
@@ -58,7 +15,7 @@ def test_basic_lti11_launch_request():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -74,7 +31,7 @@ def test_launch_with_missing_oauth_nonce_key():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     del args['oauth_nonce']
 
@@ -93,7 +50,7 @@ def test_launch_with_none_or_empty_oauth_nonce_value():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -115,7 +72,7 @@ def test_launch_with_missing_oauth_timestamp_key():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     del args['oauth_timestamp']
 
@@ -134,7 +91,7 @@ def test_launch_with_none_or_empty_oauth_timestamp_value():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -156,7 +113,7 @@ def test_launch_with_missing_oauth_consumer_key_key():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     del args['oauth_consumer_key']
 
@@ -175,7 +132,7 @@ def test_launch_with_none_or_empty_oauth_consumer_key_value():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -197,7 +154,7 @@ def test_launch_with_fake_oauth_consumer_key_value():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -215,7 +172,7 @@ def test_launch_with_missing_oauth_signature_method_key():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret)
 
     del args['oauth_signature_method']
 
@@ -234,7 +191,7 @@ def test_launch_with_none_or_empty_oauth_signature_method_value():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -256,7 +213,7 @@ def test_launch_with_missing_oauth_callback_key():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     del args['oauth_callback']
 
@@ -275,7 +232,7 @@ def test_launch_with_none_or_empty_oauth_callback_value():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -297,7 +254,7 @@ def test_launch_with_missing_oauth_version_key():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     del args['oauth_version']
 
@@ -316,7 +273,7 @@ def test_launch_with_none_or_empty_oauth_version_value():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -338,7 +295,7 @@ def test_launch_with_missing_oauth_signature_key():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     del args['oauth_signature']
 
@@ -357,7 +314,7 @@ def test_launch_with_none_or_empty_oauth_signature_value():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -379,7 +336,7 @@ def test_unregistered_consumer_key():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -398,7 +355,7 @@ def test_unregistered_shared_secret():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: 'my_other_shared_secret'})
 
@@ -415,7 +372,7 @@ def test_launch_with_missing_lti_message_type():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     del args['lti_message_type']
 
@@ -434,7 +391,7 @@ def test_launch_with_none_or_empty_lti_message_type():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -456,7 +413,7 @@ def test_launch_with_missing_lti_version():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     del args['lti_version']
 
@@ -475,7 +432,7 @@ def test_launch_with_none_or_empty_lti_version():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -497,7 +454,7 @@ def test_launch_with_missing_resource_link_id():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     del args['resource_link_id']
 
@@ -516,7 +473,7 @@ def test_launch_with_none_or_empty_resource_link_id():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -538,7 +495,7 @@ def test_launch_with_missing_user_id_key():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     del args['user_id']
 
@@ -557,7 +514,7 @@ def test_launch_with_none_or_empty_user_id_value():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -580,7 +537,7 @@ def test_launch_with_same_oauth_timestamp_different_oauth_nonce():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret,)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret,)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 
@@ -599,7 +556,7 @@ def test_launch_with_same_oauth_nonce_different_oauth_timestamp():
     launch_url = 'http://jupyterhub/hub/lti/launch'
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-    args = mock_lti11_args(oauth_consumer_key, oauth_consumer_secret)
+    args = factory_lti11_basic_launch_args(oauth_consumer_key, oauth_consumer_secret)
 
     validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
 

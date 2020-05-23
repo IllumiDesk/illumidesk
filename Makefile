@@ -29,11 +29,14 @@ prepare:
 venv:
 	test -d $(VENV_NAME) || virtualenv -p python3 $(VENV_NAME)
 	${PYTHON} -m pip install -r requirements.txt
-	${PYTHON} -m pip install -r dev-requirements.txt
 
 deploy: prepare
 	${VENV_BIN}/ansible-playbook -i ansible/hosts \
       ansible/provisioning.yml $(ARGS)
+
+dev: venv
+	${PYTHON} -m pip install -r dev-requirements.txt
+	${PYTHON} -m pip install -e src/.
 
 lint: venv
 	${VENV_BIN}/flake8 src

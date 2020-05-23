@@ -136,7 +136,6 @@ class LTIGradesSenderControlFile:
             assignment_points:
                 This value is used to calculate the score before sending grades to lms.
                 For canvas, is obtained from 'custom_canvas_assignment_points_possible'
-
         """
         logger.info(f'Registering data in grades-sender control file for assignment name: {assignment_name}')
         logger.info(f'lis_outcome_service_url received: {lis_outcome_service_url}')

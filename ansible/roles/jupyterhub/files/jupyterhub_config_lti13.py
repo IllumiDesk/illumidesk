@@ -1,17 +1,21 @@
 import os
-import requests
 import sys
 
-from illumidesk.authenticators.authenticator import LTI11Authenticator
-from illumidesk.authenticators.authenticator import setup_course_hook
-from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
+import requests
 
+from illumidesk.authenticators.authenticator import LTI13Authenticator
+from illumidesk.authenticators.authenticator import setup_course_hook
+from illumidesk.handlers.lti import LTI13ConfigHandler
+from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
 c = get_config()
 
 ##########################################
 # BEGIN JUPYTERHUB APPLICATION
 ##########################################
+
+# Redirect user to server (if running), instead of control panel.
+c.JupyterHub.redirect_to_server = False
 
 # Set to debug for testing
 c.JupyterHub.log_level = 'DEBUG'
@@ -45,6 +49,18 @@ data_dir = '/data'
 
 c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secret')
 
+# The instructor1 and instructor2 users have access to different shared
+# grader notebooks. bitdiddle, hacker, and reasoner students are from
+# the `nbgrader quickstart <course name>` command.
+c.JupyterHub.load_groups = {
+    os.environ.get('DEMO_INSTRUCTOR_GROUP'): [
+        'instructor1',
+        'instructor2',
+        os.environ.get('DEMO_GRADER_NAME'),
+    ],  # noqa E231
+    os.environ.get('DEMO_STUDENT_GROUP'): ['student1', 'bitdiddle', 'hacker', 'reasoner',],  # noqa E231
+}
+
 # Allow admin access to end-user notebooks
 c.JupyterHub.admin_access = True
 
@@ -74,8 +90,8 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
     db=os.environ.get('POSTGRES_DB'),
 )
 
-# LTI 1.1 authenticator class.
-c.JupyterHub.authenticator_class = LTI11Authenticator
+# LTI 1.3 authenticator class.
+c.JupyterHub.authenticator_class = LTI13Authenticator
 
 # Spawn containers with custom dockerspawner class
 c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
@@ -109,24 +125,27 @@ c.TraefikTomlProxy.traefik_api_username = "api_admin"
 # traefik's dynamic configuration file
 c.TraefikTomlProxy.toml_dynamic_config_file = "/etc/traefik/rules.toml"
 
-
 ##########################################
 # END REVERSE PROXY
 ##########################################
 
+##########################################
+# BEGIN LTI 1.3 AUTHENTICATOR
+##########################################
+
+# created after installing app in lms
+c.LTI13Authenticator.client_id = os.environ.get('LTI13_CLIENT_ID')
+c.LTI13Authenticator.endpoint = os.environ.get('LTI13_ENDPOINT')
+c.LTI13Authenticator.token_url = os.environ.get('LTI13_TOKEN_URL')
+c.LTI13Authenticator.authorize_url = os.environ.get('LTI13_AUTHORIZE_URL')
+
+# Handlers used for LTI endpoints
+c.JupyterHub.extra_handlers = [
+    (r'/jwks$', LTI13ConfigHandler),
+]
 
 ##########################################
-# BEGIN LTI 1.1 AUTHENTICATOR
-##########################################
-
-c.LTIAuthenticator.consumers = {
-    os.environ.get('LTI_CONSUMER_KEY')
-    or 'ild_test_consumer_key': os.environ.get('LTI_SHARED_SECRET')
-    or 'ild_test_shared_secret'
-}
-
-##########################################
-# END LTI 1.1 AUTHENTICATOR
+# END LTI 1.3 AUTHENTICATOR
 ##########################################
 
 ##########################################
@@ -139,6 +158,7 @@ c.Authenticator.post_auth_hook = setup_course_hook
 # Add other admin users as needed
 c.Authenticator.admin_users = {
     'admin',
+    os.environ.get('DEMO_INSTRUCTOR_NAME'),
 }
 
 # If using an authenticator which requires additional logic,
@@ -203,15 +223,6 @@ c.DockerSpawner.volumes = {
 # END CUSTOM DOCKERSPAWNER
 ##########################################
 
-# Custom Handlers
-# the first one is used to send grades to LMS
-# this url pattern was changed to accept spaces in the assignment name
-c.JupyterHub.extra_handlers = [
-    (
-        r'/submit-grades/(?P<course_id>\w+)/(?P<assignment_name>.*)$',
-        'illumidesk.handlers.lms_grades.SendGradesHandler',
-    ),
-]
 
 ##########################################
 # SETUP COURSE SERVICE
