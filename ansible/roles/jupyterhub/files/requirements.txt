@@ -13,3 +13,6 @@ jupyterhub-ltiauthenticator==0.4.0
 
 # Spawners
 dockerspawner==0.11.1
+
+# Cull idle servers
+jupyterhub-idle-culler==1.0
