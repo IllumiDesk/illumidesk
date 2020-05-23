@@ -9,6 +9,6 @@ jupyter-contrib-nbextensions==0.5
 plotly==4.7.1
 plotly-charts==0.5
 plotly-geo==1.0
+psycopg2-binary==2.8.5
 yellowbrick==1.1
 widgetsnbextension
-psycopg2-binary==2.8.5
