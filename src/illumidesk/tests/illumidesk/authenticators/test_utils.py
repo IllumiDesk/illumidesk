@@ -7,6 +7,9 @@ from unittest.mock import Mock
 from illumidesk.authenticators.utils import LTIUtils
 
 
+RegExpType = type(re.compile('.'))
+
+
 def test_normalize_name_for_containers_with_long_name():
     """
     Does a container name with more than 20 characters get normalized?
@@ -48,10 +51,7 @@ def test_get_protocol_with_more_than_one_value():
     """
     utils = LTIUtils()
     handler = Mock(
-        spec=RequestHandler,
-        request=Mock(
-            headers={'x-forwarded-proto': 'https,http,http'}, protocol='https',
-        ),
+        spec=RequestHandler, request=Mock(headers={'x-forwarded-proto': 'https,http,http'}, protocol='https',),
     )
     expected = 'https'
     protocol = utils.get_client_protocol(handler)

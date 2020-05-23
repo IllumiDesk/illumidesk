@@ -59,17 +59,27 @@
   debug:
     msg: "is lti11 enabled?: {{ lti11_enabled }}"
 
-- name: copy the jupyterhub configuration file
+- name: is lti13 enabled
+  debug:
+    msg: "is lti13 enabled?: {{ lti13_enabled }}"
+
+- name: copy the jupyterhub configuration file with firstuse authenticator config
   copy:
     src: jupyterhub_config_fu.py
     dest: "{{ working_dir }}/jupyterhub_config.py"
-  when: not lti11_enabled|bool
+  when: not lti11_enabled|bool and not lti13_enabled|bool
 
-- name: copy the jupyterhub configuration file
+- name: copy the jupyterhub configuration file with lti v1.1 config
   copy:
     src: jupyterhub_config_lti11.py
     dest: "{{ working_dir }}/jupyterhub_config.py"
   when: lti11_enabled|bool
+
+- name: copy the jupyterhub configuration file with lti v1.3 config
+  copy:
+    src: jupyterhub_config_lti13.py
+    dest: "{{ working_dir }}/jupyterhub_config.py"
+  when: lti13_enabled|bool
 
 - name: copy postgres utility scripts
   copy:
@@ -90,6 +100,16 @@
   copy:
     src: share/templates
     dest: "{{ working_dir }}/share"
+
+- name: ensures {{working_dir}}/keys directory exists
+  file:
+    path: "{{working_dir}}/keys"
+    state: directory
+
+- name: create lti v1.3 private key in pem format
+  openssl_privatekey:
+    path: "{{working_dir}}/keys/rsa_private.pem"
+    mode: '0644'
 
 - name: create base jupyterhub dockerfile from template
   template:
@@ -114,6 +134,7 @@
       path: "{{ working_dir }}"
       dockerfile: "{{ docker_jupyterhub_dockerfile }}"
       pull: no
+    state: present
     source: build
     force_source: yes
 
@@ -121,11 +142,3 @@
   template:
     src: docker-compose.yml.j2
     dest: "{{ working_dir }}/docker-compose.yml"
-
-- name: lti11 consumer key
-  debug:
-    msg: "lti consumer key is: {{ lti11_consumer_key_result }}"
-
-- name: lti11 shared secret
-  debug:
-    msg: "lti shared secret is: {{ lti11_shared_secret_result }}"

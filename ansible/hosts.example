@@ -18,7 +18,7 @@ all:
       # add a password only if your remote instance uses userid/password for SSH authentication
       ansible_password:
 
-      ## Optional settings
+      ## (Optional) Endpoint/namespace settings
       #-------------------
       # organization name, also used for the sub-domain, such as acme
       org_name:
@@ -29,14 +29,42 @@ all:
       # course label, such as finance101
       course_id:
 
+      ## Authentication settings
+      #-------------------
+
+      # Notes: 
+      #   the first use authenticator is set to true by defaut.
+      #   lti11_enabled and lti13_enabled are mutually exclusive, therefore
+      #   set one to true to enable the desired lti auth standard.
+
+      ### LTI 1.1
+      #-------------------
+
+      # set to true to use LTI 1.1. If true, set lti13_enabled to false.
+      lti11_enabled: false
+
       # lti 1.1 consumer key, by default this is set dynamically. add
       # own value to override setting. we recommend using the openssl
-      # command to create secure strings: openssl rand -hex 16 
+      # command to create secure strings: e.g. `openssl rand -hex 16` 
       lti11_consumer_key:
 
       # lti 1.1 shared secret, by default set dynamically. set to at 
-      # least 32 random bytes: openssl rand -hex 32
+      # least 32 random bytes: e.g. `openssl rand -hex 32`
       lti11_shared_secret:
 
-      # set to yes to use LTI 1.1
-      lti11_enabled: false
+      ### LTI 1.3
+      #-------------------
+      
+      # set to true to use LTI 1.3. If true, set lti11_enabled to false.
+      lti13_enabled: false
+      
+      # private key path and file name (pem)
+      lti13_private_key: /secrets/keys/rsa_private.pem
+
+      # the client id which represents the tools installation on the platform
+      lti13_client_id: 
+      
+      # lti 1.3 urls/endpoints
+      lti13_endpoint: 
+      lti13_token_url: 
+      lti13_authorize_url: 
