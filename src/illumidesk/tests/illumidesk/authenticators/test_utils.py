@@ -77,3 +77,30 @@ def test_convert_request_arguments_to_dict():
     result = utils.convert_request_to_dict(arguments)
 
     assert expected == result
+
+def test_email_to_username_retrieves_only_username_part_before_at_symbol():
+    email = 'user1@example.com'
+
+    utils = LTIUtils()
+    # act
+    result = utils.email_to_username(email)
+    # print('result', result)
+    assert result == 'user1'
+
+def test_email_to_username_converts_username_in_lowecase():
+    email = 'USER_name1@example.com'
+
+    utils = LTIUtils()
+    # act
+    result = utils.email_to_username(email)
+    # print('result', result)
+    assert result == 'user_name1'
+
+def test_email_to_username_retrieves_only_first_part_before_plus_symbol():
+    email = 'user+name@example.com'
+
+    utils = LTIUtils()
+    # act
+    result = utils.email_to_username(email)
+    # print('result', result)
+    assert result == 'user'

@@ -22,3 +22,19 @@ async def ensure_environment_assigned_to_user_role_from_auth_state():
     await test_spawner.auth_state_hook(auth_state)
 
     assert test_spawner.environment['USER_ROLE'] == 'Learner'
+
+
+def test_dockerspawner_uses_raw_username_in_format_volume_name():
+    import types
+    from dockerspawner.dockerspawner import DockerSpawner
+
+    d = DockerSpawner()
+    # notice we're not using variable for username, 
+    # it helps understanding how volumes are binding
+    d.user = types.SimpleNamespace(name="dbs__user5")
+    d.volumes = {"data/{raw_username}": {"bind": "/home/{raw_username}"}}
+    assert (
+        d.volume_binds
+        == {"data/dbs__user5": {"bind": "/home/dbs__user5", "mode": "rw"}}
+    )
+    assert d.volume_mount_points == ["/home/dbs__user5"]
