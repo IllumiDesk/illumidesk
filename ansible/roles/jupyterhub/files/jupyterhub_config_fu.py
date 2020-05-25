@@ -219,7 +219,7 @@ mnt_root = os.environ.get('MNT_ROOT')
 
 # Mount volumes
 c.DockerSpawner.volumes = {
-    f'{mnt_root}/{org_name}' + '/home/{username}': notebook_dir,
+    f'{mnt_root}/{org_name}' + '/home/{raw_username}': notebook_dir,
     f'{mnt_root}/{org_name}/exchange': exchange_dir,
 }
 
