@@ -49,18 +49,6 @@ data_dir = '/data'
 
 c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secret')
 
-# The instructor1 and instructor2 users have access to different shared
-# grader notebooks. bitdiddle, hacker, and reasoner students are from
-# the `nbgrader quickstart <course name>` command.
-c.JupyterHub.load_groups = {
-    os.environ.get('DEMO_INSTRUCTOR_GROUP'): [
-        'instructor1',
-        'instructor2',
-        os.environ.get('DEMO_GRADER_NAME'),
-    ],  # noqa E231
-    os.environ.get('DEMO_STUDENT_GROUP'): ['student1', 'bitdiddle', 'hacker', 'reasoner',],  # noqa E231
-}
-
 # Allow admin access to end-user notebooks
 c.JupyterHub.admin_access = True
 
@@ -158,7 +146,6 @@ c.Authenticator.post_auth_hook = setup_course_hook
 # Add other admin users as needed
 c.Authenticator.admin_users = {
     'admin',
-    os.environ.get('DEMO_INSTRUCTOR_NAME'),
 }
 
 # If using an authenticator which requires additional logic,
