@@ -55,6 +55,7 @@ c.JupyterHub.services = [
         'name': 'idle-culler',
         'admin': True,
         'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
+        'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
     },
     {
         'name': 'announcement',
