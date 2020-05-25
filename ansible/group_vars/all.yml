@@ -47,10 +47,22 @@ jupyter_notebook_config: "{{ jupyter_notebook_config_param | default('jupyter_no
 # Mount directories
 mnt_root: "{{ mnt_root_param | default('/mnt') }}"
 
+# Postgres for notebooks labs
+postgres_labs_enabled: "{{ postgres_labs_enabled_param | default('false') }}"
+
+# Enable/disable LTI v1.1 config
+lti11_enabled: "{{ lti11_enabled_param | default('false')}}"
+
 # LTI 1.1 credentials
 lti11_consumer_key: "{{ lti11_consumer_key_result }}"
 lti11_shared_secret: "{{ lti11_shared_secret_result }}"
 
-lti11_enabled: "{{ lti11_enabled_param | default('false')}}"
-# Postgres for notebooks labs
-postgres_labs_enabled: "{{ postgres_labs_enabled_param | default('false') }}"
+# Enable/disable LTI v1.3 config
+lti13_enabled: "{{ lti13_enabled_param | default('false')}}"
+
+# LTI 1.3 config
+lti13_client_id: "{{ lti13_client_id_param | default('')}}"
+lti13_private_key: "{{ lti13_private_key_param | default('/secrets/keys/rsa_private.pem')}}"
+lti13_endpoint: "{{ lti13_endpoint_param | default('https://illumidesk.instructure.com')}}"
+lti13_token_url: "{{ lti13_token_url_param | default('https://illumidesk.instructure.com/login/oauth2/token')}}"
+lti13_authorize_url: "{{ lti13_authorize_url_param | default('https://illumidesk.instructure.com/api/lti/authorize_redirect')}}"

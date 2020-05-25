@@ -1,14 +1,15 @@
 import json
-import pytest
 from pathlib import Path
+
+import pytest
+
 from unittest.mock import patch
-from illumidesk.handlers.lms_grades import (
-    LTIGradesSenderControlFile,
-    LTIGradeSender,
-    GradesSenderCriticalError,
-    AssignmentWithoutGradesError,
-    GradesSenderMissingInfoError
-)
+
+from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
+from illumidesk.handlers.lms_grades import LTIGradeSender
+from illumidesk.handlers.lms_grades import GradesSenderCriticalError
+from illumidesk.handlers.lms_grades import AssignmentWithoutGradesError
+from illumidesk.handlers.lms_grades import GradesSenderMissingInfoError
 
 
 @pytest.fixture
@@ -18,7 +19,6 @@ def reset_file_loaded():
 
 @pytest.mark.usefixtures("reset_file_loaded")
 class TestLTIGradesSenderControlFile:
-
     def test_control_file_is_initialized_if_not_exists(self, tmp_path):
         """
         Does the LTIGradesSenderControlFile class initializes a file with an empty dict when it not exists?
@@ -41,12 +41,11 @@ class TestLTIGradesSenderControlFile:
         """
         Does the LTIGradesSenderControlFile class indicates when the file was loaded?
         """
+
         def _change_flag():
             LTIGradesSenderControlFile.FILE_LOADED = True
-        
-        with patch.object(
-            LTIGradesSenderControlFile, '_loadFromFile', return_value=None
-        ) as mock_loadFromFileMethod:
+
+        with patch.object(LTIGradesSenderControlFile, '_loadFromFile', return_value=None) as mock_loadFromFileMethod:
             mock_loadFromFileMethod.side_effect = _change_flag
             sender_controlfile = LTIGradesSenderControlFile(tmp_path)
             assert LTIGradesSenderControlFile.FILE_LOADED is True
@@ -113,9 +112,7 @@ def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
     """
     sender_controlfile = LTIGradeSender('course1', 'problem1')
     # create a mock for our method that searches grades from gradebook.db
-    with patch.object(
-        LTIGradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [])
-    ):
+    with patch.object(LTIGradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [])):
         with pytest.raises(AssignmentWithoutGradesError):
             sender_controlfile.send_grades()
 
@@ -126,15 +123,8 @@ def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(t
     """
     sender_controlfile = LTIGradeSender('course1', 'problem1')
     _ = LTIGradesSenderControlFile(tmp_path)
-    grades_nbgrader = [
-        {
-            'score': 10,
-            'lms_user_id': 'user1'
-        }
-    ]
+    grades_nbgrader = [{'score': 10, 'lms_user_id': 'user1'}]
     # create a mock for our method that searches grades from gradebook.db
-    with patch.object(
-        LTIGradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, grades_nbgrader)
-    ):
+    with patch.object(LTIGradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, grades_nbgrader)):
         with pytest.raises(GradesSenderMissingInfoError):
             sender_controlfile.send_grades()

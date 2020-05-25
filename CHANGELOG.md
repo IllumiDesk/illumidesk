@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.6.0 (2020-05-23)
+
+
+### Features
+
+* Add LTI 1.3 authentication to IllumiDesk package with JupyterHub ([#33](https://github.com/IllumiDesk/illumidesk/issues/33)) ([364f9b6](https://github.com/IllumiDesk/illumidesk/commit/364f9b6b4315fd4b1912abf9c069dbb1a1aa66b8))
+
 ## 0.5.0 (2020-05-23)
 
 

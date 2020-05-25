@@ -24,9 +24,8 @@ $ git clone https://github.com/github-username/repository-name.git
 5.  Install the dependencies required for the project by running:
 
 ```
-$ virtualenv -p pythone venv
+$ make dev
 $ source venv/bin/activate
-$ python3 -m pip install -e .
 ```
 
 6.  Create a new branch for your feature or fix using:
