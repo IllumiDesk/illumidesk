@@ -49,6 +49,9 @@ c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secr
 c.JupyterHub.admin_access = True
 
 # Define some static services that jupyterhub will manage
+# Although the cull-idle service is internal, and therefore does not need an explicit
+# registration of the jupyterhub api token, we add it here so the internal api client
+# can use the token to utilize RESTful endpoints with full CRUD priviledges.
 announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
 c.JupyterHub.services = [
     {
