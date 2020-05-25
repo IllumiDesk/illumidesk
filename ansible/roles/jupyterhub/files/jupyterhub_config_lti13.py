@@ -219,6 +219,8 @@ c.DockerSpawner.volumes = {
     f'{mnt_root}/{org_name}/exchange': exchange_dir,
 }
 
+c.DockerSpawner.name_template = 'jupyter-{raw_username}'
+
 ##########################################
 # END CUSTOM DOCKERSPAWNER
 ##########################################
