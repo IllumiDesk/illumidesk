@@ -11,7 +11,7 @@ from unittest.mock import patch
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.utils import LTIUtils
-from illumidesk.tests.factory import factory_lti11_complete_launch_args
+from tests.illumidesk.factory import factory_lti11_complete_launch_args
 
 
 @pytest.mark.asyncio
