@@ -1,5 +1,6 @@
 import pytest
-
+import types
+from dockerspawner.dockerspawner import DockerSpawner
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
 
@@ -25,9 +26,6 @@ async def ensure_environment_assigned_to_user_role_from_auth_state():
 
 
 def test_dockerspawner_uses_raw_username_in_format_volume_name():
-    import types
-    from dockerspawner.dockerspawner import DockerSpawner
-
     d = DockerSpawner()
     # notice we're not using variable for username, 
     # it helps understanding how volumes are binding
