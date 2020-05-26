@@ -49,28 +49,20 @@ data_dir = '/data'
 
 c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secret')
 
-# The instructor1 and instructor2 users have access to different shared
-# grader notebooks. bitdiddle, hacker, and reasoner students are from
-# the `nbgrader quickstart <course name>` command.
-c.JupyterHub.load_groups = {
-    os.environ.get('DEMO_INSTRUCTOR_GROUP'): [
-        'instructor1',
-        'instructor2',
-        os.environ.get('DEMO_GRADER_NAME'),
-    ],  # noqa E231
-    os.environ.get('DEMO_STUDENT_GROUP'): ['student1', 'bitdiddle', 'hacker', 'reasoner',],  # noqa E231
-}
-
 # Allow admin access to end-user notebooks
 c.JupyterHub.admin_access = True
 
 # Define some static services that jupyterhub will manage
+# Although the cull-idle service is internal, and therefore does not need an explicit
+# registration of the jupyterhub api token, we add it here so the internal api client
+# can use the token to utilize RESTful endpoints with full CRUD priviledges.
 announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
 c.JupyterHub.services = [
     {
         'name': 'idle-culler',
         'admin': True,
         'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
+        'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
     },
     {
         'name': 'announcement',
@@ -158,7 +150,6 @@ c.Authenticator.post_auth_hook = setup_course_hook
 # Add other admin users as needed
 c.Authenticator.admin_users = {
     'admin',
-    os.environ.get('DEMO_INSTRUCTOR_NAME'),
 }
 
 # If using an authenticator which requires additional logic,
@@ -215,9 +206,11 @@ mnt_root = os.environ.get('MNT_ROOT')
 
 # Mount volumes
 c.DockerSpawner.volumes = {
-    f'{mnt_root}/{org_name}' + '/home/{username}': notebook_dir,
+    f'{mnt_root}/{org_name}' + '/home/{raw_username}': notebook_dir,
     f'{mnt_root}/{org_name}/exchange': exchange_dir,
 }
+
+c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 
 ##########################################
 # END CUSTOM DOCKERSPAWNER

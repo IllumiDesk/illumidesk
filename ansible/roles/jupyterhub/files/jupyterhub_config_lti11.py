@@ -49,12 +49,16 @@ c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secr
 c.JupyterHub.admin_access = True
 
 # Define some static services that jupyterhub will manage
+# Although the cull-idle service is internal, and therefore does not need an explicit
+# registration of the jupyterhub api token, we add it here so the internal api client
+# can use the token to utilize RESTful endpoints with full CRUD priviledges.
 announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
 c.JupyterHub.services = [
     {
         'name': 'idle-culler',
         'admin': True,
         'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
+        'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
     },
     {
         'name': 'announcement',
@@ -195,9 +199,11 @@ mnt_root = os.environ.get('MNT_ROOT')
 
 # Mount volumes
 c.DockerSpawner.volumes = {
-    f'{mnt_root}/{org_name}' + '/home/{username}': notebook_dir,
+    f'{mnt_root}/{org_name}' + '/home/{raw_username}': notebook_dir,
     f'{mnt_root}/{org_name}/exchange': exchange_dir,
 }
+
+c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 
 ##########################################
 # END CUSTOM DOCKERSPAWNER
