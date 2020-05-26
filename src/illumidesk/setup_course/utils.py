@@ -21,8 +21,8 @@ class SetupUtils:
         self.docker_client = docker.from_env()
         self.jupyterhub_container_name = os.environ.get('JUPYTERHUB_SERVICE_NAME') or 'jupyterhub'
         self.illumidesk_dir = os.environ.get('ILLUMIDESK_DIR')
-        if self.illumidesk_dir == '' or self.illumidesk_dir is None:
-            raise TypeError('Missing or null ILLUMIDESK_DIR env var value.')
+        if not self.illumidesk_dir:
+            raise EnvironmentError('Missing or null ILLUMIDESK_DIR env var value.')
 
     def restart_jupyterhub(self) -> None:
         """

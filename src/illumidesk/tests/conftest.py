@@ -35,7 +35,7 @@ def setup_utils_environ_empty_illumidesk_dir(monkeypatch, tmp_path):
 
 
 @pytest.fixture(scope="function")
-def docker_containers():
+def mock_docker_client_cotainers_not_found():
     """
     Creates a DockerClient mock object
     """
@@ -46,16 +46,6 @@ def docker_containers():
 
     docker_client.containers = MagicMock()
     docker_client.containers.get.side_effect = lambda name: _container_not_exists(name)
-
-
-@pytest.fixture(scope="function")
-def setup_course_environ(monkeypatch, tmp_path):
-    """
-    Set the enviroment variables used in Course class
-    """
-    monkeypatch.setenv('MNT_ROOT', str(tmp_path))
-    monkeypatch.setenv('NB_UID', '10001')
-    monkeypatch.setenv('NB_GID', '100')
 
 
 @pytest.fixture(scope='function')

@@ -120,7 +120,7 @@ def test_should_setup_method_returns_true_if_container_does_not_exist(mock_docke
     assert course.should_setup() is True
 
 
-def test_course_exchange_root_directory_is_created(setup_course_environ, docker_containers):
+def test_course_exchange_root_directory_is_created(setup_course_environ, mock_docker_client_cotainers_not_found):
     """
     Is the exchange directory created as part of setup?
     """
@@ -130,7 +130,7 @@ def test_course_exchange_root_directory_is_created(setup_course_environ, docker_
         assert course.exchange_root.exists()
 
 
-def test_course_root_directory_is_created(setup_course_environ, docker_containers):
+def test_course_root_directory_is_created(setup_course_environ, mock_docker_client_cotainers_not_found):
     """
     Is the course directory created as part of setup?
     """
@@ -140,7 +140,7 @@ def test_course_root_directory_is_created(setup_course_environ, docker_container
         assert course.course_root.exists()
 
 
-def test_course_jupyter_config_path_is_created(setup_course_environ, docker_containers):
+def test_course_jupyter_config_path_is_created(setup_course_environ, mock_docker_client_cotainers_not_found):
     """
     Is the jupyter config directory created as part of setup?
     """
@@ -150,7 +150,7 @@ def test_course_jupyter_config_path_is_created(setup_course_environ, docker_cont
         assert course.jupyter_config_path.exists()
 
 
-def test_course_nbgrader_config_path_is_created(setup_course_environ, docker_containers):
+def test_course_nbgrader_config_path_is_created(setup_course_environ, mock_docker_client_cotainers_not_found):
     """
     Is the nbgrader directory created as part of setup?
     """
