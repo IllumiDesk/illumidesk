@@ -25,7 +25,7 @@ class SetupUtils:
         """
         logger.debug('Received request to restart JupyterHub')
         jupyterhub_container_name = os.environ.get('JUPYTERHUB_SERVICE_NAME') or 'jupyterhub'
-        illumidesk_dir = os.environ.get('ILLUMIDESK_DIR') or '/home/ubuntu/'
+        illumidesk_dir = os.environ.get('ILLUMIDESK_DIR') or '/home/ubuntu/illumidesk_deployment'
 
         containers = self.docker_client.containers.list(
             filters={'label': [f'com.docker.compose.service={jupyterhub_container_name}']}
