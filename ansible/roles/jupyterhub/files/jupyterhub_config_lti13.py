@@ -65,12 +65,16 @@ c.JupyterHub.load_groups = {
 c.JupyterHub.admin_access = True
 
 # Define some static services that jupyterhub will manage
+# Although the cull-idle service is internal, and therefore does not need an explicit
+# registration of the jupyterhub api token, we add it here so the internal api client
+# can use the token to utilize RESTful endpoints with full CRUD priviledges.
 announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
 c.JupyterHub.services = [
     {
         'name': 'idle-culler',
         'admin': True,
         'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
+        'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
     },
     {
         'name': 'announcement',
