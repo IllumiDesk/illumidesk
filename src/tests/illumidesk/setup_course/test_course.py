@@ -5,10 +5,11 @@ from unittest.mock import patch
 from unittest.mock import Mock, MagicMock
 from docker.errors import NotFound
 from illumidesk.setup_course.course import Course
+from tests.illumidesk.apis.fixtures import jupyterhub_api_environ
 
 
 @pytest.fixture(scope="function")
-def setup_environ(monkeypatch, tmp_path):
+def setup_environ(monkeypatch, tmp_path, jupyterhub_api_environ):
     """
     Set the environment variables used in Course class
     """
