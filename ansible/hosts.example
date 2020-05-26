@@ -21,8 +21,7 @@ all:
 
       ## (Optional) Endpoint/namespace settings
       #-------------------
-      # uncomment to add your organization name, also used for the sub-domain, 
-      # such as acme
+      # uncomment to add your organization name, defaults to my-org.
       # org_name: my-org
 
       # uncomment to add top level domain, such as example.com
