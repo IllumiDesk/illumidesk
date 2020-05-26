@@ -1,30 +1,10 @@
 import json
+
 import pytest
+
 from unittest.mock import patch, MagicMock
+
 from illumidesk.setup_course.course import Course
-
-
-@pytest.fixture(scope="function")
-def setup_course_environ(monkeypatch, tmp_path):
-    """
-    Set the enviroment variables used in Course class
-    """
-    monkeypatch.setenv('MNT_ROOT', str(tmp_path))
-    monkeypatch.setenv('NB_UID', '10001')
-    monkeypatch.setenv('NB_GID', '100')
-
-
-@pytest.fixture(scope='function')
-def test_client(monkeypatch, tmp_path):
-    """
-    Before to import the quart-app we define the env-vars required
-    """
-    monkeypatch.setenv('JUPYTERHUB_CONFIG_PATH', str(tmp_path))
-    # important than environ reads JUPYTERHUB_CONFIG_PATH variable before
-    # app initialization
-    from illumidesk.setup_course.app import app
-
-    return app.test_client()
 
 
 @pytest.mark.asyncio

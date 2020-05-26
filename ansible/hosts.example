@@ -15,19 +15,20 @@ all:
       # IPv4 host address
       ansible_ssh_private_key_file: /path/to/my/key/file
 
-      # add a password only if your remote instance uses userid/password for SSH authentication
-      ansible_password:
+      # uncomment and add a password only if your remote instance uses userid/password 
+      # for SSH authentication
+      # ansible_password: my-secret-password
 
       ## (Optional) Endpoint/namespace settings
       #-------------------
-      # organization name, also used for the sub-domain, such as acme
-      org_name:
+      # uncomment to add your organization name, defaults to my-org.
+      # org_name: my-org
 
-      # top level domain, such as example.com
-      tld:
+      # uncomment to add top level domain, such as example.com
+      # tld: example.com
 
-      # course label, such as finance101
-      course_id:
+      # uncomment to add your custom course name, such as finance101
+      # course_id: intro101
 
       ## Authentication settings
       #-------------------
@@ -41,30 +42,36 @@ all:
       #-------------------
 
       # set to true to use LTI 1.1. If true, set lti13_enabled to false.
-      lti11_enabled: false
+      # lti11_enabled: false
 
       # lti 1.1 consumer key, by default this is set dynamically. add
       # own value to override setting. we recommend using the openssl
       # command to create secure strings: e.g. `openssl rand -hex 16` 
-      lti11_consumer_key:
+      # lti11_consumer_key:
 
       # lti 1.1 shared secret, by default set dynamically. set to at 
       # least 32 random bytes: e.g. `openssl rand -hex 32`
-      lti11_shared_secret:
+      # lti11_shared_secret:
 
       ### LTI 1.3
       #-------------------
       
       # set to true to use LTI 1.3. If true, set lti11_enabled to false.
-      lti13_enabled: false
+      # lti13_enabled: false
       
       # private key path and file name (pem)
-      lti13_private_key: /secrets/keys/rsa_private.pem
+      # lti13_private_key: /secrets/keys/rsa_private.pem
 
-      # the client id which represents the tools installation on the platform
-      lti13_client_id: 
+      # the client id which represents the tools installation on the platform. the
+      # example below is an example clint id displayed by the details column in developer
+      # keys from the canvas lms.
+      # lti13_client_id: 125900000000000001
       
-      # lti 1.3 urls/endpoints
-      lti13_endpoint: 
-      lti13_token_url: 
-      lti13_authorize_url: 
+      # lti 1.3 urls/endpoints, the ones provided below are example endpoints
+      # used with the canvas lms.
+      # lti13_private_key: /secrets/keys/rsa_private.pem
+      # lti13_endpoint: https://illumidesk.instructure.com/api/lti/security/jwks
+      # lti13_token_url: https://illumidesk.instructure.com/login/oauth2/token
+      # lti13_authorize_url: https://illumidesk.instructure.com/api/lti/authorize_redirect
+
+      

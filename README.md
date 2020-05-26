@@ -385,7 +385,7 @@ The services included with this setup rely on environment variables to work prop
 |---|---|---|---|
 | DOCKER_NETWORK_NAME | `string` | JupyterHub API token | `jupyter-network` |
 | GRADER_SERVICE_IMAGE | `string` | External facing API URL | `http://reverse-proxy:8000/hub/api` |
-| ILLUMIDESK_DIR | `string` | IllumiDesk working directory | `illumidesk_deployment` |
+| ILLUMIDESK_DIR | `string` | IllumiDesk working directory within remote user's home directory | `$HOME/illumidesk_deployment` |
 | JUPYTERHUB_API_TOKEN | `string` | API token to connect with the JupyterHub | `<random value>` |
 | JUPYTERHUB_API_URL | `string` | JupyterHub client id used with OAuth2 | `http://reverse-proxy:8000/hub/api` |
 | JUPYTERHUB_CONFIG_PATH | `string` | Notebook grader user | `/srv/jupyterhub` |
