@@ -15,7 +15,7 @@ run_unit_tests () {
 
 run_coverage_report () {
   echo "Running coverage report ..."
-  pytest --cov=illumidesk src/illumidesk/tests
+  pytest --cov=illumidesk src/tests
 }
 
 main () {
