@@ -27,10 +27,10 @@ class JupyterHubAPI(LoggingConfigurable):
         self.client = AsyncHTTPClient()
         self.token = os.environ.get('JUPYTERHUB_API_TOKEN')
         if self.token is None:
-            raise EnvironmentError(f'JUPYTERHUB_API_TOKEN env-var is not set')
+            raise EnvironmentError('JUPYTERHUB_API_TOKEN env-var is not set')
         self.api_root_url = os.environ.get('JUPYTERHUB_API_URL')
         if self.api_root_url is None:
-            raise EnvironmentError(f'JUPYTERHUB_API_URL env-var is not set')
+            raise EnvironmentError('JUPYTERHUB_API_URL env-var is not set')
         self.default_headers = {
             'Authorization': f'token {self.token}',
             'Content-Type': 'application/json',

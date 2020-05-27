@@ -15,6 +15,7 @@ def setup_environ(monkeypatch):
     monkeypatch.setenv('DOCKER_INSTRUCTOR_IMAGE', 'instructor_image')
     monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader_image')
 
+
 def test_image_from_role_raises_an_error_with_empty_user_role():
     """
     Does the internal image_from_role method accept and empty/none value?
@@ -22,7 +23,7 @@ def test_image_from_role_raises_an_error_with_empty_user_role():
     sut = IllumiDeskDockerSpawner()
     with pytest.raises(ValueError):
         sut._image_from_role('')
-        
+
 
 def test_image_from_role_uses_default_image_for_role_not_considered(setup_environ):
     """
@@ -31,6 +32,7 @@ def test_image_from_role_uses_default_image_for_role_not_considered(setup_enviro
     sut = IllumiDeskDockerSpawner()
     result = sut._image_from_role('unknown')
     assert result == os.environ.get('DOCKER_STANDARD_IMAGE')
+
 
 def test_image_from_role_uses_correct_image_for_STUDENT_role(setup_environ):
     """
@@ -41,6 +43,7 @@ def test_image_from_role_uses_correct_image_for_STUDENT_role(setup_environ):
     image = sut._image_from_role('Student')
     assert image == os.environ.get('DOCKER_LEARNER_IMAGE')
 
+
 def test_image_from_role_uses_correct_image_for_INSTRUCTOR_role(setup_environ):
     """
     Does the internal image_from_role method return instructor image?
@@ -50,6 +53,7 @@ def test_image_from_role_uses_correct_image_for_INSTRUCTOR_role(setup_environ):
     image = sut._image_from_role('Instructor')
     assert image == os.environ.get('DOCKER_INSTRUCTOR_IMAGE')
 
+
 def test_image_from_role_uses_correct_image_for_GRADER_role(setup_environ):
     """
     Does the internal image_from_role method return grader image?
@@ -58,6 +62,7 @@ def test_image_from_role_uses_correct_image_for_GRADER_role(setup_environ):
     # act
     image = sut._image_from_role('Grader')
     assert image == os.environ.get('DOCKER_GRADER_IMAGE')
+
 
 @pytest.mark.asyncio
 async def test_ensure_environment_assigned_to_user_role_from_auth_state():
