@@ -91,7 +91,7 @@ async def test_get_group_uses_request_helper_method_with_correct_values(mock_req
 @patch('illumidesk.apis.jupyterhub_api.JupyterHubAPI._request')
 async def test_create_users_uses_request_helper_method_with_correct_values(mock_request, jupyterhub_api_environ):
     """
-    Does get_group method use the helper method and pass the correct values?
+    Does create_users method use the helper method and pass the correct values?
     """
     sut = JupyterHubAPI()
     await sut.create_users('new_user')
@@ -100,3 +100,33 @@ async def test_create_users_uses_request_helper_method_with_correct_values(mock_
         'usernames': ['new_user']
     }
     mock_request.assert_called_with('users', method='POST', body=json.dumps(body_usernames))
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.apis.jupyterhub_api.JupyterHubAPI._request')
+async def test_create_user_uses_request_helper_method_with_correct_values(mock_request, jupyterhub_api_environ):
+    """
+    Does create_user method use the helper method and pass the correct values?
+    """
+    sut = JupyterHubAPI()
+    await sut.create_user('new_user')
+    assert mock_request.called
+    body_usernames ={
+        'usernames': ['new_user']
+    }
+    mock_request.assert_called_with('users/new_user', method='POST', body='')
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.apis.jupyterhub_api.JupyterHubAPI._request')
+async def test_add_group_member_uses_request_helper_method_with_correct_values(mock_request, jupyterhub_api_environ):
+    """
+    Does add_group_member method use the helper method and pass the correct values?
+    """
+    sut = JupyterHubAPI()
+    await sut.add_group_member('to_group', 'a_user')
+    assert mock_request.called
+    body_usernames ={
+        'users': ['a_user']
+    }
+    mock_request.assert_called_with('groups/to_group/users', method='POST', body='')
