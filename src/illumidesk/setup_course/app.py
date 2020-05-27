@@ -1,8 +1,8 @@
+import asyncio
 import json
 import logging
 import os
 import sys
-import asyncio
 
 from filelock import FileLock
 from pathlib import Path
@@ -10,6 +10,7 @@ from pathlib import Path
 from quart import Quart
 from quart import request
 from quart.exceptions import BadRequest
+
 from .course import Course
 from .utils import SetupUtils
 

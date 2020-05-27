@@ -2,7 +2,7 @@ import pytest
 import os
 import uuid
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
-from .fixtures import jupyterhub_api_environ
+from tests.illumidesk.conftest import jupyterhub_api_environ
 
 def test_initializer_raises_error_without_JUPYTERHUB_API_TOKEN_env():
     """
