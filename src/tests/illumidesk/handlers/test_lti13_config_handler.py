@@ -50,7 +50,7 @@ async def test_get_method_reads_the_pem_file(mock_write, lti_config_environ):
     handler = mock_handler(RequestHandler)
     config_handler = LTI13ConfigHandler(handler.application, handler.request)
     print(handler.__dict__)
-    # the next method only write the output to a internal buffer
+    # the next method only write the output to internal buffer
     await config_handler.get()
     
     assert mock_write.called
