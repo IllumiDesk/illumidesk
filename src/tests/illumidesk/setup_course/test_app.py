@@ -30,7 +30,9 @@ async def test_post_method_returns_BadRequest_without_data(test_client):
 
 
 @pytest.mark.asyncio
-async def test_post_method_result_contains_is_new_setup_as_bool(setup_course_environ, test_client):
+async def test_post_method_result_contains_is_new_setup_as_bool(
+    setup_course_environ, test_client, jupyterhub_api_environ
+):
     """
     Does the POST endpoint return a boolean value to indicate if new setup was occured?
     """
@@ -52,7 +54,9 @@ async def test_post_method_result_contains_is_new_setup_as_bool(setup_course_env
 
 
 @pytest.mark.asyncio
-async def test_post_method_result_indicates_when_a_new_setup_was_created(setup_course_environ, test_client):
+async def test_post_method_result_indicates_when_a_new_setup_was_created(
+    setup_course_environ, test_client, jupyterhub_api_environ
+):
     """
     Does the creation endpoint return 400 as BadRequest when data is None?
     """

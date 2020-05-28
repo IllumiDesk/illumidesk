@@ -1,4 +1,5 @@
 import pytest
+import uuid
 
 from docker.errors import NotFound
 
@@ -7,7 +8,16 @@ from unittest.mock import MagicMock
 
 
 @pytest.fixture(scope="function")
-def setup_course_environ(monkeypatch, tmp_path):
+def jupyterhub_api_environ(monkeypatch):
+    """
+    Set the enviroment variables used in Course class
+    """
+    monkeypatch.setenv('JUPYTERHUB_API_TOKEN', str(uuid.uuid4()))
+    monkeypatch.setenv('JUPYTERHUB_API_URL', 'localhost/hub/api')
+
+
+@pytest.fixture(scope="function")
+def setup_course_environ(monkeypatch, tmp_path, jupyterhub_api_environ):
     """
     Set the environment variables used in Course class
     """

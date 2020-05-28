@@ -34,7 +34,7 @@ setup(
     author='The IllumiDesk Team',
     author_email='hello@illumidesk.com',
     license='MIT',
-    packages=find_packages(),
+    packages=find_packages(exclude='./tests'),
     install_requires=[
         'dockerspawner==0.11.1',
         'filelock==3.0.12',
