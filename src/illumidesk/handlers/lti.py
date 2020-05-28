@@ -36,8 +36,12 @@ class LTI13ConfigHandler(BaseHandler):
         lti_utils = LTIUtils()
         self.set_header('Content-Type', 'application/json')
         if not os.environ.get('LTI13_PRIVATE_KEY'):
-            raise ValueError('LTI13_PRIVATE_KEY environment variable not set')
+            raise EnvironmentError('LTI13_PRIVATE_KEY environment variable not set')
         key_path = os.environ.get('LTI13_PRIVATE_KEY')
+        # check the pem permission
+        if not os.access(key_path, os.R_OK):
+            self.log.error(f'The pem file {key_path} cannot be load')
+            raise PermissionError()
         private_key = pem.parse_file(key_path)
         kid = private_key[0].sha1_hexdigest
         self.log.debug('kid is %s' % kid)
