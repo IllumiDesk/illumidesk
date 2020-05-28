@@ -125,6 +125,14 @@ You may customize your setup by customizing additional variables in the `hosts` 
 
 > **NOTE**: You may add any of the variables listed in `ansible/group_vars/all.yml` within your `hosts` file before running the `make deploy` command.
 
+### LTI 1.3 Authenticator
+
+> **New in Version 0.6.0**: this setup supports user authentication with the [LTI 1.3 Core Specification](http://www.imsglobal.org/spec/lti/v1p3/) as of version 0.6.0. LTI 1.3 is built on top of OAuth2 and OIDC and therefore provides additional security features when compared to [LTI 1.1](https://www.imsglobal.org/specs/ltiv1p1).
+
+To enable LTI 1.3, update your ansible `hosts` configuration so that `lti13_enabled` is set to `true`. Then, add the platform (usually an LMS) endpoints required to establish a trust relationship between the tool and the platform. These additional endpoints are provided by the `lti13_private_key`, `lti13_endpoint`, `lti13_token_url`, and `lti13_authorize_url`. You also need to specify the `lti13_client_id` used by the platform to associate the tool with an OIDC compatible client id. The [`hosts.example`](./ansible/hosts.example) has some example endpoints. Keep in mind however, that unlike LTI 1.1 (instructions below), LTI 1.3's trust relationsip between the platform and the tool is explicit.
+
+Please refer to [the user guide documentation](https://app.gitbook.com/@illumidesk/s/guides/installation-and-configuration/learning-tools-interoperability-lti-1.3) if you need instructions on how to configure the tool using the LTI 1.3 option with specific LMS vendors.
+
 ### LTI 1.1 Authenticator
 
 > **New in Version 0.2.0**: with LTI 1.1 enabled, courses and user membership are automatically set for you based on the information located within the LTI 1.1 launch request. This feature allows you to dynamically support multiple classes with multiple teacher/learner memberships from the same deployment without haveing to update the configuration files.
@@ -134,6 +142,12 @@ By default both the `consumer key` and `shared secret` are created for you. If y
 values then assign them to the `lti11_consumer_key` and `lti11_shared_secret` variables in the `hosts` file.
 
 Then, rerun the `make deploy` copmmand to update your stack's settings.
+
+### Postgres for Lab Environments
+
+> **New in Version 0.5.0**: users that wish to provide their Learners with a shared Postgres container my do so by setting the `postgres_labs_enabled` to true.
+
+With the Postgres container enabled, users (both students and instructors) can connect to a shared Postgres database from within their Jupyter Notebooks by opening a connection with the standard `psycop2g` depency using the `postgres-labs` host name. IllumiDesk's [user guides provide additional examples](https://docs.illumidesk.com) on the commands and common use-cases available for this option.
 
 ### Configuration Files
 
