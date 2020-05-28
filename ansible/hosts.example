@@ -30,6 +30,10 @@ all:
       # uncomment to add your custom course name, such as finance101
       # course_id: intro101
 
+      # uncomment to start a container within the docker-compose network which allows
+      # users to connect to a shared postgres container (useful for lab environments)
+      # postgres_labs_enabled: true
+
       ## Authentication settings
       #-------------------
 
@@ -37,6 +41,8 @@ all:
       #   the first use authenticator is set to true by defaut.
       #   lti11_enabled and lti13_enabled are mutually exclusive, therefore
       #   set one to true to enable the desired lti auth standard.
+
+
 
       ### LTI 1.1
       #-------------------
