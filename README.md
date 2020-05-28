@@ -143,6 +143,12 @@ values then assign them to the `lti11_consumer_key` and `lti11_shared_secret` va
 
 Then, rerun the `make deploy` copmmand to update your stack's settings.
 
+### Postgres for Lab Environments
+
+> **New in Version 0.5.0**: users that wish to provide their Learners with a shared Postgres container my do so by setting the `postgres_labs_enabled` to true.
+
+With the Postgres container enabled, users (both students and instructors) can connect to a shared Postgres database from within their Jupyter Notebooks by opening a connection with the standard `psycop2g` depency using the `postgres-labs` host name. IllumiDesk's [user guides provide additional examples](https://docs.illumidesk.com) on the commands and common use-cases available for this option.
+
 ### Configuration Files
 
 The configuration changes depending on how you decide to update this setup. Essentially customizations boil down to:
