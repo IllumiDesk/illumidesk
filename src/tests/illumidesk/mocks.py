@@ -1,4 +1,7 @@
 import os
+import re
+
+from unittest.mock import Mock
 
 from tornado.web import Application
 from tornado.httputil import HTTPServerRequest
@@ -6,8 +9,11 @@ from tornado.httputil import HTTPServerRequest
 from unittest.mock import Mock
 
 
+RegExpType = type(re.compile('.'))
+
+
 # sourced from https://github.com/jupyterhub/oauthenticator
-def mock_handler(Handler, uri='https://hub.example.com', method='GET', **settings):
+def mock_handler(Handler, uri='https://hub.example.com', method='POST', **settings):
     """
     Instantiate a Handler in a mock application
     """

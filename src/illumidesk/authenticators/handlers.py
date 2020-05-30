@@ -36,11 +36,59 @@ class LTI11AuthenticateHandler(BaseHandler):
         self.redirect(self.get_body_argument('custom_next', self.get_next_url()))
 
 
+class CILogonLoginHandler(OAuthLoginHandler):
+    """See http://www.cilogon.org/oidc for general information."""
+
+    def authorize_redirect(self, *args, **kwargs):
+        """Add idp, skin to redirect params"""
+        extra_params = kwargs.setdefault('extra_params', {})
+        if self.authenticator.idp:
+            extra_params["selected_idp"] = self.authenticator.idp
+        if self.authenticator.skin:
+            extra_params["skin"] = self.authenticator.skin
+
+        return super().authorize_redirect(*args, **kwargs)
+
+
 class LTI13LoginHandler(OAuthLoginHandler, OAuth2Mixin):
     """
     Handles JupyterHub authentication requests according to the
     LTI 1.3 standard.
     """
+
+    def get_state(self) -> Dict[str, str]:
+        """
+        Overrides OAuthLoginHandler.get_state() to get the user's
+        next_url based on LTI's target link uri, also known as
+        the lauch request url.
+
+        The function uses tornado's RequestHandler to get arguments
+        from the request.
+
+        Returns:
+          JupyterHub's next_url and state_id dict
+        """
+        next_url = self.get_argument('target_link_uri')
+        self.log.debug('next_url is %s' % next_url)
+        if next_url:
+            next_url = next_url.replace('\\', quote('\\'))
+            urlinfo = urlparse(next_url)
+            next_url = urlinfo._replace(scheme='', netloc='', path='/' + urlinfo.path.lstrip('/'),).geturl()
+        if self._state is None:
+            self._state = _serialize_state({'state_id': uuid4().hex, 'next_url': next_url,})  # noqa: E231
+            self.log.debug('state set to %s' % self._state)
+        return self._state
+
+    def set_state_cookie(self, state):
+        """
+        Sets a secure cookie. This method overrides tornado's RequestHandler
+        set_state_cookie which uses the cookie_secret to encrypt cookie data.
+
+        Args:
+          state: state value from get_state()
+        """
+        self.log.debug('Setting cookie state')
+        self.set_secure_cookie(STATE_COOKIE_NAME, state, expires_days=1, httponly=True)
 
     def post(self):
         """
@@ -76,40 +124,6 @@ class LTI13LoginHandler(OAuthLoginHandler, OAuth2Mixin):
             },
         }
         self.authorize_redirect(**params)
-
-    def get_state(self) -> Dict[str, str]:
-        """
-        Overrides OAuthLoginHandler.get_state() to get the user's
-        next_url based on LTI's target link uri, also known as
-        the lauch request url.
-
-        The function uses tornado's RequestHandler to get arguments
-        from the request.
-
-        Returns:
-          JupyterHub's next_url and state_id dict
-        """
-        next_url = self.get_argument('target_link_uri')
-        self.log.debug('next_url is %s' % next_url)
-        if next_url:
-            next_url = next_url.replace('\\', quote('\\'))
-            urlinfo = urlparse(next_url)
-            next_url = urlinfo._replace(scheme='', netloc='', path='/' + urlinfo.path.lstrip('/'),).geturl()
-        if self._state is None:
-            self._state = _serialize_state({'state_id': uuid4().hex, 'next_url': next_url,})  # noqa: E231
-            self.log.debug('state set to %s' % self._state)
-        return self._state
-
-    def set_state_cookie(self, state):
-        """
-        Sets a secure cookie. This method overrides tornado's RequestHandler
-        set_state_cookie which uses the cookie_secret to encrypt cookie data.
-
-        Args:
-          state: state value from get_state()
-        """
-        self.log.debug('Setting cookie state')
-        self.set_secure_cookie(STATE_COOKIE_NAME, state, expires_days=1, httponly=True)
 
 
 class LTI13CallbackHandler(OAuthCallbackHandler):

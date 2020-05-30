@@ -206,5 +206,7 @@ class LTI13LaunchValidator(LoggingConfigurable):
             raise HTTPError(400, 'Missing resource_link id value')
         if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/target_link_uri'] == '':
             raise HTTPError(400, 'Missing target_link_uri value')
+        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/target_link_uri'] == '':
+            raise HTTPError(400, 'Missing target_link_uri value')
 
         return True
