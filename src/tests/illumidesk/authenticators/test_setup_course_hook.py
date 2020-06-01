@@ -53,12 +53,12 @@ async def test_setup_course_hook_raises_environment_error_with_missing_org(monke
 
 
 @pytest.mark.asyncio()
-async def test_setup_course_hook_calls_add_student_to_jupyterhub_group_when_role_is_learner(
+async def test_setup_course_hook_raises_json_decode_error_without_client_fetch_response(
     monkeypatch, setup_course_environ, setup_course_hook_environ
 ):
     """
-    Is the jupyterhub_api add student to jupyterhub group function called when the user role is
-    the learner role?
+    Does the setup course hook raise a json decode error if the response form the setup course
+    microservice is null or empty?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
     local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
@@ -77,3 +77,53 @@ async def test_setup_course_hook_calls_add_student_to_jupyterhub_group_when_role
             with patch.object(AsyncHTTPClient, 'fetch', return_value=result_async()):
                 with pytest.raises(JSONDecodeError):
                     await setup_course_hook(local_authenticator, local_handler, local_authentication)
+
+
+@pytest.mark.asyncio()
+async def test_setup_course_hook_calls_add_student_to_jupyterhub_group_when_role_is_learner(
+    setup_course_environ, setup_course_hook_environ
+):
+    """
+    Is the jupyterhub_api add student to jupyterhub group function called when the user role is
+    the learner role?
+    """
+    local_authentication = factory_auth_state_dict()
+    local_authentication['auth_state']['user_role'] == 'Learner'
+    with patch.object(
+        JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None
+    ) as mock_add_student_to_jupyterhub_group:
+        with patch.object(JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None):
+            mock_add_student_to_jupyterhub_group.called
+
+
+@pytest.mark.asyncio()
+async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_is_learner(
+    monkeypatch, setup_course_environ, setup_course_hook_environ
+):
+    """
+    Is the jupyterhub_api add user to nbgrader gradebook function called when the user role is
+    the learner role?
+    """
+    local_authentication = factory_auth_state_dict()
+    local_authentication['auth_state']['user_role'] == 'Learner'
+    with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
+        with patch.object(
+            JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None
+        ) as mock_add_user_to_nbgrader_gradebook:
+            mock_add_user_to_nbgrader_gradebook.called
+
+
+@pytest.mark.asyncio()
+async def test_setup_course_hook_calls_add_instructor_to_jupyterhub_group_when_role_is_instructor(
+    monkeypatch, setup_course_environ, setup_course_hook_environ
+):
+    """
+    Is the jupyterhub_api add instructor to jupyterhub group function called when the user role is
+    the instructor role?
+    """
+    local_authentication = factory_auth_state_dict()
+    local_authentication['auth_state']['user_role'] == 'Instructor'
+    with patch.object(
+        JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
+    ) as mock_add_instructor_to_jupyterhub_group:
+        mock_add_instructor_to_jupyterhub_group.called
