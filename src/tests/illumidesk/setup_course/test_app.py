@@ -8,11 +8,11 @@ from illumidesk.setup_course.course import Course
 
 
 @pytest.mark.asyncio
-async def test_config_path_returns_empty_dict(test_client):
+async def test_config_path_returns_empty_dict(test_quart_client):
     """
     Does the config endpoint return a non-empty json when app starts?
     """
-    response = await test_client.get('/config')
+    response = await test_quart_client.get('/config')
     assert response.status_code == 200
     data = await response.get_data(raw=False)
     data_as_json = json.loads(data)
@@ -21,17 +21,17 @@ async def test_config_path_returns_empty_dict(test_client):
 
 
 @pytest.mark.asyncio
-async def test_post_method_returns_BadRequest_without_data(test_client):
+async def test_post_method_returns_BadRequest_without_data(test_quart_client):
     """
     Does the creation endpoint return 400 as BadRequest when data is None?
     """
-    response = await test_client.post('/')
+    response = await test_quart_client.post('/')
     assert response.status_code == 400
 
 
 @pytest.mark.asyncio
 async def test_post_method_result_contains_is_new_setup_as_bool(
-    setup_course_environ, test_client, jupyterhub_api_environ
+    setup_course_environ, test_quart_client, jupyterhub_api_environ
 ):
     """
     Does the POST endpoint return a boolean value to indicate if new setup was occured?
@@ -47,7 +47,7 @@ async def test_post_method_result_contains_is_new_setup_as_bool(
             'domain': 'example.com',
         }
 
-        response = await test_client.post('/', json=data)
+        response = await test_quart_client.post('/', json=data)
         resp_data = await response.get_json()
         assert 'is_new_setup' in resp_data
         assert isinstance(resp_data['is_new_setup'], bool)
@@ -55,7 +55,7 @@ async def test_post_method_result_contains_is_new_setup_as_bool(
 
 @pytest.mark.asyncio
 async def test_post_method_result_indicates_when_a_new_setup_was_created(
-    setup_course_environ, test_client, jupyterhub_api_environ
+    setup_course_environ, test_quart_client, jupyterhub_api_environ
 ):
     """
     Does the creation endpoint return 400 as BadRequest when data is None?
@@ -80,7 +80,7 @@ async def test_post_method_result_indicates_when_a_new_setup_was_created(
             'domain': 'example.com',
         }
 
-        response = await test_client.post('/', json=data)
+        response = await test_quart_client.post('/', json=data)
         resp_data = await response.get_json()
         assert 'is_new_setup' in resp_data
         assert isinstance(resp_data['is_new_setup'], bool)
@@ -88,7 +88,7 @@ async def test_post_method_result_indicates_when_a_new_setup_was_created(
 
 
 @pytest.mark.asyncio
-async def test_post_method_creates_new_service_definition_in_config(setup_course_environ, test_client):
+async def test_post_method_creates_new_service_definition_in_config(setup_course_environ, test_quart_client):
     """
     Does the new course is returned by the config endpoint?
     """
@@ -104,9 +104,9 @@ async def test_post_method_creates_new_service_definition_in_config(setup_course
             'domain': 'example.com',
         }
         # create the course
-        _ = await test_client.post('/', json=data)
+        _ = await test_quart_client.post('/', json=data)
         # check the jupyterhub config file
-        config_response = await test_client.get('/config')
+        config_response = await test_quart_client.get('/config')
         response_data = await config_response.get_data(raw=False)
         data_as_json = json.loads(response_data)
 

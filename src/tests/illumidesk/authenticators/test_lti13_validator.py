@@ -19,7 +19,7 @@ async def test_validator_jwt_verify_and_decode_invokes_retrieve_matching_jwk():
     validator = LTI13LaunchValidator()
     jwks_endoint = 'https://my.platform.domain/api/lti/security/jwks'
     with patch.object(
-        LTI13LaunchValidator, '_retrieve_matching_jwk', return_value=factory_lti13_platform_jwks()
+        validator, '_retrieve_matching_jwk', return_value=factory_lti13_platform_jwks()
     ) as mock_retrieve_matching_jwks:
         _ = await validator.jwt_verify_and_decode(dummy_lti13_id_token, jwks_endoint, True)
 
@@ -35,7 +35,7 @@ async def test_validator_jwt_verify_and_decode_returns_none_with_no_retrieved_pl
     validator = LTI13LaunchValidator()
     jwks_endoint = 'https://my.platform.domain/api/lti/security/jwks'
     with patch.object(
-        LTI13LaunchValidator, '_retrieve_matching_jwk', return_value=factory_lti13_empty_platform_jwks()
+        validator, '_retrieve_matching_jwk', return_value=factory_lti13_empty_platform_jwks()
     ) as mock_retrieve_matching_jwks:
         result = await validator.jwt_verify_and_decode(dummy_lti13_id_token, jwks_endoint, True)
 

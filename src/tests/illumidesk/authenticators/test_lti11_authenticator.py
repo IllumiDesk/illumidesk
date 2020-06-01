@@ -45,7 +45,7 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(lti11_auth
     """
     Do we get a valid username with lms vendors other than canvas?
     """
-    utils = LTIUtils()
+    utils = MagicMock(LTIUtils())
     utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
     utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
@@ -88,7 +88,6 @@ async def test_authenticator_uses_lti11validator():
 @pytest.mark.asyncio
 async def test_authenticator_invokes_validator_with_decoded_dict():
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True) as mock_validator:
-
         authenticator = LTI11Authenticator()
         handler = Mock(spec=RequestHandler)
         request = HTTPServerRequest(method='POST', uri='/hub', host='example.com')
@@ -116,7 +115,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
     """
     Are we able to handle requests with a missing lis_outcome_service_url key?
     """
-    utils = LTIUtils()
+    utils = MagicMock(LTIUtils())
     utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
     utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
@@ -146,7 +145,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
     """
     Are we able to handle requests with a missing lis_result_sourcedid key?
     """
-    utils = LTIUtils()
+    utils = MagicMock(LTIUtils())
     utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
     utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
@@ -176,7 +175,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
     """
     Are we able to handle requests with lis_result_sourcedid set to an empty value?
     """
-    utils = LTIUtils()
+    utils = MagicMock(LTIUtils())
     utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
     utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
@@ -206,7 +205,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
     """
     Are we able to handle requests with lis_outcome_service_url set to an empty value?
     """
-    utils = LTIUtils()
+    utils = MagicMock(LTIUtils())
     utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
     utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):

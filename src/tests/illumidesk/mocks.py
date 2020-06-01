@@ -1,16 +1,17 @@
+# Sourced from https://github.com/jupyterhub/oauthenticator/blob/master/oauthenticator/tests/mocks.py
 import os
-
-from tornado.web import Application
-from tornado.httputil import HTTPServerRequest
 
 from unittest.mock import Mock
 
+from tornado.httputil import HTTPServerRequest
+from tornado.web import Application
+from tornado.web import RequestHandler
 
-# sourced from https://github.com/jupyterhub/oauthenticator
-def mock_handler(Handler, uri='https://hub.example.com', method='GET', **settings):
-    """
-    Instantiate a Handler in a mock application
-    """
+
+def mock_handler(
+    handler: RequestHandler, uri: str = 'https://hub.example.com', method: str = 'GET', **settings: dict
+) -> RequestHandler:
+    """Instantiate a Handler in a mock application"""
     application = Application(
         hub=Mock(base_url='/hub/', server=Mock(base_url='/hub/'),),
         cookie_secret=os.urandom(32),
@@ -18,6 +19,6 @@ def mock_handler(Handler, uri='https://hub.example.com', method='GET', **setting
         **settings,
     )
     request = HTTPServerRequest(method=method, uri=uri, connection=Mock(),)
-    handler = Handler(application=application, request=request,)
+    handler = RequestHandler(application=application, request=request,)
     handler._transforms = []
     return handler

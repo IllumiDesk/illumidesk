@@ -1,5 +1,6 @@
 import os
 import json
+from json import JSONDecodeError
 import logging
 
 from jupyterhub.auth import Authenticator
@@ -12,6 +13,7 @@ from oauthenticator.oauth2 import OAuthenticator
 
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
+from tornado.web import RequestHandler
 
 from traitlets import Unicode
 
@@ -31,11 +33,13 @@ logger = logging.getLogger(__name__)
 
 
 async def setup_course_hook(
-    authenticator: Authenticator, handler: BaseHandler, authentication: Dict[str, str]
+    authenticator: Authenticator, handler: RequestHandler, authentication: Dict[str, str]
 ) -> Dict[str, str]:
     """
     Calls the microservice to setup up a new course in case it does not exist.
-    The data needed is received from auth_State within authentication object
+    The data needed is received from auth_state within authentication object. This
+    function assumes that the required k/v's in the auth_state dictionary are available,
+    since the Authenticator(s) validates the data beforehand.
 
     This function requires `Authenticator.enable_auth_state = True` and is intended
     to be used as a post_auth_hook.
@@ -50,20 +54,20 @@ async def setup_course_hook(
         authentication (Required): updated authentication object
     """
     announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
-    username = authentication['name']
-    if 'lms_user_id' in authentication['auth_state']:
-        lms_user_id = authentication['auth_state']['lms_user_id']
-
-    course_id = authentication['auth_state']['course_id']
-    role = authentication['auth_state']['user_role']
     org = os.environ.get('ORGANIZATION_NAME')
+    if not org:
+        raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
+    username = authentication['name']
+    lms_user_id = authentication['auth_state']['lms_user_id']
+    course_id = authentication['auth_state']['course_id']
+    user_role = authentication['auth_state']['user_role']
     jupyterhub_api = JupyterHubAPI()
     # TODO: verify the logic to simplify groups creation and membership
-    if role == 'Student' or role == 'Learner':
+    if user_role == 'Student' or user_role == 'Learner':
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
         await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
         await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
-    elif role == 'Instructor':
+    elif user_role == 'Instructor':
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
     client = AsyncHTTPClient()
@@ -77,6 +81,8 @@ async def setup_course_hook(
     url = f'http://{service_name}:{port}'
     headers = {'Content-Type': 'application/json'}
     response = await client.fetch(url, headers=headers, body=json.dumps(data), method='POST')
+    if not response.body:
+        raise JSONDecodeError('The setup course response body is empty', '', 0)
     resp_json = json.loads(response.body)
     logger.debug(f'Setup-Course service response: {resp_json}')
 
@@ -218,8 +224,9 @@ class LTI11Authenticator(LTIAuthenticator):
                     raise HTTPError(400, 'Unable to get username from request arguments')
             self.log.debug('Assigned username is: %s' % username)
 
-            # use the user_id as the lms_user_id, used to map usernames to lms user ids
-            lms_user_id = args['user_id']
+            # use the user_id to identify the unique user id, if its not sent with the request
+            # then default to the username
+            lms_user_id = args['user_id'] if 'user_id' in args else username
 
             # with all info extracted from lms request, register info for grades sender only if the user has
             # the Learner role
