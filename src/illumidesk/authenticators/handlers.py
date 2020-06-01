@@ -36,20 +36,6 @@ class LTI11AuthenticateHandler(BaseHandler):
         self.redirect(self.get_body_argument('custom_next', self.get_next_url()))
 
 
-class CILogonLoginHandler(OAuthLoginHandler):
-    """See http://www.cilogon.org/oidc for general information."""
-
-    def authorize_redirect(self, *args, **kwargs):
-        """Add idp, skin to redirect params"""
-        extra_params = kwargs.setdefault('extra_params', {})
-        if self.authenticator.idp:
-            extra_params["selected_idp"] = self.authenticator.idp
-        if self.authenticator.skin:
-            extra_params["skin"] = self.authenticator.skin
-
-        return super().authorize_redirect(*args, **kwargs)
-
-
 class LTI13LoginHandler(OAuthLoginHandler, OAuth2Mixin):
     """
     Handles JupyterHub authentication requests according to the
