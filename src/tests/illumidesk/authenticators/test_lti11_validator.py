@@ -3,7 +3,7 @@ import pytest
 from tornado.web import HTTPError
 
 from illumidesk.authenticators.authenticator import LTI11LaunchValidator
-from illumidesk.tests.factory import factory_lti11_basic_launch_args
+from tests.illumidesk.factory import factory_lti11_basic_launch_args
 
 
 def test_basic_lti11_launch_request():

@@ -1,5 +1,25 @@
 coverage:
-  range: 75..100
-  round: down
-  precision: 2
-  patch: off
+  status:
+    project:
+      default: false
+      tests:
+        target: 100%
+        paths: "src/tests/"
+        branches: 
+          - master
+        if_not_found: success
+        if_ci_failed: error
+        informational: false
+        only_pulls: false
+      app:
+        target: auto
+        threshold: 0%
+        base: auto
+        paths: 
+          - "!src/tests/"
+        branches: 
+          - master
+        if_not_found: success
+        if_ci_failed: error
+        informational: false
+        only_pulls: false

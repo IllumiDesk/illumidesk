@@ -7,9 +7,9 @@ from unittest.mock import patch
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 
-from illumidesk.tests.mocks import mock_handler
-from illumidesk.tests.factory import dummy_lti13_id_token
-from illumidesk.tests.factory import factory_lti13_resource_link_request
+from tests.illumidesk.mocks import mock_handler
+from tests.illumidesk.factory import dummy_lti13_id_token
+from tests.illumidesk.factory import factory_lti13_resource_link_request
 
 
 @pytest.mark.asyncio
