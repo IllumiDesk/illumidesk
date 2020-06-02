@@ -7,9 +7,6 @@ from unittest.mock import Mock
 from illumidesk.authenticators.utils import LTIUtils
 
 
-RegExpType = type(re.compile('.'))
-
-
 def test_normalize_name_for_containers_with_long_name():
     """
     Does a container name with more than 20 characters get normalized?
