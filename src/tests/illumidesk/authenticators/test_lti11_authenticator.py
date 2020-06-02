@@ -45,9 +45,6 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(lti11_auth
     """
     Do we get a valid username with lms vendors other than canvas?
     """
-    utils = LTIUtils()
-    utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
-    utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
         handler = Mock(
