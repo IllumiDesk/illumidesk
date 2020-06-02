@@ -3,6 +3,8 @@ import os
 
 from unittest.mock import Mock
 
+from unittest.mock import Mock
+
 from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
 from tornado.web import RequestHandler

@@ -304,7 +304,7 @@ class LTI13Authenticator(OAuthenticator):
         """,
     ).tag(config=True)
 
-    async def authenticate(self, handler: BaseHandler, data: Dict[str, str] = None) -> Dict[str, str]:
+    async def authenticate(self, handler: LTI13LoginHandler, data: Dict[str, str] = None) -> Dict[str, str]:
         """
         Overrides authenticate from base class to handle LTI 1.3 authentication requests.
 

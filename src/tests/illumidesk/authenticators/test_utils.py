@@ -1,5 +1,7 @@
 import re
 
+import pytest
+
 from tornado.web import RequestHandler
 
 from unittest.mock import Mock
@@ -40,6 +42,17 @@ def test_normalize_name_for_containers_with_first_letter_as_alphanumeric():
     regex = re.compile('_.-')
     first_character = normalized_container_name[0]
     assert first_character != regex.search(normalized_container_name)
+
+
+def test_normalize_name_for_containers_raises_value_error_with_missing_name():
+    """
+    Does a missing container name raise a value error?
+    """
+    container_name = ''
+    utils = LTIUtils()
+
+    with pytest.raises(ValueError):
+        utils.normalize_name_for_containers(container_name)
 
 
 def test_get_protocol_with_more_than_one_value():
