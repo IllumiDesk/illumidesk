@@ -116,12 +116,9 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
     """
     Are we able to handle requests with a missing lis_outcome_service_url key?
     """
-    utils = LTIUtils()
-    utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
-    utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = factory_lti11_complete_launch_args('canvas')
+        args = factory_lti11_complete_launch_args('canvas', 'Learner')        
         del args['lis_outcome_service_url']
         handler = Mock(
             spec=RequestHandler,
@@ -134,7 +131,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-                'user_role': 'Instructor',
+                'user_role': 'Learner',
             },
         }
         assert result == expected
@@ -146,12 +143,9 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
     """
     Are we able to handle requests with a missing lis_result_sourcedid key?
     """
-    utils = LTIUtils()
-    utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
-    utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = factory_lti11_complete_launch_args('canvas')
+        args = factory_lti11_complete_launch_args('canvas', 'Learner')
         del args['lis_result_sourcedid']
         handler = Mock(
             spec=RequestHandler,
@@ -164,7 +158,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-                'user_role': 'Instructor',
+                'user_role': 'Learner',
             },
         }
         assert result == expected
@@ -176,12 +170,9 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
     """
     Are we able to handle requests with lis_result_sourcedid set to an empty value?
     """
-    utils = LTIUtils()
-    utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
-    utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = factory_lti11_complete_launch_args('canvas')
+        args = factory_lti11_complete_launch_args('canvas', 'Learner')
         args['lis_result_sourcedid'] = ''
         handler = Mock(
             spec=RequestHandler,
@@ -194,7 +185,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-                'user_role': 'Instructor',
+                'user_role': 'Learner',
             },
         }
         assert result == expected
@@ -206,12 +197,9 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
     """
     Are we able to handle requests with lis_outcome_service_url set to an empty value?
     """
-    utils = LTIUtils()
-    utils.convert_request_to_dict = MagicMock(name='convert_request_to_dict')
-    utils.convert_request_to_dict(3, 4, 5, key='value')
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = factory_lti11_complete_launch_args('canvas')
+        args = factory_lti11_complete_launch_args('canvas', 'Learner')
         args['lis_outcome_service_url'] = ''
         handler = Mock(
             spec=RequestHandler,
@@ -224,7 +212,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-                'user_role': 'Instructor',
+                'user_role': 'Learner',
             },
         }
         assert result == expected
