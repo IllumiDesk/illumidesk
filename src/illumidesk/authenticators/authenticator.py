@@ -230,7 +230,9 @@ class LTI11Authenticator(LTIAuthenticator):
                     lis_outcome_service_url = args['lis_outcome_service_url']
                 if 'lis_result_sourcedid' in args and args['lis_result_sourcedid'] is not None:
                     lis_result_sourcedid = args['lis_result_sourcedid']
-                control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
+                # only if both values exist we can register them to submit grades later
+                if lis_outcome_service_url and lis_result_sourcedid:
+                    control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
 
             return {
                 'name': username,
