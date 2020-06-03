@@ -15,7 +15,6 @@ from oauthenticator.oauth2 import OAuthCallbackHandler
 from oauthenticator.oauth2 import STATE_COOKIE_NAME
 
 from tornado import web
-from tornado.auth import OAuth2Mixin
 
 from typing import Dict
 
@@ -36,21 +35,7 @@ class LTI11AuthenticateHandler(BaseHandler):
         self.redirect(self.get_body_argument('custom_next', self.get_next_url()))
 
 
-class CILogonLoginHandler(OAuthLoginHandler):
-    """See http://www.cilogon.org/oidc for general information."""
-
-    def authorize_redirect(self, *args, **kwargs):
-        """Add idp, skin to redirect params"""
-        extra_params = kwargs.setdefault('extra_params', {})
-        if self.authenticator.idp:
-            extra_params["selected_idp"] = self.authenticator.idp
-        if self.authenticator.skin:
-            extra_params["skin"] = self.authenticator.skin
-
-        return super().authorize_redirect(*args, **kwargs)
-
-
-class LTI13LoginHandler(OAuthLoginHandler, OAuth2Mixin):
+class LTI13LoginHandler(OAuthLoginHandler):
     """
     Handles JupyterHub authentication requests according to the
     LTI 1.3 standard.
@@ -128,7 +113,7 @@ class LTI13LoginHandler(OAuthLoginHandler, OAuth2Mixin):
 
 class LTI13CallbackHandler(OAuthCallbackHandler):
     """
-    LTI v1p3 call back handler
+    LTI 1.3 call back handler
     """
 
     async def post(self):
@@ -140,6 +125,6 @@ class LTI13CallbackHandler(OAuthCallbackHandler):
         self.check_state()
         user = await self.login_user()
         if user is None:
-            raise web.HTTPError(403)
+            raise web.HTTPError(403, 'User missing or null')
         self.redirect(self.get_next_url(user))
         self.log.debug('Redirecting user %s to %s' % (user.id, self.get_next_url(user)))

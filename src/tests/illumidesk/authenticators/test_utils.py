@@ -9,6 +9,26 @@ from unittest.mock import Mock
 from illumidesk.authenticators.utils import LTIUtils
 
 
+def test_normalize_name_for_containers_raises_value_error_with_missing_name():
+    """
+    Does a missing container name raise a value error?
+    """
+    container_name = ''
+    utils = LTIUtils()
+    with pytest.raises(ValueError):
+        normalized_container_name = utils.normalize_name_for_containers(container_name)
+
+
+def test_normalize_name_for_containers_return_false_with_missing_name():
+    """
+    Does a missing container name raise a value error?
+    """
+    container_name = ''
+    utils = LTIUtils()
+    with pytest.raises(ValueError):
+        normalized_container_name = utils.normalize_name_for_containers(container_name)
+
+
 def test_normalize_name_for_containers_with_long_name():
     """
     Does a container name with more than 20 characters get normalized?

@@ -331,18 +331,24 @@ class LTI13Authenticator(OAuthenticator):
 
         if validator.validate_launch_request(jwt_decoded):
             course_label = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
-            self.course_id = lti_utils.normalize_name_for_containers(course_label)
-            self.log.debug('Normalized course_label is %s' % self.course_id)
+            course_id = lti_utils.normalize_name_for_containers(course_label)
+            self.log.debug('Normalized course label is %s' % course_id)
             username = ''
-            if 'email' in jwt_decoded and jwt_decoded['email'] is not None:
+            if 'email' in jwt_decoded.keys() and jwt_decoded.get('email'):
                 username = lti_utils.email_to_username(jwt_decoded['email'])
-            elif 'given_name' in jwt_decoded and jwt_decoded['name'] is not None:
-                username = jwt_decoded['name']
+            elif 'name' in jwt_decoded.keys() and jwt_decoded.get('name'):
+                username = lti_utils.normalize_name_for_containers(jwt_decoded.get('name'))
+            elif 'given_name' in jwt_decoded.keys() and jwt_decoded.get('given_name'):
+                username = lti_utils.normalize_name_for_containers(jwt_decoded.get('given_name'))
+            elif 'family_name' in jwt_decoded.keys() and jwt_decoded.get('family_name'):
+                username = lti_utils.normalize_name_for_containers(jwt_decoded.get('family_name'))
             elif (
                 'person_sourcedid' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']
-                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid'] is not None
+                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid']
             ):
-                username = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid']
+                username = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid'].lower()
+            if username == '':
+                raise HTTPError('Unable to set the username')
             self.log.debug('username is %s' % username)
 
             user_role = ''
@@ -359,9 +365,5 @@ class LTI13Authenticator(OAuthenticator):
 
             return {
                 'name': username,
-                'auth_state': {
-                    'course_id': self.course_id,
-                    'user_role': user_role,
-                    'lms_user_id': username,
-                },  # noqa: E231
+                'auth_state': {'course_id': course_id, 'user_role': user_role, 'lms_user_id': username,},  # noqa: E231
             }

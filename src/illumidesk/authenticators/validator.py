@@ -19,7 +19,7 @@ from typing import Dict
 
 from .constants import LTI11_LAUNCH_PARAMS_REQUIRED
 from .constants import LTI11_OAUTH_ARGS
-from .constants import LTI13_REQUIRED_CLAIMS
+from .constants import ILLUMIDESK_LTI13_REQUIRED_CLAIMS
 
 
 class LTI11LaunchValidator(LoggingConfigurable):
@@ -181,7 +181,11 @@ class LTI13LaunchValidator(LoggingConfigurable):
 
     def validate_launch_request(self, jwt_decoded: Dict[str, Any],) -> bool:
         """
-        Validates that a given LTI 1.3 launch request has the required and/or optional claims.
+        Validates that a given LTI 1.3 launch request has the required required claims The
+        required claims combine the required claims according to the LTI 1.3 standard and the
+        required claims for this setup to work properly, which are obtaind from the LTI 1.3 standard
+        optional claims and LIS optional claims.
+
         The required claims are defined as constants.
 
         Args:
@@ -191,22 +195,31 @@ class LTI13LaunchValidator(LoggingConfigurable):
           True if the validation passes, False otherwise.
 
         Raises:
-          HTTPError if a required argument is not included in the request.
+          HTTPError if a required claim is not included in the dictionary or if the message_type and/or
+          version claims do not have the correct value.
         """
-        for claim, v in LTI13_REQUIRED_CLAIMS.items():
+        for claim, v in ILLUMIDESK_LTI13_REQUIRED_CLAIMS.items():
             if claim not in jwt_decoded.keys():
                 raise HTTPError(400, 'Required claim %s not included in request' % claim)
-        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/message_type'] != 'LtiResourceLinkRequest':
-            raise HTTPError(400, 'Incorrect message type value')
-        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/version'] != '1.3.0':
-            raise HTTPError(400, 'Incorrect version value')
-        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/deployment_id'] == '':
-            raise HTTPError(400, 'Missing deployment_id value')
-        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/resource_link']['id'] == '':
-            raise HTTPError(400, 'Missing resource_link id value')
-        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/target_link_uri'] == '':
-            raise HTTPError(400, 'Missing target_link_uri value')
-        if jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/target_link_uri'] == '':
-            raise HTTPError(400, 'Missing target_link_uri value')
-
+            if (
+                'https://purl.imsglobal.org/spec/lti/claim/message_type' in jwt_decoded.keys()
+                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/message_type')
+                != 'LtiResourceLinkRequest'
+            ):
+                raise HTTPError(400, 'Incorrect value %s for message type claim' % v)
+            if (
+                'https://purl.imsglobal.org/spec/lti/claim/version' in jwt_decoded.keys()
+                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/version') != '1.3.0'
+            ):
+                raise HTTPError(400, 'Incorrect value %s for version claim' % v)
+            if (
+                'https://purl.imsglobal.org/spec/lti/claim/resource_link' in jwt_decoded.keys()
+                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/resource_link').get('id') == ''
+            ):
+                raise HTTPError(400, 'Incorrect value %s for message type claim' % v)
+            if (
+                'https://purl.imsglobal.org/spec/lti/claim/context' in jwt_decoded.keys()
+                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/context').get('label') == ''
+            ):
+                raise HTTPError(400, 'Missing course context label %s for claim' % claim)
         return True

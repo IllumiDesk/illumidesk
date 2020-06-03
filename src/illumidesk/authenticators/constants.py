@@ -78,6 +78,7 @@ LTI13_REQUIRED_CLAIMS = {
 }
 
 # Optional message claims
+# We don't need the role_scope_mentor claim and some platforms don't send this claim by default.
 # http://www.imsglobal.org/spec/lti/v1p3/#optional-message-claims
 LTI13_OPTIONAL_CLAIMS = {
     'https://purl.imsglobal.org/spec/lti/claim/resource_link': {'description': '', 'title': '',},  # noqa: E231
@@ -92,7 +93,7 @@ LTI13_OPTIONAL_CLAIMS = {
             'http://purl.imsglobal.org/vocab/lis/v2/course#Group',
         ],
     },
-    # user identity claims. sub is added to optional list to support anonymous
+    # user identity claims. sub (subject) is added to optional list to support anonymous
     # launches.
     'sub': '',
     'given_name': '',
@@ -107,7 +108,6 @@ LTI13_OPTIONAL_CLAIMS = {
         'product_family_code': '',
         'version': '',
     },
-    'https://purlimsglobal.org/spec/lti/claim/role_scope_mentor': [''],
     'https://purl.imsglobal.org/spec/lti/claim/launch_presentation': {
         # one of frame, iframe, window
         'document_target': '',
@@ -128,6 +128,16 @@ LTI13_LIS_CLAIMS = {
         'result_sourcedid': '',
     },
 }
+
+# For this setup to work properly, some optional claims are required.
+ILLUMIDESK_LTI13_REQUIRED_CLAIMS = {**LTI13_REQUIRED_CLAIMS, **LTI13_OPTIONAL_CLAIMS}
+ILLUMIDESK_LTI13_RESOURCE_LINKS = {
+    **LTI13_REQUIRED_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/resource_link'],
+    **LTI13_OPTIONAL_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/resource_link'],
+}
+ILLUMIDESK_LTI13_REQUIRED_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/resource_link'].update(
+    ILLUMIDESK_LTI13_RESOURCE_LINKS
+)
 
 LTI13_ROLE_VOCABULARIES = {
     'SYSTEM_ROLES': {
