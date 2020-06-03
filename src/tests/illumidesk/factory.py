@@ -85,7 +85,7 @@ def factory_lti11_basic_launch_args(oauth_consumer_key: str, oauth_consumer_secr
     return args
 
 
-def factory_lti11_complete_launch_args(lms_vendor: str) -> Dict[str, str]:
+def factory_lti11_complete_launch_args(lms_vendor: str, role: str = 'Instructor') -> Dict[str, str]:
     """
     Valid response when retrieving jwks from the platform.
     """
@@ -121,7 +121,7 @@ def factory_lti11_complete_launch_args(lms_vendor: str) -> Dict[str, str]:
         'oauth_callback': ['about:blank'.encode()],
         'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
         'resource_link_title': ['IllumiDesk'.encode()],
-        'roles': ['Instructor'.encode()],
+        'roles': ['Instructor'.encode() if role == 'Instructor' else role.encode()],
         'tool_consumer_info_product_family_code': [lms_vendor.encode()],
         'tool_consumer_info_version': ['cloud'.encode()],
         'tool_consumer_instance_contact_email': ['notifications@mylms.com'.encode()],
