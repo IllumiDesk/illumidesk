@@ -1,5 +1,6 @@
 import os
 import json
+from json import JSONDecodeError
 import logging
 
 from jupyterhub.auth import Authenticator
@@ -12,6 +13,7 @@ from oauthenticator.oauth2 import OAuthenticator
 
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
+from tornado.web import RequestHandler
 
 from traitlets import Unicode
 
@@ -31,11 +33,13 @@ logger = logging.getLogger(__name__)
 
 
 async def setup_course_hook(
-    authenticator: Authenticator, handler: BaseHandler, authentication: Dict[str, str]
+    authenticator: Authenticator, handler: RequestHandler, authentication: Dict[str, str]
 ) -> Dict[str, str]:
     """
     Calls the microservice to setup up a new course in case it does not exist.
-    The data needed is received from auth_State within authentication object
+    The data needed is received from auth_state within authentication object. This
+    function assumes that the required k/v's in the auth_state dictionary are available,
+    since the Authenticator(s) validates the data beforehand.
 
     This function requires `Authenticator.enable_auth_state = True` and is intended
     to be used as a post_auth_hook.
@@ -50,20 +54,20 @@ async def setup_course_hook(
         authentication (Required): updated authentication object
     """
     announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
-    username = authentication['name']
-    if 'lms_user_id' in authentication['auth_state']:
-        lms_user_id = authentication['auth_state']['lms_user_id']
-
-    course_id = authentication['auth_state']['course_id']
-    role = authentication['auth_state']['user_role']
     org = os.environ.get('ORGANIZATION_NAME')
+    if not org:
+        raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
+    username = authentication['name']
+    lms_user_id = authentication['auth_state']['lms_user_id']
+    course_id = authentication['auth_state']['course_id']
+    user_role = authentication['auth_state']['user_role']
     jupyterhub_api = JupyterHubAPI()
     # TODO: verify the logic to simplify groups creation and membership
-    if role == 'Student' or role == 'Learner':
+    if user_role == 'Student' or user_role == 'Learner':
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
         await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
         await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
-    elif role == 'Instructor':
+    elif user_role == 'Instructor':
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
     client = AsyncHTTPClient()
@@ -77,6 +81,8 @@ async def setup_course_hook(
     url = f'http://{service_name}:{port}'
     headers = {'Content-Type': 'application/json'}
     response = await client.fetch(url, headers=headers, body=json.dumps(data), method='POST')
+    if not response.body:
+        raise JSONDecodeError('The setup course response body is empty', '', 0)
     resp_json = json.loads(response.body)
     logger.debug(f'Setup-Course service response: {resp_json}')
 
@@ -113,7 +119,7 @@ class LTI11Authenticator(LTIAuthenticator):
     def get_handlers(self, app: JupyterHub) -> BaseHandler:
         return [('/lti/launch', LTI11AuthenticateHandler)]
 
-    async def authenticate(self, handler: BaseHandler, data: Dict[str, str] = None) -> Dict[str, str]:
+    async def authenticate(self, handler: BaseHandler, data: Dict[str, str] = None) -> Dict[str, str]:  # noqa: C901
         """
         LTI 1.1 authenticator which overrides authenticate function from base LTIAuthenticator.
         After validating the LTI 1.1 signuature, this function decodes the dictionary object
@@ -218,14 +224,15 @@ class LTI11Authenticator(LTIAuthenticator):
                     raise HTTPError(400, 'Unable to get username from request arguments')
             self.log.debug('Assigned username is: %s' % username)
 
-            # use the user_id as the lms_user_id, used to map usernames to lms user ids
-            lms_user_id = args['user_id']
+            # use the user_id to identify the unique user id, if its not sent with the request
+            # then default to the username
+            lms_user_id = args['user_id'] if 'user_id' in args else username
 
             # with all info extracted from lms request, register info for grades sender only if the user has
             # the Learner role
             lis_outcome_service_url = None
             lis_result_sourcedid = None
-            if user_role == 'Learner':                
+            if user_role == 'Learner':
                 # the next fields must come in args
                 if 'lis_outcome_service_url' in args and args['lis_outcome_service_url'] is not None:
                     lis_outcome_service_url = args['lis_outcome_service_url']
@@ -234,7 +241,9 @@ class LTI11Authenticator(LTIAuthenticator):
                 # only if both values exist we can register them to submit grades later
                 if lis_outcome_service_url and lis_result_sourcedid:
                     control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
-                    control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
+                    control_file.register_data(
+                        assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
+                    )
 
             return {
                 'name': username,
@@ -301,7 +310,7 @@ class LTI13Authenticator(OAuthenticator):
         """,
     ).tag(config=True)
 
-    async def authenticate(self, handler: BaseHandler, data: Dict[str, str] = None) -> Dict[str, str]:
+    async def authenticate(self, handler: LTI13LoginHandler, data: Dict[str, str] = None) -> Dict[str, str]:
         """
         Overrides authenticate from base class to handle LTI 1.3 authentication requests.
 
@@ -328,18 +337,24 @@ class LTI13Authenticator(OAuthenticator):
 
         if validator.validate_launch_request(jwt_decoded):
             course_label = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
-            self.course_id = lti_utils.normalize_name_for_containers(course_label)
-            self.log.debug('Normalized course_label is %s' % self.course_id)
+            course_id = lti_utils.normalize_name_for_containers(course_label)
+            self.log.debug('Normalized course label is %s' % course_id)
             username = ''
-            if 'email' in jwt_decoded and jwt_decoded['email'] is not None:
+            if 'email' in jwt_decoded.keys() and jwt_decoded.get('email'):
                 username = lti_utils.email_to_username(jwt_decoded['email'])
-            elif 'given_name' in jwt_decoded and jwt_decoded['name'] is not None:
-                username = jwt_decoded['name']
+            elif 'name' in jwt_decoded.keys() and jwt_decoded.get('name'):
+                username = lti_utils.normalize_name_for_containers(jwt_decoded.get('name'))
+            elif 'given_name' in jwt_decoded.keys() and jwt_decoded.get('given_name'):
+                username = lti_utils.normalize_name_for_containers(jwt_decoded.get('given_name'))
+            elif 'family_name' in jwt_decoded.keys() and jwt_decoded.get('family_name'):
+                username = lti_utils.normalize_name_for_containers(jwt_decoded.get('family_name'))
             elif (
                 'person_sourcedid' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']
-                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid'] is not None
+                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid']
             ):
-                username = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid']
+                username = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid'].lower()
+            if username == '':
+                raise HTTPError('Unable to set the username')
             self.log.debug('username is %s' % username)
 
             user_role = ''
@@ -356,9 +371,5 @@ class LTI13Authenticator(OAuthenticator):
 
             return {
                 'name': username,
-                'auth_state': {
-                    'course_id': self.course_id,
-                    'user_role': user_role,
-                    'lms_user_id': username,
-                },  # noqa: E231
+                'auth_state': {'course_id': course_id, 'user_role': user_role, 'lms_user_id': username,},  # noqa: E231
             }

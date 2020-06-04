@@ -1,33 +1,23 @@
-from os import chmod, environ
+from os import chmod
+from os import environ
+
 import pytest
 
-from Crypto.PublicKey import RSA
-from tests.illumidesk.mocks import mock_handler
 from tornado.web import RequestHandler
+
 from unittest.mock import patch
 
 from illumidesk.handlers.lti import LTI13ConfigHandler
 
-
-@pytest.fixture
-def pem_file(tmp_path):
-    key = RSA.generate(2048)
-    key_path = f'{tmp_path}/private.key'
-    with open(key_path, 'wb') as content_file:
-        content_file.write(key.exportKey('PEM'))
-    return key_path
-
-
-@pytest.fixture(scope="function")
-def lti_config_environ(monkeypatch, pem_file):
-    """
-    Set the enviroment variables used in Course class
-    """
-    monkeypatch.setenv('LTI13_PRIVATE_KEY', pem_file)
+from tests.illumidesk.mocks import mock_handler
 
 
 @pytest.mark.asyncio
-async def test_get_method_raises_an_error_without_LTI13_PRIVATE_KEY():
+async def test_get_method_raises_an_error_without_lti13_private_key():
+    """
+    Is an environment error raised if the LTI13_PRIVATE_KEY env var is not set
+    after calling the handler's method?
+    """
     handler = mock_handler(RequestHandler)
     config_handler = LTI13ConfigHandler(handler.application, handler.request)
     with pytest.raises(EnvironmentError):
@@ -36,6 +26,10 @@ async def test_get_method_raises_an_error_without_LTI13_PRIVATE_KEY():
 
 @pytest.mark.asyncio
 async def test_get_method_raises_permission_error_if_pem_file_is_protected(lti_config_environ):
+    """
+    Is a permissions error raised if the private key is protected after calling the
+    handler's method?
+    """
     handler = mock_handler(RequestHandler)
     config_handler = LTI13ConfigHandler(handler.application, handler.request)
     # change pem permission
@@ -48,10 +42,13 @@ async def test_get_method_raises_permission_error_if_pem_file_is_protected(lti_c
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
 async def test_get_method_reads_the_pem_file(mock_write, lti_config_environ):
+    """
+    Is the private key written to the output buffer after after calling the handler's
+    get method?
+    """
     handler = mock_handler(RequestHandler)
     config_handler = LTI13ConfigHandler(handler.application, handler.request)
-    print(handler.__dict__)
-    # the next method only write the output to internal buffer
+    # this method writes the output to internal buffer
     await config_handler.get()
 
     assert mock_write.called

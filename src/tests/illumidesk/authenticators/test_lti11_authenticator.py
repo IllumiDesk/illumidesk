@@ -5,12 +5,10 @@ from tornado.web import RequestHandler
 from tornado.httputil import HTTPServerRequest
 
 from unittest.mock import Mock
-from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.authenticator import LTI11Authenticator
-from illumidesk.authenticators.utils import LTIUtils
 from tests.illumidesk.factory import factory_lti11_complete_launch_args
 
 
@@ -85,7 +83,6 @@ async def test_authenticator_uses_lti11validator():
 @pytest.mark.asyncio
 async def test_authenticator_invokes_validator_with_decoded_dict():
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True) as mock_validator:
-
         authenticator = LTI11Authenticator()
         handler = Mock(spec=RequestHandler)
         request = HTTPServerRequest(method='POST', uri='/hub', host='example.com')
@@ -115,7 +112,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
     """
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = factory_lti11_complete_launch_args('canvas', 'Learner')        
+        args = factory_lti11_complete_launch_args('canvas', 'Learner')
         del args['lis_outcome_service_url']
         handler = Mock(
             spec=RequestHandler,
