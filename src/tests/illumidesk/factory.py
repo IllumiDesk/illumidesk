@@ -301,15 +301,21 @@ async def factory_http_response(
     reason: str = 'OK',
     headers: HTTPHeaders = HTTPHeaders({'content-type': 'application/json'}),
     effective_url: str = 'http://hub.example.com/',
-    body: Dict[str, str] = {"foo": "bar"},
+    body: Dict[str, str] = {'foo': 'bar'},
 ) -> HTTPResponse:
     """
     Creates an HTTPResponse object from a given request. The buffer key is used to
     add data to the response's body using an io.StringIO object. This factory method assumes
     the body's buffer is an encoded JSON string.
 
-    This factory method requires a tornado.web.RequestHandler object with a valid request property,
-    which in turn requires a valid jupyterhub.auth.Authenticator object.
+    This awaitable factory method requires a tornado.web.RequestHandler object with a valid
+    request property, which in turn requires a valid jupyterhub.auth.Authenticator object. Use
+    a dictionary to represent the StringIO body in the response.
+
+    Example:
+
+        response_args = {'handler': local_handler.request, 'body': {'code': 200}}
+        http_response = await factory_http_response(**response_args)
 
     Args:
       handler: tornado.web.RequestHandler object.
@@ -318,7 +324,7 @@ async def factory_http_response(
       headers: HTTPHeaders (response header object), use the dict within the constructor, e.g.
         {"content-type": "application/json"}
       effective_url: final location of the resource after following any redirects
-      buffer: io.StringIO object for response body
+      body: dictionary that represents the StringIO (buffer) body
     
     Returns:
       A tornado.client.HTTPResponse object
