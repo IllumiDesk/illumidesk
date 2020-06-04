@@ -234,7 +234,27 @@ async def test_setup_course_hook_initialize_data_dict(setup_course_environ, setu
 
 
 @pytest.mark.asyncio()
-async def test_is_new_course_initiates_rolling_update(setup_course_environ, setup_course_hook_environ):
+async def test_setup_course_hook_initializes_url_variable_with_host_and_port(
+    setup_course_environ, setup_course_hook_environ
+):
+    """
+    Is the url and port for the setup course service endpoint correctly set?
+    """
+    service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME')
+    docker_port = os.environ.get('DOCKER_SETUP_COURSE_PORT')
+    announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT')
+    url = f'http://localhost:{int(announcement_port)}/services/announcement'
+    actual_service_name_url = f'http://{service_name}:{docker_port}'
+    expected_service_name_url = 'http://setup-course:8000'
+    expected_announcement_url = 'http://localhost:8889/services/announcement'
+    actual_announcement_url = f'http://localhost:{int(announcement_port)}/services/announcement'
+
+    assert expected_service_name_url == actual_service_name_url
+    assert expected_announcement_url == actual_announcement_url
+
+
+@pytest.mark.asyncio()
+async def test_is_new_course_initiates_rolling_update(event_loop, setup_course_environ, setup_course_hook_environ):
     """
     If the course is a new setup does it initiate a rolling update?
     """
@@ -242,11 +262,10 @@ async def test_is_new_course_initiates_rolling_update(setup_course_environ, setu
     local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = factory_auth_state_dict()
     local_response = factory_http_response(handler=local_handler.request, body={'is_new_setup': True})
+    client = AsyncHTTPClient()
 
-    with patch.object(
-        JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None
-    ) as mock_add_student_to_jupyterhub_group:
+    with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
         with patch.object(JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None):
-            with patch.object(AsyncHTTPClient, 'fetch', return_value=local_response):
-                with patch.object(AsyncHTTPClient, 'fetch', return_value=local_response):
-                    await setup_course_hook(local_authenticator, local_handler, local_authentication)
+            with patch.object(client, 'fetch', return_value=local_response):
+                event_loop.run_until_complete(client())
+                result = await setup_course_hook(local_authenticator, local_handler, local_authentication)
