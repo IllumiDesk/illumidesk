@@ -284,8 +284,8 @@ async def test_is_new_course_initiates_rolling_update(setup_course_environ, setu
                 side_effect=[
                     factory_http_response(**response_args),
                     factory_http_response(**response_args),
-                    factory_http_response(**response_args),
-                ],
+                    None,
+                ],  # noqa: E231
             ) as mock_client:
 
                 await setup_course_hook(local_authenticator, local_handler, local_authentication)

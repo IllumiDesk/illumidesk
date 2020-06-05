@@ -8,7 +8,7 @@ course_id: "{{ course_id_param | default('intro101') }}"
 
 ## Upstream jupyterhub/jupyterhub and jupyter/docker-stacks hash commits
 # https://github.com/jupyter/docker-stacks/commit/e00fd05364dffa4f0547498afe16d9a35f7f0eef
-git_nb_hash_commit: "{{ git_nb_hash_commit_param | default('e00fd05364dffa4f0547498afe16d9a35f7f0eef') }}"
+git_nb_hash_commit: "{{ git_nb_hash_commit_param | default('8e8cbd0a0af7adddc8387f72b3b56d46115cf14a') }}"
 # https://github.com/jupyterhub/jupyterhub/commit/65de8c49167738fde9d7e88245593301a2a6a42a
 git_jhub_hash_commit: "{{ git_jhub_hash_commit_param | default('22f86ad76c437d37bc26c28d9fecfa5457ef5974') }}"
 

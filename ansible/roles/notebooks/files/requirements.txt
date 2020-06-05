@@ -6,11 +6,11 @@ chart-studio==1.1
 dash==1.12
 ipywidgets==7.5
 jupyter-contrib-nbextensions==0.5
+jupyter-dash==0.2.1.post1
+jupyter_server_proxy==1.5.0
 plotly==4.7.1
 plotly-charts==0.5
 plotly-geo==1.0
 psycopg2-binary==2.8.5
 yellowbrick==1.1
 widgetsnbextension
-jupyter-dash==0.2.1.post1
-jupyter_server_proxy==1.5.0
