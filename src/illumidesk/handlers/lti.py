@@ -103,7 +103,10 @@ class LTI13ConfigHandler(BaseHandler):
                 'use': 'sig',
             },
             'description': 'IllumiDesk Learning Tools Interoperability (LTI) v1.3 tool.',
-            'custom_fields': {'email': '$Person.email.primary'},
+            'custom_fields': {
+                'email': '$Person.email.primary',
+                'lms_user_id': '$User.id',
+            },
             'public_jwk_url': f'{target_link_url}hub/jwks',
             'target_link_uri': target_link_url,
             'oidc_initiation_url': f'{target_link_url}hub/oauth_login',
