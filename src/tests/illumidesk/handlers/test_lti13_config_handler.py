@@ -66,7 +66,7 @@ async def test_get_calls_write_method_with_a_json(mock_write, lti_config_environ
     # call_args is a list
     write_args = mock_write.call_args[0]
     # write_args == tuple
-    json_arg = write_args[0]    
+    json_arg = write_args[0]
     assert type(json_arg) == str
     assert json.loads(json_arg)
 
@@ -81,7 +81,16 @@ async def test_get_method_writes_a_json_with_required_keys(mock_write, lti_confi
     config_handler = LTI13ConfigHandler(handler.application, handler.request)
     # this method writes the output to internal buffer
     await config_handler.get()
-    keys_at_0_level_expected = ['title', 'target_link_uri', 'scopes', 'public_jwk_url', 'public_jwk', 'oidc_initiation_url', 'extensions', 'custom_fields']
+    keys_at_0_level_expected = [
+        'title',
+        'target_link_uri',
+        'scopes',
+        'public_jwk_url',
+        'public_jwk',
+        'oidc_initiation_url',
+        'extensions',
+        'custom_fields',
+    ]
     # call_args is a list
     # so we're only extracting the json arg
     json_arg = mock_write.call_args[0][0]
@@ -98,7 +107,7 @@ async def test_get_method_writes_our_company_name_in_the_title_field(mock_write,
     handler = mock_handler(RequestHandler)
     config_handler = LTI13ConfigHandler(handler.application, handler.request)
     # this method writes the output to internal buffer
-    await config_handler.get()    
+    await config_handler.get()
     # call_args is a list
     # so we're only extracting the json arg
     json_arg = mock_write.call_args[0][0]
@@ -115,7 +124,7 @@ async def test_get_method_writes_email_field_within_custom_fields(mock_write, lt
     handler = mock_handler(RequestHandler)
     config_handler = LTI13ConfigHandler(handler.application, handler.request)
     # this method writes the output to internal buffer
-    await config_handler.get()    
+    await config_handler.get()
     # call_args is a list
     # so we're only extracting the json arg
     json_arg = mock_write.call_args[0][0]
@@ -133,11 +142,10 @@ async def test_get_method_writes_lms_user_id_field_within_custom_fields(mock_wri
     handler = mock_handler(RequestHandler)
     config_handler = LTI13ConfigHandler(handler.application, handler.request)
     # this method writes the output to internal buffer
-    await config_handler.get()    
+    await config_handler.get()
     # call_args is a list
     # so we're only extracting the json arg
     json_arg = mock_write.call_args[0][0]
     custom_fields = json.loads(json_arg)['custom_fields']
     assert 'lms_user_id' in custom_fields
     assert '$User.id' == custom_fields['lms_user_id']
-
