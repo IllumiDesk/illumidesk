@@ -82,7 +82,7 @@ class LTI13ConfigHandler(BaseHandler):
                                 'message_type': 'LtiResourceLinkRequest',
                                 'windowTarget': '_blank',
                                 'target_link_uri': target_link_url,
-                                'custom_fields': {'email': '$Person.email.primary'},
+                                'custom_fields': {'email': '$Person.email.primary', 'lms_user_id': '$User.id',},
                             },
                             {
                                 'placement': 'assignment_selection',

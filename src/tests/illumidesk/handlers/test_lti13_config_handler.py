@@ -135,6 +135,39 @@ async def test_get_method_writes_email_field_within_custom_fields(mock_write, lt
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
+async def test_get_method_writes_email_custom_field_within_each_course_navigation_placement(
+    mock_write, lti_config_environ
+):
+    """
+    Does the get method write 'email' field in custom_fields within each course_navigation placement setting?
+    """
+    handler = mock_handler(RequestHandler)
+    config_handler = LTI13ConfigHandler(handler.application, handler.request)
+    # this method writes the output to internal buffer
+    await config_handler.get()
+    # call_args is a list
+    # so we're only extracting the json arg
+    json_arg = mock_write.call_args[0][0]
+    extensions = json.loads(json_arg)['extensions']
+    course_navigation_placement = None
+    for ext in extensions:
+        # find the settings field in each extension to ensure a course_navigation placement was used
+        if 'settings' in ext and 'placements' in ext['settings']:
+            course_navigation_placement = [
+                placement
+                for placement in ext['settings']['placements']
+                if placement['placement'] == 'course_navigation'
+            ]
+
+            assert course_navigation_placement
+            placement_custom_fields = course_navigation_placement[0]['custom_fields']
+            assert placement_custom_fields
+            assert placement_custom_fields['email']
+            assert placement_custom_fields['email'] == '$Person.email.primary'
+
+
+@pytest.mark.asyncio
+@patch('tornado.web.RequestHandler.write')
 async def test_get_method_writes_lms_user_id_field_within_custom_fields(mock_write, lti_config_environ):
     """
     Does the get method write 'lms_user_id' field within custom_fields and use the $User.id property?
@@ -149,3 +182,36 @@ async def test_get_method_writes_lms_user_id_field_within_custom_fields(mock_wri
     custom_fields = json.loads(json_arg)['custom_fields']
     assert 'lms_user_id' in custom_fields
     assert '$User.id' == custom_fields['lms_user_id']
+
+
+@pytest.mark.asyncio
+@patch('tornado.web.RequestHandler.write')
+async def test_get_method_writes_lms_user_id_custom_field_within_each_course_navigation_placement(
+    mock_write, lti_config_environ
+):
+    """
+    Does the get method write 'lms_user_id' field in custom_fields within each course_navigation placement setting?
+    """
+    handler = mock_handler(RequestHandler)
+    config_handler = LTI13ConfigHandler(handler.application, handler.request)
+    # this method writes the output to internal buffer
+    await config_handler.get()
+    # call_args is a list
+    # so we're only extracting the json arg
+    json_arg = mock_write.call_args[0][0]
+    extensions = json.loads(json_arg)['extensions']
+    course_navigation_placement = None
+    for ext in extensions:
+        # find the settings field in each extension to ensure a course_navigation placement was used
+        if 'settings' in ext and 'placements' in ext['settings']:
+            course_navigation_placement = [
+                placement
+                for placement in ext['settings']['placements']
+                if placement['placement'] == 'course_navigation'
+            ]
+
+            assert course_navigation_placement
+            placement_custom_fields = course_navigation_placement[0]['custom_fields']
+            assert placement_custom_fields
+            assert placement_custom_fields['lms_user_id']
+            assert placement_custom_fields['lms_user_id'] == '$User.id'
