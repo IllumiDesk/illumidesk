@@ -29,7 +29,7 @@ class GradesBaseSender:
         self.course_id = course_id
         self.assignment_name = assignment_name
 
-    def send(self):
+    def send_grades(self):
         raise NotImplementedError()
 
 
@@ -236,3 +236,7 @@ class LTIGradeSender(GradesBaseSender):
                 else:
                     logger.error('An error occurred while saving your score. Please try again.')
                     raise GradesSenderCriticalError
+
+class LTI13GradeSender(GradesBaseSender):
+    def send_grades(self):
+        pass
