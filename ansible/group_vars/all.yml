@@ -7,9 +7,9 @@ org_name: "{{ org_name_param | default('my-org') }}"
 course_id: "{{ course_id_param | default('intro101') }}"
 
 ## Upstream jupyterhub/jupyterhub and jupyter/docker-stacks hash commits
-# https://github.com/jupyter/docker-stacks/commit/e00fd05364dffa4f0547498afe16d9a35f7f0eef
-git_nb_hash_commit: "{{ git_nb_hash_commit_param | default('8e8cbd0a0af7adddc8387f72b3b56d46115cf14a') }}"
-# https://github.com/jupyterhub/jupyterhub/commit/65de8c49167738fde9d7e88245593301a2a6a42a
+# https://github.com/jupyter/docker-stacks/commit/76402a27fd13e649a3166b1da5a162ac476912bf
+git_nb_hash_commit: "{{ git_nb_hash_commit_param | default('76402a27fd13e649a3166b1da5a162ac476912bf') }}"
+# https://github.com/jupyterhub/jupyterhub/commit/fd28e224f2de5e7b525483330150988ec3e295c6
 git_jhub_hash_commit: "{{ git_jhub_hash_commit_param | default('fd28e224f2de5e7b525483330150988ec3e295c6') }}"
 
 # upstream source images
