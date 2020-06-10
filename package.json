@@ -1,6 +1,6 @@
 {
     "name": "illumidesk",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "description": "Teach and learning with web-based notebooks!",
     "scripts": {
         "release": "standard-version"
