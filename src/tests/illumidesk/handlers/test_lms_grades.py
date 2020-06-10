@@ -5,11 +5,13 @@ import pytest
 
 from unittest.mock import patch
 
-from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
-from illumidesk.handlers.lms_grades import LTIGradeSender
-from illumidesk.handlers.lms_grades import GradesSenderCriticalError
-from illumidesk.handlers.lms_grades import AssignmentWithoutGradesError
-from illumidesk.handlers.lms_grades import GradesSenderMissingInfoError
+from illumidesk.grades.senders import LTIGradesSenderControlFile
+from illumidesk.grades.senders import LTIGradeSender
+from illumidesk.grades.exceptions import (
+    GradesSenderCriticalError,
+    AssignmentWithoutGradesError,
+    GradesSenderMissingInfoError,
+)
 
 
 @pytest.fixture

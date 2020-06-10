@@ -8,7 +8,7 @@ from docker.errors import NotFound
 from unittest.mock import Mock
 from unittest.mock import MagicMock
 
-from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
+from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 
 @pytest.fixture(scope='function')
