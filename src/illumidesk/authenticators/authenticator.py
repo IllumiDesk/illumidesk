@@ -286,8 +286,8 @@ class LTI13Authenticator(OAuthenticator):
         os.getenv('LTI13_CALLBACK_URL', ''),
         config=True,
         help="""Callback URL to use.
-        Defaults to `https://{host}/hub/oauth_callback` and should match the redirect_uri
-        sent from the platform during the initial login request.""",
+        Should match the redirect_uri sent from the platform during the
+        initial login request.""",
     ).tag(config=True)
 
     async def authenticate(self, handler: LTI13LoginHandler, data: Dict[str, str] = None) -> Dict[str, str]:
