@@ -55,13 +55,14 @@ class LTI13LoginHandler(OAuthLoginHandler):
         http://www.imsglobal.org/spec/lti/v1p3/#additional-login-parameters-0
         
         Args:
-          client_id: used to identify the tool's installation in a platform
+          client_id: used to identify the tool's installation with a platform
           redirect_uri: redirect url specified during tool installation (callback url)
           login_hint: opaque value used by the platform for user identity
           lti_message_hint: signed JWT which contains information needed to perform the
             launch including issuer, user and context information
-          nonce: unique value to protect against replay attacks
-          state: state value sent from platform
+          nonce: unique value sent to allow recipients to protect themselves against replay attacks
+          state: opaque value for the platform to maintain state between the request and
+            callback and provide Cross-Site Request Forgery (CSRF) mitigation.
         """
         # use the first argument to set up dictionary. the first four k/v's are defined
         # by the lti standard. the rest are sent by the platform with the login request.
