@@ -134,34 +134,6 @@ def factory_lti11_complete_launch_args(lms_vendor: str, role: str = 'Instructor'
     return args
 
 
-def factory_lti13_login_params(
-    client_id: str = '125900000000000071',
-    redirect_uri: str = 'https://example.com/hub/oauth_login',
-    lti_message_hint: str = 'abc123',
-    login_hint: str = 'zxy456',
-    state: str = 'my-login-state',
-    nonce: str = '123123123',
-):
-    """
-    Creates a dictionary with k/v's that emulates a login request.
-    """
-    params = {
-        'response_type': ['id_token'.encode()],
-        'scope': ['openid'.encode()],
-        'client_id': [client_id.encode()],
-        'redirect_uri': [redirect_uri.encode()],
-        'extra_params': {
-            'response_mode': ['form_post'.encode()],
-            'lti_message_hint': [lti_message_hint.encode()],
-            'prompt': ['none'.encode()],
-            'login_hint': [login_hint.encode()],
-            'state': [state.encode()],
-            'nonce': [nonce.encode()],
-        },
-    }
-    return params
-
-
 def factory_lti13_resource_link_request() -> Dict[str, str]:
     """
     Return valid json after decoding JSON Web Token (JWT) for resource link launch (core).
