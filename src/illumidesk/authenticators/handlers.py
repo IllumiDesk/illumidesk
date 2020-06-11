@@ -130,27 +130,31 @@ class LTI13LoginHandler(OAuthLoginHandler):
         Validates required login arguments sent from platform and then uses
         the ``authorize_redirect()`` to redirect users to the authorization url.
         """
-        login_hint = self.get_argument('login_hint')
-        self.log.debug('login_hint is %s' % login_hint)
-        lti_message_hint = self.get_argument('lti_message_hint')
-        self.log.debug('lti_message_hint is %s' % lti_message_hint)
-        client_id = self.get_argument('client_id')
-        self.log.debug('client_id is %s' % client_id)
-        redirect_uri = self.get_argument('redirect_uri')
-        self.log.info('redirect_uri: %r', redirect_uri)
-        state = self.get_state()
-        self.set_state_cookie(state)
-        # TODO: validate that received nonces haven't been received before
-        # and that they are within the time-based tolerance window
-        nonce = str(str(randbits(64)) + str(int(time.time())))
-        self.authorize_redirect(
-            client_id=client_id,
-            login_hint=login_hint,
-            lti_message_hint=lti_message_hint,
-            nonce=nonce,
-            redirect_uri=redirect_uri,
-            state=state,
-        )
+        lti_utils = LTIUtils()
+        validator = LTI13LaunchValidator()
+        args = lti_utils.convert_request_to_dict(self.request.arguments)
+        if validator.validate_authentication_request(args):
+            login_hint = args['login_hint']
+            self.log.debug('login_hint is %s' % login_hint)
+            lti_message_hint = args['lti_message_hint']
+            self.log.debug('lti_message_hint is %s' % lti_message_hint)
+            client_id = args['client_id']
+            self.log.debug('client_id is %s' % client_id)
+            redirect_uri = args['redirect_uri']
+            self.log.info('redirect_uri: %r', redirect_uri)
+            state = self.get_state()
+            self.set_state_cookie(state)
+            # TODO: validate that received nonces haven't been received before
+            # and that they are within the time-based tolerance window
+            nonce = 'abc123'
+            self.authorize_redirect(
+                client_id=client_id,
+                login_hint=login_hint,
+                lti_message_hint=lti_message_hint,
+                nonce=nonce,
+                redirect_uri=redirect_uri,
+                state=state,
+            )
 
 
 class LTI13CallbackHandler(OAuthCallbackHandler):
