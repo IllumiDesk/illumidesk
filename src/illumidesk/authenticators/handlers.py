@@ -1,6 +1,5 @@
 import logging
-import randbits
-import time
+import os
 
 from jupyterhub.handlers import BaseHandler
 
@@ -12,6 +11,9 @@ from tornado.httputil import url_concat
 from tornado.web import RequestHandler
 
 from typing import cast
+
+from illumidesk.authenticators.validator import LTI13LaunchValidator
+from illumidesk.authenticators.utils import LTIUtils
 
 
 logger = logging.getLogger(__name__)
@@ -64,8 +66,6 @@ class LTI13LoginHandler(OAuthLoginHandler):
           state: opaque value for the platform to maintain state between the request and
             callback and provide Cross-Site Request Forgery (CSRF) mitigation.
         """
-        # use the first argument to set up dictionary. the first four k/v's are defined
-        # by the lti standard. the rest are sent by the platform with the login request.
         handler = cast(RequestHandler, self)
         args = {'response_type': 'id_token'}
         args['scope'] = 'openid'
@@ -77,15 +77,17 @@ class LTI13LoginHandler(OAuthLoginHandler):
         extra_params['response_mode'] = 'form_post'
         extra_params['prompt'] = 'none'
         if login_hint is not None:
-            extra_params['login_hint'] = (login_hint,)
+            extra_params['login_hint'] = login_hint
         if lti_message_hint is not None:
-            extra_params['lti_message_hint'] = (lti_message_hint,)
+            extra_params['lti_message_hint'] = lti_message_hint
         if state is not None:
             extra_params['state'] = (state,)
         if nonce is not None:
             extra_params['nonce'] = (nonce,)
         args.update(extra_params)
-        url = self._OAUTH_AUTHORIZE_URL  # type: ignore
+        url = os.environ.get('LTI13_AUTHORIZE_URL')
+        if not url:
+            raise EnvironmentError('LTI13_AUTHORIZE_URL env var is not set')
         handler.redirect(url_concat(url, args))
 
     def post(self):
@@ -93,27 +95,31 @@ class LTI13LoginHandler(OAuthLoginHandler):
         Validates required login arguments sent from platform and then uses
         the ``authorize_redirect()`` to redirect users to the authorization url.
         """
-        login_hint = self.get_argument('login_hint')
-        self.log.debug('login_hint is %s' % login_hint)
-        lti_message_hint = self.get_argument('lti_message_hint')
-        self.log.debug('lti_message_hint is %s' % lti_message_hint)
-        client_id = self.get_argument('client_id')
-        self.log.debug('client_id is %s' % client_id)
-        redirect_uri = self.get_argument('redirect_uri')
-        self.log.info('redirect_uri: %r', redirect_uri)
-        state = self.get_state()
-        self.set_state_cookie(state)
-        # TODO: validate that received nonces haven't been received before
-        # and that they are within the time-based tolerance window
-        nonce = str(str(randbits(64)) + str(int(time.time())))
-        self.authorize_redirect(
-            client_id=client_id,
-            login_hint=login_hint,
-            lti_message_hint=lti_message_hint,
-            nonce=nonce,
-            redirect_uri=redirect_uri,
-            state=state,
-        )
+        lti_utils = LTIUtils()
+        validator = LTI13LaunchValidator()
+        args = lti_utils.convert_request_to_dict(self.request.arguments)
+        if validator.validate_authentication_request(args):
+            login_hint = args['login_hint']
+            self.log.debug('login_hint is %s' % login_hint)
+            lti_message_hint = args['lti_message_hint']
+            self.log.debug('lti_message_hint is %s' % lti_message_hint)
+            client_id = args['client_id']
+            self.log.debug('client_id is %s' % client_id)
+            redirect_uri = args['redirect_uri']
+            self.log.info('redirect_uri: %r', redirect_uri)
+            state = self.get_state()
+            self.set_state_cookie(state)
+            # TODO: validate that received nonces haven't been received before
+            # and that they are within the time-based tolerance window
+            nonce = 'abc123'
+            self.authorize_redirect(
+                client_id=client_id,
+                login_hint=login_hint,
+                lti_message_hint=lti_message_hint,
+                nonce=nonce,
+                redirect_uri=redirect_uri,
+                state=state,
+            )
 
 
 class LTI13CallbackHandler(OAuthCallbackHandler):

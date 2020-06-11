@@ -256,14 +256,7 @@ class LTI11Authenticator(LTIAuthenticator):
 
 
 class LTI13Authenticator(OAuthenticator):
-    """
-    endpoint: The LTI 1.3 endpoint used to retrieve JWT access tokens.
-    Official specification: https://www.imsglobal.org/node/162751 section.
-    authorize_url: Authorization URL that represents the LTI 1.3 / OAuth2 authorization
-    server's endpoint to obtain an acccess token based on authorization grant.
-    token_url: The LTI 1.3 endpoint used to retrieve JWT access tokens. Official
-    specification: https://www.imsglobal.org/node/162751.
-    """
+    """Custom authenticator used with LTI 1.3 requests"""
 
     login_service = 'LTI13Authenticator'
 
@@ -279,6 +272,14 @@ class LTI13Authenticator(OAuthenticator):
         help="""
         The LTI 1.3 client id that identifies the tool installation with the
         platform.
+        """,
+    ).tag(config=True)
+
+    endpoint = Unicode(
+        '',
+        help="""
+        The platform's base endpoint used when redirecting requests to the platform
+        after receiving the initial login request.
         """,
     ).tag(config=True)
 
