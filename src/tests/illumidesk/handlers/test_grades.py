@@ -34,15 +34,17 @@ def send_grades_handler_lti13():
 
 
 @pytest.mark.asyncio
-@patch('illumidesk.grades.senders.LTIGradeSender.send_grades')
+#@patch('illumidesk.grades.senders.LTIGradeSender.send_grades')
 @patch('tornado.web.RequestHandler.write')
-async def test_SendGradesHandler_calls_authenticator_class_property(mock_write, mock_send_grades, send_grades_handler_lti11):
+async def test_SendGradesHandler_calls_authenticator_class_property(mock_write, send_grades_handler_lti11):
     """
     Does the SendGradesHandler uses authenticator_class property to get what authenticator was set?
     """
-    with patch.object(SendGradesHandler, 'authenticator_class', callable=PropertyMock) as mock_authenticator_property:
-        await send_grades_handler_lti11.post('course_example', 'assignment_test')
-        mock_authenticator_property.called
+    with patch.object(LTIGradeSender, 'send_grades', return_value=None):
+        with patch.object(SendGradesHandler, 'authenticator_class', callable=PropertyMock) as mock_authenticator_property:
+            mock_authenticator_property.return_value = LTI11Authenticator
+            await send_grades_handler_lti11.post('course_example', 'assignment_test')
+            mock_authenticator_property.called
 
 
 @pytest.mark.asyncio
@@ -59,7 +61,9 @@ async def test_SendGradesHandler_authenticator_class_gets_its_value_from_setting
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
 async def test_SendGradesHandler_creates_a_LTIGradeSender_instance_when_LTI11Authenticator_was_set(mock_write, send_grades_handler_lti11):
-
+    """
+    Does the SendGradesHandler create a LTIGradeSender instance for lti11?
+    """
     with patch('illumidesk.handlers.lms_grades.LTIGradeSender') as mock_lti_grades_sender:
         await send_grades_handler_lti11.post('course_example', 'assignment_test')
         assert mock_lti_grades_sender.called
@@ -68,8 +72,19 @@ async def test_SendGradesHandler_creates_a_LTIGradeSender_instance_when_LTI11Aut
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
 async def test_SendGradesHandler_creates_a_LTI13GradeSender_instance_when_LTI13Authenticator_was_set(mock_write, send_grades_handler_lti13):
-
+    """
+    Does the SendGradesHandler create a LTI13GradeSender instance for lti13?
+    """
     with patch('illumidesk.handlers.lms_grades.LTI13GradeSender') as mock_lti13_grades_sender:
         await send_grades_handler_lti13.post('course_example', 'assignment_test')
         assert mock_lti13_grades_sender.called
-    
+
+@pytest.mark.asyncio
+@patch('tornado.web.RequestHandler.write')
+async def test_SendGradesHandler_calls_write_method(mock_write, send_grades_handler_lti13):
+    """
+    Does the SendGradesHandler call write base method?
+    """
+    with patch('illumidesk.handlers.lms_grades.LTI13GradeSender'):
+        await send_grades_handler_lti13.post('course_example', 'assignment_test')
+        assert mock_write.called

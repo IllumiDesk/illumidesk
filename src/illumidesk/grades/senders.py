@@ -1,12 +1,16 @@
-import os
+import datetime
 import json
-import time
 import logging
-from pathlib import Path
-from nbgrader.api import Gradebook
-from nbgrader.api import MissingEntry
+import time
+import os
+
 from filelock import FileLock
+from illumidesk.lti13.auth import get_lms_access_token
+from pathlib import Path
+
 from lti.outcome_request import OutcomeRequest
+from nbgrader.api import Gradebook, MissingEntry
+from tornado.httpclient import AsyncHTTPClient
 
 from .exceptions import (
     GradesSenderCriticalError,
@@ -29,8 +33,45 @@ class GradesBaseSender:
         self.course_id = course_id
         self.assignment_name = assignment_name
 
-    def send_grades(self):
+    async def send_grades(self):
         raise NotImplementedError()
+
+    @property
+    def grader_name(self):
+        return f'grader-{self.course_id}'
+
+    @property
+    def gradebook_dir(self):
+        return f'/home/{self.grader_name}/{self.course_id}'
+
+    def _retrieve_grades_from_db(self):
+        db_url = Path(self.gradebook_dir, 'gradebook.db')
+        # raise an error if the database does not exist
+        if not db_url.exists():
+            logger.error(f'Gradebook database file does not exist at: {db_url}.')
+            raise GradesSenderCriticalError
+
+        out = []
+        max_score = 0
+        # Create the connection to the gradebook database
+        with Gradebook(f'sqlite:///{db_url}', course_id=self.course_id) as gb:
+            try:
+                # retrieve the assignment record
+                assignment_row = gb.find_assignment(self.assignment_name)
+                max_score = assignment_row.max_score
+                submissions = gb.assignment_submissions(self.assignment_name)
+                logger.info(f'Found {len(submissions)} submissions for assignment: {self.assignment_name}')
+            except MissingEntry as e:
+                logger.info('Assignment or Submission is missing in database: %s' % e)
+                raise GradesSenderMissingInfoError
+
+            for submission in submissions:
+                # retrieve the student to use the lms id
+                student = gb.find_student(submission.student_id)
+                out.append({'score': submission.score, 'lms_user_id': student.lms_user_id})
+        logger.info(f'Grades found: {out}')
+        logger.info('max_score for this assignment %s' % max_score)
+        return max_score, out
 
 
 class LTIGradesSenderControlFile:
@@ -150,44 +191,7 @@ class LTIGradeSender(GradesBaseSender):
     def _message_identifier(self):
         return '{:.0f}'.format(time.time())
 
-    @property
-    def grader_name(self):
-        return f'grader-{self.course_id}'
-
-    @property
-    def gradebook_dir(self):
-        return f'/home/{self.grader_name}/{self.course_id}'
-
-    def _retrieve_grades_from_db(self):
-        db_url = Path(self.gradebook_dir, 'gradebook.db')
-        # raise an error if the database does not exist
-        if not db_url.exists():
-            logger.error(f'Gradebook database file does not exist at: {db_url}.')
-            raise GradesSenderCriticalError
-
-        out = []
-        max_score = 0
-        # Create the connection to the gradebook database
-        with Gradebook(f'sqlite:///{db_url}', course_id=self.course_id) as gb:
-            try:
-                # retrieve the assignment record
-                assignment_row = gb.find_assignment(self.assignment_name)
-                max_score = assignment_row.max_score
-                submissions = gb.assignment_submissions(self.assignment_name)
-                logger.info(f'Found {len(submissions)} submissions for assignment: {self.assignment_name}')
-            except MissingEntry as e:
-                logger.info('Assignment or Submission is missing in database: %s' % e)
-                raise GradesSenderMissingInfoError
-
-            for submission in submissions:
-                # retrieve the student to use the lms id
-                student = gb.find_student(submission.student_id)
-                out.append({'score': submission.score, 'lms_user_id': student.lms_user_id})
-        logger.info(f'Grades found: {out}')
-        logger.info('max_score for this assignment %s' % max_score)
-        return max_score, out
-
-    def send_grades(self) -> None:
+    async def send_grades(self) -> None:
         max_score, nbgrader_grades = self._retrieve_grades_from_db()
         if not nbgrader_grades:
             raise AssignmentWithoutGradesError
@@ -238,5 +242,60 @@ class LTIGradeSender(GradesBaseSender):
                     raise GradesSenderCriticalError
 
 class LTI13GradeSender(GradesBaseSender):
-    def send_grades(self):
-        pass
+
+    def __init__(self, course_id: str, assignment_name: str):
+        super(LTI13GradeSender, self).__init__(course_id, assignment_name)
+        self.lms_endpoint = os.environ['LTI13_ENDPOINT']
+        self.lineitems = f'{lms_endpoint}/api/lti/courses/{self.course_id}/line_items'
+
+    async def get_lms_token(self):
+        self.token = await get_lms_access_token(            
+            os.environ['LTI13_TOKEN_URL'],
+            os.environ['LTI13_PRIVATE_KEY'],
+            os.environ['LTI13_CLIENT_ID'],
+        )
+
+    async def send_grades(self):
+        await self.get_lms_token()
+        max_score, nbgrader_grades = self._retrieve_grades_from_db()
+        if not nbgrader_grades:
+            raise AssignmentWithoutGradesError
+
+        for grade in nbgrader_grades:
+            headers = {
+            'Authorization': '{token_type} {access_token}'.format(**self.token),
+            'Content-Type': 'application/vnd.ims.lis.v2.lineitem+json'
+            }
+            client = AsyncHTTPClient()
+            resp = await client.fetch(self.lineitems, headers=headers)
+            items = json.loads(resp.body)
+            logger.debug(f'LineItems got from {self.lineitems} -> {items}')
+            lineitem = None
+            for item in items:
+                if self.assignment_name.lower() == item['label'].lower():
+                    lineitem = item['id']
+                    logger.debug(f'There is a lineitem matched with the assignment {self.assignment_name}. {item}')
+                    break
+            if lineitem is None:
+                return
+            resp = await client.fetch(lineitem, headers=headers)
+            line_item = json.loads(resp.body)
+            logger.debug('Fetched lineitem info from lms %s' % line_item)
+            score = float(grade['score'])
+            # calculate the percentage
+            max_score = float(max_score)
+            score = score * 100 / max_score / 100
+            data = {
+                'timestamp': datetime.now().isoformat(),
+                'userId': grade['lms_user_id'],
+                'scoreGiven': score,
+                'scoreMaximum': line_item['scoreMaximum'],
+                'gradingProgress': 'FullyGraded',
+                'activityProgress': 'Completed',
+                'comment': '',
+            }
+            logger.info('data used to sent scores:', data)
+            headers.update({'Content-Type': 'application/vnd.ims.lis.v1.score+json'})
+            url = lineitem + '/scores'
+            logger.debug('URL for lineitem grades submission %s' % url)
+            await client.fetch(url, body=json.dumps(data), method='POST', headers=headers)

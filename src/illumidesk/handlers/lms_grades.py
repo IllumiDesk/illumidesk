@@ -28,7 +28,7 @@ class SendGradesHandler(BaseHandler):
             lti_grade_sender = LTI13GradeSender(course_id, assignment_name)
 
         try:
-            lti_grade_sender.send_grades()
+            await lti_grade_sender.send_grades()
         except exceptions.GradesSenderCriticalError:
             raise web.HTTPError(400, 'There was an critical error, please check logs.')
         except exceptions.AssignmentWithoutGradesError:
