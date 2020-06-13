@@ -5,10 +5,26 @@ from Crypto.PublicKey import RSA
 
 from docker.errors import NotFound
 
+from tornado.web import Application
+from tornado.web import RequestHandler
+
 from unittest.mock import Mock
 from unittest.mock import MagicMock
 
 from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
+
+
+@pytest.fixture(scope='module')
+def app():
+    class TestHandler(RequestHandler):
+        def get(self):
+            self.write("test")
+
+        def post(self):
+            self.write("test")
+
+    application = Application([(r'/', TestHandler),])  # noqa: E231
+    return application
 
 
 @pytest.fixture(scope='function')
@@ -51,7 +67,7 @@ def reset_file_loaded():
 @pytest.fixture(scope='function')
 def setup_course_environ(monkeypatch, tmp_path, jupyterhub_api_environ):
     """
-    Set the environment variables used in Course class
+    Set the environment variables used in Course class`
     """
     monkeypatch.setenv('MNT_ROOT', str(tmp_path))
     monkeypatch.setenv('NB_UID', '10001')
