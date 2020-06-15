@@ -16,22 +16,14 @@ from tests.illumidesk.mocks import mock_handler
 
 
 @pytest.mark.asyncio
-<<<<<<< HEAD
-async def test_lti_13_login_handler_no_args_body_raises_http_error():
-=======
-async def test_lti_13_login_handler_no_args_body_raises_missing_argument_error(lti13_auth_params):
->>>>>>> fa30ed6... add initial fixture
+async def test_lti_13_login_handler_no_args_body_raises_missing_argument_error():
     """
     Does the LTI13LoginHandler raise a missing argument error if request body doesn't have any
     arguments?
     """
     local_authenticator = LTI13Authenticator()
     local_handler = mock_handler(LTI13LoginHandler, authenticator=local_authenticator)
-<<<<<<< HEAD
-    with pytest.raises(HTTPError):
-=======
     with pytest.raises(MissingArgumentError):
->>>>>>> fa30ed6... add initial fixture
         await LTI13LoginHandler(local_handler.application, local_handler.request).post()
 
 
