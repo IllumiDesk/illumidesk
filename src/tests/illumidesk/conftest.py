@@ -8,10 +8,14 @@ from docker.errors import NotFound
 from tornado.web import Application
 from tornado.web import RequestHandler
 
+from typing import Any
+from typing import Dict
+
 from unittest.mock import Mock
 from unittest.mock import MagicMock
 
 from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
+from illumidesk.authenticators.utils import LTIUtils
 
 
 @pytest.fixture(scope='module')
@@ -66,7 +70,7 @@ def lti13_auth_params(
     login_hint: str = '185d6c59731a553009ca9b59ca3a885104ecb4ad',
     state: str = 'eyJzdGF0ZV9pZCI6ICI2ZjBlYzE1NjlhM2E0MDJkYWM2MTYyNjM2MWQwYzEyNSIsICJuZXh0X3VybCI6ICIvIn0=',
     nonce: str = '38048502278109788461591832959',
-):
+) -> Dict[str, Any]:
     """
     Creates a dictionary with k/v's that emulates a login request.
     """
@@ -75,16 +79,24 @@ def lti13_auth_params(
         'scope': ['openid'.encode()],
         'client_id': [client_id.encode()],
         'redirect_uri': [redirect_uri.encode()],
-        'extra_params': {
-            'response_mode': ['form_post'.encode()],
-            'lti_message_hint': [lti_message_hint.encode()],
-            'prompt': ['none'.encode()],
-            'login_hint': [login_hint.encode()],
-            'state': [state.encode()],
-            'nonce': [nonce.encode()],
-        },
+        'response_mode': ['form_post'.encode()],
+        'lti_message_hint': [lti_message_hint.encode()],
+        'prompt': ['none'.encode()],
+        'login_hint': [login_hint.encode()],
+        'state': [state.encode()],
+        'nonce': [nonce.encode()],
     }
     return params
+
+
+@pytest.fixture(scope='function')
+def lti13_auth_params_dict(lti13_auth_params) -> Dict[str, Any]:
+    """
+    Return the initial LTI 1.3 authorization request as a dict
+    """
+    utils = LTIUtils()
+    args = utils.convert_request_to_dict(lti13_auth_params)
+    return args
 
 
 @pytest.fixture
