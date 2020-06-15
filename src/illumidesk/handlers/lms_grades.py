@@ -59,6 +59,22 @@ class SendGradesHandler(BaseHandler):
     """
 
     async def post(self, course_id: str, assignment_name: str) -> None:
+        """
+        Receives a request with the course name and the assignment name as path parameters
+        which then uses the LTIGradeSender.send_grades function to extract data from the
+        grader's database and sends it to the tool consumer / platform.
+        
+        Arguments:
+          course_id: course name which has been previously normalized by the LTIUtils.normalize_name_for_containers
+            function.
+          assignment_name: assignment name which should coincide with the assignment name within the LMS.
+          
+        Raises:
+          GradesSenderCriticalError if there was a critical error when either extracting grades from the db
+            or sending grades to the tool consumer / platform.
+          AssignmentWithoutGradesError if the assignment does not have any grades associated to it.
+          GradesSenderMissingInfoError if ther is missing information when attempting to send grades.
+        """
         self.log.debug(f'Data received to send grades-> course:{course_id}, assignment:{assignment_name}')
 
         lti_grade_sender = LTIGradeSender(course_id, assignment_name)
