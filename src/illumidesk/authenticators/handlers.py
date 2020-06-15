@@ -7,7 +7,7 @@ from jupyterhub.handlers import BaseHandler
 from oauthenticator.oauth2 import OAuthLoginHandler
 from oauthenticator.oauth2 import OAuthCallbackHandler
 
-from tornado import web
+from tornado.web import HTTPError
 from tornado.httputil import url_concat
 from tornado.web import RequestHandler
 
@@ -131,13 +131,11 @@ class LTI13CallbackHandler(OAuthCallbackHandler):
 
     async def post(self):
         """
-        Checks the user's state by validating the user's current
-        cookie, logs in the user and then redirects the user to the
-        registered next url.
+        Overrides the upstream get handler with it's standard implementation.
         """
         self.check_state()
         user = await self.login_user()
         if user is None:
-            raise web.HTTPError(403, 'User missing or null')
+            raise HTTPError(403, 'User missing or null')
         self.redirect(self.get_next_url(user))
         self.log.debug('Redirecting user %s to %s' % (user.id, self.get_next_url(user)))
