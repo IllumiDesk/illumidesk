@@ -1,14 +1,20 @@
-import os
 import json
-import time
 import logging
+import os
 from pathlib import Path
-from tornado import web
+import time
+
+from filelock import FileLock
+
 from jupyterhub.handlers import BaseHandler
+
 from nbgrader.api import Gradebook
 from nbgrader.api import MissingEntry
-from filelock import FileLock
+
+from tornado.web import HTTPError
+
 from lti.outcome_request import OutcomeRequest
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -59,12 +65,12 @@ class SendGradesHandler(BaseHandler):
         try:
             lti_grade_sender.send_grades()
         except GradesSenderCriticalError:
-            raise web.HTTPError(400, 'There was an critical error, please check logs.')
+            raise HTTPError(400, 'There was an critical error, please check logs.')
         except AssignmentWithoutGradesError:
-            raise web.HTTPError(400, 'There are no grades yet to submit')
+            raise HTTPError(400, 'There are no grades yet to submit')
         except GradesSenderMissingInfoError:
-            raise web.HTTPError(400, 'Impossible to send grades. There are missing values, please check logs.')
-        self.write(json.dumps({"success": True}))
+            raise HTTPError(400, 'Unable to send grades. There are missing values, please check logs.')
+        self.write(json.dumps({'success': True}))
 
 
 class LTIGradesSenderControlFile:
