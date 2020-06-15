@@ -232,7 +232,7 @@ class LTI11Authenticator(LTIAuthenticator):
             # the Learner role
             lis_outcome_service_url = None
             lis_result_sourcedid = None
-            if user_role == 'Learner':
+            if user_role == 'Learner' or user_role == 'Student':
                 # the next fields must come in args
                 if 'lis_outcome_service_url' in args and args['lis_outcome_service_url'] is not None:
                     lis_outcome_service_url = args['lis_outcome_service_url']
