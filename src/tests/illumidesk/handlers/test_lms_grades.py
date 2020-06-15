@@ -5,11 +5,14 @@ import pytest
 
 from unittest.mock import patch
 
-from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
-from illumidesk.handlers.lms_grades import LTIGradeSender
-from illumidesk.handlers.lms_grades import GradesSenderCriticalError
 from illumidesk.handlers.lms_grades import AssignmentWithoutGradesError
+from illumidesk.handlers.lms_grades import GradesSenderCriticalError
+from illumidesk.handlers.lms_grades import LTIGradeSender
+from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
 from illumidesk.handlers.lms_grades import GradesSenderMissingInfoError
+from illumidesk.handlers.lms_grades import SendGradesHandler
+
+from tests.illumidesk.mocks import mock_handler
 
 
 @pytest.fixture
@@ -17,14 +20,13 @@ def reset_file_loaded():
     LTIGradesSenderControlFile.FILE_LOADED = False
 
 
-@pytest.mark.usefixtures("reset_file_loaded")
+@pytest.mark.usefixtures('reset_file_loaded')
 class TestLTIGradesSenderControlFile:
     def test_control_file_is_initialized_if_not_exists(self, tmp_path):
         """
         Does the LTIGradesSenderControlFile class initializes a file with an empty dict when it not exists?
         """
         sender_controlfile = LTIGradesSenderControlFile(tmp_path)
-        print('tmp_path', tmp_path)
         assert Path(sender_controlfile.config_fullname).stat().st_size > 0
         with Path(sender_controlfile.config_fullname).open('r') as file:
             assert json.load(file) == {}
@@ -97,16 +99,16 @@ class TestLTIGradesSenderControlFile:
         assert set([s['lms_user_id'] for s in saved['students']]) == {'user1', 'user2'}
 
 
-def test_grades_sender_raises_a_critical_error_when_gradebook_not_exits(tmp_path):
+def test_grades_sender_raises_a_critical_error_when_gradebook_does_not_exist(tmp_path):
     """
-    Does the sender raises an error when gradebook is not found?
+    Does the sender raises an error when the gradebook db is not found?
     """
     sender_controlfile = LTIGradeSender('course1', 'problem1')
     with pytest.raises(GradesSenderCriticalError):
         sender_controlfile.send_grades()
 
 
-def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
+def test_grades_sender_raises_an_error_if_there_are_no_grades(tmp_path):
     """
     Does the sender raises an error when there are no grades?
     """
@@ -119,7 +121,8 @@ def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
 
 def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(tmp_path):
     """
-    Does the sender raises an error when there are grades but control file not contains info related with?
+    Does the sender raise an error when there are grades but control file does not contain info related with
+    the gradebook data?
     """
     sender_controlfile = LTIGradeSender('course1', 'problem1')
     _ = LTIGradesSenderControlFile(tmp_path)
@@ -128,3 +131,20 @@ def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(t
     with patch.object(LTIGradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, grades_nbgrader)):
         with pytest.raises(GradesSenderMissingInfoError):
             sender_controlfile.send_grades()
+
+
+@pytest.mark.asyncio
+async def send_grades_handler_invokes_send_grades_method():
+    """
+    Does the SendGradesHandler call the send_grades function from the LTIGradeSender class?
+    """
+    course_id = 'course-name'
+    assignment_name = 'assignment-name'
+    local_handler = mock_handler(SendGradesHandler)
+    lti_grade_sender = LTIGradeSender(course_id, assignment_name)
+    lti_grade_sender.send_grades()
+    with patch.object(lti_grade_sender, 'send_grades', return_value=None) as mock_send_grades_handler:
+        result = await SendGradesHandler(local_handler.application, local_handler.request).post(
+            course_id, assignment_name
+        )
+        assert mock_send_grades_handler.called
