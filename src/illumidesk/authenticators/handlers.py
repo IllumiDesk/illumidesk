@@ -7,6 +7,10 @@ from jupyterhub.handlers import BaseHandler
 from oauthenticator.oauth2 import OAuthLoginHandler
 from oauthenticator.oauth2 import OAuthCallbackHandler
 
+<<<<<<< HEAD
+=======
+from tornado.web import HTTPError
+>>>>>>> 81c7ad1... updated state/nonce test
 from tornado.httputil import url_concat
 from tornado.web import HTTPError
 from tornado.web import RequestHandler
