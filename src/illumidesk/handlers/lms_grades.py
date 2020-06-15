@@ -21,6 +21,7 @@ class SendGradesHandler(BaseHandler):
         self.log.debug(f'Data received to send grades-> course:{course_id}, assignment:{assignment_name}')
 
         lti_grade_sender = None
+
         # check lti version by the authenticator setting
         if self.authenticator_class == LTI11Authenticator:
             lti_grade_sender = LTIGradeSender(course_id, assignment_name)

@@ -99,16 +99,18 @@ class TestLTIGradesSenderControlFile:
         assert set([s['lms_user_id'] for s in saved['students']]) == {'user1', 'user2'}
 
 
-def test_grades_sender_raises_a_critical_error_when_gradebook_not_exits(tmp_path):
+@pytest.mark.asyncio
+async def test_grades_sender_raises_a_critical_error_when_gradebook_not_exits(tmp_path):
     """
     Does the sender raises an error when gradebook is not found?
     """
     sender_controlfile = LTIGradeSender('course1', 'problem1')
     with pytest.raises(GradesSenderCriticalError):
-        sender_controlfile.send_grades()
+        await sender_controlfile.send_grades()
 
 
-def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
+@pytest.mark.asyncio
+async def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
     """
     Does the sender raises an error when there are no grades?
     """
@@ -116,10 +118,11 @@ def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
     # create a mock for our method that searches grades from gradebook.db
     with patch.object(LTIGradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [])):
         with pytest.raises(AssignmentWithoutGradesError):
-            sender_controlfile.send_grades()
+            await sender_controlfile.send_grades()
 
 
-def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(tmp_path):
+@pytest.mark.asyncio
+async def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(tmp_path):
     """
     Does the sender raises an error when there are grades but control file not contains info related with?
     """
@@ -129,4 +132,4 @@ def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(t
     # create a mock for our method that searches grades from gradebook.db
     with patch.object(LTIGradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, grades_nbgrader)):
         with pytest.raises(GradesSenderMissingInfoError):
-            sender_controlfile.send_grades()
+            await sender_controlfile.send_grades()

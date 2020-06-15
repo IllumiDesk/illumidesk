@@ -1,13 +1,14 @@
 import pytest
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator, LTI13Authenticator
-from illumidesk.grades.senders import LTIGradeSender
+from illumidesk.grades.senders import LTIGradeSender, LTI13GradeSender
 from illumidesk.handlers.lms_grades import SendGradesHandler
 from unittest.mock import (
     patch,
     PropertyMock,
     Mock,
-    MagicMock
+    MagicMock,
+    AsyncMock
 )
 from tests.illumidesk.mocks import mock_handler
 from tornado.web import RequestHandler
@@ -34,23 +35,32 @@ def send_grades_handler_lti13():
 
 
 @pytest.mark.asyncio
-#@patch('illumidesk.grades.senders.LTIGradeSender.send_grades')
+@patch('illumidesk.grades.senders.LTI13GradeSender.send_grades')
 @patch('tornado.web.RequestHandler.write')
-async def test_SendGradesHandler_calls_authenticator_class_property(mock_write, send_grades_handler_lti11):
+async def test_SendGradesHandler_calls_authenticator_class_property(mock_write, send_grades_handler_lti13, send_grades_handler_lti11):
     """
     Does the SendGradesHandler uses authenticator_class property to get what authenticator was set?
-    """
-    with patch.object(LTIGradeSender, 'send_grades', return_value=None):
-        with patch.object(SendGradesHandler, 'authenticator_class', callable=PropertyMock) as mock_authenticator_property:
-            mock_authenticator_property.return_value = LTI11Authenticator
-            await send_grades_handler_lti11.post('course_example', 'assignment_test')
-            mock_authenticator_property.called
+    """    
+    with patch('illumidesk.handlers.lms_grades.LTI13GradeSender') as mock_sender:
+        instance = mock_sender.return_value
+        instance.send_grades = AsyncMock()
+        mock_authenticator_class = PropertyMock(return_value=LTI13Authenticator)
+        mock_sender.authenticator_class = mock_authenticator_class
+        await send_grades_handler_lti13.post('course_example', 'assignment_test')
+        mock_authenticator_class.called
+
+    with patch('illumidesk.handlers.lms_grades.LTIGradeSender') as mock_sender:
+        instance = mock_sender.return_value
+        instance.send_grades = AsyncMock()
+        mock_authenticator_class = PropertyMock(return_value=LTI13Authenticator)
+        mock_sender.authenticator_class = mock_authenticator_class
+        await send_grades_handler_lti11.post('course_example', 'assignment_test')
+        mock_authenticator_class.called
 
 
 @pytest.mark.asyncio
-@patch('illumidesk.grades.senders.LTIGradeSender.send_grades')
 @patch('tornado.web.RequestHandler.write')
-async def test_SendGradesHandler_authenticator_class_gets_its_value_from_settings(mock_write, mock_send_grades, send_grades_handler_lti11, send_grades_handler_lti13):
+async def test_SendGradesHandler_authenticator_class_gets_its_value_from_settings(mock_write, send_grades_handler_lti11, send_grades_handler_lti13):
     """
     Does the SendGradesHandler.authenticator_class property gets its value from jhub settings?
     """
@@ -64,7 +74,7 @@ async def test_SendGradesHandler_creates_a_LTIGradeSender_instance_when_LTI11Aut
     """
     Does the SendGradesHandler create a LTIGradeSender instance for lti11?
     """
-    with patch('illumidesk.handlers.lms_grades.LTIGradeSender') as mock_lti_grades_sender:
+    with patch.object(LTIGradeSender, 'send_grades', return_value=None) as mock_lti_grades_sender:
         await send_grades_handler_lti11.post('course_example', 'assignment_test')
         assert mock_lti_grades_sender.called
 
@@ -75,9 +85,11 @@ async def test_SendGradesHandler_creates_a_LTI13GradeSender_instance_when_LTI13A
     """
     Does the SendGradesHandler create a LTI13GradeSender instance for lti13?
     """
-    with patch('illumidesk.handlers.lms_grades.LTI13GradeSender') as mock_lti13_grades_sender:
+    with patch('illumidesk.handlers.lms_grades.LTI13GradeSender') as mock_sender:
+        instance = mock_sender.return_value
+        instance.send_grades = AsyncMock()
         await send_grades_handler_lti13.post('course_example', 'assignment_test')
-        assert mock_lti13_grades_sender.called
+        assert mock_sender.called
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
@@ -85,6 +97,8 @@ async def test_SendGradesHandler_calls_write_method(mock_write, send_grades_hand
     """
     Does the SendGradesHandler call write base method?
     """
-    with patch('illumidesk.handlers.lms_grades.LTI13GradeSender'):
+    with patch('illumidesk.handlers.lms_grades.LTI13GradeSender') as mock_sender:
+        instance = mock_sender.return_value
+        instance.send_grades = AsyncMock()
         await send_grades_handler_lti13.post('course_example', 'assignment_test')
         assert mock_write.called
