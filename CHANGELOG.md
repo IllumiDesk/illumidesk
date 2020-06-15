@@ -5,38 +5,11 @@ All notable changes to this project will be documented in this file. See [standa
 ### 0.7.2 (2020-06-15)
 
 
-### Features
-
-* Add a postgres service for labs ([#75](https://github.com/IllumiDesk/illumidesk/issues/75)) ([b733c0b](https://github.com/IllumiDesk/illumidesk/commit/b733c0b4015754d85788629e51a7594154db6f0e))
-* Add plotly dependencies ([#59](https://github.com/IllumiDesk/illumidesk/issues/59)) ([59b8f1f](https://github.com/IllumiDesk/illumidesk/commit/59b8f1f992251bdad4bd30cc7c79be5b01b6edb4))
-* Adds lms_user_id in custom_fields ([#121](https://github.com/IllumiDesk/illumidesk/issues/121)) ([aaa98bd](https://github.com/IllumiDesk/illumidesk/commit/aaa98bdc2725838a6c48e45cf1b3bad75e745ebf))
-* Do not use initial course service when LTI is enabled ([#53](https://github.com/IllumiDesk/illumidesk/issues/53)) ([2ab217e](https://github.com/IllumiDesk/illumidesk/commit/2ab217efa064c889f63773549d34fbf3db0cd7d8))
-* Run JupyterHub with  python 3.8 ([#12](https://github.com/IllumiDesk/illumidesk/issues/12)) ([cc07bd9](https://github.com/IllumiDesk/illumidesk/commit/cc07bd919d57d698f0a225ba86f791f4a16ff7af))
-* Share Plotly dashboards from end-user notebooks ([#96](https://github.com/IllumiDesk/illumidesk/issues/96)) ([e3489e4](https://github.com/IllumiDesk/illumidesk/commit/e3489e4e3b9c94cdd75a56ba3a4ec00796b9df63))
-* Update Services dropdown in JupyterHub's control panel ([#46](https://github.com/IllumiDesk/illumidesk/issues/46)) ([f1101c5](https://github.com/IllumiDesk/illumidesk/commit/f1101c59aa5f236c02909b7147ac7366a5a558ac))
-* **core:** Add grades submission feature using LTI 1.1 ([#38](https://github.com/IllumiDesk/illumidesk/issues/38)) ([10d1a63](https://github.com/IllumiDesk/illumidesk/commit/10d1a631a4dd16637cfa917beb940267a63bcfd4))
-* **core:** Dynamic course and user setup with LTI 1.1 ([#18](https://github.com/IllumiDesk/illumidesk/issues/18)) ([dfa21c0](https://github.com/IllumiDesk/illumidesk/commit/dfa21c0498fd082a7bd9bcd86d30a036a872c61c))
-* Simplify setup with make and new inventory file ([#8](https://github.com/IllumiDesk/illumidesk/issues/8)) ([019687e](https://github.com/IllumiDesk/illumidesk/commit/019687ed9325b822ec948c3ab7be9ef51bf67a4a))
-
-
 ### Bug Fixes
 
-* Add jupyterhub config for LTI 1.1 to task ([#27](https://github.com/IllumiDesk/illumidesk/issues/27)) ([0a21d55](https://github.com/IllumiDesk/illumidesk/commit/0a21d557cde343e3559244c8563bd2b0d3efc531))
-* Add missing setup-course image dependencies to install illumidesk packages ([#58](https://github.com/IllumiDesk/illumidesk/issues/58)) ([4ba9fd2](https://github.com/IllumiDesk/illumidesk/commit/4ba9fd25ab6c1bf5a94168881c1784d01eb0923a))
-* Add text to clarify assignment name in modal ([#48](https://github.com/IllumiDesk/illumidesk/issues/48)) ([fcfdd22](https://github.com/IllumiDesk/illumidesk/commit/fcfdd225e6816b9bdf0d9e00a76423958e879fcb))
-* Fix invalid image tag error when running ansible-playbook ([#122](https://github.com/IllumiDesk/illumidesk/issues/122)) ([4630417](https://github.com/IllumiDesk/illumidesk/commit/4630417d6cdf1965f23723737fe6356283a95620))
-* Fix race condition so traefik can load rules.toml correctly ([#29](https://github.com/IllumiDesk/illumidesk/issues/29)) ([e56e423](https://github.com/IllumiDesk/illumidesk/commit/e56e423b1a8b87cca9c3331439e797a3d1251af3))
-* Fixes grades submission for moodle ([#41](https://github.com/IllumiDesk/illumidesk/issues/41)) ([d505e99](https://github.com/IllumiDesk/illumidesk/commit/d505e997d4a91c67e882c183ff55760aabfad9b1))
-* Handle missing lis arguments with launch requests initiated by learners ([#65](https://github.com/IllumiDesk/illumidesk/issues/65)) ([b83318a](https://github.com/IllumiDesk/illumidesk/commit/b83318a0217a0348861478df916823710f745ac7))
-* Register jupyterhub api token ([#86](https://github.com/IllumiDesk/illumidesk/issues/86)) ([9342037](https://github.com/IllumiDesk/illumidesk/commit/9342037f0a584938a7cced02a4a203865fc52819))
-* requirements.txt to reduce vulnerabilities ([#63](https://github.com/IllumiDesk/illumidesk/issues/63)) ([72e07b3](https://github.com/IllumiDesk/illumidesk/commit/72e07b39e6ef4d1ffe0737528cc9030ab993e2c8))
-* Revert ansible to 2.9.9 ([#70](https://github.com/IllumiDesk/illumidesk/issues/70)) ([833a276](https://github.com/IllumiDesk/illumidesk/commit/833a276a7de59e56ac56e84636894305abaf3c91))
 * Update conditional in lti11 authenticator with Learner string ([#132](https://github.com/IllumiDesk/illumidesk/issues/132)) ([b276f08](https://github.com/IllumiDesk/illumidesk/commit/b276f08112d053928ecae72d5dc6dbf2d930f646))
-* Update escaped character configuration to remove duplicate home folders ([#85](https://github.com/IllumiDesk/illumidesk/issues/85)) ([c518bd5](https://github.com/IllumiDesk/illumidesk/commit/c518bd53f0a42a263b6d94913c6867e939b29e31))
 * Update regex for to accept course names with hyphens and underscores ([#134](https://github.com/IllumiDesk/illumidesk/issues/134)) ([1201130](https://github.com/IllumiDesk/illumidesk/commit/12011309a3e4caa92d569a153f55567b36573a9b))
-* Update standard launch url for LTI 11 ([#6](https://github.com/IllumiDesk/illumidesk/issues/6)) ([736132a](https://github.com/IllumiDesk/illumidesk/commit/736132a971fcb7a7df2b77ee2392a07e0d39ea4a))
-* Validates if 'lis_outcome_service_url' and 'lis_result_sourcedid' fields exist ([#95](https://github.com/IllumiDesk/illumidesk/issues/95)) ([105e854](https://github.com/IllumiDesk/illumidesk/commit/105e854dc2b3758bce1f64f3e695d9397ba4c287))
-* **deps:** Remove ansible-lint ([#34](https://github.com/IllumiDesk/illumidesk/issues/34)) ([278ca0c](https://github.com/IllumiDesk/illumidesk/commit/278ca0c3af12b13f94416b1cda44f630a67ef457))
+
 
 ### 0.7.1 (2020-06-10)
 
