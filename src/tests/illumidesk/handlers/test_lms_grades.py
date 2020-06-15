@@ -133,19 +133,6 @@ def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(t
             sender_controlfile.send_grades()
 
 
-def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(tmp_path):
-    """
-    Does the sender raises an error when there are grades but control file not contains info related with?
-    """
-    sender_controlfile = LTIGradeSender('course1', 'problem1')
-    _ = LTIGradesSenderControlFile(tmp_path)
-    grades_nbgrader = [{'score': 10, 'lms_user_id': 'user1'}]
-    # create a mock for our method that searches grades from gradebook.db
-    with patch.object(LTIGradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, grades_nbgrader)):
-        with pytest.raises(GradesSenderMissingInfoError):
-            sender_controlfile.send_grades()
-
-
 @pytest.mark.asyncio
 async def send_grades_handler_invokes_send_grades_method():
     """
