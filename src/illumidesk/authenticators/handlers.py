@@ -1,4 +1,5 @@
 import logging
+import hashlib
 import os
 
 from jupyterhub.handlers import BaseHandler
@@ -111,7 +112,8 @@ class LTI13LoginHandler(OAuthLoginHandler):
             self.set_state_cookie(state)
             # TODO: validate that received nonces haven't been received before
             # and that they are within the time-based tolerance window
-            nonce = 'abc123'
+            nonce_raw = hashlib.sha256(state.encode())
+            nonce = nonce_raw.hexdigest()
             self.authorize_redirect(
                 client_id=client_id,
                 login_hint=login_hint,
