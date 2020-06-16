@@ -4,8 +4,6 @@ import os
 
 from jupyterhub.handlers import BaseHandler
 
-from jupyterhub.handlers import BaseHandler
-
 from oauthenticator.oauth2 import OAuthLoginHandler
 from oauthenticator.oauth2 import OAuthCallbackHandler
 
