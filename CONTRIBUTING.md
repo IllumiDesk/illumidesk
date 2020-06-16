@@ -66,7 +66,7 @@ This project uses Python and Javascript (for the most part). We use the followin
 
 Linters and formatters are set up with pre-commit-hooks. If you aren't used to pre-commit hooks you may gasp for oxygen once you attempt to commit your changes for the first time. Even when you do get used to it the idea of having to run the same add/commit multiple times may be nerve racking. (Ok so there is a little drama in there, its not that bad). Having the pre-commit-hooks in place helps speed up the PR review process so we can focus on the important stuff.
 
-The CI/CD pipeline will check coding style but will not error out. There may be situations where minor coding style errors are less important that in important merges to the master trunk. However, these are considered on a case-by-case basis.
+The CI/CD pipeline will check coding style but will not error out. There may be situations where minor coding style errors are less important that in important merges to the `main` branch. However, these are considered on a case-by-case basis.
 
 ## Commit Messages, Changelog, and Releases
 
@@ -76,11 +76,11 @@ This project uses Semantic Versioning with Conventional Commits to track major, 
 
 Once a new version is released, assets should be published with the new tag, such as docker images, pip/npm packages, and GitHub repo release tags.
 
-For the most part, contributors do not need to worry about commit message formats, since all commits from a Pull Request are squashed and merged before merging to master. Commit messages are updated to the standard format during this step.
+For the most part, contributors do not need to worry about commit message formats, since all commits from a Pull Request are squashed and merged before merging to `main`. Commit messages are updated to the standard format during this step.
 
 ### For Maintainers
 
-When squashing and merging to the `master` branch, use the following format to provide consistent updates to the `CHANGELOG.md` file:
+When squashing and merging to the `main` branch, use the following format to provide consistent updates to the `CHANGELOG.md` file:
 
     <Commit Type>(scope): <Merge Description>
 

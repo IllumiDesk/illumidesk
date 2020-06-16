@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/IllumiDesk/illumidesk.svg?branch=master)](https://travis-ci.com/IllumiDesk/illumidesk)
-[![codecov](https://codecov.io/gh/IllumiDesk/illumidesk/branch/master/graph/badge.svg)](https://codecov.io/gh/IllumiDesk/illumidesk)
+[![Build Status](https://travis-ci.com/IllumiDesk/illumidesk.svg?branch=main)](https://travis-ci.com/IllumiDesk/illumidesk)
+[![codecov](https://codecov.io/gh/IllumiDesk/illumidesk/branch/main/graph/badge.svg)](https://codecov.io/gh/IllumiDesk/illumidesk)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![Code style black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
