@@ -4,11 +4,13 @@ import os
 
 from jupyterhub.handlers import BaseHandler
 
+from jupyterhub.handlers import BaseHandler
+
 from oauthenticator.oauth2 import OAuthLoginHandler
 from oauthenticator.oauth2 import OAuthCallbackHandler
 
-from tornado.web import HTTPError
 from tornado.httputil import url_concat
+from tornado.web import HTTPError
 from tornado.web import RequestHandler
 
 from typing import cast
@@ -93,8 +95,7 @@ class LTI13LoginHandler(OAuthLoginHandler):
 
     def post(self):
         """
-        Validates required login arguments sent from platform and then uses
-        the ``authorize_redirect()`` to redirect users to the authorization url.
+        Validates required login arguments sent from platform and then uses the authorize_redirect() to redirect users to the authorization url.
         """
         lti_utils = LTIUtils()
         validator = LTI13LaunchValidator()
