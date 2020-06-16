@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.7.2 (2020-06-15)
+
+
+### Bug Fixes
+
+* Update conditional in lti11 authenticator with Learner string ([#132](https://github.com/IllumiDesk/illumidesk/issues/132)) ([b276f08](https://github.com/IllumiDesk/illumidesk/commit/b276f08112d053928ecae72d5dc6dbf2d930f646))
+* Update regex for to accept course names with hyphens and underscores ([#134](https://github.com/IllumiDesk/illumidesk/issues/134)) ([1201130](https://github.com/IllumiDesk/illumidesk/commit/12011309a3e4caa92d569a153f55567b36573a9b))
+
+
 ### 0.7.1 (2020-06-10)
 
 
