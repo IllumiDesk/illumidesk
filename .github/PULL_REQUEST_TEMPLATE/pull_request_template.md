@@ -1,5 +1,5 @@
 <!--   Thank you for your contribution. Before you submit the pull request:
-1. Follow contributing guidelines and make sure PR title follows Conventional Commits specification -> https://github.com/IllumiDesk/illumidesk/blob/master/CONTRIBUTING.md
+1. Follow contributing guidelines and make sure PR title follows Conventional Commits specification -> https://github.com/IllumiDesk/illumidesk/blob/main/CONTRIBUTING.md
 2. Test your changes and attach their results to the pull request.
 3. Update the relevant documentation.
 -->

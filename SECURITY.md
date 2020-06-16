@@ -32,7 +32,7 @@ IllumiDesk automates security scanning and dependency upgrades throughout the so
 
 - Scan docker images after building and pushing the images to the registry.
 
-- Block merges to the master branch which do not pass all tests and/or do not have the sign off from one of the project's maintainers.
+- Block merges to the `main` branch which do not pass all tests and/or do not have the sign off from one of the project's maintainers.
 
 - Ensure that all dependencies used for deployments are set to specific releases.
 
