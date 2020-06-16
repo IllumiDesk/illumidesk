@@ -113,15 +113,29 @@ class LTIGradesSenderControlFile:
 
     @property
     def config_fullname(self):
+        """Property which returns the configuration file full path name"""
         return os.path.join(self.config_path, LTIGradesSenderControlFile.FILE_NAME)
 
     def initialize_control_file(self) -> None:
+        """
+        Initializes the json control file by opening a file using the config_fullname property
+        """
         with FileLock(LTIGradesSenderControlFile.lock_file):
             with Path(self.config_fullname).open('w+') as new_file:
                 json.dump(LTIGradesSenderControlFile.cache_sender_data, new_file)
                 logger.debug('Control file initialized.')
 
     def _loadFromFile(self) -> None:
+        """
+        Loads the send grades configuration by opening and examing the opened file. A new config
+        file is created if the file doesn't exist or if it has the wrong format, a new one is created.
+        Once opened, the file contents are cached.
+
+        Once opened, the FILE_LOADED flag is set to True.
+
+        Raises:
+          JSONDecodeError the file could not be loaded.
+        """
         # TODO: apply a file lock
         if not Path(self.config_fullname).exists() or Path(self.config_fullname).stat().st_size == 0:
             self.initialize_control_file()
@@ -185,6 +199,13 @@ class LTIGradesSenderControlFile:
                 self._write_new_assignment_info(assignment_name, assignment_reg)
 
     def _write_new_assignment_info(self, assignment_name: str, data: dict) -> None:
+        """
+        Writes the assignment information to the configuration file.
+
+        Args:
+          assignment_name: the valid assignment name
+          data: data that contains the information to identify the assignment within the LMS
+        """
         # append new info
         LTIGradesSenderControlFile.cache_sender_data[assignment_name] = data
         # save the file to disk
@@ -192,6 +213,13 @@ class LTIGradesSenderControlFile:
             json.dump(LTIGradesSenderControlFile.cache_sender_data, file)
 
     def get_assignment_by_name(self, assignment_name: str) -> None:
+        """
+        Gets the assignment by assignment name. The assignment name is the assignment name
+        within the gradbook's database.
+
+        Args:
+          assignment_name: the assignment name
+        """
         if assignment_name in LTIGradesSenderControlFile.cache_sender_data:
             return LTIGradesSenderControlFile.cache_sender_data[assignment_name]
         else:
@@ -212,17 +240,28 @@ class LTIGradeSender:
         self.assignment_name = assignment_name
 
     def _message_identifier(self):
+        """Internal method to help keep track of when grades are sent to the LMS"""
         return '{:.0f}'.format(time.time())
 
     @property
     def grader_name(self):
+        """Property that returns the shared grader's name. For example, i the course is named
+        intro101 then the grader_name is `grader-intro101`."""
         return f'grader-{self.course_id}'
 
     @property
     def gradebook_dir(self):
+        """Property that returns the full course path location wihin the shared grader's home directory"""
         return f'/home/{self.grader_name}/{self.course_id}'
 
     def _retrieve_grades_from_db(self):
+        """
+        Retrievs grades from the share grader account database.
+
+        Raises:
+          GradesSenderCriticalError if the gradebook does not exist or cannot be opened.
+          MissingEntry if there are missing assignments from the database.
+        """
         db_url = Path(self.gradebook_dir, 'gradebook.db')
         # raise an error if the database does not exist
         if not db_url.exists():
@@ -252,6 +291,14 @@ class LTIGradeSender:
         return max_score, out
 
     def send_grades(self) -> None:
+        """
+        Sends grades to the LMS.
+
+        Raises:
+          AssignmentWithoutGradesError if the assignment has not been graded.
+          GradesSenderMissingInfoError if the config file doesn't have the information to send the result/score
+            to the LMS.
+        """
         max_score, nbgrader_grades = self._retrieve_grades_from_db()
         if not nbgrader_grades:
             raise AssignmentWithoutGradesError
@@ -264,7 +311,7 @@ class LTIGradeSender:
         assignment_info = grades_sender_file.get_assignment_by_name(self.assignment_name)
         if not assignment_info:
             logger.warning(
-                f'There is not info related to assignment: {self.assignment_name}. Check if the config file path is correct'
+                f'There is no info related to assignment: {self.assignment_name}. Check if the config file path is correct'
             )
             raise GradesSenderMissingInfoError
 
