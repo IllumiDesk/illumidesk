@@ -44,13 +44,16 @@ c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secr
 # The instructor1 and instructor2 users have access to different shared
 # grader notebooks. bitdiddle, hacker, and reasoner students are from
 # the `nbgrader quickstart <course name>` command.
+course_id = os.environ.get('COURSE_ID')
 c.JupyterHub.load_groups = {
-    os.environ.get('DEMO_INSTRUCTOR_GROUP'): [
+    os.environ.get('DEMO_INSTRUCTOR_GROUP')
+    or f'formgrade-{course_id}': [
         'instructor1',
         'instructor2',
-        os.environ.get('DEMO_GRADER_NAME'),
+        os.environ.get('DEMO_GRADER_NAME') or f'grader-{course_id}',
     ],  # noqa: E231
-    os.environ.get('DEMO_STUDENT_GROUP'): ['student1', 'bitdiddle', 'hacker', 'reasoner',],  # noqa: E231
+    os.environ.get('DEMO_STUDENT_GROUP')
+    or f'nbgrader-{course_id}': ['student1', 'bitdiddle', 'hacker', 'reasoner',],  # noqa: E231
 }
 
 # Allow admin access to end-user notebooks
@@ -59,10 +62,9 @@ c.JupyterHub.admin_access = True
 # Start the grader notebook as a service. The port can be whatever you want
 # and the group has to match the name of the DEMO_GRADER_NAME group defined above.
 # The cull_idle service conserves resources.
-course_id = os.environ.get('COURSE_ID')
 c.JupyterHub.services = [
     {
-        'name': os.environ.get('COURSE_ID'),
+        'name': course_id,
         'url': f'http://{course_id}:8888',
         'oauth_no_confirm': True,
         'admin': True,
@@ -162,7 +164,7 @@ c.Authenticator.whitelist = [
 # Add other admin users as needed
 c.Authenticator.admin_users = {
     'admin',
-    os.environ.get('DEMO_INSTRUCTOR_NAME'),
+    os.environ.get('DEMO_INSTRUCTOR_NAME') or 'instrutor1',
 }
 
 # If using an authenticator which requires additional logic,
