@@ -248,7 +248,7 @@ After:
 c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 ```
 
-As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub.
+As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub. In most cases the spawners provide drop-in replacement of the provided IllumiDeskDockerSpawner class, however, setting other spawners may break compatibility with the grading services.
 
 ### Proxies
 
@@ -389,6 +389,7 @@ The services included with this setup rely on environment variables to work prop
 | DOCKER_GRADER_IMAGE | `string` | Docker image used by users with the Grader role. | `illumidesk/notebook:grader` |
 | DOCKER_INSTRUCTOR_IMAGE | `string` | Docker image used by users with the Instructor role. | `illumidesk/notebook:instructor` |
 | DOCKER_STANDARD_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/notebook:standard` |
+| DOCKER_THEIA_IMAGE | `string` | Docker image used for the THEIA IDE | `illumidesk/theiaide:latest` |
 | DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |
 | DOCKER_NOTEBOOK_DIR | `string` | Working directory for Jupyter Notebooks | `/home/jovyan` |
 | EXCHANGE_DIR | `string` | Exchange directory path  | `/srv/nbgrader/exchange` |

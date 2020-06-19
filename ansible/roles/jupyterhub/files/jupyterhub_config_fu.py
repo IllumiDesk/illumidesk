@@ -1,7 +1,10 @@
 import sys
 import os
 
+from dockerspawner import DockerSpawner
+
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
+
 
 c = get_config()
 
@@ -96,8 +99,24 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 # User authentication class
 c.JupyterHub.authenticator_class = 'firstuseauthenticator.FirstUseAuthenticator'
 
+c.ProfilesSpawner.profiles = [
+    (
+        'Jupyter Notebook Data Science',
+        'notebook',
+        DockerSpawner,
+        dict(image=os.environ.get('DOCKER_STANDARD_IMAGE') or 'illumidesk/notebook:latest'),
+    ),
+    (
+        'THEIA IDE',
+        'theia',
+        DockerSpawner,
+        dict(image=os.environ.get('DOCKER_THEIA_IMAGE') or 'illumidesk/theiaide:latest'),
+    ),
+]
+
 # Spawn containers with custom dockerspawner class
 c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
+# c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
 
 ##########################################
 # END JUPYTERHUB APPLICATION

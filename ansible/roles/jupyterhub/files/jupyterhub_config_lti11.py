@@ -1,6 +1,9 @@
 import os
-import requests
 import sys
+
+import requests
+
+from dockerspawner import DockerSpawner
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
@@ -81,8 +84,25 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 # LTI 1.1 authenticator class.
 c.JupyterHub.authenticator_class = LTI11Authenticator
 
+# Profile Spawner to select one of the available images
+c.ProfilesSpawner.profiles = [
+    (
+        'Jupyter Notebook Data Science',
+        'notebook',
+        DockerSpawner,
+        dict(image=os.environ.get('DOCKER_STANDARD_IMAGE') or 'illumidesk/notebook:latest'),
+    ),
+    (
+        'THEIA IDE',
+        'theia',
+        DockerSpawner,
+        dict(image=os.environ.get('DOCKER_THEIA_IMAGE') or 'illumidesk/theiaide:latest'),
+    ),
+]
+
 # Spawn containers with custom dockerspawner class
 c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
+# c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
 
 ##########################################
 # END JUPYTERHUB APPLICATION
