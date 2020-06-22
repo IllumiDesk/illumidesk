@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import pem
 import time
 import os
 
@@ -11,6 +12,7 @@ from pathlib import Path
 from lti.outcome_request import OutcomeRequest
 from nbgrader.api import Gradebook, MissingEntry
 from tornado.httpclient import AsyncHTTPClient
+from urllib.parse import urlsplit
 
 from .exceptions import (
     GradesSenderCriticalError,
@@ -245,13 +247,23 @@ class LTI13GradeSender(GradesBaseSender):
 
     def __init__(self, course_id: str, assignment_name: str):
         super(LTI13GradeSender, self).__init__(course_id, assignment_name)
-        self.lms_endpoint = os.environ['LTI13_ENDPOINT']
-        self.lineitems = f'{lms_endpoint}/api/lti/courses/{self.course_id}/line_items'
+        # lti 13 endpoint contains the jwks url so we need to extract only the hostname
+        lms_jwks_endpoint = os.environ['LTI13_ENDPOINT']
+        self.lms_base_url = "{0.scheme}://{0.netloc}/".format(urlsplit(lms_jwks_endpoint))
+        logger.info(f'Using {self.lms_base_url} to get line_items from lms')
+        self.lineitems = f'{self.lms_base_url}/api/lti/courses/{self.course_id}/line_items'
 
     async def get_lms_token(self):
+        key_path = os.environ.get('LTI13_PRIVATE_KEY')
+        # check the pem permission
+        if not os.access(key_path, os.R_OK):
+            logger.error(f'The pem file {key_path} cannot be load')
+            raise PermissionError()
+        # parse file generates a list of PEM objects
+        certs = pem.parse_file(key_path)
         self.token = await get_lms_access_token(            
             os.environ['LTI13_TOKEN_URL'],
-            os.environ['LTI13_PRIVATE_KEY'],
+            str(certs[0]),
             os.environ['LTI13_CLIENT_ID'],
         )
 
