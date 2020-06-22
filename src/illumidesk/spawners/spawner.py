@@ -1,6 +1,5 @@
 import os
 import shutil
-import time
 
 from dockerspawner import DockerSpawner
 
@@ -69,7 +68,6 @@ class IllumiDeskDockerSpawner(DockerSpawner):
                 user_path, user=int(os.environ.get('MNT_HOME_DIR_UID')), group=int(os.environ.get('MNT_HOME_DIR_GID')),
             )
             os.chmod(user_path, 0o755)
-        time.sleep(5)
 
     def start(self):
         user_role = self.user.spawner.environment.get('USER_ROLE') or 'Learner'
