@@ -105,5 +105,5 @@ class LTIUtils(LoggingConfigurable):
         """
         args = {}
         for k, values in arguments.items():
-            args[k] = values[0].decode() if len(values) == 1 else [v.decode() for v in values]
+            args[k] = values[0].decode() if len(values) >= 1 else [v.decode() for v in values]
         return args
