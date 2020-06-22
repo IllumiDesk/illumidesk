@@ -149,6 +149,32 @@ Then, rerun the `make deploy` copmmand to update your stack's settings.
 
 With the Postgres container enabled, users (both students and instructors) can connect to a shared Postgres database from within their Jupyter Notebooks by opening a connection with the standard `psycop2g` depency using the `postgres-labs` host name. IllumiDesk's [user guides provide additional examples](https://docs.illumidesk.com) on the commands and common use-cases available for this option.
 
+
+### Defining Launch Requests to Clone / Merge Git-based Repos
+
+Instructors and content creators in many cases have their content version controlled with git-based source control solutions, such as GitHub, GitLab, or BitBucket. This setup includes the [`nbgitpuller`](https://pypi.org/project/nbgitpuller/) package and handles LTI launch requests to clone and merge source files from an upstream git-based repository.
+
+This functionality is decoupled from the authenticator, therefore, the options are added as query parameters when sending the POST request to the hub. Below are the definition setting and an example of a full launch request URL using LTI 1.1:
+
+- repo: the repositories full URL link
+- branch: the git branch you would like users to clone from
+- subPath: folder and path name for the file you would like your users to open when first launching the URL
+- app: one of `notebook` for Classic Notebook, `lab` for JupyerLab, `theia` for THEIA IDE.
+
+For example, if your values are:
+
+- IllumiDesk launch request URL: https://acme.illumidesk.com/lti/launch
+- repo: https://github.com/acme/intro-to-python
+- branch: master
+- subPath: 00_intro_00_content.ipynb
+- app: notebook
+
+Then the full launch request URL would look like so:
+
+```
+https://acme.illumidesk.com/lti/launch?next=/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Facme%2Fintro-to-python&branch=master&subPath=00_intro_00_content.ipynb&app=notebook
+```
+
 ### Configuration Files
 
 The configuration changes depending on how you decide to update this setup. Essentially customizations boil down to:
