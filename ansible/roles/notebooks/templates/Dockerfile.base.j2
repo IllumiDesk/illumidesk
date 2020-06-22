@@ -78,6 +78,9 @@ RUN jupyter nbextension install --symlink --sys-prefix --py nbgrader --overwrite
 RUN jupyter nbextension enable --sys-prefix validate_assignment/main --section=notebook && \
     jupyter serverextension enable --sys-prefix nbgrader.server_extensions.validate_assignment
 
+# nbgitpuller
+RUN jupyter serverextension enable nbgitpuller --sys-prefix
+
 EXPOSE 8888
 
 WORKDIR /home/$NB_USER
