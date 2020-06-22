@@ -4,6 +4,8 @@ import logging
 import time
 import urllib
 
+from Crypto.PublicKey import RSA
+from jwcrypto.jwk import JWK
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpclient import HTTPClientError
 import uuid
@@ -16,15 +18,22 @@ async def get_lms_access_token(token_endpoint, private_key, client_id, scope=Non
         'iss': client_id,
         'sub': client_id,
         'aud': token_endpoint,
-        'exp': int(time.time()) + 600,
-        'iat': int(time.time()),
-        'jti': uuid.uuid4().hex
+        'iat': int(time.time()) - 5,
+        'exp': int(time.time()) + 60,
+        'jti': str(uuid.uuid4())
     }
     logger.debug('Getting lms access token with parameters %s' % token_params)
+    public_key = RSA.importKey(private_key).publickey().exportKey()
+    headers = None
+    if public_key:
+        jwk = get_jwk(public_key)
+        headers = {'kid': jwk.get('kid')} if jwk else None
+    
     token = jwt.encode(
         token_params,
         private_key,
         algorithm='RS256',
+        headers = headers
     )
     logger.debug('Obtaining token %s' % token)
     scope = scope or ' '.join([
@@ -45,7 +54,15 @@ async def get_lms_access_token(token_endpoint, private_key, client_id, scope=Non
     try:
         resp = await client.fetch(token_endpoint, method='POST', body=body, headers=None)
     except HTTPClientError as e:
-        logger.info(e.response.body)
+        logger.info(f'Error by obtaining a token with lms. Detail: {e.response.body}')
         raise
     logger.debug('Token response body is %s' % json.loads(resp.body))
     return json.loads(resp.body)
+
+
+def get_jwk(public_key):
+    jwk_obj = JWK.from_pem(public_key)
+    public_jwk = json.loads(jwk_obj.export_public())
+    public_jwk['alg'] = 'RS256'
+    public_jwk['use'] = 'sig'
+    return public_jwk
