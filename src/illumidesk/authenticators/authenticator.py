@@ -144,6 +144,8 @@ class LTI11Authenticator(LTIAuthenticator):
         validator = LTI11LaunchValidator(self.consumers)
         lti_utils = LTIUtils()
 
+        self.log.debug('Original arguments received in request: %s' % handler.request.arguments)
+
         # extract the request arguments to a dict
         args = lti_utils.convert_request_to_dict(handler.request.arguments)
         self.log.debug('Decoded args from request: %s' % args)
