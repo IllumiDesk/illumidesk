@@ -38,6 +38,7 @@ class LTI13LoginHandler(OAuthLoginHandler):
     Handles JupyterHub authentication requests according to the
     LTI 1.3 standard.
     """
+
     def authorize_redirect(
         self,
         client_id: str = None,
