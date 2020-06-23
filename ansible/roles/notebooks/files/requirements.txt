@@ -9,6 +9,7 @@ fredapi==0.4.2
 jupyter-contrib-nbextensions==0.5
 jupyter-dash==0.2.1.post1
 jupyter_server_proxy==1.5.0
+nbgitpuller==0.8.0
 plotly==4.7.1
 plotly-charts==0.5
 plotly-geo==1.0

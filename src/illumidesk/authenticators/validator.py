@@ -17,9 +17,10 @@ from traitlets.config import LoggingConfigurable
 from typing import Any
 from typing import Dict
 
+from .constants import ILLUMIDESK_LTI13_REQUIRED_CLAIMS
 from .constants import LTI11_LAUNCH_PARAMS_REQUIRED
 from .constants import LTI11_OAUTH_ARGS
-from .constants import ILLUMIDESK_LTI13_REQUIRED_CLAIMS
+from .constants import LTI13_AUTH_REQUEST_ARGS
 
 
 class LTI11LaunchValidator(LoggingConfigurable):
@@ -79,9 +80,9 @@ class LTI11LaunchValidator(LoggingConfigurable):
         # Ensure that required LTI 1.1 body arguments are included in the request
         for param in LTI11_LAUNCH_PARAMS_REQUIRED:
             if param not in args.keys():
-                raise HTTPError(400, 'Required LTI arg %s not included in request' % param)
+                raise HTTPError(400, 'Required LTI 1.1 arg arg %s not included in request' % param)
             if not args.get(param):
-                raise HTTPError(400, 'Required LTI arg %s does not have a value' % param)
+                raise HTTPError(400, 'Required LTI 1.1 arg arg %s does not have a value' % param)
 
         # Inspiration to validate nonces/timestamps from OAuthlib
         # https://github.com/oauthlib/oauthlib/blob/master/oauthlib/oauth1/rfc5849/endpoints/base.py#L147
@@ -223,3 +224,27 @@ class LTI13LaunchValidator(LoggingConfigurable):
             ):
                 raise HTTPError(400, 'Missing course context label %s for claim' % claim)
         return True
+
+    def validate_authentication_request(self, args: Dict[str, Any]) -> bool:
+        """
+        Validates initial authentication request.
+        
+        Args:
+          args: dictionary that represents keys/values sent in authentication request
+        
+        Returns:
+          True if the validation is ok, false otherwise
+        """
+        for param in LTI13_AUTH_REQUEST_ARGS:
+            if param not in args.keys():
+                raise HTTPError(400, 'Required LTI 1.3 arg %s not included in request' % param)
+            if not args.get(param):
+                raise HTTPError(400, 'Required LTI 1.3 arg %s does not have a value' % param)
+            if param == 'response_type' and args.get(param) != 'id_token':
+                raise HTTPError(400, 'Invalid response_type value %s' % args['response_type'])
+            if param == 'scope' and args.get(param) != 'openid':
+                raise HTTPError(400, 'Invalid scope value %s' % args['scope'])
+            if param == 'response_mode' and args.get(param) != 'form_post':
+                raise HTTPError(400, 'Invalid response_mode value %s' % args['response_mode'])
+            if param == 'prompt' and args.get(param) != 'none':
+                raise HTTPError(400, 'Invalid prompt value %s' % args['prompt'])
