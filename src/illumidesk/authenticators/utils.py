@@ -2,6 +2,7 @@ import re
 
 from tornado.web import RequestHandler
 
+from typing import Any
 from typing import Dict
 from typing import List
 
@@ -93,7 +94,7 @@ class LTIUtils(LoggingConfigurable):
 
         return protocol
 
-    def convert_request_to_dict(self, arguments: Dict[str, List[bytes]]) -> Dict[str, str]:
+    def convert_request_to_dict(self, arguments: Dict[str, List[bytes]]) -> Dict[str, Any]:
         """
         Converts the arguments obtained from a request to a dict.
 
@@ -105,5 +106,5 @@ class LTIUtils(LoggingConfigurable):
         """
         args = {}
         for k, values in arguments.items():
-            args[k] = values[0].decode() if len(values) == 1 else [v.decode() for v in values]
+            args[k] = values[0].decode()
         return args
