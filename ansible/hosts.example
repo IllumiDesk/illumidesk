@@ -34,6 +34,16 @@ all:
       # users to connect to a shared postgres container (useful for lab environments)
       # postgres_labs_enabled: true
 
+      ## NFS/EFS settings
+      # uncomment and set to true to enable mounts with aws efs, defaults to false
+      # aws_efs_enabled: true
+
+      # uncomment and specify the efs id for your AWS EFS service, defaults to an empty string
+      # efs_id:
+
+      # uncomment and confirm your aws region, defaults to us-west-2
+      # aws_region: us-west-2
+
       ## Authentication settings
       #-------------------
 
@@ -41,8 +51,6 @@ all:
       #   the first use authenticator is set to true by defaut.
       #   lti11_enabled and lti13_enabled are mutually exclusive, therefore
       #   set one to true to enable the desired lti auth standard.
-
-
 
       ### LTI 1.1
       #-------------------
