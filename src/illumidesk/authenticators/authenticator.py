@@ -336,8 +336,7 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('Decoded JWT is %s' % jwt_decoded)
 
         if validator.validate_launch_request(jwt_decoded):
-            course_label = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
-            course_id = lti_utils.normalize_name_for_containers(course_label)
+            course_id = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']            
             self.log.debug('Normalized course label is %s' % course_id)
             username = ''
             if 'email' in jwt_decoded.keys() and jwt_decoded.get('email'):
@@ -368,8 +367,18 @@ class LTI13Authenticator(OAuthenticator):
             if user_role == '':
                 user_role = 'Learner'
             self.log.debug('user_role is %s' % user_role)
+            
+            lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
+            # Values for the send-grades functionality
+            course_lineitems = None
+            if 'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded:
+                course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
+            
 
             return {
                 'name': username,
-                'auth_state': {'course_id': course_id, 'user_role': user_role, 'lms_user_id': username,},  # noqa: E231
+                'auth_state': {
+                    'course_id': course_id,
+                    'course_lineitems': course_lineitems or '',
+                    'user_role': user_role, 'lms_user_id': lms_user_id,},  # noqa: E231
             }

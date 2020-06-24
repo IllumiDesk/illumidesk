@@ -245,13 +245,18 @@ class LTIGradeSender(GradesBaseSender):
 
 class LTI13GradeSender(GradesBaseSender):
 
-    def __init__(self, course_id: str, assignment_name: str):
+    def __init__(self, course_id: str, assignment_name: str, auth_state: dict):
         super(LTI13GradeSender, self).__init__(course_id, assignment_name)
         # lti 13 endpoint contains the jwks url so we need to extract only the hostname
         lms_jwks_endpoint = os.environ['LTI13_ENDPOINT']
-        self.lms_base_url = "{0.scheme}://{0.netloc}/".format(urlsplit(lms_jwks_endpoint))
-        logger.info(f'Using {self.lms_base_url} to get line_items from lms')
-        self.lineitems = f'{self.lms_base_url}/api/lti/courses/{self.course_id}/line_items'
+        self.user_auth_state = auth_state
+        logger.info(f'User auth_state received from SenderHandler: {self.user_auth_state}')
+        self.lineitems_url = self.user_auth_state['course_lineitems']
+        if not self.lineitems_url:
+            logger.info('There is not lineitems value for grades submission')
+            raise GradesSenderMissingInfoError()
+        self.lms_base_url = "{0.scheme}://{0.netloc}/".format(urlsplit(lms_jwks_endpoint))        
+        logger.info(f'Using {self.lineitems_url} to get line_items from lms')
 
     async def get_lms_token(self):
         key_path = os.environ.get('LTI13_PRIVATE_KEY')
@@ -279,9 +284,9 @@ class LTI13GradeSender(GradesBaseSender):
             'Content-Type': 'application/vnd.ims.lis.v2.lineitem+json'
             }
             client = AsyncHTTPClient()
-            resp = await client.fetch(self.lineitems, headers=headers)
+            resp = await client.fetch(self.lineitems_url, headers=headers)
             items = json.loads(resp.body)
-            logger.debug(f'LineItems got from {self.lineitems} -> {items}')
+            logger.debug(f'LineItems got from {self.lineitems_url} -> {items}')
             lineitem = None
             for item in items:
                 if self.assignment_name.lower() == item['label'].lower():

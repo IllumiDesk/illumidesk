@@ -39,6 +39,7 @@ async def get_lms_access_token(token_endpoint, private_key, client_id, scope=Non
     scope = scope or ' '.join([
         'https://purl.imsglobal.org/spec/lti-ags/scope/score',
         'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+        "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly",
         'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly'
     ])
     logger.debug('Scope is %s' % scope)
