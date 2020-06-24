@@ -1,15 +1,14 @@
-import datetime
 import json
 import logging
 import pem
 import time
 import os
 
+from datetime import datetime
 from filelock import FileLock
 from illumidesk.lti13.auth import get_lms_access_token
-from pathlib import Path
-
 from lti.outcome_request import OutcomeRequest
+from pathlib import Path
 from nbgrader.api import Gradebook, MissingEntry
 from tornado.httpclient import AsyncHTTPClient
 from urllib.parse import urlsplit
@@ -300,8 +299,8 @@ class LTI13GradeSender(GradesBaseSender):
             logger.debug('Fetched lineitem info from lms %s' % line_item)
             score = float(grade['score'])
             # calculate the percentage
-            max_score = float(max_score)
-            score = score * 100 / max_score / 100
+            # max_score = float(max_score)
+            # score = score * 100 / max_score / 100
             data = {
                 'timestamp': datetime.now().isoformat(),
                 'userId': grade['lms_user_id'],
