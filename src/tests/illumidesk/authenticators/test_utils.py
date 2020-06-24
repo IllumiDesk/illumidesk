@@ -89,15 +89,36 @@ def test_get_protocol_with_more_than_one_value():
     assert expected == protocol
 
 
-def test_convert_request_arguments_to_dict():
+def test_convert_request_arguments_with_one_encoded_item_to_dict():
     """
-    Do the items from a request object convert to a dict with decoded values?
+    Do the items from a request object with one item per encoded value convert to a dict with decoded values?
     """
     utils = LTIUtils()
     arguments = {
         'key1': [b'value1'],
         'key2': [b'value2'],
         'key3': [b'value3'],
+    }
+    expected = {
+        'key1': 'value1',
+        'key2': 'value2',
+        'key3': 'value3',
+    }
+    result = utils.convert_request_to_dict(arguments)
+
+    assert expected == result
+
+
+def test_convert_request_arguments_with_more_than_one_encoded_item_to_dict():
+    """
+    Do the items from a request object with more than one item per encoded value convert to a dict with decoded values
+    where the dict has one value per item?
+    """
+    utils = LTIUtils()
+    arguments = {
+        'key1': [b'value1', b'valueA'],
+        'key2': [b'value2', b'valueB'],
+        'key3': [b'value3', b'valueC'],
     }
     expected = {
         'key1': 'value1',

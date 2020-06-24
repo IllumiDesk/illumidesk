@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/IllumiDesk/illumidesk.svg?branch=master)](https://travis-ci.com/IllumiDesk/illumidesk)
-[![codecov](https://codecov.io/gh/IllumiDesk/illumidesk/branch/master/graph/badge.svg)](https://codecov.io/gh/IllumiDesk/illumidesk)
+[![Build Status](https://travis-ci.com/IllumiDesk/illumidesk.svg?branch=main)](https://travis-ci.com/IllumiDesk/illumidesk)
+[![codecov](https://codecov.io/gh/IllumiDesk/illumidesk/branch/main/graph/badge.svg)](https://codecov.io/gh/IllumiDesk/illumidesk)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 [![Code style black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
@@ -149,6 +149,32 @@ Then, rerun the `make deploy` copmmand to update your stack's settings.
 
 With the Postgres container enabled, users (both students and instructors) can connect to a shared Postgres database from within their Jupyter Notebooks by opening a connection with the standard `psycop2g` depency using the `postgres-labs` host name. IllumiDesk's [user guides provide additional examples](https://docs.illumidesk.com) on the commands and common use-cases available for this option.
 
+
+### Defining Launch Requests to Clone / Merge Git-based Repos
+
+Instructors and content creators in many cases have their content version controlled with git-based source control solutions, such as GitHub, GitLab, or BitBucket. This setup includes the [`nbgitpuller`](https://pypi.org/project/nbgitpuller/) package and handles LTI launch requests to clone and merge source files from an upstream git-based repository.
+
+This functionality is decoupled from the authenticator, therefore, the options are added as query parameters when sending the POST request to the hub. Below are the definition setting and an example of a full launch request URL using LTI 1.1:
+
+- repo: the repositories full URL link
+- branch: the git branch you would like users to clone from
+- subPath: folder and path name for the file you would like your users to open when first launching the URL
+- app: one of `notebook` for Classic Notebook, `lab` for JupyerLab, `theia` for THEIA IDE.
+
+For example, if your values are:
+
+- IllumiDesk launch request URL: https://acme.illumidesk.com/lti/launch
+- repo: https://github.com/acme/intro-to-python
+- branch: master
+- subPath: 00_intro_00_content.ipynb
+- app: notebook
+
+Then the full launch request URL would look like so:
+
+```
+https://acme.illumidesk.com/lti/launch?next=/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Facme%2Fintro-to-python&branch=master&subPath=00_intro_00_content.ipynb&app=notebook
+```
+
 ### Configuration Files
 
 The configuration changes depending on how you decide to update this setup. Essentially customizations boil down to:
@@ -183,6 +209,13 @@ Three `nbgrader_config.py` files should exist:
 3. Jupyter Notebook configuration using `jupyter_notebook_config.py`. This configuration is standard fare and unless required does not need customized edits.
 
 4. For this setup, the deployment configuration is defined primarily with `docker-compose.yml`.
+
+5. Cloud specific setup options by specifying settings in the `hosts` file. For now, these options are specific to `AWS EFS` mounts. This allows administrators to leverage AWS's EFS service for additional data redundancy, security, and sharing options. Shared file systems are particularly helpful when using a setup with multiple hosts such as with Docker Swarm or Kubernetes since the user's container may launch on any available virtual machine (host). To enable and use EFS, update the following `hosts` file variables:
+
+- **aws_efs_enabled (Required)**: set to true to enable mounts with AWS EFS, defaults to `false`.
+- **aws_region (Required)**: the AWS region where the EFS service is running, defaults to `us-west-2`.
+- **efs_id (Required)**: and existing AWS EFS identifier, for example `fs-0726eyyd`. Defaults to an empty string.
+- **mnt_root (Recommended)**: if you test without NFS-based mounts and then mount an existing folder to an NFS-based shared directory, then you run the risk of losing your files. Change this value to use a folder other than the default `/mnt` directory to either another directory or a sub-directory within the `/mnt` directory, such as `/mnt/efs/fs1`.
 
 ### Build the Stack
 

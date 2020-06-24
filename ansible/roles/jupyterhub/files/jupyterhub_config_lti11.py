@@ -214,7 +214,7 @@ c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 # this url pattern was changed to accept spaces in the assignment name
 c.JupyterHub.extra_handlers = [
     (
-        r'/submit-grades/(?P<course_id>\w+)/(?P<assignment_name>.*)$',
+        r'/submit-grades/(?P<course_id>[a-zA-Z0-9-_]+)/(?P<assignment_name>.*)$',
         'illumidesk.handlers.lms_grades.SendGradesHandler',
     ),
 ]

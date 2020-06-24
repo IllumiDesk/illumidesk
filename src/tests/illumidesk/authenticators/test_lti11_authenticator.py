@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.authenticator import LTI11Authenticator
+from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
 from tests.illumidesk.factory import factory_lti11_complete_launch_args
 
 
@@ -78,6 +79,96 @@ async def test_authenticator_uses_lti11validator():
 
         _ = await authenticator.authenticate(handler, None)
         assert mock_validator.called
+
+
+@pytest.mark.asyncio
+async def test_authenticator_uses_lti_grades_sender_control_file_when_student(tmp_path):
+    """
+    Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
+    Student string?
+    """
+
+    def _change_flag():
+        LTIGradesSenderControlFile.FILE_LOADED = True
+
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        with patch.object(LTIGradesSenderControlFile, 'register_data', return_value=None) as mock_register_data:
+            with patch.object(
+                LTIGradesSenderControlFile, '_loadFromFile', return_value=None
+            ) as mock_loadFromFileMethod:
+                mock_loadFromFileMethod.side_effect = _change_flag
+                sender_controlfile = LTIGradesSenderControlFile(tmp_path)
+                authenticator = LTI11Authenticator()
+                handler = Mock(spec=RequestHandler)
+                request = HTTPServerRequest(method='POST', connection=Mock(),)
+                handler.request = request
+                handler.request.arguments = factory_lti11_complete_launch_args(lms_vendor='edx', role='Student')
+                handler.request.get_argument = lambda x, strip=True: factory_lti11_complete_launch_args('Student')[x][
+                    0
+                ].decode()
+
+                _ = await authenticator.authenticate(handler, None)
+                assert mock_register_data.called
+
+
+@pytest.mark.asyncio
+async def test_authenticator_uses_lti_grades_sender_control_file_when_learner(tmp_path):
+    """
+    Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
+    Learner string?
+    """
+
+    def _change_flag():
+        LTIGradesSenderControlFile.FILE_LOADED = True
+
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        with patch.object(LTIGradesSenderControlFile, 'register_data', return_value=None) as mock_register_data:
+            with patch.object(
+                LTIGradesSenderControlFile, '_loadFromFile', return_value=None
+            ) as mock_loadFromFileMethod:
+                mock_loadFromFileMethod.side_effect = _change_flag
+                sender_controlfile = LTIGradesSenderControlFile(tmp_path)
+                authenticator = LTI11Authenticator()
+                handler = Mock(spec=RequestHandler)
+                request = HTTPServerRequest(method='POST', connection=Mock(),)
+                handler.request = request
+                handler.request.arguments = factory_lti11_complete_launch_args(lms_vendor='canvas', role='Learner')
+                handler.request.get_argument = lambda x, strip=True: factory_lti11_complete_launch_args('Learner')[x][
+                    0
+                ].decode()
+
+                _ = await authenticator.authenticate(handler, None)
+                assert mock_register_data.called
+
+
+@pytest.mark.asyncio
+async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_instructor(tmp_path):
+    """
+    Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
+    Instructor string?
+    """
+
+    def _change_flag():
+        LTIGradesSenderControlFile.FILE_LOADED = True
+
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        with patch.object(LTIGradesSenderControlFile, 'register_data', return_value=None) as mock_register_data:
+            with patch.object(
+                LTIGradesSenderControlFile, '_loadFromFile', return_value=None
+            ) as mock_loadFromFileMethod:
+                mock_loadFromFileMethod.side_effect = _change_flag
+                sender_controlfile = LTIGradesSenderControlFile(tmp_path)
+                authenticator = LTI11Authenticator()
+                handler = Mock(spec=RequestHandler)
+                request = HTTPServerRequest(method='POST', connection=Mock(),)
+                handler.request = request
+                handler.request.arguments = factory_lti11_complete_launch_args(lms_vendor='canvas', role='Instructor')
+                handler.request.get_argument = lambda x, strip=True: factory_lti11_complete_launch_args('Instructor')[
+                    x
+                ][0].decode()
+
+                _ = await authenticator.authenticate(handler, None)
+                assert not mock_register_data.called
 
 
 @pytest.mark.asyncio
@@ -167,7 +258,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
         args = factory_lti11_complete_launch_args('canvas', 'Learner')
-        args['lis_result_sourcedid'] = ''
+        args['lis_result_sourcedid'] = [b'']
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
@@ -194,7 +285,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
         args = factory_lti11_complete_launch_args('canvas', 'Learner')
-        args['lis_outcome_service_url'] = ''
+        args['lis_outcome_service_url'] = [b'']
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),

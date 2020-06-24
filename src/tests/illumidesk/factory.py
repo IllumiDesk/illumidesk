@@ -121,7 +121,7 @@ def factory_lti11_complete_launch_args(lms_vendor: str, role: str = 'Instructor'
         'oauth_callback': ['about:blank'.encode()],
         'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
         'resource_link_title': ['IllumiDesk'.encode()],
-        'roles': ['Instructor'.encode() if role == 'Instructor' else role.encode()],
+        'roles': [role.encode()],
         'tool_consumer_info_product_family_code': [lms_vendor.encode()],
         'tool_consumer_info_version': ['cloud'.encode()],
         'tool_consumer_instance_contact_email': ['notifications@mylms.com'.encode()],
@@ -132,34 +132,6 @@ def factory_lti11_complete_launch_args(lms_vendor: str, role: str = 'Instructor'
         'oauth_signature': ['abc123'.encode()],
     }
     return args
-
-
-def factory_lti13_login_params(
-    client_id: str = '125900000000000071',
-    redirect_uri: str = 'https://example.com/hub/oauth_login',
-    lti_message_hint: str = 'abc123',
-    login_hint: str = 'zxy456',
-    state: str = 'my-login-state',
-    nonce: str = '123123123',
-):
-    """
-    Creates a dictionary with k/v's that emulates a login request.
-    """
-    params = {
-        'response_type': ['id_token'.encode()],
-        'scope': ['openid'.encode()],
-        'client_id': [client_id.encode()],
-        'redirect_uri': [redirect_uri.encode()],
-        'extra_params': {
-            'response_mode': ['form_post'.encode()],
-            'lti_message_hint': [lti_message_hint.encode()],
-            'prompt': ['none'.encode()],
-            'login_hint': [login_hint.encode()],
-            'state': [state.encode()],
-            'nonce': [nonce.encode()],
-        },
-    }
-    return params
 
 
 def factory_lti13_resource_link_request() -> Dict[str, str]:

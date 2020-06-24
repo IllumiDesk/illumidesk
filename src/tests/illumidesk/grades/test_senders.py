@@ -7,11 +7,9 @@ from unittest.mock import patch
 
 from illumidesk.grades.senders import LTIGradesSenderControlFile
 from illumidesk.grades.senders import LTIGradeSender
-from illumidesk.grades.exceptions import (
-    GradesSenderCriticalError,
-    AssignmentWithoutGradesError,
-    GradesSenderMissingInfoError,
-)
+from illumidesk.grades.exceptions import GradesSenderCriticalError
+from illumidesk.grades.exceptions import AssignmentWithoutGradesError
+from illumidesk.grades.exceptions import GradesSenderMissingInfoError
 
 
 @pytest.fixture
@@ -19,14 +17,13 @@ def reset_file_loaded():
     LTIGradesSenderControlFile.FILE_LOADED = False
 
 
-@pytest.mark.usefixtures("reset_file_loaded")
+@pytest.mark.usefixtures('reset_file_loaded')
 class TestLTIGradesSenderControlFile:
     def test_control_file_is_initialized_if_not_exists(self, tmp_path):
         """
         Does the LTIGradesSenderControlFile class initializes a file with an empty dict when it not exists?
         """
         sender_controlfile = LTIGradesSenderControlFile(tmp_path)
-        print('tmp_path', tmp_path)
         assert Path(sender_controlfile.config_fullname).stat().st_size > 0
         with Path(sender_controlfile.config_fullname).open('r') as file:
             assert json.load(file) == {}
@@ -99,18 +96,16 @@ class TestLTIGradesSenderControlFile:
         assert set([s['lms_user_id'] for s in saved['students']]) == {'user1', 'user2'}
 
 
-@pytest.mark.asyncio
-async def test_grades_sender_raises_a_critical_error_when_gradebook_not_exits(tmp_path):
+def test_grades_sender_raises_a_critical_error_when_gradebook_does_not_exist(tmp_path):
     """
-    Does the sender raises an error when gradebook is not found?
+    Does the sender raises an error when the gradebook db is not found?
     """
     sender_controlfile = LTIGradeSender('course1', 'problem1')
     with pytest.raises(GradesSenderCriticalError):
         await sender_controlfile.send_grades()
 
 
-@pytest.mark.asyncio
-async def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
+def test_grades_sender_raises_an_error_if_there_are_no_grades(tmp_path):
     """
     Does the sender raises an error when there are no grades?
     """
@@ -124,7 +119,8 @@ async def test_grades_sender_raises_an_error_if_there_are_not_grades(tmp_path):
 @pytest.mark.asyncio
 async def test_grades_sender_raises_an_error_if_assignment_not_found_in_control_file(tmp_path):
     """
-    Does the sender raises an error when there are grades but control file not contains info related with?
+    Does the sender raise an error when there are grades but control file does not contain info related with
+    the gradebook data?
     """
     sender_controlfile = LTIGradeSender('course1', 'problem1')
     _ = LTIGradesSenderControlFile(tmp_path)
