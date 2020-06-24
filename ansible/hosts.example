@@ -44,6 +44,10 @@ all:
       # uncomment and confirm your aws region, defaults to us-west-2
       # aws_region: us-west-2
 
+      # uncomment and set mount directory a subdirectory within the /mnt directory, such as
+      # /mnt/efs/fs1, to reduce the risk of overwriting content that may already exist in /mnt
+      # mnt_root: /mnt/efs/fs1
+
       ## Authentication settings
       #-------------------
 
@@ -87,5 +91,3 @@ all:
       # lti13_endpoint: https://illumidesk.instructure.com/api/lti/security/jwks
       # lti13_token_url: https://illumidesk.instructure.com/login/oauth2/token
       # lti13_authorize_url: https://illumidesk.instructure.com/api/lti/authorize_redirect
-
-      

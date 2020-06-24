@@ -212,9 +212,10 @@ Three `nbgrader_config.py` files should exist:
 
 5. Cloud specific setup options by specifying settings in the `hosts` file. For now, these options are specific to `AWS EFS` mounts. This allows administrators to leverage AWS's EFS service for additional data redundancy, security, and sharing options. Shared file systems are particularly helpful when using a setup with multiple hosts such as with Docker Swarm or Kubernetes since the user's container may launch on any available virtual machine (host). To enable and use EFS, update the following `hosts` file variables:
 
-- **aws_efs_enabled**: set to true to enable mounts with AWS EFS
-- **efs_id**: and existing AWS EFS identifier, for example `fs-0726eyyd`
-- **aws_region**: the AWS region where the EFS service is running.
+- **aws_efs_enabled (Required)**: set to true to enable mounts with AWS EFS, defaults to `false`.
+- **aws_region (Required)**: the AWS region where the EFS service is running, defaults to `us-west-2`.
+- **efs_id (Required)**: and existing AWS EFS identifier, for example `fs-0726eyyd`. Defaults to an empty string.
+- **mnt_root (Recommended)**: if you test without NFS-based mounts and then mount an existing folder to an NFS-based shared directory, then you run the risk of losing your files. Change this value to use a folder other than the default `/mnt` directory to either another directory or a sub-directory within the `/mnt` directory, such as `/mnt/efs/fs1`.
 
 ### Build the Stack
 

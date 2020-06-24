@@ -1,5 +1,5 @@
 # Default to python3
-- name: install python for Ansible
+- name: install python for ansible
   raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python3-minimal)
   changed_when: False
 - setup: # noqa 502
@@ -65,14 +65,16 @@
     name: "{{ mnt_root }}"
     src: "{{ _aws_current_az.content }}.{{ efs_id }}.efs.{{ aws_region }}.amazonaws.com:/"
     fstype: nfs4
-    opts: nfsvers=4.1
+    opts:
+      nfsvers: "4.1"
     state: mounted
   when: aws_efs_enabled|bool
 
 # Print the contents of the mount to the log.
 - command: "ls -lah {{ mnt_root }}"
   register: efs_contents
-- debug: var=efs_contents
+- debug:
+    var: efs_contents
 
 - name: create directories within mount/nfs directory
   file:
