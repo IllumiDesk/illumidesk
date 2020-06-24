@@ -95,8 +95,8 @@ class TestLTIGradesSenderControlFile:
         # both students in test was saved with same lis_result_sourcedid value
         assert set([s['lms_user_id'] for s in saved['students']]) == {'user1', 'user2'}
 
-
-def test_grades_sender_raises_a_critical_error_when_gradebook_does_not_exist(tmp_path):
+@pytest.mark.asyncio
+async def test_grades_sender_raises_a_critical_error_when_gradebook_does_not_exist(tmp_path):
     """
     Does the sender raises an error when the gradebook db is not found?
     """
@@ -104,8 +104,8 @@ def test_grades_sender_raises_a_critical_error_when_gradebook_does_not_exist(tmp
     with pytest.raises(GradesSenderCriticalError):
         await sender_controlfile.send_grades()
 
-
-def test_grades_sender_raises_an_error_if_there_are_no_grades(tmp_path):
+@pytest.mark.asyncio
+async def test_grades_sender_raises_an_error_if_there_are_no_grades(tmp_path):
     """
     Does the sender raises an error when there are no grades?
     """

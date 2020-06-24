@@ -12,6 +12,7 @@ from unittest.mock import (
 )
 from tests.illumidesk.mocks import mock_handler
 from tornado.web import RequestHandler
+from jupyterhub.user import User
 
 
 @pytest.fixture()
@@ -29,8 +30,17 @@ def send_grades_handler_lti13():
     jhub_settings ={
         'authenticator_class': LTI13Authenticator
     }
-    request_handler = mock_handler(RequestHandler, **jhub_settings)
+    async def user_auth_state():
+        return []
+    def mock_user():
+        mock_user = Mock()
+        attrs = {"get_auth_state.side_effect": user_auth_state,}
+        mock_user.configure_mock(**attrs)
+        return mock_user
+
+    request_handler = mock_handler(RequestHandler, **jhub_settings)    
     send_grades_handler = SendGradesHandler(request_handler.application, request_handler.request)
+    setattr(send_grades_handler, '_jupyterhub_user', mock_user())
     return send_grades_handler
 
 
