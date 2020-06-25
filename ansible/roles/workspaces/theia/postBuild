@@ -1,0 +1,14 @@
+#!/bin/bash
+
+pip install https://github.com/jupyterhub/jupyter-server-proxy/archive/master.zip
+jupyter serverextension enable --sys-prefix --py jupyter_server_proxy
+
+
+cd theia
+
+npm install yarn
+
+npx yarn --cache-folder ./ycache && rm -rf ./ycache
+export NODE_OPTIONS="--max_old_space_size=4096"
+npx yarn theia build
+npx yarn theia download:plugins

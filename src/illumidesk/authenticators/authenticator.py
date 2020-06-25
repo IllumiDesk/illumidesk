@@ -177,6 +177,13 @@ class LTI11Authenticator(LTIAuthenticator):
             else:
                 raise HTTPError(400, 'Course label not included in the LTI request')
 
+            # Users have the option to initiate a launch request with the workspace_type they would like
+            # to launch
+            workspace_type = 'notebook'
+            if 'workspace_type' in args and args['workspace_type'] is not None:
+                workspace_type = args['workspace_type']
+                self.log.debug('Workspace type sent in authentication request is: %s' % workspace_type)
+
             # Get the user's role, assign to Learner role by default. Roles are sent as institution
             # roles, where the roles' value is <handle>,<full URN>.
             # https://www.imsglobal.org/specs/ltiv1p0/implementation-guide#toc-16
@@ -253,6 +260,7 @@ class LTI11Authenticator(LTIAuthenticator):
                     'course_id': course_id,
                     'lms_user_id': lms_user_id,
                     'user_role': user_role,
+                    'workspace_type': workspace_type,
                 },  # noqa: E231
             }
 

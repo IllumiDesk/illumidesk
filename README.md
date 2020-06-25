@@ -390,6 +390,8 @@ The services included with this setup rely on environment variables to work prop
 | DOCKER_INSTRUCTOR_IMAGE | `string` | Docker image used by users with the Instructor role. | `illumidesk/notebook:instructor` |
 | DOCKER_STANDARD_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/notebook:standard` |
 | DOCKER_THEIA_IMAGE | `string` | Docker image used for the THEIA IDE | `illumidesk/theiaide:latest` |
+| DOCKER_RSTUDIO_IMAGE | `string` | Docker image used for RStudio | `illumidesk/rstudio:latest` |
+| DOCKER_VSCODE_IMAGE | `string` | Docker image used for VS Code | `illumidesk/vscode:latest` |
 | DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |
 | DOCKER_NOTEBOOK_DIR | `string` | Working directory for Jupyter Notebooks | `/home/jovyan` |
 | EXCHANGE_DIR | `string` | Exchange directory path  | `/srv/nbgrader/exchange` |
@@ -413,6 +415,7 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_USER | `string` | Postgres database username | `jupyterhub` |
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
+| USER_WORKSPACE_TYPE | `string` | User's workspace type to run | `notebook` |
 
 ### Environment Variables pertaining to grader service, located in `env.service`
 

@@ -5,9 +5,9 @@ import requests
 
 from dockerspawner import DockerSpawner
 
+from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
-from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
 
 c = get_config()

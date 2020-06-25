@@ -37,6 +37,10 @@ docker_illumidesk_notebook_learner_image: "{{ docker_illumidesk_notebook_learner
 docker_illumidesk_notebook_grader_image: "{{ docker_illumidesk_notebook_grader_image_param | default('illumidesk/notebook:grader') }}-{{ docker_notebook_hash_commit }}"
 docker_illumidesk_notebook_instructor_image: "{{ docker_illumidesk_notebook_instructor_image_param | default('illumidesk/notebook:instructor') }}-{{ docker_notebook_hash_commit }}"
 
+# additional workspace images
+docker_rstudio_image: "{{ docker_rstudio_image_param | default('illumidesk/rstudio:latest') }}"
+docker_theia_image: "{{ docker_theia_image_param | default('illumidesk/theia:latest') }}"
+
 # reverse-proxy image
 docker_proxy_image: "{{ docker_proxy_image_param | default('jupyterhub/configurable-http-proxy:4.2.0') }}"
 
