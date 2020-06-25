@@ -98,7 +98,7 @@ def pem_file(tmp_path):
 
 
 @pytest.fixture
-def reset_file_loaded():
+def grades_controlfile_reset_file_loaded():
     """
     Set flag to false to reload control file used in LTIGradesSenterControlFile class
     """
