@@ -14,7 +14,7 @@ from typing import Dict
 from unittest.mock import Mock
 from unittest.mock import MagicMock
 
-from illumidesk.grades.senders import LTIGradesSenderControlFile
+from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 from illumidesk.authenticators.utils import LTIUtils
 
 
