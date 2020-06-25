@@ -149,6 +149,47 @@ Then, rerun the `make deploy` copmmand to update your stack's settings.
 
 With the Postgres container enabled, users (both students and instructors) can connect to a shared Postgres database from within their Jupyter Notebooks by opening a connection with the standard `psycop2g` depency using the `postgres-labs` host name. IllumiDesk's [user guides provide additional examples](https://docs.illumidesk.com) on the commands and common use-cases available for this option.
 
+### Spawn Specific Workspace Types
+
+> **New in Version 0.8.0**: users can spawn specific workspace types by setting the `workspace_type` key when initiating the launch request. The `workspace_type` key can either be added as a query parameter or included within the request's body (when initiating an LTI launch).
+
+Additional workspace types include:
+
+- THEIA IDE: `theiaide`
+- RStudio: `rstudio`
+- VS Code: `vscode`
+
+If a value is sent which is not recognized by the system, then the default Jupyter Notebook workspace is launched for the user.
+
+When specifying a workspace type with the query parameter add the key / value to the URL encoded request like so:
+
+```
+    <url>/lti/launch?next=/user-redirect/theia&workspace_type=theiaide...
+```
+
+Notic the `/user-redirect/theia` part. This path redirects the user directly to their user workspace, instead of seeing the default `Launch` button in the application's home page. The path value should correspond with the `workspace_type` value.
+
+Various LMS's also support adding custom key/values to include with the launch request. For example, the Canvas LMS has the `Custom Fields` text box and Open edX has the `Custom Parameters` text box to support additional key/values to include with the launch request.
+
+Currently, supported workspaces types designated with the following paths:
+
+- THEIA IDE: `/theia`
+- RStudio: `/rstudio`
+- VS Code: `/vscode`
+
+These query parameters do not conflict with the `git clone/merge` feature when launching workspaces. It is common to use both options when launching workspaces. This allows instructors to build labs that clone/merge git-based sources and may spawn specific and optimized workspace environments.
+
+**Open edX**:
+
+    ```
+    ["next=/user-redirect/theia"]
+    ```
+    
+**Canvas LMS**:
+
+    ```
+    next=/user-redirect/lab
+    ```
 
 ### Defining Launch Requests to Clone / Merge Git-based Repos
 
