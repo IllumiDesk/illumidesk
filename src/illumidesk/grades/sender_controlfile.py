@@ -11,8 +11,8 @@ logger.setLevel(logging.DEBUG)
 
 class LTIGradesSenderControlFile:
     """
-    Control file to register assignment information about grades submission.
-    With this file we can associate assignments that come from lms and those that teachers create on nbgrader
+    Control file to register assignment information about grades submission (only for LTI 1.1).
+    With this file we can associate assignments that come from lms and those that teachers create on the nbgrader console
 
     Args:
         course_dir (str): Course directory, normally where the gradebook is (/home/grader-<course-id>/<course-id>)

@@ -47,7 +47,7 @@ class LTI13ConfigHandler(BaseHandler):
         private_key = pem.parse_file(key_path)
         public_key = RSA.import_key(private_key[0].as_text()).publickey().exportKey()
         self.log.debug('public_key is %s' % public_key)
-        
+
         jwk = get_jwk(public_key)
         kid = jwk.get('kid')
         self.log.debug('kid is %s' % kid)

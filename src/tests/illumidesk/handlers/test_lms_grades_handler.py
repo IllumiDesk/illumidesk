@@ -3,13 +3,7 @@ import pytest
 from illumidesk.authenticators.authenticator import LTI11Authenticator, LTI13Authenticator
 from illumidesk.grades.senders import LTIGradeSender, LTI13GradeSender
 from illumidesk.handlers.lms_grades import SendGradesHandler
-from unittest.mock import (
-    patch,
-    PropertyMock,
-    Mock,
-    MagicMock,
-    AsyncMock
-)
+from unittest.mock import patch, PropertyMock, Mock, MagicMock, AsyncMock
 from tests.illumidesk.mocks import mock_handler
 from tornado.web import RequestHandler
 from jupyterhub.user import User
@@ -17,9 +11,7 @@ from jupyterhub.user import User
 
 @pytest.fixture()
 def send_grades_handler_lti11():
-    jhub_settings ={
-        'authenticator_class': LTI11Authenticator
-    }
+    jhub_settings = {'authenticator_class': LTI11Authenticator}
     request_handler = mock_handler(RequestHandler, **jhub_settings)
     send_grades_handler = SendGradesHandler(request_handler.application, request_handler.request)
     return send_grades_handler
@@ -27,18 +19,20 @@ def send_grades_handler_lti11():
 
 @pytest.fixture()
 def send_grades_handler_lti13():
-    jhub_settings ={
-        'authenticator_class': LTI13Authenticator
-    }
+    jhub_settings = {'authenticator_class': LTI13Authenticator}
+
     async def user_auth_state():
         return []
+
     def mock_user():
         mock_user = Mock()
-        attrs = {"get_auth_state.side_effect": user_auth_state,}
+        attrs = {
+            "get_auth_state.side_effect": user_auth_state,
+        }
         mock_user.configure_mock(**attrs)
         return mock_user
 
-    request_handler = mock_handler(RequestHandler, **jhub_settings)    
+    request_handler = mock_handler(RequestHandler, **jhub_settings)
     send_grades_handler = SendGradesHandler(request_handler.application, request_handler.request)
     setattr(send_grades_handler, '_jupyterhub_user', mock_user())
     return send_grades_handler
@@ -47,10 +41,12 @@ def send_grades_handler_lti13():
 @pytest.mark.asyncio
 @patch('illumidesk.grades.senders.LTI13GradeSender.send_grades')
 @patch('tornado.web.RequestHandler.write')
-async def test_SendGradesHandler_calls_authenticator_class_property(mock_write, send_grades_handler_lti13, send_grades_handler_lti11):
+async def test_SendGradesHandler_calls_authenticator_class_property(
+    mock_write, send_grades_handler_lti13, send_grades_handler_lti11
+):
     """
     Does the SendGradesHandler uses authenticator_class property to get what authenticator was set?
-    """    
+    """
     with patch('illumidesk.handlers.lms_grades.LTI13GradeSender') as mock_sender:
         instance = mock_sender.return_value
         instance.send_grades = AsyncMock()
@@ -70,7 +66,9 @@ async def test_SendGradesHandler_calls_authenticator_class_property(mock_write, 
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
-async def test_SendGradesHandler_authenticator_class_gets_its_value_from_settings(mock_write, send_grades_handler_lti11, send_grades_handler_lti13):
+async def test_SendGradesHandler_authenticator_class_gets_its_value_from_settings(
+    mock_write, send_grades_handler_lti11, send_grades_handler_lti13
+):
     """
     Does the SendGradesHandler.authenticator_class property gets its value from jhub settings?
     """
@@ -80,7 +78,9 @@ async def test_SendGradesHandler_authenticator_class_gets_its_value_from_setting
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
-async def test_SendGradesHandler_creates_a_LTIGradeSender_instance_when_LTI11Authenticator_was_set(mock_write, send_grades_handler_lti11):
+async def test_SendGradesHandler_creates_a_LTIGradeSender_instance_when_LTI11Authenticator_was_set(
+    mock_write, send_grades_handler_lti11
+):
     """
     Does the SendGradesHandler create a LTIGradeSender instance for lti11?
     """
@@ -91,7 +91,9 @@ async def test_SendGradesHandler_creates_a_LTIGradeSender_instance_when_LTI11Aut
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
-async def test_SendGradesHandler_creates_a_LTI13GradeSender_instance_when_LTI13Authenticator_was_set(mock_write, send_grades_handler_lti13):
+async def test_SendGradesHandler_creates_a_LTI13GradeSender_instance_when_LTI13Authenticator_was_set(
+    mock_write, send_grades_handler_lti13
+):
     """
     Does the SendGradesHandler create a LTI13GradeSender instance for lti13?
     """
@@ -100,6 +102,7 @@ async def test_SendGradesHandler_creates_a_LTI13GradeSender_instance_when_LTI13A
         instance.send_grades = AsyncMock()
         await send_grades_handler_lti13.post('course_example', 'assignment_test')
         assert mock_sender.called
+
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')

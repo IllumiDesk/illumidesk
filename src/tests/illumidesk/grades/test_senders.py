@@ -21,6 +21,7 @@ async def test_grades_sender_raises_a_critical_error_when_gradebook_does_not_exi
     with pytest.raises(GradesSenderCriticalError):
         await sender_controlfile.send_grades()
 
+
 @pytest.mark.asyncio
 async def test_grades_sender_raises_an_error_if_there_are_no_grades(tmp_path):
     """

@@ -13,6 +13,7 @@ class SendGradesHandler(BaseHandler):
     """
     Defines a POST method to process grades submission for a specific assignment within a course
     """
+
     @property
     def authenticator_class(self):
         return self.settings.get('authenticator_class', None)
@@ -39,4 +40,3 @@ class SendGradesHandler(BaseHandler):
         except exceptions.GradesSenderMissingInfoError:
             raise web.HTTPError(400, 'Impossible to send grades. There are missing values, please check logs.')
         self.write(json.dumps({"success": True}))
-

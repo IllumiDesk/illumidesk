@@ -13,6 +13,7 @@ import uuid
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 async def get_lms_access_token(token_endpoint, private_key, client_id, scope=None):
     token_params = {
         'iss': client_id,
@@ -20,7 +21,7 @@ async def get_lms_access_token(token_endpoint, private_key, client_id, scope=Non
         'aud': token_endpoint,
         'iat': int(time.time()) - 5,
         'exp': int(time.time()) + 60,
-        'jti': str(uuid.uuid4())
+        'jti': str(uuid.uuid4()),
     }
     logger.debug('Getting lms access token with parameters %s' % token_params)
     public_key = RSA.importKey(private_key).publickey().exportKey()
@@ -28,26 +29,23 @@ async def get_lms_access_token(token_endpoint, private_key, client_id, scope=Non
     if public_key:
         jwk = get_jwk(public_key)
         headers = {'kid': jwk.get('kid')} if jwk else None
-    
-    token = jwt.encode(
-        token_params,
-        private_key,
-        algorithm='RS256',
-        headers = headers
-    )
+
+    token = jwt.encode(token_params, private_key, algorithm='RS256', headers=headers)
     logger.debug('Obtaining token %s' % token)
-    scope = scope or ' '.join([
-        'https://purl.imsglobal.org/spec/lti-ags/scope/score',
-        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-        "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly",
-        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly'
-    ])
+    scope = scope or ' '.join(
+        [
+            'https://purl.imsglobal.org/spec/lti-ags/scope/score',
+            'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+            "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly",
+            'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly',
+        ]
+    )
     logger.debug('Scope is %s' % scope)
     params = {
         'grant_type': 'client_credentials',
         'client_assertion_type': 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
         'client_assertion': token.decode(),
-        'scope': scope
+        'scope': scope,
     }
     logger.debug('OAuth parameters are %s' % params)
     client = AsyncHTTPClient()
