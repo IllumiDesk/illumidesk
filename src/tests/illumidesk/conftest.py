@@ -32,20 +32,6 @@ def app():
 
 
 @pytest.fixture(scope='function')
-def docker_client_cotainers_not_found():
-    """
-    Creates a DockerClient mock object where the container name does not exist
-    """
-    docker_client = Mock(spec='docker.DockerClient')
-
-    def _container_not_exists(name):
-        raise NotFound(f'container: {name} not exists')
-
-    docker_client.containers = MagicMock()
-    docker_client.containers.get.side_effect = lambda name: _container_not_exists(name)
-
-
-@pytest.fixture(scope='function')
 def jupyterhub_api_environ(monkeypatch):
     """
     Set the enviroment variables used in Course class
