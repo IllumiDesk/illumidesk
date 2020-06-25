@@ -63,7 +63,7 @@ class LTIGradesSenderControlFile:
         self, assignment_name: str, lis_outcome_service_url: str, lms_user_id: str, lis_result_sourcedid: str
     ) -> None:
         """
-        Registers some information about where sent the assignment grades: like the url, sourcedid.
+        Registers some information about where the assignment grades are sent: like the url, sourcedid.
         This information is used later when the teacher finishes its work in nbgrader console
 
         Args:

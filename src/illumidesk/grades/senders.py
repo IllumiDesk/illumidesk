@@ -139,17 +139,24 @@ class LTIGradeSender(GradesBaseSender):
 
 class LTI13GradeSender(GradesBaseSender):
     def __init__(self, course_id: str, assignment_name: str, auth_state: dict):
+        """
+        Creates a new class to help us to send grades saved in the nbgrader gradebook (sqlite) back to the LMS
+
+        Args:
+            course_id: It's the course label obtained from lti claims
+            assignment_name: the asignment name used on the nbgrader console
+            auth_state: It's a dictionary with the auth state of the user. Saved when user logged in.
+                        The required key is 'course_lineitems' (obtained from the https://purl.imsglobal.org/spec/lti-ags/claim/endpoint claim)
+                        and its value is something like 'http://canvas.instructure.com/api/lti/courses/1/line_items'
+        """
         super(LTI13GradeSender, self).__init__(course_id, assignment_name)
-        # lti 13 endpoint contains the jwks url so we need to extract only the hostname
-        lms_jwks_endpoint = os.environ['LTI13_ENDPOINT']
-        self.user_auth_state = auth_state
-        logger.info(f'User auth_state received from SenderHandler: {self.user_auth_state}')
-        self.lineitems_url = self.user_auth_state['course_lineitems']
-        if not self.lineitems_url:
-            logger.info('There is not lineitems value for grades submission')
-            raise GradesSenderMissingInfoError()
-        self.lms_base_url = "{0.scheme}://{0.netloc}/".format(urlsplit(lms_jwks_endpoint))
-        logger.info(f'Using {self.lineitems_url} to get line_items from lms')
+        if auth_state is None or 'course_lineitems' not in auth_state:
+            logger.info('The key "course_lineitems" is missing in the user auth_state and it is required')
+            raise GradesSenderMissingInfoError()        
+        
+        logger.info(f'User auth_state received from SenderHandler: {auth_state}')
+        self.lineitems_url = auth_state['course_lineitems']        
+
 
     async def get_lms_token(self):
         key_path = os.environ.get('LTI13_PRIVATE_KEY')
