@@ -33,6 +33,7 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authent
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Instructor',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected
@@ -58,6 +59,7 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(lti11_auth
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Instructor',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected
@@ -217,6 +219,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Learner',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected
@@ -244,6 +247,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Learner',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected
@@ -271,6 +275,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Learner',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected
@@ -298,6 +303,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Learner',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected

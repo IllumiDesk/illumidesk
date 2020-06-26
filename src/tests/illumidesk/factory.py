@@ -40,14 +40,23 @@ dummy_lti13_id_token_empty_roles = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6
 
 
 def factory_auth_state_dict(
-    username: str = 'foo', course_id: str = 'intro101', lms_user_id: str = 'abc123', user_role: str = 'Learner'
+    username: str = 'foo',
+    course_id: str = 'intro101',
+    lms_user_id: str = 'abc123',
+    user_role: str = 'Learner',
+    workspace_type: str = 'notebook',
 ) -> Dict[str, str]:
     """
     Creates an authentication dictionary with default name and auth_state k/v's
     """
     return {
         'name': username,
-        'auth_state': {'course_id': course_id, 'lms_user_id': lms_user_id, 'user_role': user_role,},  # noqa: E231
+        'auth_state': {
+            'course_id': course_id,
+            'lms_user_id': lms_user_id,
+            'user_role': user_role,
+            'workspace_type': workspace_type,
+        },  # noqa: E231
     }
 
 
