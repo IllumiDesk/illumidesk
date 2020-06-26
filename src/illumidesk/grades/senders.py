@@ -156,26 +156,17 @@ class LTI13GradeSender(GradesBaseSender):
         
         logger.info(f'User auth_state received from SenderHandler: {auth_state}')
         self.lineitems_url = auth_state['course_lineitems']        
+        self.private_key_path = os.environ.get('LTI13_PRIVATE_KEY')
+        self.lms_token_url = os.environ['LTI13_TOKEN_URL']
+        self.lms_client_id = os.environ['LTI13_CLIENT_ID']
 
 
-    async def get_lms_token(self):
-        key_path = os.environ.get('LTI13_PRIVATE_KEY')
-        # check the pem permission
-        if not os.access(key_path, os.R_OK):
-            logger.error(f'The pem file {key_path} cannot be load')
-            raise PermissionError()
-        # parse file generates a list of PEM objects
-        certs = pem.parse_file(key_path)
-        self.token = await get_lms_access_token(
-            os.environ['LTI13_TOKEN_URL'], str(certs[0]), os.environ['LTI13_CLIENT_ID'],
-        )
-
-    async def send_grades(self):
-        await self.get_lms_token()
+    async def send_grades(self):        
         max_score, nbgrader_grades = self._retrieve_grades_from_db()
         if not nbgrader_grades:
             raise AssignmentWithoutGradesError
-
+        
+        await get_lms_access_token(self.lms_token_url, self.private_key_path, self.lms_client_id)
         for grade in nbgrader_grades:
             headers = {
                 'Authorization': '{token_type} {access_token}'.format(**self.token),

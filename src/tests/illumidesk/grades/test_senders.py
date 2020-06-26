@@ -56,5 +56,13 @@ class TestLTI13GradesSender:
             LTI13GradeSender('course-id', 'lab', None)
 
     def test_sender_sets_lineitems_url_with_the_value_in_auth_state_dict(self):        
-        sut = LTI13GradeSender('course-id', 'lab', {'course_lineitems': 'canvas.docker.com'})
-        assert sut.lineitems_url == 'canvas.docker.com'
+        sut = LTI13GradeSender('course-id', 'lab', {'course_lineitems': 'canvas.docker.com/api/lti/courses/1/line_items'})
+        assert sut.lineitems_url == 'canvas.docker.com/api/lti/courses/1/line_items'
+
+    @pytest.mark.asyncio
+    async def test_sender_raises_AssignmentWithoutGradesError_if_there_are_not_grades(self):
+        sut = LTI13GradeSender('course-id', 'lab', {'course_lineitems': 'canvas.docker.com/api/lti/courses/1/line_items'})
+        with patch.object(LTI13GradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [])):
+            with pytest.raises(AssignmentWithoutGradesError):
+                await sut.send_grades()
+
