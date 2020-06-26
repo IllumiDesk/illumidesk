@@ -55,6 +55,15 @@ def jupyterhub_api_environ(monkeypatch):
 
 
 @pytest.fixture(scope='function')
+def jupyterhub_api_with_custom_base_environ(monkeypatch, jupyterhub_api_environ):
+    """
+    Set the enviroment variables used in Course class
+    """
+    monkeypatch.setenv('JUPYTERHUB_BASE_URL', '/acme')
+    monkeypatch.setenv('JUPYTERHUB_API_URL', 'https://localhost/acme/hub/api')
+
+
+@pytest.fixture(scope='function')
 def lti_config_environ(monkeypatch, pem_file):
     """
     Set the enviroment variables used in Course class

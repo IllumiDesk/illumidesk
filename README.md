@@ -149,7 +149,6 @@ Then, rerun the `make deploy` copmmand to update your stack's settings.
 
 With the Postgres container enabled, users (both students and instructors) can connect to a shared Postgres database from within their Jupyter Notebooks by opening a connection with the standard `psycop2g` depency using the `postgres-labs` host name. IllumiDesk's [user guides provide additional examples](https://docs.illumidesk.com) on the commands and common use-cases available for this option.
 
-
 ### Defining Launch Requests to Clone / Merge Git-based Repos
 
 Instructors and content creators in many cases have their content version controlled with git-based source control solutions, such as GitHub, GitLab, or BitBucket. This setup includes the [`nbgitpuller`](https://pypi.org/project/nbgitpuller/) package and handles LTI launch requests to clone and merge source files from an upstream git-based repository.
@@ -174,6 +173,12 @@ Then the full launch request URL would look like so:
 ```
 https://acme.illumidesk.com/lti/launch?next=/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Facme%2Fintro-to-python&branch=master&subPath=00_intro_00_content.ipynb&app=notebook
 ```
+
+### Run in Existing Web Server
+
+Sometimes its helpful for services to run on existing sites. For example, if you have a web server running on `www.example.com` then its possible to run this setup so users can access the application at `www.example.com/<custom_path>`.
+
+This setting is known as the `base_url`. To use a custom path, update the `hosts` file used to deploy your application and set the desired path location for the application. It's important to not that the path does require adding the `/` before the path name. If you would like users to access the `.../acme` path to access the application, then you would add `/acme` for the `base_url` variable in the hosts file.
 
 ### Configuration Files
 
@@ -395,7 +400,7 @@ The services included with this setup rely on environment variables to work prop
 | JUPYTERHUB_CRYPT_KEY | `string` | Cyptographic key used to encrypt cookies. | `<random_value>` |
 | JUPYTERHUB_API_TOKEN | `string` | API token used to authenticate grader service with JupyterHub. | `<random_value>` |
 | JUPYTERHUB_API_TOKEN_USER | `string` | Grader service user which owns JUPYTERHUB_API_TOKEN. | `grader-{course_id}` |
-| JUPYTERHUB_API_URL | `string` | Internal API URL corresponding to JupyterHub. | `http://jupyterhub:8081` |
+| JUPYTERHUB_API_URL | `string` | Internal API URL corresponding to JupyterHub. | `http://reverse-proxy:8000/hub/api` |
 | LTI_CONSUMER_KEY | `string` | LTI 1.1 consumer key | `ild_test_consumer_key` |
 | LTI_SHARED_SECRET | `string` | LTI 1.1 shared secret | `ild_test_shared_secret` |
 | LTI13_AUTHORIZE_URL | `string` | LTI 1.3 authorization URL, such as `https://my.platform.domain/api/lti/authorize_redirect` | `''` |

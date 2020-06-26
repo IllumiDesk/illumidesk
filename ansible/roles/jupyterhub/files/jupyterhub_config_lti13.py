@@ -14,6 +14,10 @@ c = get_config()
 # BEGIN JUPYTERHUB APPLICATION
 ##########################################
 
+# JupyterHub's base url
+base_url = os.environ.get('JUPYTERHUB_BASE_URL')
+c.JupyterHub.base_url = base_url
+
 # Redirect user to server (if running), instead of control panel.
 c.JupyterHub.redirect_to_server = False
 

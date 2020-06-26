@@ -133,3 +133,24 @@ async def test_add_group_member_uses_request_helper_method_with_correct_values(m
     assert mock_request.called
     body_usernames = {'users': ['a_user']}
     mock_request.assert_called_with('groups/to_group/users', method='POST', body=json.dumps(body_usernames))
+
+
+def test_jupyterhub_api_url_with_empty_base_url_env(jupyterhub_api_environ):
+    """
+    Does initializer correctly set the 'JUPYTERHUB_API_URL' when the JUPYTERHUB_BASE_URL has an
+    empty string as a value?
+    """
+    expected = 'https://localhost/hub/api'
+    sut = JupyterHubAPI()
+    actual = sut.api_root_url
+    assert expected == actual
+
+
+def test_jupyterhub_api_url_with_base_url_env(jupyterhub_api_with_custom_base_environ):
+    """
+    Does initializer correctly set the 'JUPYTERHUB_API_URL' when using the JUPYTERHUB_BASE_URL?
+    """
+    expected = 'https://localhost/acme/hub/api'
+    sut = JupyterHubAPI()
+    actual = sut.api_root_url
+    assert expected == actual

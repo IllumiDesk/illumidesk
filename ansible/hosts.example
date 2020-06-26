@@ -27,6 +27,10 @@ all:
       # uncomment to add top level domain, such as example.com
       # tld: example.com
 
+      # uncomment to use a custom base url starting with the / character,
+      # defaults to an empty string.
+      # base_url: /acme
+
       # uncomment to add your custom course name, such as finance101
       # course_id: intro101
 

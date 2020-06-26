@@ -160,10 +160,6 @@ class Course:
         grader service.
         """
         logger.debug('Running grader container with exchange root %s' % self.exchange_root)
-        jupyterhub_api_url = os.environ.get('JUPYTERHUB_API_URL')
-        jupyterhub_api_token = os.environ.get('JUPYTERHUB_API_TOKEN')
-        logger.debug('Grader container JUPYTERHUB_API_URL set to %s' % jupyterhub_api_url)
-        logger.debug('Grader container JUPYTERHUB_API_TOKEN set to %s' % jupyterhub_api_token)
         self.client.containers.run(
             detach=True,
             image=os.environ.get('GRADER_SERVICE_IMAGE'),
@@ -171,8 +167,7 @@ class Course:
             environment=[
                 f'JUPYTERHUB_SERVICE_NAME={self.course_id}',
                 f'JUPYTERHUB_API_TOKEN={self.token}',
-                f'JUPYTERHUB_API_URL={jupyterhub_api_url}',
-                f'JUPYTERHUB_BASE_URL=https://{self.domain}/',
+                f'JUPYTERHUB_API_URL={self.jupyterhub_api_url}',
                 f'JUPYTERHUB_SERVICE_PREFIX=/services/{self.course_id}',
                 f'JUPYTERHUB_CLIENT_ID=service-{self.course_id}',
                 f'JUPYTERHUB_USER={self.grader_name}',

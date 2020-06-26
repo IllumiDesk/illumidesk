@@ -13,6 +13,10 @@ c = get_config()
 # BEGIN JUPYTERHUB APPLICATION
 ##########################################
 
+# JupyterHub's base url
+base_url = os.environ.get('JUPYTERHUB_BASE_URL')
+c.JupyterHub.base_url = base_url
+
 # Set to debug for testing
 c.JupyterHub.log_level = 'DEBUG'
 
