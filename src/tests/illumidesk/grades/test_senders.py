@@ -10,6 +10,7 @@ from illumidesk.grades.senders import LTI13GradeSender
 from illumidesk.grades.exceptions import GradesSenderCriticalError
 from illumidesk.grades.exceptions import AssignmentWithoutGradesError
 from illumidesk.grades.exceptions import GradesSenderMissingInfoError
+from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 
 
 class TestLTI11GradesSender:
@@ -55,12 +56,12 @@ class TestLTI13GradesSender:
         with pytest.raises(GradesSenderMissingInfoError):
             LTI13GradeSender('course-id', 'lab', None)
 
-    def test_sender_sets_lineitems_url_with_the_value_in_auth_state_dict(self):        
+    def test_sender_sets_lineitems_url_with_the_value_in_auth_state_dict(self, lti_config_environ):
         sut = LTI13GradeSender('course-id', 'lab', {'course_lineitems': 'canvas.docker.com/api/lti/courses/1/line_items'})
         assert sut.lineitems_url == 'canvas.docker.com/api/lti/courses/1/line_items'
 
     @pytest.mark.asyncio
-    async def test_sender_raises_AssignmentWithoutGradesError_if_there_are_not_grades(self):
+    async def test_sender_raises_AssignmentWithoutGradesError_if_there_are_not_grades(self, lti_config_environ):
         sut = LTI13GradeSender('course-id', 'lab', {'course_lineitems': 'canvas.docker.com/api/lti/courses/1/line_items'})
         with patch.object(LTI13GradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [])):
             with pytest.raises(AssignmentWithoutGradesError):

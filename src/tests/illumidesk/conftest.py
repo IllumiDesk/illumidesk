@@ -46,6 +46,8 @@ def lti_config_environ(monkeypatch, pem_file):
     Set the enviroment variables used in Course class
     """
     monkeypatch.setenv('LTI13_PRIVATE_KEY', pem_file)
+    monkeypatch.setenv('LTI13_TOKEN_URL', 'https://my.platform.domain/login/oauth2/token')
+    monkeypatch.setenv('LTI13_CLIENT_ID', '000000000000001')
 
 
 @pytest.fixture(scope='function')
