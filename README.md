@@ -174,11 +174,15 @@ Then the full launch request URL would look like so:
 https://acme.illumidesk.com/lti/launch?next=/user-redirect/git-pull?repo=https%3A%2F%2Fgithub.com%2Facme%2Fintro-to-python&branch=master&subPath=00_intro_00_content.ipynb&app=notebook
 ```
 
-### Run in Existing Web Server
+### Add Custom Base URL
 
 Sometimes its helpful for services to run on existing sites. For example, if you have a web server running on `www.example.com` then its possible to run this setup so users can access the application at `www.example.com/<custom_path>`.
 
-This setting is known as the `base_url`. To use a custom path, update the `hosts` file used to deploy your application and set the desired path location for the application. It's important to not that the path does require adding the `/` before the path name. If you would like users to access the `.../acme` path to access the application, then you would add `/acme` for the `base_url` variable in the hosts file.
+This setting is known as the `base_url` (effectively JupyterHub's standard base_url configuration option). To use a custom path as a base URL, update the `hosts` YAML file used to deploy your application and set the desired path location for the application. It's important to note that the path does require adding the `/` before the path name. If you would like users to access the `.../acme` path to access the application, then you would add `/acme` for the `base_url` variable in the hosts file.
+
+**Caution**
+
+You may notice that `JUPYTERHUB_BASE_URL` exists in the `env.*` files but that it isn't documented as a way to globally change the `base_url` setting. This is due to how the `setup-course` microservice runs a a separate service and how it resolves the reverse proxy in order to communicate with the Hub's API. Updating the `JUPYTERHUB_BASE_URL` within the `env.*` will lead to breaking changes.
 
 ### Configuration Files
 
