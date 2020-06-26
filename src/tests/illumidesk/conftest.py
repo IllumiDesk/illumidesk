@@ -1,3 +1,4 @@
+import json
 import pytest
 import uuid
 
@@ -5,17 +6,24 @@ from Crypto.PublicKey import RSA
 
 from docker.errors import NotFound
 
+from io import StringIO
+
+from tornado.httputil import HTTPHeaders
 from tornado.web import Application
 from tornado.web import RequestHandler
 
 from typing import Any
 from typing import Dict
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from unittest.mock import MagicMock
 
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 from illumidesk.authenticators.utils import LTIUtils
+
+from tornado.httpclient import AsyncHTTPClient, HTTPResponse
+
+from tests.illumidesk.mocks import mock_handler
 
 
 @pytest.fixture(scope='module')
@@ -148,3 +156,18 @@ def test_quart_client(monkeypatch, tmp_path):
     from illumidesk.setup_course.app import app
 
     return app.test_client()
+
+
+@pytest.fixture
+def http_async_httpclient_with_empty_body_response():
+    body = {'message': 'ok'}
+    reason: str = 'OK',
+    headers: HTTPHeaders = HTTPHeaders({'content-type': 'application/json'}),
+    dict_to_buffer = StringIO(json.dumps(body)) if body else None
+    async def  get_response():
+        return HTTPResponse(mock_handler(RequestHandler),
+            code=200, reason=reason, headers=headers, effective_url='', buffer=dict_to_buffer
+        )
+    with patch.object(
+        AsyncHTTPClient, 'fetch', return_value=get_response()):
+        yield AsyncHTTPClient()
