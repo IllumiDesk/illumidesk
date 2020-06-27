@@ -9,8 +9,10 @@ from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.authenticator import LTI11Authenticator
+from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
 from tests.illumidesk.factory import factory_lti11_complete_launch_args
+from tests.illumidesk.mocks import mock_handler
 
 
 @pytest.mark.asyncio
@@ -175,6 +177,9 @@ async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_in
 
 @pytest.mark.asyncio
 async def test_authenticator_invokes_validator_with_decoded_dict():
+    """
+    Does the authentictor call the validator?
+    """
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True) as mock_validator:
         authenticator = LTI11Authenticator()
         handler = Mock(spec=RequestHandler)
@@ -304,6 +309,65 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Learner',
                 'workspace_type': 'notebook',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_default_workspace_type_when_missing(lti11_authenticator,):
+    """
+    Do we get the default workspace_type when its not sent with the launch request?
+    """
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = factory_lti11_complete_launch_args('canvas', 'Learner', 'notebook')
+        args['lis_outcome_service_url'] = [b'']
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Learner',
+                'workspace_type': 'notebook',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
+async def test_authenticator_returns_custom_workspace_type_when_set(lti11_authenticator,):
+    """
+     Do we get the custom workspace_type when its sent with the launch request?
+    """
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        handler = mock_handler(LTI11AuthenticateHandler)
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(
+                arguments=factory_lti11_complete_launch_args(role='Instructor', workspace_type='foo'),
+                headers={},
+                items=[],
+            ),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+                'workspace_type': 'foo',
             },
         }
         assert result == expected

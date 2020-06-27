@@ -178,11 +178,13 @@ class LTI11Authenticator(LTIAuthenticator):
                 raise HTTPError(400, 'Course label not included in the LTI request')
 
             # Users have the option to initiate a launch request with the workspace_type they would like
-            # to launch
-            workspace_type = 'notebook'
-            if 'workspace_type' in args and args['workspace_type'] is not None:
-                workspace_type = args['workspace_type']
-                self.log.debug('Workspace type sent in authentication request is: %s' % workspace_type)
+            # to launch. edX prepends arguments with custom_*, so we need to check for those too.
+            workspace_type = ''
+            if 'custom_workspace_type' in args and args['custom_workspace_type']:
+                workspace_type = args['custom_workspace_type']
+            elif workspace_type == '':
+                workspace_type = 'notebook'
+            self.log.debug('Workspace type assigned as: %s' % workspace_type)
 
             # Get the user's role, assign to Learner role by default. Roles are sent as institution
             # roles, where the roles' value is <handle>,<full URN>.
@@ -348,6 +350,14 @@ class LTI13Authenticator(OAuthenticator):
                 raise HTTPError('Unable to set the username')
             self.log.debug('username is %s' % username)
 
+            # assign a workspace type, if provided, otherwise defaults to jupyter classic nb
+            workspace_type = 'notebook'
+            if jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/custom') and jwt_decoded[
+                'https://purl.imsglobal.org/spec/lti/claim/custom'
+            ].get('workspace_type'):
+                workspace_type = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom'].get('workspace_type')
+            self.log.debug('workspace type is %s' % workspace_type)
+
             user_role = ''
             for role in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/roles']:
                 if role.find('Instructor') >= 1:
@@ -362,5 +372,9 @@ class LTI13Authenticator(OAuthenticator):
 
             return {
                 'name': username,
-                'auth_state': {'course_id': course_id, 'user_role': user_role, 'lms_user_id': username,},  # noqa: E231
+                'auth_state': {
+                    'course_id': course_id,
+                    'user_role': user_role,
+                    'workspace_type': workspace_type,
+                },  # noqa: E231
             }

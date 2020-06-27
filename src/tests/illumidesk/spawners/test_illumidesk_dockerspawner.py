@@ -1,8 +1,10 @@
 import os
 import pytest
 import types
+
 from dockerspawner.dockerspawner import DockerSpawner
-from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
+
+from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
 
 
 @pytest.fixture(scope="function")
@@ -16,51 +18,49 @@ def setup_environ(monkeypatch):
     monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader_image')
 
 
-def test_image_from_role_raises_an_error_with_empty_user_role():
+def test_image_from_key_raises_an_error_with_empty_user_role():
     """
     Does the internal image_from_role method accept and empty/none value?
     """
-    sut = IllumiDeskDockerSpawner()
+    sut = IllumiDeskRoleDockerSpawner()
     with pytest.raises(ValueError):
-        sut._image_from_role('')
+        sut._image_from_key('')
 
 
-def test_image_from_role_uses_default_image_for_role_not_considered(setup_environ):
+def test_image_from_key_uses_default_image_for_role_not_considered(setup_environ):
     """
     Does the internal image_from_role method return our standard image?
     """
-    sut = IllumiDeskDockerSpawner()
-    result = sut._image_from_role('unknown')
+    sut = IllumiDeskRoleDockerSpawner()
+    result = sut._image_from_key('unknown')
     assert result == os.environ.get('DOCKER_STANDARD_IMAGE')
 
 
-def test_image_from_role_uses_correct_image_for_STUDENT_role(setup_environ):
+def test_image_from_key_uses_correct_image_for_STUDENT_role(setup_environ):
     """
     Does the internal image_from_role method return student image?
     """
-    sut = IllumiDeskDockerSpawner()
+    sut = IllumiDeskRoleDockerSpawner()
     # act
-    image = sut._image_from_role('Student')
+    image = sut._image_from_key('Student')
     assert image == os.environ.get('DOCKER_LEARNER_IMAGE')
 
 
-def test_image_from_role_uses_correct_image_for_INSTRUCTOR_role(setup_environ):
+def test_image_from_key_uses_correct_image_for_INSTRUCTOR_role(setup_environ):
     """
     Does the internal image_from_role method return instructor image?
     """
-    sut = IllumiDeskDockerSpawner()
-    # act
-    image = sut._image_from_role('Instructor')
+    sut = IllumiDeskRoleDockerSpawner()
+    image = sut._image_from_key('Instructor')
     assert image == os.environ.get('DOCKER_INSTRUCTOR_IMAGE')
 
 
-def test_image_from_role_uses_correct_image_for_GRADER_role(setup_environ):
+def test_image_from_key_uses_correct_image_for_GRADER_role(setup_environ):
     """
     Does the internal image_from_role method return grader image?
     """
-    sut = IllumiDeskDockerSpawner()
-    # act
-    image = sut._image_from_role('Grader')
+    sut = IllumiDeskRoleDockerSpawner()
+    image = sut._image_from_key('Grader')
     assert image == os.environ.get('DOCKER_GRADER_IMAGE')
 
 
@@ -69,7 +69,7 @@ async def test_ensure_environment_assigned_to_user_role_from_auth_state():
     """
     Does the user's docker container environment reflect his/her role?
     """
-    test_spawner = IllumiDeskDockerSpawner()
+    test_spawner = IllumiDeskRoleDockerSpawner()
 
     authenticator_auth_state = {
         'name': 'username',
@@ -77,6 +77,7 @@ async def test_ensure_environment_assigned_to_user_role_from_auth_state():
             'course_id': 'intro101',
             'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
             'user_role': 'Learner',
+            'workspace_type': 'notebook',
         },
     }
 

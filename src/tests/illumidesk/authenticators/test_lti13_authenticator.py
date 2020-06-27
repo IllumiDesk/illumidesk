@@ -9,7 +9,9 @@ from illumidesk.authenticators.authenticator import LTI13Authenticator
 
 from tests.illumidesk.mocks import mock_handler
 from tests.illumidesk.factory import dummy_lti13_id_token_complete
+from tests.illumidesk.factory import dummy_lti13_id_token_custom_workspace_type
 from tests.illumidesk.factory import dummy_lti13_id_token_empty_roles
+from tests.illumidesk.factory import dummy_lti13_id_token_empty_workspace_type
 from tests.illumidesk.factory import dummy_lti13_id_token_instructor_role
 from tests.illumidesk.factory import dummy_lti13_id_token_misssing_all_except_email
 from tests.illumidesk.factory import dummy_lti13_id_token_misssing_all_except_name
@@ -83,7 +85,11 @@ async def test_authenticator_returns_username_in_auth_state_with_valid_email():
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'foo',
-                'auth_state': {'course_id': 'intro101', 'lms_user_id': 'foo', 'user_role': 'Learner',},  # noqa: E231
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'user_role': 'Learner',
+                    'workspace_type': 'notebook',
+                },  # noqa: E231
             }
             assert result['name'] == expected['name']
 
@@ -104,7 +110,11 @@ async def test_authenticator_returns_username_in_auth_state_with_with_name():
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'foo',
-                'auth_state': {'course_id': 'intro101', 'lms_user_id': 'foo', 'user_role': 'Learner',},  # noqa: E231
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'user_role': 'Learner',
+                    'workspace_type': 'notebook',
+                },  # noqa: E231
             }
             assert result['name'] == expected['name']
 
@@ -125,7 +135,11 @@ async def test_authenticator_returns_username_in_auth_state_with_with_given_name
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'foobar',
-                'auth_state': {'course_id': 'intro101', 'lms_user_id': 'foo', 'user_role': 'Learner',},  # noqa: E231
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'user_role': 'Learner',
+                    'workspace_type': 'notebook',
+                },  # noqa: E231
             }
             assert result['name'] == expected['name']
 
@@ -146,7 +160,11 @@ async def test_authenticator_returns_username_in_auth_state_with_family_name():
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'bar',
-                'auth_state': {'course_id': 'intro101', 'lms_user_id': 'foo', 'user_role': 'Learner',},  # noqa: E231
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'user_role': 'Learner',
+                    'workspace_type': 'notebook',
+                },  # noqa: E231
             }
             assert result['name'] == expected['name']
 
@@ -167,7 +185,11 @@ async def test_authenticator_returns_username_in_auth_state_with_person_sourcedi
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'abc123',
-                'auth_state': {'course_id': 'intro101', 'lms_user_id': 'foo', 'user_role': 'Learner',},  # noqa: E231
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'user_role': 'Learner',
+                    'workspace_type': 'notebook',
+                },  # noqa: E231
             }
             assert result['name'] == expected['name']
 
@@ -188,13 +210,17 @@ async def test_authenticator_returns_course_id_in_auth_state_with_valid_resource
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'foo',
-                'auth_state': {'course_id': 'intro101', 'lms_user_id': 'foo', 'user_role': 'Learner',},  # noqa: E231
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'user_role': 'Learner',
+                    'workspace_type': 'notebook',
+                },  # noqa: E231
             }
             assert result['auth_state']['course_id'] == expected['auth_state']['course_id']
 
 
 @pytest.mark.asyncio
-async def test_authenticator_returns_lms_user_id_in_auth_state_with_valid_resource_link_request():
+async def test_authenticator_returns_workspace_type_in_auth_state_with_valid_resource_link_request():
     """
     Do we get a valid lms_user_id in the auth_state when receiving a valid resource link request?
     """
@@ -209,9 +235,13 @@ async def test_authenticator_returns_lms_user_id_in_auth_state_with_valid_resour
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'foo',
-                'auth_state': {'course_id': 'intro101', 'lms_user_id': 'foo', 'user_role': 'Learner',},  # noqa: E231
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'user_role': 'Learner',
+                    'workspace_type': 'notebook',
+                },  # noqa: E231
             }
-            assert result['auth_state']['lms_user_id'] == expected['auth_state']['lms_user_id']
+            assert result['auth_state'].get('lms_user_id') == expected['auth_state'].get('lms_user_id')
 
 
 @pytest.mark.asyncio
@@ -230,9 +260,13 @@ async def test_authenticator_returns_learner_role_in_auth_state_with_valid_resou
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'foo',
-                'auth_state': {'course_id': 'intro101', 'lms_user_id': 'foo', 'user_role': 'Learner',},  # noqa: E231
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'user_role': 'Learner',
+                    'workspace_type': 'notebook',
+                },  # noqa: E231
             }
-            assert result['auth_state']['user_role'] == expected['auth_state']['user_role']
+            assert result['auth_state'].get('user_role') == expected['auth_state'].get('user_role')
 
 
 @pytest.mark.asyncio
@@ -251,12 +285,10 @@ async def test_authenticator_returns_instructor_role_in_auth_state_with_valid_re
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'foo',
-                'auth_state': {
-                    'course_id': 'intro101',
-                    'lms_user_id': 'foo',
-                    'user_role': 'Instructor',
-                },  # noqa: E231
-            }
+                'auth_state': {'course_id': 'intro101', 'user_role': 'Instructor', 'workspace_type': 'notebook'},
+            }  # noqa: E231
+            print(result)
+            print(expected)
             assert result['auth_state']['user_role'] == expected['auth_state']['user_role']
 
 
@@ -277,6 +309,56 @@ async def test_authenticator_returns_learner_role_in_auth_state_with_empty_roles
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'foo',
-                'auth_state': {'course_id': 'intro101', 'lms_user_id': 'foo', 'user_role': 'Learner',},  # noqa: E231
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'user_role': 'Learner',
+                    'workspace_type': 'notebook',
+                },  # noqa: E231
             }
             assert result['auth_state']['user_role'] == expected['auth_state']['user_role']
+
+
+@pytest.mark.asyncio
+async def test_authenticator_returns_default_workspace_type_in_auth_state():
+    """
+    Do we set the workspace type to the default notebook type?
+    """
+    authenticator = LTI13Authenticator()
+    request_handler = mock_handler(RequestHandler, authenticator=authenticator)
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=dummy_lti13_id_token_empty_workspace_type.encode()
+    ) as mock_get_argument:
+        with patch.object(
+            LTI13LaunchValidator, 'validate_launch_request', return_value=True
+        ) as mock_verify_launch_request:
+            result = await authenticator.authenticate(request_handler, None)
+            expected = {
+                'name': 'foo',
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'user_role': 'Learner',
+                    'workspace_type': 'notebook',
+                },  # noqa: E231
+            }
+            assert result['auth_state']['workspace_type'] == expected['auth_state']['workspace_type']
+
+
+@pytest.mark.asyncio
+async def test_authenticator_returns_custom_workspace_type_in_auth_state():
+    """
+    Do we set the workspace type to the default notebook type?
+    """
+    authenticator = LTI13Authenticator()
+    request_handler = mock_handler(RequestHandler, authenticator=authenticator)
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=dummy_lti13_id_token_custom_workspace_type.encode()
+    ) as mock_get_argument:
+        with patch.object(
+            LTI13LaunchValidator, 'validate_launch_request', return_value=True
+        ) as mock_verify_launch_request:
+            result = await authenticator.authenticate(request_handler, None)
+            expected = {
+                'name': 'foo',
+                'auth_state': {'course_id': 'intro101', 'user_role': 'Learner', 'workspace_type': 'foo'},  # noqa: E231
+            }
+            assert result['auth_state']['workspace_type'] == expected['auth_state']['workspace_type']

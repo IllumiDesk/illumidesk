@@ -3,7 +3,7 @@ import os
 
 from dockerspawner import DockerSpawner
 
-from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
+from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
 
 
 c = get_config()
@@ -115,8 +115,7 @@ c.ProfilesSpawner.profiles = [
 ]
 
 # Spawn containers with custom dockerspawner class
-c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
-# c.JupyterHub.spawner_class = 'wrapspawner.ProfilesSpawner'
+c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
 
 ##########################################
 # END JUPYTERHUB APPLICATION

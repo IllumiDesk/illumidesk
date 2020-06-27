@@ -111,7 +111,7 @@ By default, this setup uses the `FirstUseAuthenticator` and as such accepts any 
 
 * **Authenticator**: Authentication service. This setup relies on the [FirstUseAuthenticator](https://github.com/jupyterhub/firstuseauthenticator).
 
-* **Spawner**: Spawning service to manage user notebooks. This setup uses [DockerSpawner](https://github.com/jupyterhub/dockerspawner).
+* **Spawner**: Spawning service to manage user notebooks. This setup uses classes which inherit from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class.
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
@@ -271,9 +271,13 @@ The following docker images are created/pulled with this setup:
 
 When building the images the configuration files are copied to the image from the host using the `COPY` command. Environment variables are stored in `env.*` files. You can either customize the environment variables within the `env.*` files or add new ones as needed. The `env.*` files are used by docker-compose to reduce the file's verbosity.
 
-### Spawner
+### Spawners
 
-By default this setup includes the `IllumiDeskDockerSpawner` class which extends the `DockerSpawner` class. This implementation calls the `authenticator` function to get a list of the user's keys/values and uses the `pre_spawn_hook` to set the user's image based on user role.
+By default this setup includes the `IllumiDeskRoleDockerSpawner` and `IllumiDeskWorkSpaceDockerSpawner` classes which extends the `DockerSpawner` class, however, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary and uses the `pre_spawn_hook` to add user directories with the appropriate permissions.
+
+The `IllumiRoleDeskDockerSpawner` interprets LTI-based roles to determine which container to launch. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
+
+The `IllumiDeskWorkSpaceDockerSpawner` sets the image to spawn based on a provided `workspace_type` key. This allows content managers to specify images for labs, modules, or assignments. Refer [to the workspace type customization](#sApawn-specific-workspace-types) section for more information.
 
 Edit the `JupyterHub.spawner_class` to update the spawner used by JupyterHub when launching user containers. For example, if you are changing the spawner from `DockerSpawner` to `KubeSpawner`:
 
@@ -289,7 +293,7 @@ After:
 c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 ```
 
-As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub. In most cases the spawners provide drop-in replacement of the provided IllumiDeskDockerSpawner class, however, setting other spawners may break compatibility with the grading services.
+As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub. In most cases the spawners provide drop-in replacement of the provided `IllumiDeskRoleDockerSpawner` or `IllumiDeskWorkspaceDockerSpawner` classes, however, setting spawners other than `IllumiDeskRoleDockerSpawner` may break compatibility with the grading services.
 
 ### Proxies
 
