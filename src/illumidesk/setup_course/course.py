@@ -38,6 +38,7 @@ class Course:
         self.org = org
         self.course_id = course_id
         self.domain = domain
+        self.jupyterhub_base_url = os.environ.get('JUPYTERHUB_BASE_URL')
 
         self.exchange_root = Path(os.environ.get('MNT_ROOT'), self.org, 'exchange')
         self.grader_name = f'grader-{course_id}'
@@ -168,6 +169,7 @@ class Course:
                 f'JUPYTERHUB_SERVICE_NAME={self.course_id}',
                 f'JUPYTERHUB_API_TOKEN={self.token}',
                 f'JUPYTERHUB_API_URL={self.jupyterhub_api_url}',
+                f'JUPYTERHUB_BASE_URL={self.jupyterhub_base_url}',
                 f'JUPYTERHUB_SERVICE_PREFIX=/services/{self.course_id}',
                 f'JUPYTERHUB_CLIENT_ID=service-{self.course_id}',
                 f'JUPYTERHUB_USER={self.grader_name}',

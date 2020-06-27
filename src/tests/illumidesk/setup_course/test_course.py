@@ -37,6 +37,15 @@ def test_initializer_set_org(setup_course_environ):
     assert course.org == 'org1'
 
 
+def test_initializer_set_base_url(setup_course_environ, jupyterhub_api_with_custom_base_environ):
+    """
+    Does the initializer properly set the course_id property?
+    """
+    course = Course(org='org1', course_id='example', domain='example.com')
+    assert course.jupyterhub_base_url is not None
+    assert course.jupyterhub_base_url == '/acme'
+
+
 def test_initializer_set_domain(setup_course_environ):
     """
     Does the initializer properly set the domain property?
