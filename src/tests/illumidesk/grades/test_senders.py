@@ -11,6 +11,8 @@ from illumidesk.grades.exceptions import GradesSenderCriticalError
 from illumidesk.grades.exceptions import AssignmentWithoutGradesError
 from illumidesk.grades.exceptions import GradesSenderMissingInfoError
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
+from tornado.httpclient import AsyncHTTPClient
+from tests.illumidesk.factory import factory_http_response
 
 
 class TestLTI11GradesSender:
@@ -66,4 +68,22 @@ class TestLTI13GradesSender:
         with patch.object(LTI13GradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [])):
             with pytest.raises(AssignmentWithoutGradesError):
                 await sut.send_grades()
+
+    @pytest.mark.asyncio
+    async def test_sender_calls_get_lms_access_token_to_send_grades(self, lti_config_environ, get_http_response, http_async_httpclient_with_simple_response):
+        sut = LTI13GradeSender('course-id', 'lab', {'course_lineitems': 'canvas.docker.com/api/lti/courses/1/line_items'})
+
+        access_token_result = {'token_type': '', 'access_token': ''}
+        with patch('illumidesk.grades.senders.get_lms_access_token', return_value=access_token_result) as mock_method:        
+
+            with patch.object(LTI13GradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [{'score':10}])):
+                with patch.object(
+                    AsyncHTTPClient,
+                    'fetch',
+                    side_effect=[                    
+                        get_http_response(body=[]),
+                    ],  # noqa: E231
+                ):
+                    await sut.send_grades()
+                    assert mock_method.called
 

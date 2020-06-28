@@ -166,10 +166,13 @@ class LTI13GradeSender(GradesBaseSender):
         if not nbgrader_grades:
             raise AssignmentWithoutGradesError
         
-        await get_lms_access_token(self.lms_token_url, self.private_key_path, self.lms_client_id)
+        token = await get_lms_access_token(self.lms_token_url, self.private_key_path, self.lms_client_id)
+        print('token from lms:', token)
+        if not 'access_token' in token:
+            raise GradesSenderCriticalError('The "access_token" is missing in lms token response')
         for grade in nbgrader_grades:
             headers = {
-                'Authorization': '{token_type} {access_token}'.format(**self.token),
+                'Authorization': '{token_type} {access_token}'.format(**token),
                 'Content-Type': 'application/vnd.ims.lis.v2.lineitem+json',
             }
             client = AsyncHTTPClient()
