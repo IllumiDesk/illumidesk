@@ -1,5 +1,5 @@
 # Default to python3
-- name: install python for Ansible
+- name: install python for ansible
   raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python3-minimal)
   changed_when: False
 - setup: # noqa 502
@@ -30,6 +30,16 @@
     'virtualenv'
   ]
 
+- name: install system dependencies required by efs
+  apt:
+    name:  "{{ item }}"
+    state: latest
+    update_cache: yes
+  loop: [
+    'nfs-common',
+  ]
+  when: aws_efs_enabled|bool
+
 - name: install docker-compose
   get_url:
     url: https://github.com/docker/compose/releases/download/1.25.5/docker-compose-Linux-x86_64
@@ -46,6 +56,30 @@
   with_items:
     - { dest: "{{ mnt_root }}", mode: '0755', owner: 'root', group: 'root' }
 
+- name: ensure rpcbind service is running
+  service:
+    name: rpcbind
+    state: started
+    enabled: yes
+  when: aws_efs_enabled|bool
+
+- name: get current availability zone from aws
+  uri:
+    url: http://169.254.169.254/latest/meta-data/placement/availability-zone
+    return_content: yes
+  register: _aws_current_az
+  when: aws_efs_enabled|bool
+
+- name: mount efs volume
+  mount:
+    backup: "yes"
+    name: "{{ mnt_root }}"
+    src: "{{ _aws_current_az.content }}.{{ efs_id }}.efs.{{ aws_region }}.amazonaws.com:/"
+    fstype: nfs4
+    opts: "nfsvers=4.1"
+    state: mounted
+  when: aws_efs_enabled|bool
+
 - name: create directories within mount/nfs directory
   file:
     path: "{{ item.dest }}"
@@ -60,7 +94,7 @@
     - { dest: "{{ mnt_root }}/{{ org_name }}/home/grader-{{ course_id }}/.jupyter", mode: '0755', owner: '10001', group: '100' }
     - { dest: "{{ mnt_root }}/{{ org_name }}/home/grader-{{ course_id }}/{{ course_id }}", mode: '0755', owner: '10001', group: '100' }
 
-- name: add Docker gpg apt key
+- name: add docker gpg apt key
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
