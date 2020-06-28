@@ -20,6 +20,7 @@ from traitlets import Unicode
 from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
+from illumidesk.authenticators.constants import WORKSPACE_TYPES
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
@@ -179,11 +180,9 @@ class LTI11Authenticator(LTIAuthenticator):
 
             # Users have the option to initiate a launch request with the workspace_type they would like
             # to launch. edX prepends arguments with custom_*, so we need to check for those too.
-            workspace_type = ''
+            workspace_type = 'notebook'
             if 'custom_workspace_type' in args and args['custom_workspace_type']:
                 workspace_type = args['custom_workspace_type']
-            elif workspace_type == '':
-                workspace_type = 'notebook'
             self.log.debug('Workspace type assigned as: %s' % workspace_type)
 
             # Get the user's role, assign to Learner role by default. Roles are sent as institution
@@ -351,11 +350,18 @@ class LTI13Authenticator(OAuthenticator):
             self.log.debug('username is %s' % username)
 
             # assign a workspace type, if provided, otherwise defaults to jupyter classic nb
-            workspace_type = 'notebook'
-            if jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/custom') and jwt_decoded[
-                'https://purl.imsglobal.org/spec/lti/claim/custom'
-            ].get('workspace_type'):
-                workspace_type = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom'].get('workspace_type')
+            workspace_type = ''
+            if (
+                'https://purl.imsglobal.org/spec/lti/claim/custom' in jwt_decoded
+                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom'] is not None
+            ):
+                if (
+                    'workspace_type' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']
+                    and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type'] is not None
+                ):
+                    workspace_type = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type']
+            if workspace_type not in WORKSPACE_TYPES:
+                workspace_type = 'notebook'
             self.log.debug('workspace type is %s' % workspace_type)
 
             user_role = ''

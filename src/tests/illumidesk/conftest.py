@@ -19,6 +19,19 @@ from illumidesk.authenticators.utils import LTIUtils
 
 
 @pytest.fixture(scope='module')
+def auth_state_dict():
+    authenticator_auth_state = {
+        'name': 'username',
+        'auth_state': {
+            'course_id': 'intro101',
+            'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+            'user_role': 'Learner',
+            'workspace_type': 'vscode',
+        },
+    }
+
+
+@pytest.fixture(scope='module')
 def app():
     class TestHandler(RequestHandler):
         def get(self):
@@ -60,6 +73,57 @@ def lti_config_environ(monkeypatch, pem_file):
     Set the enviroment variables used in Course class
     """
     monkeypatch.setenv('LTI13_PRIVATE_KEY', pem_file)
+
+
+@pytest.fixture(scope='function')
+def lti11_complete_launch_args():
+    """
+    Valid response when retrieving jwks from the platform.
+    """
+    args = {
+        'oauth_callback': ['about:blank'.encode()],
+        'oauth_consumer_key': ['my_consumer_key'.encode()],
+        'oauth_signature_method': ['HMAC-SHA1'.encode()],
+        'oauth_timestamp': ['1585947271'.encode()],
+        'oauth_nonce': ['01fy8HKIASKuD9gK9vWUcBj9fql1nOCWfOLPzeylsmg'.encode()],
+        'oauth_signature': ['abc123'.encode()],
+        'oauth_version': ['1.0'.encode()],
+        'context_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
+        'context_label': ['intro101'.encode()],
+        'context_title': ['intro101'.encode()],
+        'custom_canvas_assignment_title': ['test-assignment'.encode()],
+        'custom_canvas_user_login_id': ['student1'.encode()],
+        'custom_worskpace_type': ['foo'.encode()],
+        'ext_roles': ['urn:lti:instrole:ims/lis/Learner'.encode()],
+        'launch_presentation_document_target': ['iframe'.encode()],
+        'launch_presentation_height': ['1000'.encode()],
+        'launch_presentation_locale': ['en'.encode()],
+        'launch_presentation_return_url': [
+            'https: //illumidesk.instructure.com/courses/161/external_content/success/external_tool_redirect'.encode()
+        ],
+        'launch_presentation_width': ['1000'.encode()],
+        'lis_outcome_service_url': [
+            'http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ='.encode()
+        ],
+        'lis_person_contact_email_primary': ['student1@example.com'.encode()],
+        'lis_person_name_family': ['Bar'.encode()],
+        'lis_person_name_full': ['Foo Bar'.encode()],
+        'lis_person_name_given': ['Foo'.encode()],
+        'lti_message_type': ['basic-lti-launch-request'.encode()],
+        'lis_result_sourcedid': ['feb-123-456-2929::28883'.encode()],
+        'lti_version': ['LTI-1p0'.encode()],
+        'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
+        'resource_link_title': ['IllumiDesk'.encode()],
+        'roles': ['Learner'.encode()],
+        'tool_consumer_info_product_family_code': ['canvas'.encode()],
+        'tool_consumer_info_version': ['cloud'.encode()],
+        'tool_consumer_instance_contact_email': ['notifications@mylms.com'.encode()],
+        'tool_consumer_instance_guid': ['srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:test-lms'.encode()],
+        'tool_consumer_instance_name': ['myorg'.encode()],
+        'user_id': ['185d6c59731a553009ca9b59ca3a885100000'.encode()],
+        'user_image': ['https://lms.example.com/avatar-50.png'.encode()],
+    }
+    return args
 
 
 @pytest.fixture(scope='function')
@@ -117,6 +181,21 @@ def reset_file_loaded():
     Set flag to false to reload control file used in LTIGradesSenterControlFile class
     """
     LTIGradesSenderControlFile.FILE_LOADED = False
+
+
+@pytest.fixture(scope="function")
+def setup_image_environ(monkeypatch):
+    """
+    Set the enviroment variables used to identify images assigned by
+    role and/or workspace type.
+    """
+    monkeypatch.setenv('DOCKER_STANDARD_IMAGE', 'standard_image')
+    monkeypatch.setenv('DOCKER_LEARNER_IMAGE', 'learner_image')
+    monkeypatch.setenv('DOCKER_INSTRUCTOR_IMAGE', 'instructor_i/mage')
+    monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader_image')
+    monkeypatch.setenv('DOCKER_THEIA_IMAGE', 'theia_image')
+    monkeypatch.setenv('DOCKER_RSTUDIO_IMAGE', 'rstudio_image')
+    monkeypatch.setenv('DOCKER_VSCODE_IMAGE', 'vscode_image')
 
 
 @pytest.fixture(scope='function')

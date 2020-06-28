@@ -3,6 +3,8 @@ import shutil
 
 from dockerspawner import DockerSpawner
 
+from illumidesk.authenticators.constants import WORKSPACE_TYPES
+
 
 class IllumiDeskBaseDockerSpawner(DockerSpawner):
     """
@@ -27,27 +29,26 @@ class IllumiDeskBaseDockerSpawner(DockerSpawner):
         """
         raise NotImplementedError
 
-    async def auth_state_hook(self, spawner: DockerSpawner, auth_state: dict) -> dict:
+    async def auth_state_hook(self, auth_state: dict) -> dict:
         """
-        Customized hook to assign USER_ROLE environment variable to LTI user role.
-        The USER_ROLE environment variable is used to select the notebook image based
-        on the user's role.
+        Customized hook to assign an environment variable based on a value provided
+        by the authentication's auth_state dictionary.
         """
         if not auth_state:
             self.log.debug('auth_state not enabled.')
             return
-        self.log.debug('auth_state_hook set with %s role' % auth_state['user_role'])
-        self.log.debug('auth_state_hook set with %s workspace type' % auth_state.get('workspace_type'))
+        self.log.debug('auth_state_hook using auth_state %s' % auth_state)
         self.environment['USER_ROLE'] = auth_state['user_role']
-        self.environment['USER_WORKSPACE_TYPE'] = auth_state['workspace_type']
         self.log.debug('Assigned USER_ROLE env var to %s' % self.environment['USER_ROLE'])
+        self.environment['USER_WORKSPACE_TYPE'] = auth_state['workspace_type']
         self.log.debug('Assigned USER_WORKSPACE_TYPE env var to %s' % self.environment['USER_WORKSPACE_TYPE'])
 
-    def pre_spawn_hook(self, spawner: DockerSpawner) -> None:
+    def pre_spawn_hook(self) -> None:
         """
         Creates the user directory based on information passed from the
-        ``spawner`` object. Containers do not have add the user to the container's O/S
-        so we need to create directories and set the appropriate permissions.
+        ``spawner`` object. This setup assumes that users and groups aren't added
+        with the container's operating system so we need to create directories and
+        set the appropriate permissions.
 
         Args:
             spawner: JupyterHub spawner object
@@ -116,20 +117,18 @@ class IllumiDeskRoleDockerSpawner(IllumiDeskBaseDockerSpawner):
         return super().start()
 
 
-class IllumiDeskWorkspaceDockerSpawner(IllumiDeskBaseDockerSpawner):
+class IllumiDeskWorkSpaceDockerSpawner(IllumiDeskBaseDockerSpawner):
     """
     Custom DockerSpawner which assigns a user notebook image
-    based on the `workspace` value in the query parameter.
+    based on the ``workspace_type`` value in the query parameter.
     
-    This spawner requires:
+    This spawner requires that ``Authenticator.enable_auth_state = True``
 
-    1. That the `Authenticator.enable_auth_state = True`
-
-    If the `workspace` query parameter is not set, then the image
-    defaults to the illumides/notebook:latest.
+    If the ``workspace`` parameter is not set, then the image
+    defaults value provided by the DOCKER_STANDARD_IMAGE env var.
     """
 
-    def _image_from_workspace_type(self, workspace_type: str) -> str:
+    def _image_from_key(self, workspace_type: str) -> str:
         """
         Given a workspace type, return the right image.
 
@@ -141,15 +140,20 @@ class IllumiDeskWorkspaceDockerSpawner(IllumiDeskBaseDockerSpawner):
         """
         if not workspace_type:
             raise ValueError('workspace_type is missing')
-        # default to standard image, otherwise assign image based on workspace type
-        self.log.debug('Workspace type used to set image: %s' % workspace_type)
-        docker_image = str(os.environ.get('DOCKER_STANDARD_IMAGE'))
-        if workspace_type == 'theia':
-            docker_image = str(os.environ.get('DOCKER_THEIA_IMAGE'))
-        elif workspace_type == 'rstudio':
-            docker_image = str(os.environ.get('DOCKER_RSTUDIO_IMAGE'))
-        elif workspace_type == 'vscode':
-            docker_image = str(os.environ.get('DOCKER_VSCODE_IMAGE'))
+        docker_image = os.environ.get('DOCKER_STANDARD_IMAGE')
+        for ws in WORKSPACE_TYPES:
+            if workspace_type not in WORKSPACE_TYPES:
+                self.log.warning('Workspace type %s is not recognized, using standard image' % workspace_type)
+                break
+            if workspace_type == 'theia':
+                docker_image = os.environ.get('DOCKER_THEIA_IMAGE')
+                break
+            elif workspace_type == 'rstudio':
+                docker_image = os.environ.get('DOCKER_RSTUDIO_IMAGE')
+                break
+            elif workspace_type == 'vscode':
+                docker_image = os.environ.get('DOCKER_VSCODE_IMAGE')
+                break
         self.log.debug('Image based on workspace type set to %s' % docker_image)
         return docker_image
 
@@ -157,6 +161,6 @@ class IllumiDeskWorkspaceDockerSpawner(IllumiDeskBaseDockerSpawner):
         """Set and run the server based on the workspace type"""
         workspace_type = self.user.spawner.environment.get('USER_WORKSPACE_TYPE') or 'notebook'
         self.log.debug('User %s has workspace type set to: %s' % (self.user.name, workspace_type))
-        self.image = self._image_from_workspace_type(str(workspace_type))
+        self.image = self._image_from_key(str(workspace_type))
         self.log.debug('Starting with image: %s' % self.image)
         return super().start()

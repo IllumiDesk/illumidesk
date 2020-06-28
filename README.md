@@ -460,7 +460,7 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_USER | `string` | Postgres database username | `jupyterhub` |
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
-| USER_WORKSPACE_TYPE | `string` | User's workspace type to run | `notebook` |
+| USER_WORKSPACE_TYPE | `string` | User's workspace type to run. Accepted values are one of: `notebook`, `rstudio`, `theia`, `vscode`. Unrecognized values default to `notebook`. | `notebook` |
 
 ### Environment Variables pertaining to grader service, located in `env.service`
 

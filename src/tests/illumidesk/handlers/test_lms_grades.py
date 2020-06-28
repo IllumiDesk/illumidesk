@@ -15,16 +15,11 @@ from illumidesk.handlers.lms_grades import SendGradesHandler
 from tests.illumidesk.mocks import mock_handler
 
 
-@pytest.fixture
-def reset_file_loaded():
-    LTIGradesSenderControlFile.FILE_LOADED = False
-
-
 @pytest.mark.usefixtures('reset_file_loaded')
 class TestLTIGradesSenderControlFile:
     def test_control_file_is_initialized_if_not_exists(self, tmp_path):
         """
-        Does the LTIGradesSenderControlFile class initializes a file with an empty dict when it not exists?
+        Does the LTIGradesSenderControlFile class initializes a file with an empty dict when it does not exist?
         """
         sender_controlfile = LTIGradesSenderControlFile(tmp_path)
         assert Path(sender_controlfile.config_fullname).stat().st_size > 0

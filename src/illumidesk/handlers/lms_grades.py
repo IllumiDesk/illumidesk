@@ -10,6 +10,9 @@ from nbgrader.api import MissingEntry
 from filelock import FileLock
 from lti.outcome_request import OutcomeRequest
 
+from traitlets.config import LoggingConfigurable
+
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -67,7 +70,7 @@ class SendGradesHandler(BaseHandler):
         self.write(json.dumps({"success": True}))
 
 
-class LTIGradesSenderControlFile:
+class LTIGradesSenderControlFile(LoggingConfigurable):
     """
     Control file to register assignment information about grades submission.
     With this file we can associate assignments that come from lms and those that teachers create on nbgrader
@@ -84,6 +87,7 @@ class LTIGradesSenderControlFile:
 
     def __init__(self, course_dir: str):
         self.config_path = course_dir
+        self.log.debug('Control file path set to: %s' % self.config_path)
         if not LTIGradesSenderControlFile.FILE_LOADED:
             logger.debug('The control file cache will be loaded from filesystem...')
             # try to read first time
