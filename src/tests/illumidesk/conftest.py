@@ -160,16 +160,22 @@ def test_quart_client(monkeypatch, tmp_path):
 
 @pytest.fixture
 def get_http_response():
-    reason: str = 'OK',
-    headers: HTTPHeaders = HTTPHeaders({'content-type': 'application/json'}),
-    
-    async def  _get_response(body: any = None):
+    reason = ('OK',)
+    headers = (HTTPHeaders({'content-type': 'application/json'}),)
+
+    async def _get_response(body: any = None):
         # body can be an empty array so we only check if its value is None explicitly
         body_as_json = json.dumps(body) if body is not None else json.dumps({'message': 'ok'})
         json_to_buffer = StringIO(body_as_json)
-        return HTTPResponse(mock_handler(RequestHandler),
-            code=200, reason=reason, headers=headers, effective_url='', buffer=json_to_buffer
+        return HTTPResponse(
+            mock_handler(RequestHandler),
+            code=200,
+            reason=reason,
+            headers=headers,
+            effective_url='',
+            buffer=json_to_buffer,
         )
+
     return _get_response
 
 
@@ -178,6 +184,6 @@ def http_async_httpclient_with_simple_response(request, get_http_response):
     """
     Creates a patch of AsyncHttpClient.fetch method, useful when other tests are making http request
     """
-    with patch.object(
-        AsyncHTTPClient, 'fetch', return_value=get_http_response(request.param)):
+    test_request_body_param = request.param if hasattr(request, 'param') else None
+    with patch.object(AsyncHTTPClient, 'fetch', return_value=get_http_response(test_request_body_param)):
         yield AsyncHTTPClient()

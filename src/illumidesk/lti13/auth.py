@@ -39,9 +39,9 @@ async def get_lms_access_token(token_endpoint: str, private_key_path: str, clien
     logger.debug('Getting lms access token with parameters %s' % token_params)
     # get the pem-encoded content
     private_key = get_pem_text_from_file(private_key_path)
-    
+
     headers = get_headers_to_jwt_encode(private_key)
-    
+
     token = jwt.encode(token_params, private_key, algorithm='RS256', headers=headers)
     logger.debug('Obtaining token %s' % token)
     scope = scope or ' '.join(
@@ -92,19 +92,20 @@ def get_headers_to_jwt_encode(private_key_text: str) -> dict:
     if public_key:
         jwk = get_jwk(public_key)
         headers = {'kid': jwk.get('kid')} if jwk else None
-    
+
     return headers
+
 
 def get_pem_text_from_file(private_key_path: str) -> str:
     """
     Parses the pem file to get its value as unicode text
     """
     # check the pem permission
-    if not os.access(private_key_path, os.R_OK):        
+    if not os.access(private_key_path, os.R_OK):
         raise PermissionError()
     # parse file generates a list of PEM objects
-    certs = pem.parse_file(private_key_path)    
+    certs = pem.parse_file(private_key_path)
     if not certs:
         raise Exception('Invalid pem file.')
-    
+
     return certs[0].as_text()

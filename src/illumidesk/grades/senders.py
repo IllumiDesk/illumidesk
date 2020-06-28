@@ -152,20 +152,19 @@ class LTI13GradeSender(GradesBaseSender):
         super(LTI13GradeSender, self).__init__(course_id, assignment_name)
         if auth_state is None or 'course_lineitems' not in auth_state:
             logger.info('The key "course_lineitems" is missing in the user auth_state and it is required')
-            raise GradesSenderMissingInfoError()        
-        
+            raise GradesSenderMissingInfoError()
+
         logger.info(f'User auth_state received from SenderHandler: {auth_state}')
-        self.lineitems_url = auth_state['course_lineitems']        
+        self.lineitems_url = auth_state['course_lineitems']
         self.private_key_path = os.environ.get('LTI13_PRIVATE_KEY')
         self.lms_token_url = os.environ['LTI13_TOKEN_URL']
         self.lms_client_id = os.environ['LTI13_CLIENT_ID']
 
-
-    async def send_grades(self):        
+    async def send_grades(self):
         max_score, nbgrader_grades = self._retrieve_grades_from_db()
         if not nbgrader_grades:
             raise AssignmentWithoutGradesError
-        
+
         token = await get_lms_access_token(self.lms_token_url, self.private_key_path, self.lms_client_id)
 
         if not 'access_token' in token:
@@ -193,7 +192,7 @@ class LTI13GradeSender(GradesBaseSender):
             line_item = json.loads(resp.body)
             logger.debug('Fetched lineitem info from lms %s' % line_item)
             score = float(grade['score'])
-            
+
             data = {
                 'timestamp': datetime.now().isoformat(),
                 'userId': grade['lms_user_id'],

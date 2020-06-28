@@ -30,10 +30,13 @@ def test_get_pem_text_from_file_parses_the_pem_file(lti_config_environ):
         get_pem_text_from_file(pem_key)
         assert mock_pem_parse_file.called
 
+
 @pytest.mark.asyncio
 @patch('illumidesk.lti13.auth.get_pem_text_from_file')
 @patch('illumidesk.lti13.auth.get_headers_to_jwt_encode')
-async def test_get_lms_access_token_calls_get_pem_text_from_file(mock_get_headers_to_jwt, mock_get_pem_text, lti_config_environ, http_async_httpclient_with_simple_response):
+async def test_get_lms_access_token_calls_get_pem_text_from_file(
+    mock_get_headers_to_jwt, mock_get_pem_text, lti_config_environ, http_async_httpclient_with_simple_response
+):
     pem_key = os.environ.get('LTI13_PRIVATE_KEY')
     mock_get_headers_to_jwt.return_value = None
     mock_get_pem_text.return_value = pem.parse_file(pem_key)[0].as_text()
