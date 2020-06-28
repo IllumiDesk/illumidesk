@@ -167,7 +167,7 @@ class LTI13GradeSender(GradesBaseSender):
             raise AssignmentWithoutGradesError
         
         token = await get_lms_access_token(self.lms_token_url, self.private_key_path, self.lms_client_id)
-        print('token from lms:', token)
+
         if not 'access_token' in token:
             raise GradesSenderCriticalError('The "access_token" is missing in lms token response')
         for grade in nbgrader_grades:
@@ -179,6 +179,8 @@ class LTI13GradeSender(GradesBaseSender):
             resp = await client.fetch(self.lineitems_url, headers=headers)
             items = json.loads(resp.body)
             logger.debug(f'LineItems got from {self.lineitems_url} -> {items}')
+            if not items or isinstance(items, list) is False:
+                raise GradesSenderMissingInfoError(f'No line-items were detected for this course: {self.course_id}')
             lineitem = None
             for item in items:
                 if self.assignment_name.lower() == item['label'].lower():
@@ -191,9 +193,7 @@ class LTI13GradeSender(GradesBaseSender):
             line_item = json.loads(resp.body)
             logger.debug('Fetched lineitem info from lms %s' % line_item)
             score = float(grade['score'])
-            # calculate the percentage
-            # max_score = float(max_score)
-            # score = score * 100 / max_score / 100
+            
             data = {
                 'timestamp': datetime.now().isoformat(),
                 'userId': grade['lms_user_id'],

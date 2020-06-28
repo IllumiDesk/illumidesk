@@ -164,7 +164,7 @@ def get_http_response():
     headers: HTTPHeaders = HTTPHeaders({'content-type': 'application/json'}),
     
     async def  _get_response(body: any = None):
-        # body can be an empty array so we only check if is None explicit
+        # body can be an empty array so we only check if its value is None explicitly
         body_as_json = json.dumps(body) if body is not None else json.dumps({'message': 'ok'})
         json_to_buffer = StringIO(body_as_json)
         return HTTPResponse(mock_handler(RequestHandler),
@@ -174,10 +174,10 @@ def get_http_response():
 
 
 @pytest.fixture
-def http_async_httpclient_with_simple_response(get_http_response):
+def http_async_httpclient_with_simple_response(request, get_http_response):
     """
     Creates a patch of AsyncHttpClient.fetch method, useful when other tests are making http request
-    """    
+    """
     with patch.object(
-        AsyncHTTPClient, 'fetch', return_value=get_http_response()):
+        AsyncHTTPClient, 'fetch', return_value=get_http_response(request.param)):
         yield AsyncHTTPClient()
