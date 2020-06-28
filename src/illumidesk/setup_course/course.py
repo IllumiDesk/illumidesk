@@ -38,6 +38,7 @@ class Course:
         self.org = org
         self.course_id = course_id
         self.domain = domain
+        self.jupyterhub_api_url = os.environ.get('JUPYTERHUB_API_URL')
         self.jupyterhub_base_url = os.environ.get('JUPYTERHUB_BASE_URL')
 
         self.exchange_root = Path(os.environ.get('MNT_ROOT'), self.org, 'exchange')
