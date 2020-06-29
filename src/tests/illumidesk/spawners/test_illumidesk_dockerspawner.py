@@ -8,8 +8,6 @@ from illumidesk.spawners.spawners import IllumiDeskBaseDockerSpawner
 from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
 from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner
 
-from tests.illumidesk.factory import factory_auth_state_dict
-
 
 def test_instantiate_base_illumidesk_docker_spawner_returns_not_implemented_error():
     """
@@ -211,11 +209,7 @@ async def test_image_from_key_uses_correct_image_for_notebook_workspace_type(set
     Does the user's docker container environment reflect the desired vscode workspace?
     """
     sut = IllumiDeskWorkSpaceDockerSpawner()
-
-    auth_state_dict = factory_auth_state_dict(workspace_type='notebook')
-
-    await sut.auth_state_hook(auth_state_dict['auth_state'])
-    assert sut.environment['USER_WORKSPACE_TYPE'] == 'notebook'
+    sut.image = sut._image_from_key('notebook')
     assert sut.image == os.environ.get('DOCKER_STANDARD_IMAGE')
 
 

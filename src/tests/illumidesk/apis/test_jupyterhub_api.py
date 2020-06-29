@@ -7,18 +7,20 @@ from unittest.mock import patch
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 
 
-def test_initializer_raises_error_without_JUPYTERHUB_API_TOKEN_env():
+def test_initializer_raises_error_without_JUPYTERHUB_API_TOKEN_env(monkeypatch):
     """
     Does initializer raise an error when 'JUPYTERHUB_API_TOKEN' was not set?
     """
+    monkeypatch.setenv('JUPYTERHUB_API_TOKEN', '')
     with pytest.raises(EnvironmentError):
         JupyterHubAPI()
 
 
-def test_initializer_raises_error_without_JUPYTERHUB_API_URL_env():
+def test_initializer_raises_error_without_JUPYTERHUB_API_URL_env(monkeypatch):
     """
     Does initializer raise an error when 'JUPYTERHUB_API_URL' was not set?
     """
+    monkeypatch.setenv('JUPYTERHUB_API_URL', '')
     with pytest.raises(EnvironmentError):
         JupyterHubAPI()
 
