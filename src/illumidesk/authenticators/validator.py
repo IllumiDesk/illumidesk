@@ -241,6 +241,7 @@ class LTI13LaunchValidator(LoggingConfigurable):
                 raise HTTPError(400, 'Required LTI 1.3 arg %s not included in request' % param)
             if not args.get(param):
                 raise HTTPError(400, 'Required LTI 1.3 arg %s does not have a value' % param)
+        return True
 
     def validate_authentication_request(self, args: Dict[str, Any]) -> bool:
         """
@@ -265,3 +266,4 @@ class LTI13LaunchValidator(LoggingConfigurable):
                 raise HTTPError(400, 'Invalid response_mode value %s' % args['response_mode'])
             if param == 'prompt' and args.get(param) != 'none':
                 raise HTTPError(400, 'Invalid prompt value %s' % args['prompt'])
+        return True

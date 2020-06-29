@@ -318,7 +318,7 @@ class LTI13Authenticator(OAuthenticator):
         jwt_decoded = await validator.jwt_verify_and_decode(id_token, self.endpoint, False, audience=self.client_id)
         self.log.debug('Decoded JWT is %s' % jwt_decoded)
 
-        if validator.validate_launch_request(jwt_decoded):
+        if validator.validate_authentication_request(jwt_decoded):
             course_label = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
             course_id = lti_utils.normalize_name_for_containers(course_label)
             self.log.debug('Normalized course label is %s' % course_id)

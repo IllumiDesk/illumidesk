@@ -4,6 +4,7 @@ import os
 
 from jupyterhub.handlers import BaseHandler
 
+from oauthenticator.oauth2 import guess_callback_uri
 from oauthenticator.oauth2 import OAuthLoginHandler
 from oauthenticator.oauth2 import OAuthCallbackHandler
 
@@ -99,14 +100,14 @@ class LTI13LoginHandler(OAuthLoginHandler):
         validator = LTI13LaunchValidator()
         args = lti_utils.convert_request_to_dict(self.request.arguments)
         self.log.debug('Initial login request args are %s' % args)
-        if validator.validate_authentication_request(args):
+        if validator.validate_login_request(args):
             login_hint = args['login_hint']
             self.log.debug('login_hint is %s' % login_hint)
             lti_message_hint = args['lti_message_hint']
             self.log.debug('lti_message_hint is %s' % lti_message_hint)
             client_id = args['client_id']
             self.log.debug('client_id is %s' % client_id)
-            redirect_uri = args['redirect_uri']
+            redirect_uri = guess_callback_uri('https', self.request.host, self.hub.server.base_url)
             self.log.info('redirect_uri: %r', redirect_uri)
             state = self.get_state()
             self.set_state_cookie(state)
