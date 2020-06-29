@@ -39,7 +39,7 @@ COPY global_nbgrader_config.py /etc/jupyter/nbgrader_config.py
 
 # support iframes with jupyter notebooks, copy to local config scope to override
 # global notebook configs if they are present
-COPY jupyter_notebook_config.py /etc/jupyterhub/jupyter_notebook_config.py
+COPY jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
 
 # enable classic notebook extensions
 # https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/install.html
