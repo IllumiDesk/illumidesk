@@ -1,18 +1,22 @@
-from jupyter_core.paths import jupyter_data_dir
-import subprocess
-import os
 import errno
+import os
 import stat
+import subprocess
+
+from jupyterhub.services.auth import HubOAuth  # noqa: F401
+from jupyter_core.paths import jupyter_data_dir
 
 
 c = get_config()
 
+
+base_url = os.environ.get('JUPYTERHUB_BASE_URL') or '/'
+c.HubOAuth.oauth_authorization_url = f'{base_url}/hub/api/oauth2/authorize'
+
 c.NotebookApp.iopub_data_rate_limit = 1.0e10
 c.NotebookApp.ip = '0.0.0.0'
 c.NotebookApp.open_browser = False
-c.NotebookApp.tornado_settings = {
-    'headers': {"Content-Security-Policy": "frame-ancestors 'self' *"}
-}
+c.NotebookApp.tornado_settings = {'headers': {"Content-Security-Policy": "frame-ancestors 'self' *"}}
 
 c.NotebookApp.token = ''
 c.NotebookApp.allow_root = True
