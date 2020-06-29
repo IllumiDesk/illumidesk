@@ -68,6 +68,14 @@ LTI11_LAUNCH_PARAMS_ALL = LTI11_LAUNCH_PARAMS_REQUIRED + LTI11_LAUNCH_PARAMS_REC
 # LTI 1.3
 
 # Initial authentication request arguments
+# https://www.imsglobal.org/spec/security/v1p0/#step-1-authentication-request
+LTI13_LOGIN_REQUEST_ARGS = [
+    'iss',
+    'login_hint',
+    'target_link_uri',
+]
+
+# Initial authentication request arguments
 # https://www.imsglobal.org/spec/security/v1p0/#step-2-authentication-request
 LTI13_AUTH_REQUEST_ARGS = [
     'client_id',
