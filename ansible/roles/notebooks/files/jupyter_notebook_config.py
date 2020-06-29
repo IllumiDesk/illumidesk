@@ -11,7 +11,7 @@ c = get_config()
 
 
 base_url = os.environ.get('JUPYTERHUB_BASE_URL') or '/'
-c.HubOAuth.oauth_authorization_url = f'{base_url}/hub/api/oauth2/authorize'
+c.HubOAuth.oauth_authorization_url = f'{base_url}/api/oauth2/authorize'
 
 c.NotebookApp.iopub_data_rate_limit = 1.0e10
 c.NotebookApp.ip = '0.0.0.0'
