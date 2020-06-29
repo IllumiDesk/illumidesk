@@ -98,7 +98,8 @@ class LTI13LoginHandler(OAuthLoginHandler):
         lti_utils = LTIUtils()
         validator = LTI13LaunchValidator()
         args = lti_utils.convert_request_to_dict(self.request.arguments)
-        if validator.validate_authentication_request(args):
+        self.log.debug('Initial login request args are %s' % args)
+        if validator.validate_login_request(args):
             login_hint = args['login_hint']
             self.log.debug('login_hint is %s' % login_hint)
             lti_message_hint = args['lti_message_hint']

@@ -21,6 +21,7 @@ from .constants import ILLUMIDESK_LTI13_REQUIRED_CLAIMS
 from .constants import LTI11_LAUNCH_PARAMS_REQUIRED
 from .constants import LTI11_OAUTH_ARGS
 from .constants import LTI13_AUTH_REQUEST_ARGS
+from .constants import LTI13_LOGIN_REQUEST_ARGS
 
 
 class LTI11LaunchValidator(LoggingConfigurable):
@@ -225,9 +226,27 @@ class LTI13LaunchValidator(LoggingConfigurable):
                 raise HTTPError(400, 'Missing course context label %s for claim' % claim)
         return True
 
+    def validate_login_request(self, args: Dict[str, Any]) -> bool:
+        """
+        Validates step 1 login request.
+        https://www.imsglobal.org/spec/security/v1p0/#step-1-third-party-initiated-login
+        
+        Args:
+          args: dictionary that represents keys/values of authentication request
+        
+        Returns:
+          True if the validation is ok, false otherwise
+        """
+        for param in LTI13_LOGIN_REQUEST_ARGS:
+            if param not in args.keys():
+                raise HTTPError(400, 'Required LTI 1.3 arg %s not included in request' % param)
+            if not args.get(param):
+                raise HTTPError(400, 'Required LTI 1.3 arg %s does not have a value' % param)
+
     def validate_authentication_request(self, args: Dict[str, Any]) -> bool:
         """
-        Validates initial authentication request.
+        Validates step 2 of authentication request.
+        https://www.imsglobal.org/spec/security/v1p0/#step-2-third-party-initiated-login
         
         Args:
           args: dictionary that represents keys/values sent in authentication request
