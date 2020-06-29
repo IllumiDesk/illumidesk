@@ -63,6 +63,23 @@ def lti_config_environ(monkeypatch, pem_file):
 
 
 @pytest.fixture(scope='function')
+def lti13_login_params(
+    iss: str = 'https://platform.vendor.com',
+    login_hint: str = '185d6c59731a553009ca9b59ca3a885104ecb4ad',
+    target_link_uri: str = 'https://edu.example.com/hub',
+) -> Dict[str, Any]:
+    """
+    Creates a dictionary with k/v's that emulates a login request.
+    """
+    params = {
+        'iss': [iss.encode()],
+        'login_hint': [login_hint.encode()],
+        'target_link_uri': [target_link_uri.encode()],
+    }
+    return params
+
+
+@pytest.fixture(scope='function')
 def lti13_auth_params(
     client_id: str = '125900000000000081',
     redirect_uri: str = 'https://acme.illumidesk.com/hub/oauth_callback',

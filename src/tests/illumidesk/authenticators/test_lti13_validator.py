@@ -67,6 +67,15 @@ def test_validate_missing_required_claims_in_step_1_resource_link_request():
         validator.validate_login_request(fake_jws)
 
 
+def test_validate_with_required_claims_in_step_1_resource_link_request(lti13_login_params):
+    """
+    Is the JWT valid with an correct message type claim?
+    """
+    validator = LTI13LaunchValidator()
+    result = validator.validate_login_request(lti13_login_params)
+    assert result is True
+
+
 def test_validate_missing_required_claims_in_step_2_resource_link_request():
     """
     Is the JWT valid with an incorrect message type claim?

@@ -51,7 +51,7 @@ async def test_authenticator_invokes_lti13validator_jwt_verify_and_decode():
 
 
 @pytest.mark.asyncio
-async def test_authenticator_invokes_lti13validator_validate_launch_request():
+async def test_authenticator_invokes_lti13validator_validate_authentication_request():
     """
     Does the authenticator invoke the LTI13Validator validate_launch_request method?
     """
@@ -61,10 +61,10 @@ async def test_authenticator_invokes_lti13validator_validate_launch_request():
         RequestHandler, 'get_argument', return_value=dummy_lti13_id_token_complete.encode()
     ) as mock_get_argument:
         with patch.object(
-            LTI13LaunchValidator, 'validate_launch_request', return_value=True
-        ) as mock_verify_launch_request:
+            LTI13LaunchValidator, 'validate_authentication_request', return_value=True
+        ) as mock_verify_authentication_request:
             _ = await authenticator.authenticate(request_handler, None)
-            assert mock_verify_launch_request.called
+            assert mock_verify_authentication_request.called
 
 
 @pytest.mark.asyncio
