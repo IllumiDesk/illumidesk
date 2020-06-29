@@ -67,7 +67,7 @@ c.JupyterHub.services = [
     {
         'name': 'announcement',
         'url': f'http://0.0.0.0:{int(announcement_port)}',  # allow external connections with 0.0.0.0
-        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix /services/announcement'.split(),
+        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix {base_url}/services/announcement'.split(),
     },
 ]
 

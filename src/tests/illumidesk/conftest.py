@@ -52,6 +52,7 @@ def jupyterhub_api_environ(monkeypatch):
     """
     monkeypatch.setenv('JUPYTERHUB_API_TOKEN', str(uuid.uuid4()))
     monkeypatch.setenv('JUPYTERHUB_API_URL', 'https://localhost/hub/api')
+    monkeypatch.setenv('JUPYTERHUB_BASE_URL', '/')
 
 
 @pytest.fixture(scope='function')
@@ -133,9 +134,23 @@ def setup_course_environ(monkeypatch, tmp_path, jupyterhub_api_environ):
     """
     Set the environment variables used in Course class`
     """
+    monkeypatch.setenv('JUPYTERHUB_CLIENT_ID', 'service-intro101')
+    monkeypatch.setenv('JUPYTERHUB_SERVICE_NAME', 'intro101')
+    monkeypatch.setenv('JUPYTERHUB_SERVICE_PREFIX', '/services/intro101')
+    monkeypatch.setenv('JUPYTERHUB_USER', 'grader-intro101')
     monkeypatch.setenv('MNT_ROOT', str(tmp_path))
-    monkeypatch.setenv('NB_UID', '10001')
     monkeypatch.setenv('NB_GID', '100')
+    monkeypatch.setenv('NB_UID', '10001')
+    monkeypatch.setenv('NB_USER', 'grader-intro101')
+
+
+@pytest.fixture(scope='function')
+def setup_course_with_custom_base_environ(monkeypatch, tmp_path, setup_course_environ):
+    """
+    Set the environment variables used in Course class`
+    """
+    monkeypatch.setenv('JUPYTERHUB_API_URL', 'http://localhost/acme/hub/api')
+    monkeypatch.setenv('JUPYTERHUB_SERVICE_PREFIX', '/acme/services/intro101')
 
 
 @pytest.fixture(scope='function')

@@ -19,6 +19,25 @@ def test_initializer_requires_arguments():
         Course()
 
 
+def test_course_attributes_are_consistent_with_env_vars(monkeypatch, setup_course_environ):
+    """
+    Does the initializer set its attributes based on the assigned env vars?
+    """
+    monkeypatch.setenv('MNT_ROOT', '/mnt')
+    monkeypatch.setenv('JUPYTERHUB_API_TOKEN', 'secure-token')
+
+    course = course = Course(org='org1', course_id='example', domain='example.com')
+
+    assert course.jupyterhub_api_url == 'https://localhost/hub/api'
+    assert course.jupyterhub_base_url == '/'
+    assert course.exchange_root == Path('/mnt', 'org1', 'exchange')
+    assert course.grader_name == 'grader-example'
+    assert course.grader_root == Path('/mnt', 'org1', 'home', 'grader-example')
+    assert course.course_root == Path('/mnt', 'org1', 'home', 'grader-example', 'example')
+    assert course.uid == 10001
+    assert course.gid == 100
+
+
 def test_initializer_set_course_id(setup_course_environ):
     """
     Does the initializer properly set the course_id property?
@@ -137,16 +156,6 @@ def test_course_exchange_root_directory_is_created(setup_course_environ, docker_
     with patch('shutil.chown', autospec=True):
         course.create_directories()
         assert course.exchange_root.exists()
-
-
-def test_course_root_directory_is_created(setup_course_environ, docker_client_cotainers_not_found):
-    """
-    Is the course directory created as part of setup?
-    """
-    course = Course(org='org1', course_id='example', domain='example.com')
-    with patch('shutil.chown', autospec=True):
-        course.create_directories()
-        assert course.course_root.exists()
 
 
 def test_course_jupyter_config_path_is_created(setup_course_environ, docker_client_cotainers_not_found):

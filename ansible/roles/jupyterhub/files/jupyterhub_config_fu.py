@@ -66,6 +66,7 @@ c.JupyterHub.admin_access = True
 # Start the grader notebook as a service. The port can be whatever you want
 # and the group has to match the name of the DEMO_GRADER_NAME group defined above.
 # The cull_idle service conserves resources.
+announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
 c.JupyterHub.services = [
     {
         'name': course_id,
@@ -81,8 +82,8 @@ c.JupyterHub.services = [
     },
     {
         'name': 'announcement',
-        'url': 'http://0.0.0.0:8889',
-        'command': 'python3 /srv/jupyterhub/announcement.py --port 8889 --api-prefix /services/announcement'.split(),
+        'url': f'http://0.0.0.0:{int(announcement_port)}',  # allow external connections with 0.0.0.0
+        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix {base_url}/services/announcement'.split(),
     },
 ]
 

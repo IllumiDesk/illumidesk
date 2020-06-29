@@ -245,19 +245,22 @@ async def test_setup_course_hook_initialize_data_dict(setup_course_environ, setu
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_initializes_url_variable_with_host_and_port(
-    setup_course_environ, setup_course_hook_environ
+    monkeypatch, setup_course_environ, setup_course_hook_environ
 ):
     """
     Is the url and port for the setup course service endpoint correctly set?
     """
+    monkeypatch.setenv('JUPYTERHUB_BASE_URL', '/acme')
+
     service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME')
     docker_port = os.environ.get('DOCKER_SETUP_COURSE_PORT')
     announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT')
-    url = f'http://localhost:{int(announcement_port)}/services/announcement'
+    base_url = os.environ.get('JUPYTERHUB_BASE_URL')
+
     actual_service_name_url = f'http://{service_name}:{docker_port}'
     expected_service_name_url = 'http://setup-course:8000'
-    expected_announcement_url = 'http://localhost:8889/services/announcement'
-    actual_announcement_url = f'http://localhost:{int(announcement_port)}/services/announcement'
+    actual_announcement_url = f'http://localhost:{int(announcement_port)}{base_url}/services/announcement'
+    expected_announcement_url = 'http://localhost:8889/acme/services/announcement'
 
     assert expected_service_name_url == actual_service_name_url
     assert expected_announcement_url == actual_announcement_url

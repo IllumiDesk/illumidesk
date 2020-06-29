@@ -87,9 +87,10 @@ async def setup_course_hook(
     logger.debug(f'Setup-Course service response: {resp_json}')
 
     # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
+    base_url = os.environ.get('JUPYTERHUB_BASE_URL') or '/'
     if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
         # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
-        url = f'http://localhost:{int(announcement_port)}/services/announcement'
+        url = f'http://localhost:{int(announcement_port)}{base_url}/services/announcement'
         jupyterhub_api_token = os.environ.get('JUPYTERHUB_API_TOKEN')
         headers['Authorization'] = f'token {jupyterhub_api_token}'
         body_data = {'announcement': 'A new service was detected, please reload this page...'}
