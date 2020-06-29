@@ -19,10 +19,10 @@
     dest: "{{ working_dir }}/{{ docker_notebook_grader_dockerfile }}"
     src: "{{ docker_notebook_grader_dockerfile }}.j2"
 
-- name: copy the jupyter notebook configuration file
-  copy:
-    src: jupyter_notebook_config.py
+- name: create the jupyter notebook file from template
+  template:
     dest: "{{ working_dir }}/jupyter_notebook_config.py"
+    src: jupyter_notebook_config.py.j2
 
 - name: copy requirements.txt for base notebook image
   copy:

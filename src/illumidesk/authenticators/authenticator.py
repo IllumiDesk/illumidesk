@@ -15,6 +15,9 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
 from tornado.web import RequestHandler
 
+from typing import Any
+from typing import Tuple
+
 from traitlets import Unicode
 
 from typing import Dict
@@ -91,7 +94,7 @@ async def setup_course_hook(
     base_url = os.environ.get('JUPYTERHUB_BASE_URL') or '/'
     if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
         # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
-        url = f'http://localhost:{int(announcement_port)}{base_url}/services/announcement'
+        url = f'http://localhost:{int(announcement_port)}/services/announcement'
         jupyterhub_api_token = os.environ.get('JUPYTERHUB_API_TOKEN')
         headers['Authorization'] = f'token {jupyterhub_api_token}'
         body_data = {'announcement': 'A new service was detected, please reload this page...'}
@@ -120,13 +123,13 @@ class LTI11Authenticator(LTIAuthenticator):
 
     login_handler = LTI11AuthenticateHandler
 
-    def login_url(self, base_url):
-        return url_path_join(base_url, '/hub/lti/launch')
+    def login_url(self, base_url: str) -> str:
+        return url_path_join(base_url, '/lti/launch')
 
-    def logout_url(self, base_url):
-        return url_path_join(base_url, '/hub/logout')
+    def logout_url(self, base_url: str) -> str:
+        return url_path_join(base_url, '/logout')
 
-    def get_handlers(self, app: JupyterHub) -> BaseHandler:
+    def get_handlers(self, app: JupyterHub) -> Tuple[str, Any]:
         return [(r'/lti/launch', self.login_handler)]
 
     async def authenticate(self, handler: BaseHandler, data: Dict[str, str] = None) -> Dict[str, str]:  # noqa: C901

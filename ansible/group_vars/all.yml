@@ -44,6 +44,12 @@ docker_proxy_image: "{{ docker_proxy_image_param | default('jupyterhub/configura
 ## Jupyter Notebook config
 jupyter_notebook_config: "{{ jupyter_notebook_config_param | default('jupyter_notebook_config.py') }}"
 
+# Top level domain
+tld: "{{ tld_param | default('illumidesk.com') }}"
+
+# Sub domain
+sub_domain: "{{ sub_domain_param | default('my') }}"
+
 # Base URL. Add the / character before the value, for example /acme.
 base_url: "{{ base_url_param | default('') }}"
 
