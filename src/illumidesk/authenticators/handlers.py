@@ -83,9 +83,9 @@ class LTI13LoginHandler(OAuthLoginHandler):
         if lti_message_hint is not None:
             extra_params['lti_message_hint'] = lti_message_hint
         if state is not None:
-            extra_params['state'] = (state,)
+            extra_params['state'] = state
         if nonce is not None:
-            extra_params['nonce'] = (nonce,)
+            extra_params['nonce'] = nonce
         args.update(extra_params)
         url = os.environ.get('LTI13_AUTHORIZE_URL')
         if not url:
