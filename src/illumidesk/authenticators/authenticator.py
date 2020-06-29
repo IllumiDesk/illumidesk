@@ -24,6 +24,7 @@ from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
 from illumidesk.authenticators.utils import LTIUtils
+from illumidesk.authenticators.utils import url_path_join
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
@@ -117,8 +118,16 @@ class LTI11Authenticator(LTIAuthenticator):
     and shared secret k/v's to verify requests from their tool consumer.
     """
 
+    login_handler = LTI11AuthenticateHandler
+
+    def login_url(self, base_url):
+        return url_path_join(base_url, '/hub/lti/launch')
+
+    def logout_url(self, base_url):
+        return url_path_join(base_url, '/hub/logout')
+
     def get_handlers(self, app: JupyterHub) -> BaseHandler:
-        return [('/lti/launch', LTI11AuthenticateHandler)]
+        return [(r'/lti/launch', self.login_handler)]
 
     async def authenticate(self, handler: BaseHandler, data: Dict[str, str] = None) -> Dict[str, str]:  # noqa: C901
         """

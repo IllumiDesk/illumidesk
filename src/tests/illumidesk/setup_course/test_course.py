@@ -134,20 +134,6 @@ def test_a_course_contains_service_config_with_correct_values(setup_course_envir
     assert service_config['api_token'] == course.token
 
 
-@patch('docker.DockerClient.containers')
-def test_should_setup_method_returns_true_if_container_does_not_exist(mock_docker, setup_course_environ):
-    """
-    Does the should_setup method return True when the container not was found?
-    """
-    course = Course(org='org1', course_id='example', domain='example.com')
-
-    def _container_not_exists(name):
-        raise NotFound(f'container: {name} not exists')
-
-    mock_docker.get.side_effect = lambda name: _container_not_exists(name)
-    assert course.should_setup() is True
-
-
 def test_course_exchange_root_directory_is_created(setup_course_environ, docker_client_cotainers_not_found):
     """
     Is the exchange directory created as part of setup?
@@ -176,3 +162,17 @@ def test_course_nbgrader_config_path_is_created(setup_course_environ, docker_cli
     with patch('shutil.chown', autospec=True):
         course.create_directories()
         assert course.nbgrader_config_path.exists()
+
+
+@patch('docker.DockerClient.containers')
+def test_should_setup_method_returns_true_if_container_does_not_exist(mock_docker, setup_course_environ):
+    """
+    Does the should_setup method return True when the container not was found?
+    """
+    course = Course(org='org1', course_id='example', domain='example.com')
+
+    def _container_not_exists(name):
+        raise NotFound(f'container: {name} not exists')
+
+    mock_docker.get.side_effect = lambda name: _container_not_exists(name)
+    assert course.should_setup() is True
