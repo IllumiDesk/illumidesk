@@ -24,7 +24,10 @@ all:
       # uncomment to add your organization name, defaults to my-org.
       # org_name: my-org
 
-      # uncomment to add top level domain, such as example.com
+      # uncomment to add your sub-domain name, defaults to my.
+      # sub_domain: my
+
+      # uncomment to add top level domain, such as example.com, defaults to illumidesk.com
       # tld: example.com
 
       # uncomment to use a custom base url starting with the / character,
