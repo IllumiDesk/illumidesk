@@ -72,22 +72,28 @@ class TestLTI13GradesSender:
                 await sut.send_grades()
 
     @pytest.mark.asyncio
-    @pytest.mark.parametrize("http_async_httpclient_with_simple_response", [[{'label': ''}]], indirect=True)
-    async def test_sender_calls_get_lms_access_token_to_send_grades(
-        self, lti_config_environ, http_async_httpclient_with_simple_response
+    # @pytest.mark.parametrize("http_async_httpclient_with_simple_response", [[{'label': 'lab', 'id': 'line_item_url'}]], indirect=True)
+    async def test_sender_calls__set_access_token_header_before_to_send_grades(
+        self, lti_config_environ, get_http_response
     ):
         sut = LTI13GradeSender(
             'course-id', 'lab', {'course_lineitems': 'canvas.docker.com/api/lti/courses/1/line_items'}
         )
 
         access_token_result = {'token_type': '', 'access_token': ''}
+        line_item_result = {'label': 'lab', 'id': 'line_item_url', 'scoreMaximum': 40}
         with patch('illumidesk.grades.senders.get_lms_access_token', return_value=access_token_result) as mock_method:
-
             with patch.object(
-                LTI13GradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [{'score': 10}])
+                LTI13GradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [{'score': 10, 'lms_user_id': 'id'}])
             ):
-                await sut.send_grades()
-                assert mock_method.called
+
+                with patch.object(AsyncHTTPClient, 'fetch', side_effect=[
+                    get_http_response([line_item_result]),
+                    get_http_response(line_item_result),
+                    get_http_response([])
+                ]):
+                    await sut.send_grades()
+                    assert mock_method.called
 
     @pytest.mark.asyncio
     @pytest.mark.parametrize("http_async_httpclient_with_simple_response", [[]], indirect=True)

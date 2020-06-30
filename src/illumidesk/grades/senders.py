@@ -160,50 +160,64 @@ class LTI13GradeSender(GradesBaseSender):
         self.lms_token_url = os.environ['LTI13_TOKEN_URL']
         self.lms_client_id = os.environ['LTI13_CLIENT_ID']
 
+    async def _get_line_item_info_by_assignment_name(self) -> str:
+        client = AsyncHTTPClient()
+        resp = await client.fetch(self.lineitems_url, headers=self.headers)
+        items = json.loads(resp.body)
+        logger.debug(f'LineItems got from {self.lineitems_url} -> {items}')
+        if not items or isinstance(items, list) is False:
+            raise GradesSenderMissingInfoError(f'No line-items were detected for this course: {self.course_id}')
+        lineitem_matched = None
+        for item in items:
+            if self.assignment_name.lower() == item['label'].lower():
+                lineitem_matched = item['id'] # the id is the full url
+                logger.debug(f'There is a lineitem matched with the assignment {self.assignment_name}. {item}')
+                break
+        if lineitem_matched is None:
+            raise GradesSenderMissingInfoError(f'No lineitem matched with the assignment name: {self.assignment_name}')
+
+        resp = await client.fetch(lineitem_matched, headers=self.headers)
+        lineitem_info = json.loads(resp.body)
+        logger.debug(f'Fetched lineitem info from lms {lineitem_info}')
+        
+        return lineitem_info
+
+    async def _set_access_token_header(self):
+        token = await get_lms_access_token(self.lms_token_url, self.private_key_path, self.lms_client_id)
+
+        if not 'access_token' in token:
+            logger.info(f'response from {self.lms_token_url}: {token}')
+            raise GradesSenderCriticalError(f'The "access_token" key is missing')
+
+        # set all the headers to use in lms requests
+        self.headers = {
+                'Authorization': '{token_type} {access_token}'.format(**token),
+                'Content-Type': 'application/vnd.ims.lis.v2.lineitem+json',
+            }
     async def send_grades(self):
         max_score, nbgrader_grades = self._retrieve_grades_from_db()
         if not nbgrader_grades:
             raise AssignmentWithoutGradesError
-
-        token = await get_lms_access_token(self.lms_token_url, self.private_key_path, self.lms_client_id)
-
-        if not 'access_token' in token:
-            raise GradesSenderCriticalError('The "access_token" is missing in lms token response')
+        
+        await self._set_access_token_header()
+        
+        lineitem_info = await self._get_line_item_info_by_assignment_name()
+        score_maximum = lineitem_info['scoreMaximum']
+        client = AsyncHTTPClient()
+        self.headers.update({'Content-Type': 'application/vnd.ims.lis.v1.score+json'})
         for grade in nbgrader_grades:
-            headers = {
-                'Authorization': '{token_type} {access_token}'.format(**token),
-                'Content-Type': 'application/vnd.ims.lis.v2.lineitem+json',
-            }
-            client = AsyncHTTPClient()
-            resp = await client.fetch(self.lineitems_url, headers=headers)
-            items = json.loads(resp.body)
-            logger.debug(f'LineItems got from {self.lineitems_url} -> {items}')
-            if not items or isinstance(items, list) is False:
-                raise GradesSenderMissingInfoError(f'No line-items were detected for this course: {self.course_id}')
-            lineitem = None
-            for item in items:
-                if self.assignment_name.lower() == item['label'].lower():
-                    lineitem = item['id']
-                    logger.debug(f'There is a lineitem matched with the assignment {self.assignment_name}. {item}')
-                    break
-            if lineitem is None:
-                return
-            resp = await client.fetch(lineitem, headers=headers)
-            line_item = json.loads(resp.body)
-            logger.debug('Fetched lineitem info from lms %s' % line_item)
             score = float(grade['score'])
-
             data = {
                 'timestamp': datetime.now().isoformat(),
                 'userId': grade['lms_user_id'],
                 'scoreGiven': score,
-                'scoreMaximum': line_item['scoreMaximum'],
+                'scoreMaximum': score_maximum,
                 'gradingProgress': 'FullyGraded',
                 'activityProgress': 'Completed',
                 'comment': '',
             }
             logger.info('data used to sent scores:', data)
-            headers.update({'Content-Type': 'application/vnd.ims.lis.v1.score+json'})
-            url = lineitem + '/scores'
-            logger.debug('URL for lineitem grades submission %s' % url)
-            await client.fetch(url, body=json.dumps(data), method='POST', headers=headers)
+            
+            url = lineitem_info['id'] + '/scores'
+            logger.debug(f'URL for lineitem grades submission {url}')
+            await client.fetch(url, body=json.dumps(data), method='POST', headers=self.headers)
