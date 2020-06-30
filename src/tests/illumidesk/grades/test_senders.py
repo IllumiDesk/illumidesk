@@ -11,8 +11,12 @@ from illumidesk.grades.exceptions import GradesSenderCriticalError
 from illumidesk.grades.exceptions import AssignmentWithoutGradesError
 from illumidesk.grades.exceptions import GradesSenderMissingInfoError
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
-from tornado.httpclient import AsyncHTTPClient
+
 from tests.illumidesk.factory import factory_http_response
+from tests.illumidesk.mocks import mock_handler
+
+from tornado.httpclient import AsyncHTTPClient
+from tornado.web import RequestHandler
 
 
 class TestLTI11GradesSender:
@@ -72,14 +76,11 @@ class TestLTI13GradesSender:
                 await sut.send_grades()
 
     @pytest.mark.asyncio
-    # @pytest.mark.parametrize("http_async_httpclient_with_simple_response", [[{'label': 'lab', 'id': 'line_item_url'}]], indirect=True)
-    async def test_sender_calls__set_access_token_header_before_to_send_grades(
-        self, lti_config_environ, get_http_response
-    ):
+    async def test_sender_calls__set_access_token_header_before_to_send_grades(self, lti_config_environ):
         sut = LTI13GradeSender(
             'course-id', 'lab', {'course_lineitems': 'canvas.docker.com/api/lti/courses/1/line_items'}
         )
-
+        local_handler = mock_handler(RequestHandler)
         access_token_result = {'token_type': '', 'access_token': ''}
         line_item_result = {'label': 'lab', 'id': 'line_item_url', 'scoreMaximum': 40}
         with patch('illumidesk.grades.senders.get_lms_access_token', return_value=access_token_result) as mock_method:
@@ -88,9 +89,9 @@ class TestLTI13GradesSender:
             ):
 
                 with patch.object(AsyncHTTPClient, 'fetch', side_effect=[
-                    get_http_response([line_item_result]),
-                    get_http_response(line_item_result),
-                    get_http_response([])
+                    factory_http_response(handler=local_handler.request, body=[line_item_result]),
+                    factory_http_response(handler=local_handler.request, body=line_item_result),
+                    factory_http_response(handler=local_handler.request, body=[])
                 ]):
                     await sut.send_grades()
                     assert mock_method.called
