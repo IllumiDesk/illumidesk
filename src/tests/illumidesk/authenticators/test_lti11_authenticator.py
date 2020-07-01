@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.authenticator import LTI11Authenticator
-from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
+from illumidesk.grades.senders import LTIGradesSenderControlFile
 from tests.illumidesk.factory import factory_lti11_complete_launch_args
 
 

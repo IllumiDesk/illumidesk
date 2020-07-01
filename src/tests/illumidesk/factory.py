@@ -337,7 +337,7 @@ async def factory_http_response(
     Returns:
       A tornado.client.HTTPResponse object
     """
-    dict_to_buffer = StringIO(json.dumps(body)) if body else None
+    dict_to_buffer = StringIO(json.dumps(body)) if body is not None else None
     return HTTPResponse(
         request=handler, code=code, reason=reason, headers=headers, effective_url=effective_url, buffer=dict_to_buffer
     )

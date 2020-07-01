@@ -226,7 +226,7 @@ async def test_authenticator_returns_username_in_auth_state_with_person_sourcedi
 
 
 @pytest.mark.asyncio
-async def test_authenticator_returns_workspace_type_in_auth_state():
+async def test_authenticator_returns_workspace_type_in_auth_state(monkeypatch, auth_state_dict):
     """
     Do we get a valid lms_user_id in the auth_state when receiving a valid resource link request?
     """
@@ -239,19 +239,13 @@ async def test_authenticator_returns_workspace_type_in_auth_state():
             LTI13LaunchValidator, 'validate_launch_request', return_value=True
         ) as mock_verify_launch_request:
             result = await authenticator.authenticate(request_handler, None)
-            expected = {
-                'name': 'foo',
-                'auth_state': {
-                    'course_id': 'intro101',
-                    'user_role': 'Learner',
-                    'workspace_type': 'notebook',
-                },  # noqa: E231
-            }
-            assert result['auth_state'].get('lms_user_id') == expected['auth_state'].get('lms_user_id')
+            monkeypatch.setitem(auth_state_dict, 'lms_user_id', '8171934b-f5e2-4f4e-bdbd-6d798615b93e')
+
+            assert result['auth_state'].get('lms_user_id') == auth_state_dict.get('lms_user_id')
 
 
 @pytest.mark.asyncio
-async def test_authenticator_returns_learner_role_in_auth_state():
+async def test_authenticator_returns_learner_role_in_auth_state(monkeypatch, auth_state_dict):
     """
     Do we set the learner role in the auth_state when receiving a valid resource link request?
     """

@@ -27,7 +27,7 @@ from illumidesk.authenticators.handlers import LTI13CallbackHandler
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
-from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
+from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 
 logger = logging.getLogger(__name__)
@@ -302,7 +302,9 @@ class LTI13Authenticator(OAuthenticator):
         initial login request.""",
     ).tag(config=True)
 
-    async def authenticate(self, handler: LTI13LoginHandler, data: Dict[str, str] = None) -> Dict[str, str]:
+    async def authenticate(  # noqa: C901
+        self, handler: LTI13LoginHandler, data: Dict[str, str] = None
+    ) -> Dict[str, str]:
         """
         Overrides authenticate from base class to handle LTI 1.3 authentication requests.
 
@@ -328,8 +330,7 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('Decoded JWT is %s' % jwt_decoded)
 
         if validator.validate_launch_request(jwt_decoded):
-            course_label = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
-            course_id = lti_utils.normalize_name_for_containers(course_label)
+            course_id = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
             self.log.debug('Normalized course label is %s' % course_id)
             username = ''
             if 'email' in jwt_decoded.keys() and jwt_decoded.get('email'):
@@ -376,11 +377,20 @@ class LTI13Authenticator(OAuthenticator):
                 user_role = 'Learner'
             self.log.debug('user_role is %s' % user_role)
 
+            lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
+            # Values for the send-grades functionality
+            course_lineitems = ''
+            if 'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded:
+                course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
+
             return {
                 'name': username,
                 'auth_state': {
                     'course_id': course_id,
                     'user_role': user_role,
                     'workspace_type': workspace_type,
+                    'course_lineitems': course_lineitems,
+                    'user_role': user_role,
+                    'lms_user_id': lms_user_id,
                 },  # noqa: E231
             }
