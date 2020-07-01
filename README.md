@@ -155,7 +155,7 @@ With the Postgres container enabled, users (both students and instructors) can c
 
 Additional workspace types include:
 
-- THEIA IDE: `theiaide`
+- THEIA IDE: `theia`
 - RStudio: `rstudio`
 - VS Code: `vscode`
 
