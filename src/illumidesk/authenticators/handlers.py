@@ -94,7 +94,8 @@ class LTI13LoginHandler(OAuthLoginHandler):
 
     def post(self):
         """
-        Validates required login arguments sent from platform and then uses the authorize_redirect() to redirect users to the authorization url.
+        Validates required login arguments sent from platform and then uses the authorize_redirect() method
+        to redirect users to the authorization url.
         """
         lti_utils = LTIUtils()
         validator = LTI13LaunchValidator()

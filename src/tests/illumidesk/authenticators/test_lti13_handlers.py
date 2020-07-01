@@ -14,7 +14,7 @@ from tests.illumidesk.mocks import mock_handler
 
 @pytest.mark.asyncio
 async def test_lti_13_login_handler_empty_authorize_url_env_var_raises_environment_error(
-    monkeypatch, lti13_auth_params, lti13_auth_params_dict
+    monkeypatch, lti13_login_params, lti13_login_params_dict
 ):
     """
     Does the LTI13LoginHandler raise a missing argument error if request body doesn't have any
@@ -24,9 +24,9 @@ async def test_lti_13_login_handler_empty_authorize_url_env_var_raises_environme
     local_handler = mock_handler(LTI13LoginHandler)
     local_utils = LTIUtils()
     with patch.object(
-        LTIUtils, 'convert_request_to_dict', return_value=lti13_auth_params_dict
+        LTIUtils, 'convert_request_to_dict', return_value=lti13_login_params_dict
     ) as mock_convert_request_to_dict:
-        with patch.object(LTI13LaunchValidator, 'validate_authentication_request', return_value=True):
+        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             with patch.object(LTI13LoginHandler, 'redirect', return_value=None):
                 with pytest.raises(EnvironmentError):
                     LTI13LoginHandler(local_handler.application, local_handler.request).post()
@@ -34,7 +34,7 @@ async def test_lti_13_login_handler_empty_authorize_url_env_var_raises_environme
 
 @pytest.mark.asyncio
 async def test_lti_13_login_handler_invokes_convert_request_to_dict_method(
-    monkeypatch, lti13_auth_params, lti13_auth_params_dict
+    monkeypatch, lti13_login_params, lti13_login_params_dict
 ):
     """
     Does the LTI13LoginHandler call the LTIUtils convert_request_to_dict function once it
@@ -42,12 +42,11 @@ async def test_lti_13_login_handler_invokes_convert_request_to_dict_method(
     """
     monkeypatch.setenv('LTI13_AUTHORIZE_URL', 'http://my.lms.platform/api/lti/authorize_redirect')
     local_handler = mock_handler(LTI13LoginHandler)
-    local_utils = LTIUtils()
     with patch.object(
-        LTIUtils, 'convert_request_to_dict', return_value=lti13_auth_params_dict
+        LTIUtils, 'convert_request_to_dict', return_value=lti13_login_params_dict
     ) as mock_convert_request_to_dict:
-        with patch.object(LTI13LaunchValidator, 'validate_authentication_request', return_value=True):
-            with patch.object(LTI13LoginHandler, 'redirect', return_value=None):
+        with patch.object(LTI13LaunchValidator, 'validate_login_request', return_value=True):
+            with patch.object(LTI13LoginHandler, 'authorize_redirect', return_value=None):
                 LTI13LoginHandler(local_handler.application, local_handler.request).post()
                 assert mock_convert_request_to_dict.called
 
@@ -73,7 +72,7 @@ async def test_lti_13_login_handler_invokes_validate_login_request_method(
 
 
 @pytest.mark.asyncio
-async def test_lti_13_login_handler_invokes_redirect_method(monkeypatch, lti13_login_params):
+async def test_lti_13_login_handler_invokes_redirect_method(monkeypatch, lti13_auth_params):
     """
     Does the LTI13LoginHandler call the redirect function once it
     receiving the post request?
@@ -81,12 +80,12 @@ async def test_lti_13_login_handler_invokes_redirect_method(monkeypatch, lti13_l
     monkeypatch.setenv('LTI13_AUTHORIZE_URL', 'http://my.lms.platform/api/lti/authorize_redirect')
     local_handler = mock_handler(LTI13LoginHandler)
     local_utils = LTIUtils()
-    local_utils.convert_request_to_dict(lti13_login_params)
+    local_utils.convert_request_to_dict(lti13_auth_params)
     with patch.object(
-        LTIUtils, 'convert_request_to_dict', return_value=local_utils.convert_request_to_dict(lti13_login_params)
+        LTIUtils, 'convert_request_to_dict', return_value=local_utils.convert_request_to_dict(lti13_auth_params)
     ):
-        with patch.object(LTI13LaunchValidator, 'validate_authentication_request', return_value=True):
-            with patch.object(LTI13LoginHandler, 'redirect', return_value=None) as mock_redirect:
+        with patch.object(LTI13LaunchValidator, 'validate_login_request', return_value=True):
+            with patch.object(LTI13LoginHandler, 'authorize_redirect', return_value=None) as mock_redirect:
                 LTI13LoginHandler(local_handler.application, local_handler.request).post()
                 assert mock_redirect.called
 
@@ -102,7 +101,7 @@ async def test_lti_13_login_handler_sets_vars_for_redirect(monkeypatch, lti13_au
     local_handler = mock_handler(LTI13LoginHandler)
     local_utils = LTIUtils()
     with patch.object(LTIUtils, 'convert_request_to_dict', return_value=lti13_auth_params_dict):
-        with patch.object(LTI13LaunchValidator, 'validate_authentication_request', return_value=True):
+        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             with patch.object(LTI13LoginHandler, 'redirect', return_value=None):
                 assert expected['client_id'] == '125900000000000081'
                 assert expected['redirect_uri'] == 'https://acme.illumidesk.com/hub/oauth_callback'
@@ -130,7 +129,7 @@ async def test_lti_13_login_handler_nonce(monkeypatch, lti13_auth_params, lti13_
     local_handler.request = lti13_auth_params
     local_utils = LTIUtils()
     with patch.object(LTIUtils, 'convert_request_to_dict', return_value=lti13_auth_params_dict):
-        with patch.object(LTI13LaunchValidator, 'validate_authentication_request', return_value=True):
+        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             with patch.object(LTI13LoginHandler, 'redirect', return_value=None):
                 expected = hashlib.sha256(
                     b'eyJzdGF0ZV9pZCI6ICI2ZjBlYzE1NjlhM2E0MDJkYWM2MTYyNjM2MWQwYzEyNSIsICJuZXh0X3VybCI6ICIvIn0='
