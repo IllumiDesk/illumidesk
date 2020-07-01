@@ -8,9 +8,6 @@ from docker.errors import NotFound
 from tornado.web import Application
 from tornado.web import RequestHandler
 
-from typing import Any
-from typing import Dict
-
 from unittest.mock import Mock
 from unittest.mock import MagicMock
 
@@ -29,6 +26,7 @@ def auth_state_dict():
             'workspace_type': 'vscode',
         },
     }
+    return authenticator_auth_state
 
 
 @pytest.fixture(scope='module')
@@ -126,16 +124,17 @@ def lti11_complete_launch_args():
     return args
 
 
-def lti13_login_params(
-    client_id: str = '125900000000000085',
-    iss: str = 'https://platform.vendor.com',
-    login_hint: str = '185d6c59731a553009ca9b59ca3a885104ecb4ad',
-    target_link_uri: str = 'https://edu.example.com/hub',
-    lti_message_hint: str = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA',
-) -> Dict[str, Any]:
+@pytest.fixture('function')
+def lti13_login_params():
     """
     Creates a dictionary with k/v's that emulates an initial login request.
     """
+    client_id = '125900000000000085'
+    iss = 'https://platform.vendor.com'
+    login_hint = '185d6c59731a553009ca9b59ca3a885104ecb4ad'
+    target_link_uri = 'https://edu.example.com/hub'
+    lti_message_hint = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA'
+
     params = {
         'client_id': [client_id.encode()],
         'iss': [iss.encode()],
@@ -147,17 +146,17 @@ def lti13_login_params(
 
 
 @pytest.fixture(scope='function')
-def lti13_auth_params(
-    client_id: str = '125900000000000081',
-    redirect_uri: str = 'https://acme.illumidesk.com/hub/oauth_callback',
-    lti_message_hint: str = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA',
-    login_hint: str = '185d6c59731a553009ca9b59ca3a885104ecb4ad',
-    state: str = 'eyJzdGF0ZV9pZCI6ICI2ZjBlYzE1NjlhM2E0MDJkYWM2MTYyNjM2MWQwYzEyNSIsICJuZXh0X3VybCI6ICIvIn0=',
-    nonce: str = '38048502278109788461591832959',
-) -> Dict[str, Any]:
+def lti13_auth_params():
     """
     Creates a dictionary with k/v's that emulates a login request.
     """
+    client_id = '125900000000000081'
+    redirect_uri = 'https://acme.illumidesk.com/hub/oauth_callback'
+    lti_message_hint = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA'
+    login_hint = '185d6c59731a553009ca9b59ca3a885104ecb4ad'
+    state = 'eyJzdGF0ZV9pZCI6ICI2ZjBlYzE1NjlhM2E0MDJkYWM2MTYyNjM2MWQwYzEyNSIsICJuZXh0X3VybCI6ICIvIn0='
+    nonce = '38048502278109788461591832959'
+
     params = {
         'response_type': ['id_token'.encode()],
         'scope': ['openid'.encode()],
@@ -174,7 +173,7 @@ def lti13_auth_params(
 
 
 @pytest.fixture(scope='function')
-def lti13_auth_params_dict(lti13_auth_params) -> Dict[str, Any]:
+def lti13_auth_params_dict(lti13_auth_params):
     """
     Return the initial LTI 1.3 authorization request as a dict
     """
@@ -184,7 +183,7 @@ def lti13_auth_params_dict(lti13_auth_params) -> Dict[str, Any]:
 
 
 @pytest.fixture(scope='function')
-def lti13_login_params_dict(lti13_login_params) -> Dict[str, Any]:
+def lti13_login_params_dict(lti13_login_params):
     """
     Return the initial LTI 1.3 authorization request as a dict
     """
@@ -213,7 +212,7 @@ def reset_file_loaded():
     LTIGradesSenderControlFile.FILE_LOADED = False
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope='function')
 def setup_image_environ(monkeypatch):
     """
     Set the enviroment variables used to identify images assigned by
