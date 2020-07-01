@@ -25,7 +25,7 @@ async def test_create_setup_utils_without_illumidesk_dir_env_var():
 
 
 @pytest.mark.asyncio
-async def test_create_setup_utils_without_illumidesk_dir_env_var(docker_client_cotainers_not_found):
+async def test_create_setup_utils_without_illumidesk_dir_env_var():
     """
     Do we get an environment error when attempting to create a SetupUtils instance without the illumidesk_dir
     environment variable set to a proper value?

@@ -41,6 +41,7 @@ setup(
         'josepy==1.3.0',
         'jupyterhub>=1.1.0',
         'jupyterhub-ltiauthenticator>=0.4.0',
+        'jwcrypto',
         'nbgrader>=0.6.1',
         'oauthenticator==0.11.0',
         'quart==0.11.5',

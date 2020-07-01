@@ -28,7 +28,7 @@ async def test_get_method_raises_an_error_without_lti13_private_key():
 @pytest.mark.asyncio
 async def test_get_method_raises_permission_error_if_pem_file_is_protected(lti_config_environ):
     """
-    Is a permissions error raised if the private key is protected after calling the
+    Is a permission error raised if the private key is protected after calling the
     handler's method?
     """
     handler = mock_handler(RequestHandler)
