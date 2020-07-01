@@ -164,7 +164,7 @@ If a value is sent which is not recognized by the system, then the default Jupyt
 When specifying a workspace type with the query parameter add the key / value to the URL encoded request like so:
 
 ```
-    <url>/lti/launch?next=/user-redirect/theia&workspace_type=theiaide...
+    <url>/lti/launch?next=/user-redirect/theia&workspace_type=theia...
 ```
 
 Notic the `/user-redirect/theia` part. This path redirects the user directly to their user workspace, instead of seeing the default `Launch` button in the application's home page. The path value should correspond with the `workspace_type` value.
