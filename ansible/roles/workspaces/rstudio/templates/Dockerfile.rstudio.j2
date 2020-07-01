@@ -6,5 +6,7 @@ USER $NB_USER
 RUN conda install rstudio
 RUN pip install jupyter-rsession-proxy
 
+COPY install.R /tmp/install.R
+
 ## Run an install.R script, if it exists.
-RUN if [ -f install.R ]; then R --quiet -f install.R; fi
+RUN if [ -f /tmp/install.R ]; then R --quiet -f /tmp/install.R; fi

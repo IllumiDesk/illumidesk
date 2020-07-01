@@ -39,6 +39,11 @@
     src: "rstudio/templates/{{ docker_rstudio_dockerfile }}.j2"
     dest: "{{ working_dir }}/{{ docker_rstudio_dockerfile }}"
 
+- name: copy install.R file
+  template:
+    src: "rstudio/files/install.R"
+    dest: "{{ working_dir }}/install.R"
+
 - name: create theia ide dockerfile from template
   template:
     src: "theia/templates/{{ docker_theia_dockerfile }}.j2"

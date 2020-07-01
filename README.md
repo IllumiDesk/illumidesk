@@ -275,7 +275,7 @@ When building the images the configuration files are copied to the image from th
 
 By default this setup includes the `IllumiDeskRoleDockerSpawner` and `IllumiDeskWorkSpaceDockerSpawner` classes which extends the `DockerSpawner` class, however, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary and uses the `pre_spawn_hook` to add user directories with the appropriate permissions.
 
-The `IllumiRoleDeskDockerSpawner` interprets LTI-based roles to determine which container to launch. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
+The `IllumiDeskRoleDockerSpawner` interprets LTI-based roles to determine which container to launch. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
 
 The `IllumiDeskWorkSpaceDockerSpawner` sets the image to spawn based on a provided `workspace_type` key. This allows content managers to specify images for labs, modules, or assignments. Refer [to the workspace type customization](#sApawn-specific-workspace-types) section for more information.
 
