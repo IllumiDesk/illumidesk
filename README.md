@@ -161,13 +161,13 @@ Additional workspace types include:
 
 If a value is sent which is not recognized by the system, then the default Jupyter Notebook workspace is launched for the user.
 
-When specifying a workspace type with the query parameter add the key / value to the URL encoded request like so:
+When specifying a workspace type with the query parameter add the key / value to the URL encoded request. For example, with LTI 1.1 launch requests the query parameter would look like so:
 
 ```
     <url>/lti/launch?next=/user-redirect/theia&workspace_type=theia...
 ```
 
-Notic the `/user-redirect/theia` part. This path redirects the user directly to their user workspace, instead of seeing the default `Launch` button in the application's home page. The path value should correspond with the `workspace_type` value.
+Notic the `/user-redirect/theia` part. This path redirects the user directly to their user workspace, instead of seeing the default `Launch` button in the application's home page. The path value should correspond with the `workspace_type` value. Users do have the option to navigate back to the Jupyter Notebook interface (Classic or Lab) by appending the `/tree` or `/lab` paths after `.../user/<name>`.
 
 Various LMS's also support adding custom key/values to include with the launch request. For example, the Canvas LMS has the `Custom Fields` text box and Open edX has the `Custom Parameters` text box to support additional key/values to include with the launch request.
 

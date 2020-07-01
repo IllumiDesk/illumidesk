@@ -1,4 +1,4 @@
-ARG BASE_IMG={{docker_theia_image}}
-FROM $BASE_IMG
+ARG BASE_IMAGE={{docker_illumidesk_notebook_base_image}}
+FROM $BASE_IMAGE
 
 COPY jupyter_notebook_config.py /home/ubuntu/.jupyter/jupyter_notebook_config.py

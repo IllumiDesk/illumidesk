@@ -1,0 +1,10 @@
+ARG BASE_IMAGE={{docker_illumidesk_notebook_base_image}}
+FROM $BASE_IMAGE
+
+USER $NB_USER
+
+RUN conda install rstudio
+RUN pip install jupyter-rsession-proxy
+
+## Run an install.R script, if it exists.
+RUN if [ -f install.R ]; then R --quiet -f install.R; fi

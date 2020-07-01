@@ -1,0 +1,30 @@
+ARG BASE_IMAGE={{docker_illumidesk_notebook_base_image}}
+FROM $BASE_IMAGE
+
+USER root
+
+RUN apt-get update \
+ && apt-get install -y \
+    curl \
+    dumb-init \
+    htop \
+    procps \
+    ssh \
+    sudo \
+    vim \
+    lsb-release \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+EXPOSE 8080
+
+USER $NB_USER
+
+RUN python3 -m pip install jupyter-vscode-proxy==0.1
+
+RUN jupyter serverextension enable --sys-prefix --py jupyter_server_proxy \
+ && jupyter labextension install @jupyterlab/server-proxy \
+ && jupyter lab build
+
+WORKDIR $HOME

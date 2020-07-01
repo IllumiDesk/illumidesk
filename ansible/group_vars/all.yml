@@ -26,7 +26,10 @@ docker_notebook_base_dockerfile: "{{ docker_notebook_base_dockerfile_param | def
 docker_notebook_learner_dockerfile: "{{ docker_notebook_learner_dockerfile_param | default('Dockerfile.learner') }}"
 docker_notebook_instructor_dockerfile: "{{ docker_notebook_instructor_dockerfile_param | default('Dockerfile.instructor') }}"
 docker_notebook_grader_dockerfile: "{{ docker_notebook_grader_dockerfile_param | default('Dockerfile.grader') }}"
+docker_rstudio_dockerfile: "{{ docker_rstudio_dockerfile_dockerfile_param | default('Dockerfile.rstudio') }}"
 docker_setup_course_dockerfile: "{{ docker_setup_course_dockerfile_param | default('Dockerfile.setup-course') }}"
+docker_theia_dockerfile: "{{ docker_theia_dockerfile_dockerfile_param | default('Dockerfile.theia') }}"
+docker_vscode_dockerfile: "{{ docker_vscode_dockerfile_dockerfile_param | default('Dockerfile.vscode') }}"
 
 # built jupyterhub image
 docker_illumidesk_jhub_image: "{{ docker_illumidesk_jhub_image_param | default('illumidesk/jupyterhub:') }}{{ docker_jhub_hash_commit }}"
@@ -38,8 +41,9 @@ docker_illumidesk_notebook_grader_image: "{{ docker_illumidesk_notebook_grader_i
 docker_illumidesk_notebook_instructor_image: "{{ docker_illumidesk_notebook_instructor_image_param | default('illumidesk/notebook:instructor') }}-{{ docker_notebook_hash_commit }}"
 
 # additional workspace images
-docker_rstudio_image: "{{ docker_rstudio_image_param | default('illumidesk/rstudio:latest') }}"
-docker_theia_image: "{{ docker_theia_image_param | default('illumidesk/theia:latest') }}"
+docker_illumidesk_rstudio_image: "{{ docker_illumidesk_rstudio_image_param | default('illumidesk/rstudio:') }}{{ docker_notebook_hash_commit }}"
+docker_illumidesk_theia_image: "{{ docker_illumidesk_theia_image_param | default('illumidesk/notebook:theia') }}{{ docker_notebook_hash_commit }}"
+docker_illumidesk_vscode_image: "{{ docker_illumidesk_vscode_image_param | default('illumidesk/notebook:vscode') }}{{ docker_notebook_hash_commit }}"
 
 # reverse-proxy image
 docker_proxy_image: "{{ docker_proxy_image_param | default('jupyterhub/configurable-http-proxy:4.2.0') }}"

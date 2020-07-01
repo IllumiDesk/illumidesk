@@ -1,57 +1,67 @@
 ---
+- name: create the workspaces working directories
+  file:
+    path: "{{ working_dir }}/workspaces"
+    state: directory
+
+- name: create workspaces working directories
+  file:
+    path: "{{ working_dir }}/workspaces/{{ item.dest }}"
+    state: directory
+  with_items:
+    - dest: notebooks
+    - dest: rstudio
+    - dest: theia
+    - dest: vscode
+
 - name: create base notebook dockerfile from template
   template:
-    src: "{{ docker_notebook_base_dockerfile }}.j2"
+    src: "notebooks/templates/{{ docker_notebook_base_dockerfile }}.j2"
     dest: "{{ working_dir }}/{{ docker_notebook_base_dockerfile }}"
 
 - name: create instructor dockerfile
   template:
-    src: "{{ docker_notebook_instructor_dockerfile }}.j2"
+    src: "notebooks/templates/{{ docker_notebook_instructor_dockerfile }}.j2"
     dest: "{{ working_dir }}/{{ docker_notebook_instructor_dockerfile }}"
 
 - name: create learner dockerfile
   template:
-    src: "{{ docker_notebook_learner_dockerfile }}.j2"
+    src: "notebooks/templates/{{ docker_notebook_learner_dockerfile }}.j2"
     dest: "{{ working_dir }}/{{ docker_notebook_learner_dockerfile }}"
 
 - name: create grader notebook dockerfile from template
   template:
+    src: "notebooks/templates/{{ docker_notebook_grader_dockerfile }}.j2"
     dest: "{{ working_dir }}/{{ docker_notebook_grader_dockerfile }}"
-    src: "{{ docker_notebook_grader_dockerfile }}.j2"
-
-- name: create theia ide dockerfile from template
-  template:
-    src: "{{ docker_theia_dockerfile }}.j2"
-    dest: "{{ working_dir }}/{{ docker_theia_dockerfile }}"
 
 - name: create rstudio dockerfile from template
   template:
-    src: "{{ docker_rstudio_dockerfile }}.j2"
+    src: "rstudio/templates/{{ docker_rstudio_dockerfile }}.j2"
     dest: "{{ working_dir }}/{{ docker_rstudio_dockerfile }}"
+
+- name: create theia ide dockerfile from template
+  template:
+    src: "theia/templates/{{ docker_theia_dockerfile }}.j2"
+    dest: "{{ working_dir }}/{{ docker_theia_dockerfile }}"
+
+- name: create vscode dockerfile from template
+  template:
+    src: "vscode/templates/{{ docker_vscode_dockerfile }}.j2"
+    dest: "{{ working_dir }}/{{ docker_vscode_dockerfile }}"
 
 - name: copy the jupyter notebook configuration file
   copy:
-    src: jupyter_notebook_config.py
+    src: notebooks/files/jupyter_notebook_config.py
     dest: "{{ working_dir }}/jupyter_notebook_config.py"
 
 - name: copy requirements.txt for base notebook image
   copy:
-    src: requirements.txt
+    src: notebooks/files/requirements.txt
     dest: "{{ working_dir }}/jupyter-notebook-requirements.txt"
 
 - name: pull base jupyter/datascience notebook image
   docker_image:
     name: "{{ docker_notebook_base_image }}"
-    source: pull
-
-- name: pull theia ide image
-  docker_image:
-    name: "{{ docker_theia_image }}"
-    source: pull
-
-- name: pull rstudio image
-  docker_image:
-    name: "{{ docker_rstudio_image }}"
     source: pull
 
 - name: build base notebook image
@@ -104,12 +114,22 @@
     source: build
     force_source: yes
 
-- name: build theia ide image
+- name: build theia image
   docker_image:
     name: "{{ docker_theia_image }}"
     build:
       path: "{{ working_dir }}"
       dockerfile: "{{ docker_theia_dockerfile }}"
+      pull: no
+    source: build
+    force_source: yes
+
+- name: build vscode image
+  docker_image:
+    name: "{{ docker_vscode_image }}"
+    build:
+      path: "{{ working_dir }}"
+      dockerfile: "{{ docker_vscode_dockerfile }}"
       pull: no
     source: build
     force_source: yes
