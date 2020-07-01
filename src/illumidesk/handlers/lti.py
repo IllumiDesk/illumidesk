@@ -7,9 +7,8 @@ from Crypto.PublicKey import RSA
 
 from jupyterhub.handlers import BaseHandler
 
-from jwkest import long_to_base64
-
 from illumidesk.authenticators.utils import LTIUtils
+from illumidesk.lti13.auth import get_jwk
 
 
 class LTI13ConfigHandler(BaseHandler):
@@ -43,10 +42,12 @@ class LTI13ConfigHandler(BaseHandler):
             self.log.error(f'The pem file {key_path} cannot be load')
             raise PermissionError()
         private_key = pem.parse_file(key_path)
-        kid = private_key[0].sha1_hexdigest
-        self.log.debug('kid is %s' % kid)
-        public_key = RSA.import_key(private_key[0].as_text()).publickey()
+        public_key = RSA.import_key(private_key[0].as_text()).publickey().exportKey()
         self.log.debug('public_key is %s' % public_key)
+
+        jwk = get_jwk(public_key)
+        kid = jwk.get('kid')
+        self.log.debug('kid is %s' % kid)
         # get the origin protocol
         protocol = lti_utils.get_client_protocol(self)
         self.log.debug('Origin protocol is: %s' % protocol)
@@ -97,14 +98,7 @@ class LTI13ConfigHandler(BaseHandler):
                     'privacy_level': 'public',
                 }
             ],
-            'public_jwk': {
-                'n': long_to_base64(public_key.n),
-                'e': long_to_base64(public_key.e),
-                'alg': 'RS256',
-                'kid': kid,
-                'kty': 'RSA',
-                'use': 'sig',
-            },
+            'public_jwk': jwk,
             'description': 'IllumiDesk Learning Tools Interoperability (LTI) v1.3 tool.',
             'custom_fields': {'email': '$Person.email.primary', 'lms_user_id': '$User.id',},  # noqa: E231
             'public_jwk_url': f'{target_link_url}hub/jwks',

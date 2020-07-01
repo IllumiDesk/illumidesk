@@ -3,19 +3,21 @@ import uuid
 
 from Crypto.PublicKey import RSA
 
-from docker.errors import NotFound
-
 from tornado.web import Application
 from tornado.web import RequestHandler
 
 from typing import Any
 from typing import Dict
 
-from unittest.mock import Mock
-from unittest.mock import MagicMock
+from unittest.mock import patch
 
-from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
+from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 from illumidesk.authenticators.utils import LTIUtils
+
+from tornado.httpclient import AsyncHTTPClient
+
+from tests.illumidesk.factory import factory_http_response
+from tests.illumidesk.mocks import mock_handler
 
 
 @pytest.fixture(scope='module')
@@ -29,20 +31,6 @@ def app():
 
     application = Application([(r'/', TestHandler),])  # noqa: E231
     return application
-
-
-@pytest.fixture(scope='function')
-def docker_client_cotainers_not_found():
-    """
-    Creates a DockerClient mock object where the container name does not exist
-    """
-    docker_client = Mock(spec='docker.DockerClient')
-
-    def _container_not_exists(name):
-        raise NotFound(f'container: {name} not exists')
-
-    docker_client.containers = MagicMock()
-    docker_client.containers.get.side_effect = lambda name: _container_not_exists(name)
 
 
 @pytest.fixture(scope='function')
@@ -70,6 +58,29 @@ def lti_config_environ(monkeypatch, pem_file):
     Set the enviroment variables used in Course class
     """
     monkeypatch.setenv('LTI13_PRIVATE_KEY', pem_file)
+    monkeypatch.setenv('LTI13_TOKEN_URL', 'https://my.platform.domain/login/oauth2/token')
+    monkeypatch.setenv('LTI13_CLIENT_ID', '000000000000001')
+
+
+@pytest.fixture(scope='function')
+def lti13_login_params(
+    client_id: str = '125900000000000085',
+    iss: str = 'https://platform.vendor.com',
+    login_hint: str = '185d6c59731a553009ca9b59ca3a885104ecb4ad',
+    target_link_uri: str = 'https://edu.example.com/hub',
+    lti_message_hint: str = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA',
+) -> Dict[str, Any]:
+    """
+    Creates a dictionary with k/v's that emulates an initial login request.
+    """
+    params = {
+        'client_id': [client_id.encode()],
+        'iss': [iss.encode()],
+        'login_hint': [login_hint.encode()],
+        'target_link_uri': [target_link_uri.encode()],
+        'lti_message_hint': [lti_message_hint.encode()],
+    }
+    return params
 
 
 @pytest.fixture(scope='function')
@@ -109,6 +120,16 @@ def lti13_auth_params_dict(lti13_auth_params) -> Dict[str, Any]:
     return args
 
 
+@pytest.fixture(scope='function')
+def lti13_login_params_dict(lti13_login_params) -> Dict[str, Any]:
+    """
+    Return the initial LTI 1.3 authorization request as a dict
+    """
+    utils = LTIUtils()
+    args = utils.convert_request_to_dict(lti13_login_params)
+    return args
+
+
 @pytest.fixture
 def pem_file(tmp_path):
     """
@@ -122,7 +143,7 @@ def pem_file(tmp_path):
 
 
 @pytest.fixture
-def reset_file_loaded():
+def grades_controlfile_reset_file_loaded():
     """
     Set flag to false to reload control file used in LTIGradesSenterControlFile class
     """
@@ -184,3 +205,18 @@ def test_quart_client(monkeypatch, tmp_path):
     from illumidesk.setup_course.app import app
 
     return app.test_client()
+
+
+@pytest.fixture
+def http_async_httpclient_with_simple_response(request):
+    """
+    Creates a patch of AsyncHttpClient.fetch method, useful when other tests are making http request
+    """
+    local_handler = mock_handler(RequestHandler)
+    test_request_body_param = request.param if hasattr(request, 'param') else {'message': 'ok'}
+    with patch.object(
+        AsyncHTTPClient,
+        'fetch',
+        return_value=factory_http_response(handler=local_handler.request, body=test_request_body_param),
+    ):
+        yield AsyncHTTPClient()

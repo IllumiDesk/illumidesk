@@ -134,7 +134,21 @@ def test_a_course_contains_service_config_with_correct_values(setup_course_envir
     assert service_config['api_token'] == course.token
 
 
-def test_course_exchange_root_directory_is_created(setup_course_environ, docker_client_cotainers_not_found):
+@patch('docker.DockerClient.containers')
+def test_should_setup_method_returns_true_if_container_does_not_exist(mock_docker, setup_course_environ):
+    """
+    Does the should_setup method return True when the container not was found?
+    """
+    course = Course(org='org1', course_id='example', domain='example.com')
+
+    def _container_not_exists(name):
+        raise NotFound(f'container: {name} not exists')
+
+    mock_docker.get.side_effect = lambda name: _container_not_exists(name)
+    assert course.should_setup() is True
+
+
+def test_course_exchange_root_directory_is_created(setup_course_environ):
     """
     Is the exchange directory created as part of setup?
     """
@@ -144,7 +158,17 @@ def test_course_exchange_root_directory_is_created(setup_course_environ, docker_
         assert course.exchange_root.exists()
 
 
-def test_course_jupyter_config_path_is_created(setup_course_environ, docker_client_cotainers_not_found):
+def test_course_root_directory_is_created(setup_course_environ):
+    """
+    Is the course directory created as part of setup?
+    """
+    course = Course(org='org1', course_id='example', domain='example.com')
+    with patch('shutil.chown', autospec=True):
+        course.create_directories()
+        assert course.course_root.exists()
+
+
+def test_course_jupyter_config_path_is_created(setup_course_environ):
     """
     Is the jupyter config directory created as part of setup?
     """
@@ -154,7 +178,7 @@ def test_course_jupyter_config_path_is_created(setup_course_environ, docker_clie
         assert course.jupyter_config_path.exists()
 
 
-def test_course_nbgrader_config_path_is_created(setup_course_environ, docker_client_cotainers_not_found):
+def test_course_nbgrader_config_path_is_created(setup_course_environ):
     """
     Is the nbgrader directory created as part of setup?
     """

@@ -18,5 +18,5 @@
 
 - name: create lti 11 configuration file from template
   template:
-    src: lti11-cartridge.xml.j2
-    dest: "{{ working_dir }}/lti11-cartridge.xml"
+    src: lti11-config.xml.j2
+    dest: "{{ working_dir }}/lti11-config.xml"
