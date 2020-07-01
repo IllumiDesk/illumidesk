@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.authenticator import LTI11Authenticator
-from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
+from illumidesk.grades.senders import LTIGradesSenderControlFile
 from tests.illumidesk.factory import factory_lti11_complete_launch_args
 
 
@@ -258,7 +258,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
         args = factory_lti11_complete_launch_args('canvas', 'Learner')
-        args['lis_result_sourcedid'] = ''
+        args['lis_result_sourcedid'] = [b'']
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
@@ -285,7 +285,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
         args = factory_lti11_complete_launch_args('canvas', 'Learner')
-        args['lis_outcome_service_url'] = ''
+        args['lis_outcome_service_url'] = [b'']
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),

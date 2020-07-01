@@ -24,6 +24,7 @@ quart==0.11.5
 # Utils
 filelock==3.0.12
 josepy==1.3.0
+nbgitpuller==0.8.0
 pem==20.1.0
 pycryptodome==3.9.7
 pyjwkest==1.4.2

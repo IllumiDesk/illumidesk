@@ -62,9 +62,9 @@ async def test_authenticator_invokes_lti13validator_validate_launch_request():
     ) as mock_get_argument:
         with patch.object(
             LTI13LaunchValidator, 'validate_launch_request', return_value=True
-        ) as mock_verify_launch_request:
+        ) as mock_verify_authentication_request:
             _ = await authenticator.authenticate(request_handler, None)
-            assert mock_verify_launch_request.called
+            assert mock_verify_authentication_request.called
 
 
 @pytest.mark.asyncio
@@ -209,7 +209,11 @@ async def test_authenticator_returns_lms_user_id_in_auth_state_with_valid_resour
             result = await authenticator.authenticate(request_handler, None)
             expected = {
                 'name': 'foo',
-                'auth_state': {'course_id': 'intro101', 'lms_user_id': 'foo', 'user_role': 'Learner',},  # noqa: E231
+                'auth_state': {
+                    'course_id': 'intro101',
+                    'lms_user_id': '8171934b-f5e2-4f4e-bdbd-6d798615b93e',
+                    'user_role': 'Learner',
+                },  # noqa: E231
             }
             assert result['auth_state']['lms_user_id'] == expected['auth_state']['lms_user_id']
 

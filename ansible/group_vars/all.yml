@@ -7,9 +7,9 @@ org_name: "{{ org_name_param | default('my-org') }}"
 course_id: "{{ course_id_param | default('intro101') }}"
 
 ## Upstream jupyterhub/jupyterhub and jupyter/docker-stacks hash commits
-# https://github.com/jupyter/docker-stacks/commit/76402a27fd13e649a3166b1da5a162ac476912bf
+# https://github.com/jupyter/docker-stacks/commit/e00fd05364dffa4f0547498afe16d9a35f7f0eef
 git_nb_hash_commit: "{{ git_nb_hash_commit_param | default('76402a27fd13e649a3166b1da5a162ac476912bf') }}"
-# https://github.com/jupyterhub/jupyterhub/commit/fd28e224f2de5e7b525483330150988ec3e295c6
+# https://github.com/jupyterhub/jupyterhub/commit/65de8c49167738fde9d7e88245593301a2a6a42a
 git_jhub_hash_commit: "{{ git_jhub_hash_commit_param | default('fd28e224f2de5e7b525483330150988ec3e295c6') }}"
 
 # upstream source images
@@ -46,6 +46,15 @@ jupyter_notebook_config: "{{ jupyter_notebook_config_param | default('jupyter_no
 
 # Mount directories
 mnt_root: "{{ mnt_root_param | default('/mnt') }}"
+
+# Mount with AWS EFS
+aws_efs_enabled: "{{ aws_efs_enabled_param | default('false') }}"
+
+# Specify the EFS id
+efs_id: "{{ efs_id_param | default('') }}"
+
+# Specify the AWS region (used for EFS mounts)
+aws_region: "{{ aws_region_param | default('us-west-2') }}"
 
 # Postgres for notebooks labs
 postgres_labs_enabled: "{{ postgres_labs_enabled_param | default('false') }}"

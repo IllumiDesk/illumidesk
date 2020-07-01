@@ -26,7 +26,7 @@ from illumidesk.authenticators.handlers import LTI13CallbackHandler
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
-from illumidesk.handlers.lms_grades import LTIGradesSenderControlFile
+from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 
 logger = logging.getLogger(__name__)
@@ -144,6 +144,8 @@ class LTI11Authenticator(LTIAuthenticator):
         validator = LTI11LaunchValidator(self.consumers)
         lti_utils = LTIUtils()
 
+        self.log.debug('Original arguments received in request: %s' % handler.request.arguments)
+
         # extract the request arguments to a dict
         args = lti_utils.convert_request_to_dict(handler.request.arguments)
         self.log.debug('Decoded args from request: %s' % args)
@@ -256,14 +258,7 @@ class LTI11Authenticator(LTIAuthenticator):
 
 
 class LTI13Authenticator(OAuthenticator):
-    """
-    endpoint: The LTI 1.3 endpoint used to retrieve JWT access tokens.
-    Official specification: https://www.imsglobal.org/node/162751 section.
-    authorize_url: Authorization URL that represents the LTI 1.3 / OAuth2 authorization
-    server's endpoint to obtain an acccess token based on authorization grant.
-    token_url: The LTI 1.3 endpoint used to retrieve JWT access tokens. Official
-    specification: https://www.imsglobal.org/node/162751.
-    """
+    """Custom authenticator used with LTI 1.3 requests"""
 
     login_service = 'LTI13Authenticator'
 
@@ -271,7 +266,7 @@ class LTI13Authenticator(OAuthenticator):
     login_handler = LTI13LoginHandler
     callback_handler = LTI13CallbackHandler
 
-    # the client_id, endpoint, authorize_url, and token_url config settings
+    # the client_id, authorize_url, and token_url config settings
     # are available in the OAuthenticator base class. the are overrident here
     # for the sake of clarity.
     client_id = Unicode(
@@ -285,29 +280,17 @@ class LTI13Authenticator(OAuthenticator):
     endpoint = Unicode(
         '',
         help="""
-        The LTI 1.3 endpoint used to retrieve JSON Web Keys (public keys). The tool
-        uses the JWKS to verify JWT signatures from the platform (issuer (iss)).
+        The platform's base endpoint used when redirecting requests to the platform
+        after receiving the initial login request.
         """,
     ).tag(config=True)
 
-    # configs defined in OAuthenticator
-    authorize_url = Unicode(
-        '',
-        help="""
-        Authorization URL that represents the LTI 1.3 / OAuth2 authorization
-        server's endpoint to obtain an acccess token based on authorization
-        grant. Unlike traditional OAuth2 authorization servers where a separate logical
-        entity issues tokens based on user credentials (Google, GitHub, etc), LTI 1.3
-        platforms also function as the authorization server.
-        """,
-    ).tag(config=True)
-
-    token_url = Unicode(
-        '',
-        help="""
-        The LTI 1.3 endpoint used to retrieve JWT access tokens.
-        Official specification: https://www.imsglobal.org/node/162751.
-        """,
+    oauth_callback_url = Unicode(
+        os.getenv('LTI13_CALLBACK_URL', ''),
+        config=True,
+        help="""Callback URL to use.
+        Should match the redirect_uri sent from the platform during the
+        initial login request.""",
     ).tag(config=True)
 
     async def authenticate(self, handler: LTI13LoginHandler, data: Dict[str, str] = None) -> Dict[str, str]:
@@ -336,8 +319,7 @@ class LTI13Authenticator(OAuthenticator):
         self.log.debug('Decoded JWT is %s' % jwt_decoded)
 
         if validator.validate_launch_request(jwt_decoded):
-            course_label = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
-            course_id = lti_utils.normalize_name_for_containers(course_label)
+            course_id = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
             self.log.debug('Normalized course label is %s' % course_id)
             username = ''
             if 'email' in jwt_decoded.keys() and jwt_decoded.get('email'):
@@ -369,7 +351,18 @@ class LTI13Authenticator(OAuthenticator):
                 user_role = 'Learner'
             self.log.debug('user_role is %s' % user_role)
 
+            lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
+            # Values for the send-grades functionality
+            course_lineitems = None
+            if 'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded:
+                course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
+
             return {
                 'name': username,
-                'auth_state': {'course_id': course_id, 'user_role': user_role, 'lms_user_id': username,},  # noqa: E231
+                'auth_state': {
+                    'course_id': course_id,
+                    'course_lineitems': course_lineitems or '',
+                    'user_role': user_role,
+                    'lms_user_id': lms_user_id,
+                },  # noqa: E231
             }

@@ -66,6 +66,30 @@ LTI11_LAUNCH_PARAMS_REQUIRED = LTI11_LAUNCH_PARAMS_REQUIRED + LTI11_OAUTH_ARGS
 LTI11_LAUNCH_PARAMS_ALL = LTI11_LAUNCH_PARAMS_REQUIRED + LTI11_LAUNCH_PARAMS_RECOMMENDED + LTI11_LAUNCH_PARAMS_OTIONAL
 
 # LTI 1.3
+
+# Initial authentication request arguments
+# https://www.imsglobal.org/spec/security/v1p0/#step-1-authentication-request
+LTI13_LOGIN_REQUEST_ARGS = [
+    'iss',
+    'login_hint',
+    'target_link_uri',
+]
+
+# Initial authentication request arguments
+# https://www.imsglobal.org/spec/security/v1p0/#step-2-authentication-request
+LTI13_AUTH_REQUEST_ARGS = [
+    'client_id',
+    'login_hint',
+    'lti_message_hint',
+    'nonce',
+    'prompt',
+    'redirect_uri',
+    'response_mode',
+    'response_type',
+    'scope',
+    'state',
+]
+
 # Required message claims
 # http://www.imsglobal.org/spec/lti/v1p3/#required-message-claims
 LTI13_REQUIRED_CLAIMS = {
