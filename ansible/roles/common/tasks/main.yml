@@ -30,6 +30,16 @@
     'virtualenv'
   ]
 
+- name: install system dependencies required by efs
+  apt:
+    name:  "{{ item }}"
+    state: latest
+    update_cache: yes
+  loop: [
+    'nfs-common',
+  ]
+  when: aws_efs_enabled|bool
+
 - name: install docker-compose
   get_url:
     url: https://github.com/docker/compose/releases/download/1.25.5/docker-compose-Linux-x86_64
