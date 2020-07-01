@@ -115,7 +115,7 @@ def lti11_complete_launch_args():
     return args
 
 
-@pytest.fixture('function')
+@pytest.fixture(scope='function')
 def lti13_login_params():
     """
     Creates a dictionary with k/v's that emulates an initial login request.
