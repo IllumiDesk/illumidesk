@@ -126,6 +126,26 @@ def lti11_complete_launch_args():
     return args
 
 
+def lti13_login_params(
+    client_id: str = '125900000000000085',
+    iss: str = 'https://platform.vendor.com',
+    login_hint: str = '185d6c59731a553009ca9b59ca3a885104ecb4ad',
+    target_link_uri: str = 'https://edu.example.com/hub',
+    lti_message_hint: str = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA',
+) -> Dict[str, Any]:
+    """
+    Creates a dictionary with k/v's that emulates an initial login request.
+    """
+    params = {
+        'client_id': [client_id.encode()],
+        'iss': [iss.encode()],
+        'login_hint': [login_hint.encode()],
+        'target_link_uri': [target_link_uri.encode()],
+        'lti_message_hint': [lti_message_hint.encode()],
+    }
+    return params
+
+
 @pytest.fixture(scope='function')
 def lti13_auth_params(
     client_id: str = '125900000000000081',
@@ -160,6 +180,16 @@ def lti13_auth_params_dict(lti13_auth_params) -> Dict[str, Any]:
     """
     utils = LTIUtils()
     args = utils.convert_request_to_dict(lti13_auth_params)
+    return args
+
+
+@pytest.fixture(scope='function')
+def lti13_login_params_dict(lti13_login_params) -> Dict[str, Any]:
+    """
+    Return the initial LTI 1.3 authorization request as a dict
+    """
+    utils = LTIUtils()
+    args = utils.convert_request_to_dict(lti13_login_params)
     return args
 
 
