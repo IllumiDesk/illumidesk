@@ -22,8 +22,8 @@ class SendGradesHandler(BaseHandler):
     async def post(self, course_id: str, assignment_name: str) -> None:
         """
         Receives a request with the course name and the assignment name as path parameters
-        which then uses the LTIGradeSender.send_grades function to extract data from the
-        grader's database and sends it to the tool consumer / platform.
+        which then uses the appropriate class to send grades to the platform based on the
+        LTI authenticator version (1.1 or 1.3).
         
         Arguments:
           course_id: course name which has been previously normalized by the LTIUtils.normalize_name_for_containers

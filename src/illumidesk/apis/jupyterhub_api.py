@@ -29,7 +29,7 @@ class JupyterHubAPI(LoggingConfigurable):
     def __init__(self):
         self.client = AsyncHTTPClient()
         self.token = os.environ.get('JUPYTERHUB_API_TOKEN')
-        if not self.token:
+        if self.token:
             raise EnvironmentError('JUPYTERHUB_API_TOKEN env-var is not set')
         self.api_root_url = os.environ.get('JUPYTERHUB_API_URL')
         if not self.api_root_url:
@@ -41,7 +41,8 @@ class JupyterHubAPI(LoggingConfigurable):
 
     async def _request(self, endpoint: str, **kwargs: Any) -> Awaitable['HTTPResponse']:
         """
-        Wrapper for the AsyncHTTPClient.fetch method which adds additional log outputs.
+        Wrapper for the AsyncHTTPClient.fetch method which adds additional log outputs
+        and headers.
 
         Args:
           endpoint: JupyterHub REST API endpoint
