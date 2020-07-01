@@ -20,7 +20,7 @@ from tests.illumidesk.mocks import mock_handler
 @pytest.fixture(scope='module')
 def auth_state_dict():
     authenticator_auth_state = {
-        'name': 'username',
+        'name': 'student1',
         'auth_state': {
             'course_id': 'intro101',
             'course_lineitems': 'my.platform.com/api/lti/courses/1/line_items',

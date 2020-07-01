@@ -135,6 +135,7 @@ def factory_lti11_complete_launch_args(
         'context_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
         'context_label': ['intro101'.encode()],
         'context_title': ['intro101'.encode()],
+        'course_lineitems': ['my.platform.com/api/lti/courses/1/line_items'.encode()],
         'custom_canvas_assignment_title': ['test-assignment'.encode()],
         'custom_canvas_user_login_id': ['student1'.encode()],
         'custom_workspace_type': [workspace_type.encode()],
