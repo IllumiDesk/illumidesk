@@ -9,12 +9,12 @@ from tornado.web import RequestHandler
 from typing import Any
 from typing import Dict
 
+from tornado.httpclient import AsyncHTTPClient
+
 from unittest.mock import patch
 
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 from illumidesk.authenticators.utils import LTIUtils
-
-from tornado.httpclient import AsyncHTTPClient
 
 from tests.illumidesk.factory import factory_http_response
 from tests.illumidesk.mocks import mock_handler
