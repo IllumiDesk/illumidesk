@@ -11,6 +11,9 @@ from tornado.httpclient import HTTPClientError
 
 from traitlets.config import LoggingConfigurable
 
+from typing import Any
+from typing import Awaitable
+
 
 class JupyterHubAPI(LoggingConfigurable):
     """
@@ -26,35 +29,36 @@ class JupyterHubAPI(LoggingConfigurable):
     def __init__(self):
         self.client = AsyncHTTPClient()
         self.token = os.environ.get('JUPYTERHUB_API_TOKEN')
-        if self.token is None:
+        if not self.token:
             raise EnvironmentError('JUPYTERHUB_API_TOKEN env-var is not set')
         self.api_root_url = os.environ.get('JUPYTERHUB_API_URL')
-        if self.api_root_url is None:
+        if not self.api_root_url:
             raise EnvironmentError('JUPYTERHUB_API_URL env-var is not set')
         self.default_headers = {
             'Authorization': f'token {self.token}',
             'Content-Type': 'application/json',
         }
 
-    async def _request(self, endpoint, **kwargs):
+    async def _request(self, endpoint: str, **kwargs: Any) -> Awaitable['HTTPResponse']:
         """
-        Sends a request to the JupyterHub endpoint.
+        Wrapper for the AsyncHTTPClient.fetch method which adds additional log outputs
+        and headers.
 
         Args:
           endpoint: JupyterHub REST API endpoint
 
         Returns:
-          Response from the endpoint.
+          HTTPResponse returned as a tornado.concurrent.Future object.
         """
         if not endpoint:
-            raise ValueError('endpoint missing')
+            raise ValueError('missing endpoint argument')
         headers = kwargs.pop('headers', {})
         headers.update(self.default_headers)
         url = f'{self.api_root_url}/{endpoint}'
         self.log.debug(f'Creating request with url: {url}')
         return await self.client.fetch(url, headers=headers, **kwargs)
 
-    async def create_group(self, group_name):
+    async def create_group(self, group_name: str) -> Awaitable['HTTPResponse']:
         """
         Creates a group.
 
@@ -75,7 +79,7 @@ class JupyterHubAPI(LoggingConfigurable):
                 return None
             return await self._request(f'groups/{group_name}')
 
-    async def get_group(self, group_name):
+    async def get_group(self, group_name: str) -> Awaitable['HTTPResponse']:
         """
         Gets a group
 
@@ -90,7 +94,7 @@ class JupyterHubAPI(LoggingConfigurable):
         self.log.debug(f'Getting group with path groups/{group_name}')
         return await self._request(f'groups/{group_name}')
 
-    async def create_users(self, *users):
+    async def create_users(self, *users: str) -> Awaitable['HTTPResponse']:
         """
         Creates users from a list
 
@@ -105,7 +109,7 @@ class JupyterHubAPI(LoggingConfigurable):
         self.log.debug('Creating users body %s' % json.dumps({'usernames': users}))
         return await self._request('users', body=json.dumps({'usernames': users}), method='POST')
 
-    async def create_user(self, username):
+    async def create_user(self, username: str) -> Awaitable['HTTPResponse']:
         """
         Creates a user
 
@@ -120,7 +124,7 @@ class JupyterHubAPI(LoggingConfigurable):
         self.log.debug(f'Creating user with path users/{username}')
         return await self._request(f'users/{username}', body='', method='POST')
 
-    async def add_group_member(self, group_name, username):
+    async def add_group_member(self, group_name: str, username: str) -> Awaitable['HTTPResponse']:
         """
         Adds a user to a group
 
@@ -141,7 +145,9 @@ class JupyterHubAPI(LoggingConfigurable):
             f'groups/{group_name}/users', body=json.dumps({'users': [f'{username}']}), method='POST',
         )
 
-    async def add_user_to_nbgrader_gradebook(self, course_id, username, lms_user_id):
+    async def add_user_to_nbgrader_gradebook(
+        self, course_id: str, username: str, lms_user_id: str
+    ) -> Awaitable['HTTPResponse']:
         """
         Adds a user to the nbgrader gradebook database for the course.
 
@@ -172,7 +178,7 @@ class JupyterHubAPI(LoggingConfigurable):
             self.log.debug('Error during adding student to gradebook: %s' % e)
         gradebook.close()
 
-    async def add_student_to_jupyterhub_group(self, course_id, student):
+    async def add_student_to_jupyterhub_group(self, course_id: str, student: str) -> Awaitable['HTTPResponse']:
         """
         Adds a student to the student course group.
 
@@ -195,7 +201,7 @@ class JupyterHubAPI(LoggingConfigurable):
                 self.log.error('Error creating student group %s with exception %s' % (group_name, e))
         await self._add_user_to_jupyterhub_group(student, group_name)
 
-    async def add_instructor_to_jupyterhub_group(self, course_id, instructor):
+    async def add_instructor_to_jupyterhub_group(self, course_id: str, instructor: str) -> Awaitable['HTTPResponse']:
         """
         Adds a an instructor to the student course group.
 
@@ -218,7 +224,7 @@ class JupyterHubAPI(LoggingConfigurable):
                 self.log.error('Error creating instructors group')
         await self._add_user_to_jupyterhub_group(instructor, group_name)
 
-    async def _add_user_to_jupyterhub_group(self, username, group_name):
+    async def _add_user_to_jupyterhub_group(self, username: str, group_name: str) -> Awaitable['HTTPResponse']:
         """
         Adds a user to a JupyterHub group.
 

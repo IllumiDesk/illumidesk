@@ -1,15 +1,20 @@
 from datetime import datetime
 import json
 import logging
-from pathlib import Path
 import time
 import os
 
+from datetime import datetime
+
 from lti.outcome_request import OutcomeRequest
+
+from pathlib import Path
 
 from nbgrader.api import Gradebook, MissingEntry
 
 from tornado.httpclient import AsyncHTTPClient
+
+from illumidesk.lti13.auth import get_lms_access_token
 
 from illumidesk.lti13.auth import get_lms_access_token
 
