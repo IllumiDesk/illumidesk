@@ -16,16 +16,14 @@ from illumidesk.lti13.auth import get_jwk
 
 class LTI13ConfigHandler(BaseHandler):
     """
-    Handles JSON configuration files for LTI 1.3
+    Handles JSON configuration file for LTI 1.3
     """
 
     async def get(self) -> None:
         """
         Gets the JSON config which is used by LTI platforms
         to install the external tool.
-
-        - This method requires that the LTI13_PRIVATE_KEY environment variable
-        is set with the full path to the RSA private key in PEM format.
+        
         - The extensions key contains settings for specific vendors, such as canvas,
         moodle, edx, among others.
         - The tool uses public settings by default. Users that wish to install the tool with
@@ -37,20 +35,7 @@ class LTI13ConfigHandler(BaseHandler):
         """
         lti_utils = LTIUtils()
         self.set_header('Content-Type', 'application/json')
-        if not os.environ.get('LTI13_PRIVATE_KEY'):
-            raise EnvironmentError('LTI13_PRIVATE_KEY environment variable not set')
-        key_path = os.environ.get('LTI13_PRIVATE_KEY')
-        # check the pem permission
-        if not os.access(key_path, os.R_OK):
-            self.log.error(f'The pem file {key_path} cannot be load')
-            raise PermissionError()
-        private_key = pem.parse_file(key_path)
-        public_key = RSA.import_key(private_key[0].as_text()).publickey().exportKey()
-        self.log.debug('public_key is %s' % public_key)
-
-        jwk = get_jwk(public_key)
-        kid = jwk.get('kid')
-        self.log.debug('kid is %s' % kid)
+        
         # get the origin protocol
         protocol = lti_utils.get_client_protocol(self)
         self.log.debug('Origin protocol is: %s' % protocol)
@@ -100,12 +85,35 @@ class LTI13ConfigHandler(BaseHandler):
                     },
                     'privacy_level': 'public',
                 }
-            ],
-            'public_jwk': jwk,
+            ],            
             'description': 'IllumiDesk Learning Tools Interoperability (LTI) v1.3 tool.',
             'custom_fields': {'email': '$Person.email.primary', 'lms_user_id': '$User.id',},  # noqa: E231
-            'public_jwk_url': f'{target_link_url}hub/jwks',
+            'public_jwk_url': f'{target_link_url}hub/lti13/jwks',
             'target_link_uri': target_link_url,
             'oidc_initiation_url': f'{target_link_url}hub/oauth_login',
         }
         self.write(json.dumps(keys))
+
+class LTI13JWKSHandler(BaseHandler):
+    """
+    Handler to serve our JWKS
+    """
+    def get(self) -> None:
+        """
+        - This method requires that the LTI13_PRIVATE_KEY environment variable
+        is set with the full path to the RSA private key in PEM format.
+        """
+        if not os.environ.get('LTI13_PRIVATE_KEY'):
+            raise EnvironmentError('LTI13_PRIVATE_KEY environment variable not set')
+        key_path = os.environ.get('LTI13_PRIVATE_KEY')
+        # check the pem permission
+        if not os.access(key_path, os.R_OK):
+            self.log.error(f'The pem file {key_path} cannot be load')
+            raise PermissionError()
+        private_key = pem.parse_file(key_path)
+        public_key = RSA.import_key(private_key[0].as_text()).publickey().exportKey()
+        self.log.debug('public_key is %s' % public_key)
+
+        jwk = get_jwk(public_key)        
+        self.log.debug('the jwks is %s' % jwk)
+        self.write(json.dumps(jwk))
