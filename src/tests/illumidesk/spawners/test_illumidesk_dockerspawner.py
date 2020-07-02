@@ -4,19 +4,8 @@ import types
 
 from dockerspawner.dockerspawner import DockerSpawner
 
-from illumidesk.spawners.spawners import IllumiDeskBaseDockerSpawner
 from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
 from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner
-
-
-def test_instantiate_base_illumidesk_docker_spawner_returns_not_implemented_error():
-    """
-    Ensure the IllumiDeskBaseDockerSpawner returns a non implemented error if
-    instantiated directly.
-    """
-    sut = IllumiDeskBaseDockerSpawner()
-    with pytest.raises(NotImplementedError):
-        sut._image_from_key('')
 
 
 def test_image_from_key_raises_a_value_error_error_with_empty_user_role():
