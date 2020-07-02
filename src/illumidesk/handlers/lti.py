@@ -32,7 +32,7 @@ class LTI13ConfigHandler(BaseHandler):
         """
         lti_utils = LTIUtils()
         self.set_header('Content-Type', 'application/json')
-        
+
         # get the origin protocol
         protocol = lti_utils.get_client_protocol(self)
         self.log.debug('Origin protocol is: %s' % protocol)
@@ -82,7 +82,7 @@ class LTI13ConfigHandler(BaseHandler):
                     },
                     'privacy_level': 'public',
                 }
-            ],            
+            ],
             'description': 'IllumiDesk Learning Tools Interoperability (LTI) v1.3 tool.',
             'custom_fields': {'email': '$Person.email.primary', 'lms_user_id': '$User.id',},  # noqa: E231
             'public_jwk_url': f'{target_link_url}hub/lti13/jwks',
@@ -91,10 +91,12 @@ class LTI13ConfigHandler(BaseHandler):
         }
         self.write(json.dumps(keys))
 
+
 class LTI13JWKSHandler(BaseHandler):
     """
     Handler to serve our JWKS
     """
+
     def get(self) -> None:
         """
         - This method requires that the LTI13_PRIVATE_KEY environment variable
@@ -111,6 +113,6 @@ class LTI13JWKSHandler(BaseHandler):
         public_key = RSA.import_key(private_key[0].as_text()).publickey().exportKey()
         self.log.debug('public_key is %s' % public_key)
 
-        jwk = get_jwk(public_key)        
+        jwk = get_jwk(public_key)
         self.log.debug('the jwks is %s' % jwk)
         self.write(json.dumps(jwk))

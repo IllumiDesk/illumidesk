@@ -1,6 +1,3 @@
-from os import chmod
-from os import environ
-
 import json
 import pytest
 

@@ -220,7 +220,7 @@ class LTI13GradeSender(GradesBaseSender):
                 'comment': '',
             }
             logger.info(f'data used to sent scores: {data}')
-            
+
             url = lineitem_info['id'] + '/scores'
             logger.debug(f'URL for lineitem grades submission {url}')
             await client.fetch(url, body=json.dumps(data), method='POST', headers=self.headers)
