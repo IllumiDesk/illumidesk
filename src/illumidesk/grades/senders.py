@@ -216,7 +216,7 @@ class LTI13GradeSender(GradesBaseSender):
                 'activityProgress': 'Completed',
                 'comment': '',
             }
-            logger.info('data used to sent scores:', data)
+            logger.info(f'data used to sent scores: {data}')
             
             url = lineitem_info['id'] + '/scores'
             logger.debug(f'URL for lineitem grades submission {url}')
