@@ -1,6 +1,3 @@
-import json
-from pathlib import Path
-
 import pytest
 
 from unittest.mock import patch
@@ -85,14 +82,20 @@ class TestLTI13GradesSender:
         line_item_result = {'label': 'lab', 'id': 'line_item_url', 'scoreMaximum': 40}
         with patch('illumidesk.grades.senders.get_lms_access_token', return_value=access_token_result) as mock_method:
             with patch.object(
-                LTI13GradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [{'score': 10, 'lms_user_id': 'id'}])
+                LTI13GradeSender,
+                '_retrieve_grades_from_db',
+                return_value=(lambda: 10, [{'score': 10, 'lms_user_id': 'id'}]),
             ):
 
-                with patch.object(AsyncHTTPClient, 'fetch', side_effect=[
-                    factory_http_response(handler=local_handler.request, body=[line_item_result]),
-                    factory_http_response(handler=local_handler.request, body=line_item_result),
-                    factory_http_response(handler=local_handler.request, body=[])
-                ]):
+                with patch.object(
+                    AsyncHTTPClient,
+                    'fetch',
+                    side_effect=[
+                        factory_http_response(handler=local_handler.request, body=[line_item_result]),
+                        factory_http_response(handler=local_handler.request, body=line_item_result),
+                        factory_http_response(handler=local_handler.request, body=[]),
+                    ],
+                ):
                     await sut.send_grades()
                     assert mock_method.called
 

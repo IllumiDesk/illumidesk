@@ -1,17 +1,19 @@
 import json
 import logging
-import pem
 import time
 import os
 
 from datetime import datetime
-from filelock import FileLock
-from illumidesk.lti13.auth import get_lms_access_token
+
 from lti.outcome_request import OutcomeRequest
+
 from pathlib import Path
+
 from nbgrader.api import Gradebook, MissingEntry
+
 from tornado.httpclient import AsyncHTTPClient
-from urllib.parse import urlsplit
+
+from illumidesk.lti13.auth import get_lms_access_token
 
 from .exceptions import (
     GradesSenderCriticalError,
@@ -170,7 +172,7 @@ class LTI13GradeSender(GradesBaseSender):
         lineitem_matched = None
         for item in items:
             if self.assignment_name.lower() == item['label'].lower():
-                lineitem_matched = item['id'] # the id is the full url
+                lineitem_matched = item['id']  # the id is the full url
                 logger.debug(f'There is a lineitem matched with the assignment {self.assignment_name}. {item}')
                 break
         if lineitem_matched is None:
@@ -179,28 +181,29 @@ class LTI13GradeSender(GradesBaseSender):
         resp = await client.fetch(lineitem_matched, headers=self.headers)
         lineitem_info = json.loads(resp.body)
         logger.debug(f'Fetched lineitem info from lms {lineitem_info}')
-        
+
         return lineitem_info
 
     async def _set_access_token_header(self):
         token = await get_lms_access_token(self.lms_token_url, self.private_key_path, self.lms_client_id)
 
-        if not 'access_token' in token:
+        if 'access_token' not in token:
             logger.info(f'response from {self.lms_token_url}: {token}')
-            raise GradesSenderCriticalError(f'The "access_token" key is missing')
+            raise GradesSenderCriticalError('The "access_token" key is missing')
 
         # set all the headers to use in lms requests
         self.headers = {
-                'Authorization': '{token_type} {access_token}'.format(**token),
-                'Content-Type': 'application/vnd.ims.lis.v2.lineitem+json',
-            }
+            'Authorization': '{token_type} {access_token}'.format(**token),
+            'Content-Type': 'application/vnd.ims.lis.v2.lineitem+json',
+        }
+
     async def send_grades(self):
         max_score, nbgrader_grades = self._retrieve_grades_from_db()
         if not nbgrader_grades:
             raise AssignmentWithoutGradesError
-        
+
         await self._set_access_token_header()
-        
+
         lineitem_info = await self._get_line_item_info_by_assignment_name()
         score_maximum = lineitem_info['scoreMaximum']
         client = AsyncHTTPClient()
@@ -217,7 +220,7 @@ class LTI13GradeSender(GradesBaseSender):
                 'comment': '',
             }
             logger.info('data used to sent scores:', data)
-            
+
             url = lineitem_info['id'] + '/scores'
             logger.debug(f'URL for lineitem grades submission {url}')
             await client.fetch(url, body=json.dumps(data), method='POST', headers=self.headers)
