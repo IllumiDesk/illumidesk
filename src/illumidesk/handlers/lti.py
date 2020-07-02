@@ -4,11 +4,8 @@ import json
 import pem
 
 from Crypto.PublicKey import RSA
-from jwcrypto.jwk import JWK
 
 from jupyterhub.handlers import BaseHandler
-
-from jwkest import long_to_base64
 
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.lti13.auth import get_jwk

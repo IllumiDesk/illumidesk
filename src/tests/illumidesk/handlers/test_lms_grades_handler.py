@@ -1,12 +1,17 @@
 import pytest
 
-from illumidesk.authenticators.authenticator import LTI11Authenticator, LTI13Authenticator
-from illumidesk.grades.senders import LTIGradeSender, LTI13GradeSender
-from illumidesk.handlers.lms_grades import SendGradesHandler
-from unittest.mock import patch, PropertyMock, Mock, MagicMock, AsyncMock
-from tests.illumidesk.mocks import mock_handler
 from tornado.web import RequestHandler
-from jupyterhub.user import User
+
+from unittest.mock import patch
+from unittest.mock import AsyncMock
+from unittest.mock import Mock
+from unittest.mock import PropertyMock
+
+from illumidesk.authenticators.authenticator import LTI11Authenticator, LTI13Authenticator
+from illumidesk.grades.senders import LTIGradeSender
+from illumidesk.handlers.lms_grades import SendGradesHandler
+
+from tests.illumidesk.mocks import mock_handler
 
 
 @pytest.fixture()
