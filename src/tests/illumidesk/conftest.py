@@ -1,27 +1,20 @@
-import json
 import pytest
 import uuid
 
 from Crypto.PublicKey import RSA
 
-from docker.errors import NotFound
-
-from io import StringIO
-
-from tornado.httputil import HTTPHeaders
 from tornado.web import Application
 from tornado.web import RequestHandler
 
 from typing import Any
 from typing import Dict
 
-from unittest.mock import Mock, patch
-from unittest.mock import MagicMock
+from tornado.httpclient import AsyncHTTPClient
+
+from unittest.mock import patch
 
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 from illumidesk.authenticators.utils import LTIUtils
-
-from tornado.httpclient import AsyncHTTPClient, HTTPResponse
 
 from tests.illumidesk.factory import factory_http_response
 from tests.illumidesk.mocks import mock_handler
@@ -197,5 +190,9 @@ def http_async_httpclient_with_simple_response(request):
     """
     local_handler = mock_handler(RequestHandler)
     test_request_body_param = request.param if hasattr(request, 'param') else {'message': 'ok'}
-    with patch.object(AsyncHTTPClient, 'fetch', return_value=factory_http_response(handler=local_handler.request, body=test_request_body_param)):
+    with patch.object(
+        AsyncHTTPClient,
+        'fetch',
+        return_value=factory_http_response(handler=local_handler.request, body=test_request_body_param),
+    ):
         yield AsyncHTTPClient()

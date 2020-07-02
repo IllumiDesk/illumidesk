@@ -7,10 +7,6 @@ from unittest.mock import patch
 from illumidesk.lti13.auth import get_lms_access_token
 from illumidesk.lti13.auth import get_pem_text_from_file
 
-from tornado.httpclient import AsyncHTTPClient, HTTPClientError
-
-from tests.illumidesk.factory import factory_http_response
-
 
 def test_get_pem_text_from_file_raises_an_error_if_pem_cannot_be_read():
     with pytest.raises(PermissionError):
