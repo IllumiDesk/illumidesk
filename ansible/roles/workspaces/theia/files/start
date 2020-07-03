@@ -1,6 +1,0 @@
-#!/bin/bash
-
-export USE_LOCAL_GIT=true
-(cd theia && npx yarn theia start /home/jovyan --hostname=0.0.0.0 &)
-
-exec "$@"

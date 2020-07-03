@@ -1,12 +1,61 @@
-ARG BASE_IMAGE={{docker_illumidesk_notebook_base_image}}
-FROM $BASE_IMAGE
+FROM {{docker_illumidesk_notebook_base_image}}
 
-USER $NB_USER
+ARG R_VERSION=3.6.1
+ARG RSTUDIO_VERSION=1.3.959
 
-RUN conda install rstudio
-RUN pip install jupyter-rsession-proxy
+ENV DISABLE_AUTH=true
+ENV R_VERSION=$R_VERSION
+ENV RSTUDIO_VERSION=$RSTUDIO_VERSION
+ENV PATH=/usr/lib/rstudio-server/bin:$PATH
+ENV LD_LIBRARY_PATH=/usr/local/lib/R/lib
+ENV R_HISTFILE=".Rhistory"
 
-COPY install.R /tmp/install.R
+USER root
 
-## Run an install.R script, if it exists.
-RUN if [ -f /tmp/install.R ]; then R --quiet -f /tmp/install.R; fi
+RUN sed -i.bak "/^#.*deb-src.*universe$/s/^# //g" /etc/apt/sources.list \
+ && apt-get update \
+ && apt-get upgrade -y \
+ && apt-get install -y \
+    dirmngr \
+    file \
+    gdebi-core \
+    gnupg \
+    libapparmor1 \
+    libclang-dev \
+    libcurl4-openssl-dev \
+    libedit2 \
+    libopenblas-dev \
+    libx11-dev \
+    lsb-release \
+    multiarch-support \
+    procps \
+    psmisc \
+    r-base \
+    r-base-dev \
+    xorg-dev \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+# R
+RUN wget -q "https://cdn.rstudio.com/r/ubuntu-1804/pkgs/r-${R_VERSION}_1_amd64.deb" \
+ && gdebi "r-${R_VERSION}_1_amd64.deb" \
+ && ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R \
+ && ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript \
+ && rm -f "r-${R_VERSION}_1_amd64.deb"
+
+# RStudio
+RUN wget -q "http://download2.rstudio.org/server/bionic/amd64/rstudio-server-${RSTUDIO_VERSION}-amd64.deb" \
+ && gdebi "rstudio-server-${RSTUDIO_VERSION}-amd64.deb" \
+ && dpkg -i rstudio-server-*-amd64.deb \
+ && ln -s /usr/lib/rstudio-server /usr/local/lib/rstudio-server \
+ && rm  "rstudio-server-${RSTUDIO_VERSION}-amd64.deb" \
+ && echo "www-frame-origin=any" >> /etc/rstudio/rserver.conf \
+ && chown $NB_UID:$NB_GID /etc/rstudio/rserver.conf
+
+# https://support.rstudio.com/hc/en-us/articles/200711843-Working-Directories-and-Workspaces
+RUN mkdir -p ~/.rstudio/monitored/user-settings/ \
+ && echo -e "initialWorkingDirectory=\"${HOME}"}\"\n" >> ~/.rstudio/monitored/user-settings/user-settings
+
+USER $NB_UID
+
+WORKDIR $HOME

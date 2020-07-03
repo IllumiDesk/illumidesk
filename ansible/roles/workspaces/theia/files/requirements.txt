@@ -1,4 +1,4 @@
 autopep8==1.5.3
 flake8==3.8.3
+jupyter-theia-proxy==1.0b1
 python-language-server==0.33.3
-scikit-learn==0.23.1

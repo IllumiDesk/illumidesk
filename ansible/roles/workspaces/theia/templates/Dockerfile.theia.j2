@@ -1,4 +1,68 @@
 ARG BASE_IMAGE={{docker_illumidesk_notebook_base_image}}
 FROM $BASE_IMAGE
 
-COPY jupyter_notebook_config.py /home/ubuntu/.jupyter/jupyter_notebook_config.py
+ENV NODE_OPTIONS="--max_old_space_size=4096"
+ENV NODE_VERSION=10.21.0
+ENV NVM_VERSION=0.35.3
+ENV NVM_DIR="${HOME}/.nvm"
+ENV NODE_PATH="${NVM_DIR}/v${NODE_VERSION}/lib/node_modules"
+ENV NODE_LIB_PATH="${NVM_DIR}/v${NODE_VERSION}/lib"
+ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:${PATH}"
+
+USER root
+
+RUN apt-get update \
+ && apt-get install -y \
+    apt-transport-https \
+    curl \
+    dumb-init \
+    htop \
+    libssl-dev \
+    lsb-release \
+    procps \
+    ssh \
+    sudo \
+    vim \
+ && rm -rf /var/lib/apt/lists/*
+
+## NVM
+# https://stackoverflow.com/questions/25899912/how-to-install-nvm-in-docker
+
+# Set debconf to run non-interactively
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+# Set the SHELL to bash with pipefail option
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Replace shell with bash so we can source files
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+# Install nvm with node and npm
+RUN curl "https://raw.githubusercontent.com/creationix/nvm/v${NVM_VERSION}/install.sh" | bash \
+    && . "${NVM_DIR}/nvm.sh" \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default
+
+COPY theia/package.json "${NODE_LIB_PATH}/package.json"
+
+WORKDIR $NODE_LIB_PATH
+
+# install theia
+RUN npm install yarn \
+ && npx yarn --cache-folder ./ycache \
+ && rm -rf ./ycache \
+ && npx yarn theia build \
+ && npx yarn theia download:plugins
+
+WORKDIR $HOME
+
+USER $NB_USER
+
+COPY requirements.txt requirements.txt
+RUN python3 -m pip install -r requirements.txt \
+ && rm requirements.txt
+
+RUN jupyter serverextension enable --sys-prefix --py jupyter_server_proxy \
+ && jupyter labextension install @jupyterlab/server-proxy \
+ && jupyter lab build
