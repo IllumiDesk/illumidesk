@@ -7,6 +7,7 @@ from tornado.web import Application
 from tornado.web import RequestHandler
 
 from unittest.mock import patch
+from unittest.mock import Mock
 
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 from illumidesk.authenticators.utils import LTIUtils
@@ -184,6 +185,16 @@ def lti13_login_params_dict(lti13_login_params):
 
 
 @pytest.fixture
+def mock_user():
+    mock_user = Mock()
+    attrs = {
+        'environment.get.side_effect': None,
+    }
+    mock_user.configure_mock(**attrs)
+    return mock_user
+
+
+@pytest.fixture
 def pem_file(tmp_path):
     """
     Create a test private key file used with LTI 1.3 request/reponse flows
@@ -211,7 +222,7 @@ def setup_image_environ(monkeypatch):
     """
     monkeypatch.setenv('DOCKER_STANDARD_IMAGE', 'standard_image')
     monkeypatch.setenv('DOCKER_LEARNER_IMAGE', 'learner_image')
-    monkeypatch.setenv('DOCKER_INSTRUCTOR_IMAGE', 'instructor_i/mage')
+    monkeypatch.setenv('DOCKER_INSTRUCTOR_IMAGE', 'instructor_image')
     monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader_image')
     monkeypatch.setenv('DOCKER_THEIA_IMAGE', 'theia_image')
     monkeypatch.setenv('DOCKER_RSTUDIO_IMAGE', 'rstudio_image')

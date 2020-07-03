@@ -180,9 +180,13 @@ class LTI11Authenticator(LTIAuthenticator):
 
             # Users have the option to initiate a launch request with the workspace_type they would like
             # to launch. edX prepends arguments with custom_*, so we need to check for those too.
-            workspace_type = 'notebook'
-            if 'custom_workspace_type' in args and args['custom_workspace_type']:
-                workspace_type = args['custom_workspace_type']
+            workspace_type = ''
+            if 'custom_workspace_type' in args or 'workspace_type' in args:
+                workspace_type = (
+                    args['custom_workspace_type'] if 'custom_workspace_type' in args else args['workspace_type']
+                )
+            if workspace_type is None or workspace_type not in WORKSPACE_TYPES:
+                workspace_type = 'notebook'
             self.log.debug('Workspace type assigned as: %s' % workspace_type)
 
             # Get the user's role, assign to Learner role by default. Roles are sent as institution

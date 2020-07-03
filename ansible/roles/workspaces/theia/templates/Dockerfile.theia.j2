@@ -59,7 +59,7 @@ WORKDIR $HOME
 
 USER $NB_USER
 
-COPY requirements.txt requirements.txt
+COPY theia-requirements.txt requirements.txt
 RUN python3 -m pip install -r requirements.txt \
  && rm requirements.txt
 

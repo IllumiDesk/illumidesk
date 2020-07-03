@@ -3,8 +3,6 @@ import shutil
 
 from dockerspawner import DockerSpawner
 
-from illumidesk.authenticators.constants import WORKSPACE_TYPES
-
 
 class IllumiDeskBaseDockerSpawner(DockerSpawner):
     """
@@ -17,12 +15,9 @@ class IllumiDeskBaseDockerSpawner(DockerSpawner):
     This base class requires that ``Authenticator.enable_auth_state = True.``
     """
 
-    def _image_from_key(self, *kwargs: str) -> str:
+    def _get_image_name(self) -> str:
         """
         Return the image to spawn based on the given the auth_state key/value.
-
-        Args:
-            kwargs: the nested key within the authentication dictionary auth_state key
         
         Returns:
             docker_image: docker image used to spawn a container.
@@ -72,7 +67,8 @@ class IllumiDeskBaseDockerSpawner(DockerSpawner):
 
         To run/start the server user the super class's run function, i.e. ``return super().start()``.
         """
-        raise NotImplementedError
+        self.image = self._get_image_name()
+        return super().start()
 
 
 class IllumiDeskRoleDockerSpawner(IllumiDeskBaseDockerSpawner):
@@ -84,18 +80,15 @@ class IllumiDeskRoleDockerSpawner(IllumiDeskBaseDockerSpawner):
     2. That the user's `USER_ROLE` environment variable is set
     """
 
-    def _image_from_key(self, user_role: str) -> str:
+    def _get_image_name(self) -> str:
         """
-        Given a user role, return the right image
-
-        Args:
-            user_role: the user's role
+        Given a user role, return the required image base on role.
 
         Returns:
             docker_image: docker image used to spawn container based on role
         """
-        if not user_role:
-            raise ValueError('user_role is missing')
+        user_role = self.user.environment.get('USER_ROLE') or 'Learner'
+        self.log.debug('User %s has role: %s' % (self.user.name, user_role))
         # default to standard image, otherwise assign image based on role
         self.log.debug('User role used to set image: %s' % user_role)
         docker_image = str(os.environ.get('DOCKER_STANDARD_IMAGE'))
@@ -103,18 +96,8 @@ class IllumiDeskRoleDockerSpawner(IllumiDeskBaseDockerSpawner):
             docker_image = str(os.environ.get('DOCKER_LEARNER_IMAGE'))
         elif user_role == 'Instructor':
             docker_image = str(os.environ.get('DOCKER_INSTRUCTOR_IMAGE'))
-        elif user_role == 'Grader':
-            docker_image = str(os.environ.get('DOCKER_GRADER_IMAGE'))
         self.log.debug('Image based on user role set to %s' % docker_image)
         return docker_image
-
-    def start(self):
-        """Set and run the server based on the user's role"""
-        user_role = self.user.spawner.environment.get('USER_ROLE') or 'Learner'
-        self.log.debug('User %s has role: %s' % (self.user.name, user_role))
-        self.image = self._image_from_key(str(user_role))
-        self.log.debug('Starting with image: %s' % self.image)
-        return super().start()
 
 
 class IllumiDeskWorkSpaceDockerSpawner(IllumiDeskBaseDockerSpawner):
@@ -128,39 +111,21 @@ class IllumiDeskWorkSpaceDockerSpawner(IllumiDeskBaseDockerSpawner):
     defaults value provided by the DOCKER_STANDARD_IMAGE env var.
     """
 
-    def _image_from_key(self, workspace_type: str) -> str:
+    def _get_image_name(self) -> str:
         """
         Given a workspace type, return the right image.
 
-        Args:
-            workspace_type: the user's desired workspace type
-
         Returns:
-            docker_image: docker image used to spawn the user's container
+            docker_image: docker image based on the desired workspace_type
         """
-        if not workspace_type:
-            raise ValueError('workspace_type is missing')
+        workspace_type = self.user.environment.get('USER_WORKSPACE_TYPE') or 'notebook'
+        self.log.debug('User %s has workspace type set to: %s' % (self.user.name, workspace_type))
         docker_image = os.environ.get('DOCKER_STANDARD_IMAGE')
-        for ws in WORKSPACE_TYPES:
-            if workspace_type not in WORKSPACE_TYPES:
-                self.log.warning('Workspace type %s is not recognized, using standard image' % workspace_type)
-                break
-            if workspace_type == 'theia':
-                docker_image = os.environ.get('DOCKER_THEIA_IMAGE')
-                break
-            elif workspace_type == 'rstudio':
-                docker_image = os.environ.get('DOCKER_RSTUDIO_IMAGE')
-                break
-            elif workspace_type == 'vscode':
-                docker_image = os.environ.get('DOCKER_VSCODE_IMAGE')
-                break
+        if workspace_type == 'theia':
+            docker_image = os.environ.get('DOCKER_THEIA_IMAGE')
+        elif workspace_type == 'rstudio':
+            docker_image = os.environ.get('DOCKER_RSTUDIO_IMAGE')
+        elif workspace_type == 'vscode':
+            docker_image = os.environ.get('DOCKER_VSCODE_IMAGE')
         self.log.debug('Image based on workspace type set to %s' % docker_image)
         return docker_image
-
-    def start(self):
-        """Set and run the server based on the workspace type"""
-        workspace_type = self.user.spawner.environment.get('USER_WORKSPACE_TYPE') or 'notebook'
-        self.log.debug('User %s has workspace type set to: %s' % (self.user.name, workspace_type))
-        self.image = self._image_from_key(str(workspace_type))
-        self.log.debug('Starting with image: %s' % self.image)
-        return super().start()
