@@ -7,6 +7,7 @@ from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
 from illumidesk.handlers.lms_grades import SendGradesHandler
 from illumidesk.handlers.lti import LTI13ConfigHandler
+from illumidesk.handlers.lti import LTI13JWKSHandler
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
 c = get_config()
@@ -140,7 +141,8 @@ c.JupyterHub.extra_handlers = [
         r'/submit-grades/(?P<course_id>[a-zA-Z0-9-_]+)/(?P<assignment_name>.*)$',
         SendGradesHandler
     ),
-    (r'/jwks$', LTI13ConfigHandler),
+    (r'/lti13/config$', LTI13ConfigHandler),
+    (r'/lti13/jwks$', LTI13JWKSHandler),
 ]
 
 ##########################################

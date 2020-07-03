@@ -8,6 +8,7 @@ from pathlib import Path
 
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpclient import HTTPClientError
+from tornado.httpclient import HTTPResponse
 
 from traitlets.config import LoggingConfigurable
 
