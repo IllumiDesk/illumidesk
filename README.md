@@ -153,6 +153,8 @@ With the Postgres container enabled, users (both students and instructors) can c
 
 > **New in Version 0.8.0**: users can spawn specific workspace types by setting the `workspace_type` key when initiating the launch request. The `workspace_type` key can either be added as a query parameter or included within the request's body (when initiating an LTI launch).
 
+To enable this feature, you must set the `JupyterHub.spawner_class` to the `IllumiDeskWorkSpaceDockerSpawner` class. Like the `IllumiDeskRoleDockerSpawner` class, the `IllumiDeskWorkSpaceDockerSpawner` class inherits from the `IllumiDeskBaseDockerSpawner` class which manages the logic to assign the image to spawn based on the `workspace_type` key in the `auth_state` dictionary.
+
 Additional workspace types include:
 
 - THEIA IDE: `theia`
@@ -167,15 +169,9 @@ When specifying a workspace type with the query parameter add the key / value to
     <url>/lti/launch?next=/user-redirect/theia&workspace_type=theia...
 ```
 
-Notic the `/user-redirect/theia` part. This path redirects the user directly to their user workspace, instead of seeing the default `Launch` button in the application's home page. The path value should correspond with the `workspace_type` value. Users do have the option to navigate back to the Jupyter Notebook interface (Classic or Lab) by appending the `/tree` or `/lab` paths after `.../user/<name>`.
+Notice the `/user-redirect/theia` part. This path redirects the user directly to their user workspace, instead of seeing the default `Launch` button in the application's home page. The path value should correspond with the `workspace_type` value. Users do have the option to navigate back to the Jupyter Notebook interface (Classic or Lab) by appending the `/tree` or `/lab` paths after `.../user/<name>`.
 
 Various LMS's also support adding custom key/values to include with the launch request. For example, the Canvas LMS has the `Custom Fields` text box and Open edX has the `Custom Parameters` text box to support additional key/values to include with the launch request.
-
-Currently, supported workspaces types designated with the following paths:
-
-- THEIA IDE: `/theia`
-- RStudio: `/rstudio`
-- VS Code: `/vscode`
 
 These query parameters do not conflict with the `git clone/merge` feature when launching workspaces. It is common to use both options when launching workspaces. This allows instructors to build labs that clone/merge git-based sources and may spawn specific and optimized workspace environments.
 
@@ -273,9 +269,13 @@ When building the images the configuration files are copied to the image from th
 
 ### Spawners
 
-By default this setup includes the `IllumiDeskRoleDockerSpawner` and `IllumiDeskWorkSpaceDockerSpawner` classes which extends the `DockerSpawner` class, however, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary and uses the `pre_spawn_hook` to add user directories with the appropriate permissions.
+By default this setup includes the `IllumiDeskRoleDockerSpawner` and `IllumiDeskWorkSpaceDockerSpawner` classes. However, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary, and based on the spawner class sets the docker image to spawn based on eith the `user_role` or the `workspace_type` keys with the spawner's `auth_state_hook`. The `pre_spawn_hook` to add user directories with the appropriate permissions, since users are not added to the operating system.
 
-The `IllumiDeskRoleDockerSpawner` interprets LTI-based roles to determine which container to launch. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
+#### IllumiDeskRoleDockerSpawner
+
+The `IllumiDeskRoleDockerSpawner` interprets LTI-based roles to determine which container to launch based on the user's role. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
+
+#### IllumiDeskWorkSpaceDockerSpawner
 
 The `IllumiDeskWorkSpaceDockerSpawner` sets the image to spawn based on a provided `workspace_type` key. This allows content managers to specify images for labs, modules, or assignments. Refer [to the workspace type customization](#sApawn-specific-workspace-types) section for more information.
 
@@ -284,13 +284,13 @@ Edit the `JupyterHub.spawner_class` to update the spawner used by JupyterHub whe
 Before:
 
 ```python
-c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
+c.JupyterHub.spawner_class = 'dockerspawner.IllumiDeskRoleDockerSpawner'
 ```
 
 After:
 
 ```python
-c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
+c.JupyterHub.spawner_class = 'kubespawner.IllumiDeskWorkSpaceDockerSpawner'
 ```
 
 As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub. In most cases the spawners provide drop-in replacement of the provided `IllumiDeskRoleDockerSpawner` or `IllumiDeskWorkspaceDockerSpawner` classes, however, setting spawners other than `IllumiDeskRoleDockerSpawner` may break compatibility with the grading services.
