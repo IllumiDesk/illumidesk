@@ -58,8 +58,9 @@ RUN mkdir -p ~/.rstudio/monitored/user-settings/ \
 
 WORKDIR $HOME
 
-COPY rstudio-requirements.txt $HOME/requirements.txt
+USER $NB_USER
 
+COPY requirements.txt requirements.txt
 RUN python3 -m pip install -r requirements.txt \
  && rm requirements.txt
 

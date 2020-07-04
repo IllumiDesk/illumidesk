@@ -44,7 +44,7 @@ RUN curl "https://raw.githubusercontent.com/creationix/nvm/v${NVM_VERSION}/insta
     && nvm alias default $NODE_VERSION \
     && nvm use default
 
-COPY theia/package.json "${NODE_LIB_PATH}/package.json"
+COPY package.json "${NODE_LIB_PATH}/package.json"
 
 WORKDIR $NODE_LIB_PATH
 
@@ -59,7 +59,7 @@ WORKDIR $HOME
 
 USER $NB_USER
 
-COPY theia-requirements.txt requirements.txt
+COPY requirements.txt requirements.txt
 RUN python3 -m pip install -r requirements.txt \
  && rm requirements.txt
 
