@@ -14,6 +14,9 @@ all:
 
       # IPv4 host address
       ansible_ssh_private_key_file: /path/to/my/key/file
+      
+      # Explicitly set the python interpreter to python3
+      ansible_python_interpreter: /usr/bin/python3
 
       # uncomment and add a password only if your remote instance uses userid/password 
       # for SSH authentication
