@@ -5,7 +5,9 @@ import requests
 
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
+from illumidesk.handlers.lms_grades import SendGradesHandler
 from illumidesk.handlers.lti import LTI13ConfigHandler
+from illumidesk.handlers.lti import LTI13JWKSHandler
 from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
 
 c = get_config()
@@ -131,9 +133,16 @@ c.LTI13Authenticator.endpoint = os.environ.get('LTI13_ENDPOINT')
 c.LTI13Authenticator.token_url = os.environ.get('LTI13_TOKEN_URL')
 c.LTI13Authenticator.authorize_url = os.environ.get('LTI13_AUTHORIZE_URL')
 
-# Handlers used for LTI endpoints
+#  Custom Handlers used for LTI endpoints
+# the first one is used to send grades to LMS
+# this url pattern was changed to accept spaces in the assignment name
 c.JupyterHub.extra_handlers = [
-    (r'/jwks$', LTI13ConfigHandler),
+    (
+        r'/submit-grades/(?P<course_id>[a-zA-Z0-9-_]+)/(?P<assignment_name>.*)$',
+        SendGradesHandler
+    ),
+    (r'/lti13/config$', LTI13ConfigHandler),
+    (r'/lti13/jwks$', LTI13JWKSHandler),
 ]
 
 ##########################################
@@ -215,6 +224,7 @@ c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 ##########################################
 # END CUSTOM DOCKERSPAWNER
 ##########################################
+
 
 
 ##########################################
