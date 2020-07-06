@@ -10,6 +10,13 @@
             }
         }
     },
+    "scripts": {
+      "prepare": "yarn run clean && yarn build && yarn run download:plugins",
+      "clean": "theia clean",
+      "build": "theia build --mode development",
+      "start": "theia start --plugins=local-dir:plugins",
+      "download:plugins": "theia download:plugins"
+    },
     "dependencies": {
         "@theia/editor-preview": "latest",
         "@theia/file-search": "latest",

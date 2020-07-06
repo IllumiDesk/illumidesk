@@ -8,6 +8,8 @@ ENV NVM_DIR="${HOME}/.nvm"
 ENV NODE_PATH="${NVM_DIR}/v${NODE_VERSION}/lib/node_modules"
 ENV NODE_LIB_PATH="${NVM_DIR}/v${NODE_VERSION}/lib"
 ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:${PATH}"
+ENV PATH="${NODE_PATH}/.bin:${PATH}"
+ENV PATH="${HOME}/node_modules/.bin:${PATH}"
 
 USER root
 
@@ -16,6 +18,7 @@ RUN apt-get update \
     apt-transport-https \
     curl \
     dumb-init \
+    gpg \
     htop \
     libssl-dev \
     lsb-release \
@@ -23,7 +26,8 @@ RUN apt-get update \
     ssh \
     sudo \
     vim \
- && rm -rf /var/lib/apt/lists/*
+    xz-utils \
+    && rm -rf /var/lib/apt/lists/*
 
 ## NVM
 # https://stackoverflow.com/questions/25899912/how-to-install-nvm-in-docker
@@ -35,7 +39,8 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Replace shell with bash so we can source files
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+RUN rm /bin/sh \
+ && ln -s /bin/bash /bin/sh
 
 # Install nvm with node and npm
 RUN curl "https://raw.githubusercontent.com/creationix/nvm/v${NVM_VERSION}/install.sh" | bash \
@@ -44,18 +49,17 @@ RUN curl "https://raw.githubusercontent.com/creationix/nvm/v${NVM_VERSION}/insta
     && nvm alias default $NODE_VERSION \
     && nvm use default
 
-COPY package.json "${NODE_LIB_PATH}/package.json"
+COPY package.json "${HOME}/package.json"
 
-WORKDIR $NODE_LIB_PATH
+WORKDIR $HOME
 
 # install theia
-RUN npm install yarn \
+RUN npm install -g yarn \
  && npx yarn --cache-folder ./ycache \
  && rm -rf ./ycache \
  && npx yarn theia build \
- && npx yarn theia download:plugins
-
-WORKDIR $HOME
+ && npx yarn theia download:plugins \
+ && fix-permissions $HOME
 
 USER $NB_USER
 
