@@ -2,7 +2,7 @@ from os import chmod
 from os import environ
 import pytest
 
-from illumidesk.handlers.lti import LTI13JWKSHandler
+from illumidesk.lti13.handlers import LTI13JWKSHandler
 from tests.illumidesk.mocks import mock_handler
 from tornado.web import RequestHandler
 
