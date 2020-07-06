@@ -1,15 +1,15 @@
-ARG BASE_IMAGE={{docker_illumidesk_notebook_base_image}}
+ARG BASE_IMAGE=illumidesk/datascience-notebook:base-76402a27fd13
 FROM $BASE_IMAGE
 
 ENV NODE_OPTIONS="--max_old_space_size=4096"
 ENV NODE_VERSION=10.21.0
 ENV NVM_VERSION=0.35.3
-ENV NVM_DIR="${HOME}/.nvm"
+ENV NVM_DIR=/usr/local/nvm
 ENV NODE_PATH="${NVM_DIR}/v${NODE_VERSION}/lib/node_modules"
 ENV NODE_LIB_PATH="${NVM_DIR}/v${NODE_VERSION}/lib"
 ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:${PATH}"
-ENV PATH="${NODE_PATH}/.bin:${PATH}"
-ENV PATH="${HOME}/node_modules/.bin:${PATH}"
+ENV PATH="${NVM_DIR}/v${NODE_VERSION}/lib/node_modules/.bin:${PATH}"
+ENV THEIA_DEFAULT_PLUGINS=local-dir:plugins
 
 USER root
 
@@ -18,7 +18,6 @@ RUN apt-get update \
     apt-transport-https \
     curl \
     dumb-init \
-    gpg \
     htop \
     libssl-dev \
     lsb-release \
@@ -26,8 +25,7 @@ RUN apt-get update \
     ssh \
     sudo \
     vim \
-    xz-utils \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
 ## NVM
 # https://stackoverflow.com/questions/25899912/how-to-install-nvm-in-docker
@@ -43,30 +41,32 @@ RUN rm /bin/sh \
  && ln -s /bin/bash /bin/sh
 
 # Install nvm with node and npm
-RUN curl "https://raw.githubusercontent.com/creationix/nvm/v${NVM_VERSION}/install.sh" | bash \
-    && . "${NVM_DIR}/nvm.sh" \
-    && nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && nvm use default
+RUN mkdir -p $NVM_DIR \
+ && curl "https://raw.githubusercontent.com/creationix/nvm/v${NVM_VERSION}/install.sh" | bash \
+ && . "${NVM_DIR}/nvm.sh" \
+ && nvm install $NODE_VERSION \
+ && nvm alias default $NODE_VERSION \
+ && nvm use default
 
-COPY package.json "${HOME}/package.json"
+COPY package.json "${NODE_LIB_PATH}/package.json"
 
-WORKDIR $HOME
+WORKDIR $NODE_LIB_PATH
 
 # install theia
 RUN npm install -g yarn \
  && npx yarn --cache-folder ./ycache \
  && rm -rf ./ycache \
  && npx yarn theia build \
- && npx yarn theia download:plugins \
- && fix-permissions $HOME
+ && npx yarn theia download:plugins
+
+WORKDIR $HOME
 
 USER $NB_USER
-
-COPY requirements.txt requirements.txt
-RUN python3 -m pip install -r requirements.txt \
- && rm requirements.txt
 
 RUN jupyter serverextension enable --sys-prefix --py jupyter_server_proxy \
  && jupyter labextension install @jupyterlab/server-proxy \
  && jupyter lab build
+
+COPY requirements.txt requirements.txt
+RUN python3 -m pip install -r requirements.txt \
+ && rm requirements.txt
