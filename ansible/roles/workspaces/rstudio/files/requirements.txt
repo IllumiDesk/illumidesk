@@ -1,1 +1,4 @@
+# Required
 jupyter-rsession-proxy==1.0b1
+
+# Add other pip packages below

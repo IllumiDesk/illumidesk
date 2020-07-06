@@ -122,3 +122,18 @@
   file:
     path: "{{ working_dir }}"
     state: directory
+
+- name: create the workspaces working directories
+  file:
+    path: "{{ working_dir }}/workspaces"
+    state: directory
+
+- name: create workspaces working directories
+  file:
+    path: "{{ working_dir }}/{{ item.dest }}"
+    state: directory
+  with_items:
+    - dest: notebooks
+    - dest: rstudio
+    - dest: theia
+    - dest: vscode

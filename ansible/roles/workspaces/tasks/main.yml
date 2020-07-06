@@ -1,19 +1,4 @@
 ---
-- name: create the workspaces working directories
-  file:
-    path: "{{ working_dir }}/workspaces"
-    state: directory
-
-- name: create workspaces working directories
-  file:
-    path: "{{ working_dir }}/workspaces/{{ item.dest }}"
-    state: directory
-  with_items:
-    - dest: notebooks
-    - dest: rstudio
-    - dest: theia
-    - dest: vscode
-
 - name: create base notebook dockerfile from template
   template:
     src: "notebooks/templates/{{ docker_notebook_base_dockerfile }}.j2"
@@ -52,17 +37,22 @@
 - name: copy install.R file
   template:
     src: "rstudio/files/install.R"
-    dest: "{{ working_dir }}/notebooks/install.R"
+    dest: "{{ working_dir }}/rstudio/install.R"
 
 - name: copy .Rprofile file
   template:
     src: "rstudio/files/.Rprofile"
-    dest: "{{ working_dir }}/notebooks/.Rprofile"
+    dest: "{{ working_dir }}/rstudio/.Rprofile"
+
+- name: copy rstudio-prefs.json file
+  template:
+    src: "rstudio/files/rstudio-prefs.json"
+    dest: "{{ working_dir }}/rstudio/rstudio-prefs.json"
 
 - name: copy requirements.txt for rstudio image
   template:
     src: "rstudio/files/requirements.txt"
-    dest: "{{ working_dir }}/notebooks/requirements.txt"
+    dest: "{{ working_dir }}/rstudio/requirements.txt"
 
 - name: create theia ide dockerfile from template
   template:
@@ -131,7 +121,7 @@
 
 - name: build rstudio image
   docker_image:
-    name: "{{ docker_rstudio_image }}"
+    name: "{{ docker_illumidesk_rstudio_image }}"
     build:
       path: "{{ working_dir }}/rstudio"
       dockerfile: "{{ docker_rstudio_dockerfile }}"
@@ -141,7 +131,7 @@
 
 - name: build theia image
   docker_image:
-    name: "{{ docker_theia_image }}"
+    name: "{{ docker_illumidesk_theia_image }}"
     build:
       path: "{{ working_dir }}/theia"
       dockerfile: "{{ docker_theia_dockerfile }}"
@@ -151,7 +141,7 @@
 
 - name: build vscode image
   docker_image:
-    name: "{{ docker_vscode_image }}"
+    name: "{{ docker_illumidesk_vscode_image }}"
     build:
       path: "{{ working_dir }}/vscode"
       dockerfile: "{{ docker_vscode_dockerfile }}"
