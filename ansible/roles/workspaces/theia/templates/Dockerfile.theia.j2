@@ -1,5 +1,51 @@
-ARG BASE_IMAGE=illumidesk/datascience-notebook:base-76402a27fd13
-FROM $BASE_IMAGE
+FROM ubuntu:bionic AS builder
+
+# install development tools
+RUN apt-get update \
+ && apt-get install -y \
+    curl \
+    sudo \
+    build-essential \
+    jq \
+    vim \
+ && curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - \
+ && apt-get install -y \
+    nodejs \
+ && npm install -g yarn
+
+# add theia installation file
+COPY package.json run_theia.sh /theia-app/
+RUN chmod +x /theia-app/run_theia.sh
+
+# build theia
+WORKDIR /theia-app
+RUN yarn \
+ && NODE_OPTIONS="--max_old_space_size=4096" yarn theia build && \
+    yarn autoclean --init \
+ && echo *.ts >> .yarnclean \
+ && echo *.ts.map >> .yarnclean \
+ && echo *.spec.* >> .yarnclean \
+ && yarn autoclean --force \
+ && yarn cache clean
+
+# create debian package
+RUN npm run build-deb
+
+# transfer debian package to a new clean image and install theia
+FROM illumidesk/datascience-notebook:base-76402a27fd13
+
+USER root
+
+WORKDIR /tmp
+
+COPY --from=builder /theia-app/illumidesk-theia_0.0.1_all.deb /tmp/
+RUN apt-get update \
+ && apt-get install -y \
+    curl \
+    sudo \
+ && curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - \
+ && apt-get install -y /tmp/illumidesk-theia_0.0.1_all.deb \
+ && rm /tmp/illumidesk-theia_0.0.1_all.deb
 
 ENV NODE_OPTIONS="--max_old_space_size=4096"
 ENV NODE_VERSION=10.21.0
@@ -10,8 +56,6 @@ ENV NODE_LIB_PATH="${NVM_DIR}/v${NODE_VERSION}/lib"
 ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:${PATH}"
 ENV PATH="${NVM_DIR}/v${NODE_VERSION}/lib/node_modules/.bin:${PATH}"
 ENV THEIA_DEFAULT_PLUGINS=local-dir:plugins
-
-USER root
 
 RUN apt-get update \
  && apt-get install -y \
@@ -48,25 +92,14 @@ RUN mkdir -p $NVM_DIR \
  && nvm alias default $NODE_VERSION \
  && nvm use default
 
-COPY package.json "${NODE_LIB_PATH}/package.json"
-
-WORKDIR $NODE_LIB_PATH
-
-# install theia
-RUN npm install -g yarn \
- && npx yarn --cache-folder ./ycache \
- && rm -rf ./ycache \
- && npx yarn theia build \
- && npx yarn theia download:plugins
-
 WORKDIR $HOME
 
 USER $NB_USER
 
-RUN jupyter serverextension enable --sys-prefix --py jupyter_server_proxy \
- && jupyter labextension install @jupyterlab/server-proxy \
- && jupyter lab build
-
 COPY requirements.txt requirements.txt
 RUN python3 -m pip install -r requirements.txt \
  && rm requirements.txt
+
+RUN jupyter serverextension enable --sys-prefix --py jupyter_server_proxy \
+ && jupyter labextension install @jupyterlab/server-proxy \
+ && jupyter lab build

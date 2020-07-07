@@ -74,6 +74,11 @@
     src: "vscode/templates/{{ docker_vscode_dockerfile }}.j2"
     dest: "{{ working_dir }}/vscode/{{ docker_vscode_dockerfile }}"
 
+- name: copy requirements.txt for vscode image
+  template:
+    src: "vscode/files/requirements.txt"
+    dest: "{{ working_dir }}/vscode/requirements.txt"
+
 - name: pull base jupyter/datascience notebook image
   docker_image:
     name: "{{ docker_notebook_base_image }}"
