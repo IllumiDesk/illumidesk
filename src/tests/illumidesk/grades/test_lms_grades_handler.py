@@ -9,7 +9,7 @@ from unittest.mock import PropertyMock
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator, LTI13Authenticator
 from illumidesk.grades.senders import LTIGradeSender
-from illumidesk.handlers.lms_grades import SendGradesHandler
+from illumidesk.grades.handlers import SendGradesHandler
 
 from tests.illumidesk.mocks import mock_handler
 
@@ -52,7 +52,7 @@ async def test_SendGradesHandler_calls_authenticator_class_property(
     """
     Does the SendGradesHandler uses authenticator_class property to get what authenticator was set?
     """
-    with patch('illumidesk.handlers.lms_grades.LTI13GradeSender') as mock_sender:
+    with patch('illumidesk.grades.handlers.LTI13GradeSender') as mock_sender:
         instance = mock_sender.return_value
         instance.send_grades = AsyncMock()
         mock_authenticator_class = PropertyMock(return_value=LTI13Authenticator)
@@ -60,7 +60,7 @@ async def test_SendGradesHandler_calls_authenticator_class_property(
         await send_grades_handler_lti13.post('course_example', 'assignment_test')
         mock_authenticator_class.called
 
-    with patch('illumidesk.handlers.lms_grades.LTIGradeSender') as mock_sender:
+    with patch('illumidesk.grades.handlers.LTIGradeSender') as mock_sender:
         instance = mock_sender.return_value
         instance.send_grades = AsyncMock()
         mock_authenticator_class = PropertyMock(return_value=LTI13Authenticator)
@@ -102,7 +102,7 @@ async def test_SendGradesHandler_creates_a_LTI13GradeSender_instance_when_LTI13A
     """
     Does the SendGradesHandler create a LTI13GradeSender instance for lti13?
     """
-    with patch('illumidesk.handlers.lms_grades.LTI13GradeSender') as mock_sender:
+    with patch('illumidesk.grades.handlers.LTI13GradeSender') as mock_sender:
         instance = mock_sender.return_value
         instance.send_grades = AsyncMock()
         await send_grades_handler_lti13.post('course_example', 'assignment_test')
@@ -115,7 +115,7 @@ async def test_SendGradesHandler_calls_write_method(mock_write, send_grades_hand
     """
     Does the SendGradesHandler call write base method?
     """
-    with patch('illumidesk.handlers.lms_grades.LTI13GradeSender') as mock_sender:
+    with patch('illumidesk.grades.handlers.LTI13GradeSender') as mock_sender:
         instance = mock_sender.return_value
         instance.send_grades = AsyncMock()
         await send_grades_handler_lti13.post('course_example', 'assignment_test')
