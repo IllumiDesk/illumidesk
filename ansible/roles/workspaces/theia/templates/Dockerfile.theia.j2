@@ -1,4 +1,4 @@
-FROM ubuntu:bionic AS builder
+FROM ubuntu:18.04 AS builder
 
 # install development tools
 RUN apt-get update \
@@ -32,18 +32,14 @@ RUN yarn \
 RUN npm run build-deb
 
 # transfer debian package to a new clean image and install theia
-FROM illumidesk/datascience-notebook:base-76402a27fd13
+FROM {{docker_illumidesk_notebook_base_image}}
 
 USER root
 
 WORKDIR /tmp
 
 COPY --from=builder /theia-app/illumidesk-theia_0.0.1_all.deb /tmp/
-RUN apt-get update \
- && apt-get install -y \
-    curl \
-    sudo \
- && curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - \
+RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - \
  && apt-get install -y /tmp/illumidesk-theia_0.0.1_all.deb \
  && rm /tmp/illumidesk-theia_0.0.1_all.deb
 
@@ -56,20 +52,6 @@ ENV NODE_LIB_PATH="${NVM_DIR}/v${NODE_VERSION}/lib"
 ENV PATH="${NVM_DIR}/versions/node/v${NODE_VERSION}/bin:${PATH}"
 ENV PATH="${NVM_DIR}/v${NODE_VERSION}/lib/node_modules/.bin:${PATH}"
 ENV THEIA_DEFAULT_PLUGINS=local-dir:plugins
-
-RUN apt-get update \
- && apt-get install -y \
-    apt-transport-https \
-    curl \
-    dumb-init \
-    htop \
-    libssl-dev \
-    lsb-release \
-    procps \
-    ssh \
-    sudo \
-    vim \
- && rm -rf /var/lib/apt/lists/*
 
 ## NVM
 # https://stackoverflow.com/questions/25899912/how-to-install-nvm-in-docker
@@ -98,7 +80,9 @@ USER $NB_USER
 
 COPY requirements.txt requirements.txt
 RUN python3 -m pip install -r requirements.txt \
- && rm requirements.txt
+ && rm requirements.txt \
+ && fix-permissions $CONDA_DIR \
+ && fix-permissions /home/$NB_USER
 
 RUN jupyter serverextension enable --sys-prefix --py jupyter_server_proxy \
  && jupyter labextension install @jupyterlab/server-proxy \

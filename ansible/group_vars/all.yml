@@ -11,6 +11,8 @@ course_id: "{{ course_id_param | default('intro101') }}"
 git_nb_hash_commit: "{{ git_nb_hash_commit_param | default('76402a27fd13e649a3166b1da5a162ac476912bf') }}"
 # https://github.com/jupyterhub/jupyterhub/commit/65de8c49167738fde9d7e88245593301a2a6a42a
 git_jhub_hash_commit: "{{ git_jhub_hash_commit_param | default('fd28e224f2de5e7b525483330150988ec3e295c6') }}"
+# https://github.com/binder-examples/r-conda/commit/f2de174cc427c583d082bfb1d72f10d9c19a5f4e
+git_rstudio_hash_commit: "{{ git_rstudio_hash_commit | default('f2de174cc427c583d082bfb1d72f10d9c19a5f4e') }}"
 
 # upstream source images
 docker_notebook_hash_commit: "{{ git_nb_hash_commit[0:12] }}"
@@ -18,6 +20,8 @@ docker_notebook_base_image: "{{ docker_notebook_base_image_param | default('jupy
 docker_jhub_hash_commit: "{{ git_jhub_hash_commit[0:12] }}"
 docker_jhub_base_image: "{{ docker_jhub_base_image_param | default('jupyterhub/jupyterhub:1.2.0dev') }}"
 docker_setup_course_image: "{{ docker_setup_course_image_param | default('illumidesk/setup-course') }}"
+docker_rstudio_hash_commit: "{{ git_rstudio_hash_commit[0:12] }}"
+docker_rstudio_base_image: "{{ docker_rstudio_base_image_param | default('illumidesk/rstudio:') }}base-{{ docker_rstudio_hash_commit }}"
 
 ## Docker
 # dockerfiles
