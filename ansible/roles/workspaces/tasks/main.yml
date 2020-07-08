@@ -39,6 +39,11 @@
     src: "rstudio/files/requirements.txt"
     dest: "{{ working_dir }}/workspaces/rstudio/requirements.txt"
 
+- name: copy rserver.conf for rstudio image
+  template:
+    src: "rstudio/files/rserver.conf"
+    dest: "{{ working_dir }}/workspaces/rstudio/rserver.conf"
+
 - name: create theia ide dockerfile from template
   template:
     src: "theia/templates/{{ docker_theia_dockerfile }}.j2"
@@ -53,6 +58,11 @@
   template:
     src: "theia/files/package.json"
     dest: "{{ working_dir }}/workspaces/theia/package.json"
+
+- name: copy run_theia.sh for theia image
+  template:
+    src: "theia/files/run_theia.sh"
+    dest: "{{ working_dir }}/workspaces/theia/run_theia.sh"
 
 - name: create vscode dockerfile from template
   template:

@@ -3,6 +3,9 @@ FROM $BASE_IMAGE AS base
 
 FROM {{docker_rstudio_base_image}}
 
+ARG NB_GID=100
+ENV NB_GID=$NB_GID
+
 USER root
 
 RUN mkdir -p /etc/jupyter
@@ -16,7 +19,7 @@ COPY --from=base /usr/local/bin/fix-permissions /usr/local/bin/
 # update permissions
 RUN chmod a+rx /usr/local/bin/fix-permissions
 RUN chmod +rx /usr/local/bin/start*
-RUN chmod +rx jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
+RUN chmod +rx /etc/jupyter/jupyter_notebook_config.py
 
 # copy rstudio configuration
 COPY rserver.conf /etc/rstudio/rserver.conf

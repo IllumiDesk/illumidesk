@@ -12,7 +12,7 @@ git_nb_hash_commit: "{{ git_nb_hash_commit_param | default('76402a27fd13e649a316
 # https://github.com/jupyterhub/jupyterhub/commit/65de8c49167738fde9d7e88245593301a2a6a42a
 git_jhub_hash_commit: "{{ git_jhub_hash_commit_param | default('fd28e224f2de5e7b525483330150988ec3e295c6') }}"
 # https://github.com/binder-examples/r-conda/commit/f2de174cc427c583d082bfb1d72f10d9c19a5f4e
-git_rstudio_hash_commit: "{{ git_rstudio_hash_commit | default('f2de174cc427c583d082bfb1d72f10d9c19a5f4e') }}"
+git_rstudio_hash_commit: "{{ git_rstudio_hash_commit_param | default('f2de174cc427c583d082bfb1d72f10d9c19a5f4e') }}"
 
 # upstream source images
 docker_notebook_hash_commit: "{{ git_nb_hash_commit[0:12] }}"
