@@ -1,11 +1,15 @@
 import os
-import requests
 import sys
+
+import requests
+
+from dockerspawner import DockerSpawner  # noqa: F401
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
 from illumidesk.grades.handlers import SendGradesHandler
-from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
+from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
+from illumidesk.spawners.spawner import IllumiDeskWorkSpaceDockerSpawner  # noqa: F401
 
 
 c = get_config()
@@ -82,8 +86,9 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 # LTI 1.1 authenticator class.
 c.JupyterHub.authenticator_class = LTI11Authenticator
 
-# Spawn containers with custom dockerspawner class
-c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
+# Spawn containers with by role or workspace type
+c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
+# c.JupyterHub.spawner_class = IllumiDeskWorkSpaceDockerSpawner
 
 ##########################################
 # END JUPYTERHUB APPLICATION
@@ -214,10 +219,7 @@ c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 # the first one is used to send grades to LMS
 # this url pattern was changed to accept spaces in the assignment name
 c.JupyterHub.extra_handlers = [
-    (
-        r'/submit-grades/(?P<course_id>[a-zA-Z0-9-_]+)/(?P<assignment_name>.*)$',
-        SendGradesHandler,
-    ),
+    (r'/submit-grades/(?P<course_id>[a-zA-Z0-9-_]+)/(?P<assignment_name>.*)$', SendGradesHandler,),
 ]
 
 ##########################################

@@ -20,6 +20,7 @@ from traitlets import Unicode
 from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
+from illumidesk.authenticators.constants import WORKSPACE_TYPES
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
@@ -177,6 +178,17 @@ class LTI11Authenticator(LTIAuthenticator):
             else:
                 raise HTTPError(400, 'Course label not included in the LTI request')
 
+            # Users have the option to initiate a launch request with the workspace_type they would like
+            # to launch. edX prepends arguments with custom_*, so we need to check for those too.
+            workspace_type = ''
+            if 'custom_workspace_type' in args or 'workspace_type' in args:
+                workspace_type = (
+                    args['custom_workspace_type'] if 'custom_workspace_type' in args else args['workspace_type']
+                )
+            if workspace_type is None or workspace_type not in WORKSPACE_TYPES:
+                workspace_type = 'notebook'
+            self.log.debug('Workspace type assigned as: %s' % workspace_type)
+
             # Get the user's role, assign to Learner role by default. Roles are sent as institution
             # roles, where the roles' value is <handle>,<full URN>.
             # https://www.imsglobal.org/specs/ltiv1p0/implementation-guide#toc-16
@@ -253,6 +265,7 @@ class LTI11Authenticator(LTIAuthenticator):
                     'course_id': course_id,
                     'lms_user_id': lms_user_id,
                     'user_role': user_role,
+                    'workspace_type': workspace_type,
                 },  # noqa: E231
             }
 
@@ -293,7 +306,9 @@ class LTI13Authenticator(OAuthenticator):
         initial login request.""",
     ).tag(config=True)
 
-    async def authenticate(self, handler: LTI13LoginHandler, data: Dict[str, str] = None) -> Dict[str, str]:
+    async def authenticate(  # noqa: C901
+        self, handler: LTI13LoginHandler, data: Dict[str, str] = None
+    ) -> Dict[str, str]:
         """
         Overrides authenticate from base class to handle LTI 1.3 authentication requests.
 
@@ -339,6 +354,21 @@ class LTI13Authenticator(OAuthenticator):
                 raise HTTPError('Unable to set the username')
             self.log.debug('username is %s' % username)
 
+            # assign a workspace type, if provided, otherwise defaults to jupyter classic nb
+            workspace_type = ''
+            if (
+                'https://purl.imsglobal.org/spec/lti/claim/custom' in jwt_decoded
+                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom'] is not None
+            ):
+                if (
+                    'workspace_type' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']
+                    and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type'] is not None
+                ):
+                    workspace_type = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type']
+            if workspace_type not in WORKSPACE_TYPES:
+                workspace_type = 'notebook'
+            self.log.debug('workspace type is %s' % workspace_type)
+
             user_role = ''
             for role in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/roles']:
                 if role.find('Instructor') >= 1:
@@ -353,7 +383,7 @@ class LTI13Authenticator(OAuthenticator):
 
             lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
             # Values for the send-grades functionality
-            course_lineitems = None
+            course_lineitems = ''
             if 'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded:
                 course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
 
@@ -361,7 +391,9 @@ class LTI13Authenticator(OAuthenticator):
                 'name': username,
                 'auth_state': {
                     'course_id': course_id,
-                    'course_lineitems': course_lineitems or '',
+                    'user_role': user_role,
+                    'workspace_type': workspace_type,
+                    'course_lineitems': course_lineitems,
                     'user_role': user_role,
                     'lms_user_id': lms_user_id,
                 },  # noqa: E231

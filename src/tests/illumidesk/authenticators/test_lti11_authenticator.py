@@ -33,6 +33,7 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authent
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Instructor',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected
@@ -58,6 +59,7 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(lti11_auth
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Instructor',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected
@@ -173,6 +175,9 @@ async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_in
 
 @pytest.mark.asyncio
 async def test_authenticator_invokes_validator_with_decoded_dict():
+    """
+    Does the authentictor call the validator?
+    """
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True) as mock_validator:
         authenticator = LTI11Authenticator()
         handler = Mock(spec=RequestHandler)
@@ -217,6 +222,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Learner',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected
@@ -244,6 +250,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Learner',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected
@@ -271,6 +278,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Learner',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected
@@ -278,7 +286,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
-async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_url(lti11_authenticator,):
+async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_url(lti11_authenticator):
     """
     Are we able to handle requests with lis_outcome_service_url set to an empty value?
     """
@@ -298,6 +306,88 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
                 'user_role': 'Learner',
+                'workspace_type': 'notebook',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_default_workspace_type_when_missing(lti11_validator):
+    """
+    Do we get the default workspace_type when its not sent with the launch request?
+    """
+    with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = factory_lti11_complete_launch_args('canvas', 'Instructor', '')
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+                'workspace_type': 'notebook',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_default_workspace_type_when_unrecognized(lti11_validator):
+    """
+    Do we get the default workspace_type when is not recognized with the launch request?
+    """
+    with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = factory_lti11_complete_launch_args('canvas', 'Instructor', 'foo')
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+                'workspace_type': 'notebook',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_custom_workspace_type_when_set(lti11_validator,):
+    """
+    Do we get the custom workspace_type when its sent with the launch request?
+    """
+    with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = factory_lti11_complete_launch_args('canvas', 'Instructor', 'notebook')
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+                'workspace_type': 'notebook',
             },
         }
         assert result == expected

@@ -313,3 +313,10 @@ LTI13_ROLES = {
         'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor',
     },
 }
+
+WORKSPACE_TYPES = [
+    'notebook',
+    'rstudio',
+    'theia',
+    'vscode',
+]

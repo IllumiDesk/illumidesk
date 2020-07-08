@@ -1,7 +1,10 @@
 import sys
 import os
 
-from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
+from dockerspawner import DockerSpawner  # noqa: F401
+
+from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner
+
 
 c = get_config()
 
@@ -97,7 +100,7 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 c.JupyterHub.authenticator_class = 'firstuseauthenticator.FirstUseAuthenticator'
 
 # Spawn containers with custom dockerspawner class
-c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
+c.JupyterHub.spawner_class = IllumiDeskWorkSpaceDockerSpawner
 
 ##########################################
 # END JUPYTERHUB APPLICATION
