@@ -1,10 +1,11 @@
-ARG BASE_IMAGE={{docker_illumidesk_notebook_base_image}}
-FROM $BASE_IMAGE AS base
+FROM {{docker_illumidesk_notebook_base_image}} AS base
 
 FROM {{docker_rstudio_base_image}}
 
-ARG NB_GID=100
-ENV NB_GID=$NB_GID
+ENV NB_USER=jovyan
+ENV NB_UID=1000
+ENV NB_GID=100
+ENV HOME=/home/$NB_USER
 
 USER root
 
@@ -14,7 +15,6 @@ RUN mkdir -p /etc/jupyter
 COPY --from=base /usr/local/bin/start* /usr/local/bin/
 COPY --from=base /usr/local/bin/fix-permissions /usr/local/bin/
 COPY --from=base /etc/jupyter/jupyter_notebook_config.py /etc/jupyter/
-COPY --from=base /usr/local/bin/fix-permissions /usr/local/bin/
 
 # update permissions
 RUN chmod a+rx /usr/local/bin/fix-permissions
@@ -27,7 +27,6 @@ COPY rserver.conf /etc/rstudio/rserver.conf
 # Fix permissions on /etc/jupyter and /etc/rstudio as root
 RUN fix-permissions /etc/jupyter/ \
  && fix-permissions /etc/rstudio/ \
- && fix-permissions $CONDA_DIR \
  && fix-permissions /home/$NB_USER
 
 USER $NB_USER
