@@ -178,13 +178,14 @@ These query parameters do not conflict with the `git clone/merge` feature when l
 **Open edX**:
 
     ```
-    ["next=/user-redirect/theia"]
+    ["next=/user-redirect/theia","workspace_type=theia"]
     ```
     
 **Canvas LMS**:
 
     ```
     next=/user-redirect/lab
+    workspace_type=theia
     ```
 
 ### Defining Launch Requests to Clone / Merge Git-based Repos
