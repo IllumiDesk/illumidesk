@@ -5,7 +5,7 @@ from tornado.web import RequestHandler
 
 from unittest.mock import patch
 
-from illumidesk.handlers.lti import LTI13ConfigHandler
+from illumidesk.lti13.handlers import LTI13ConfigHandler
 
 from tests.illumidesk.mocks import mock_handler
 

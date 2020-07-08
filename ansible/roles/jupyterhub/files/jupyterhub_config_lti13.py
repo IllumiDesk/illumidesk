@@ -7,10 +7,15 @@ from dockerspawner import DockerSpawner  # noqa: F401
 
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
+from illumidesk.grades.handlers import SendGradesHandler
 from illumidesk.handlers.lms_grades import SendGradesHandler
 from illumidesk.handlers.lti import LTI13ConfigHandler
 from illumidesk.handlers.lti import LTI13JWKSHandler
+from illumidesk.lti13.handlers import LTI13ConfigHandler
+from illumidesk.lti13.handlers import LTI13JWKSHandler
 from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
+from illumidesk.spawners.spawner import IllumiDeskWorkSpaceDockerSpawner  # noqa: F401
+
 
 c = get_config()
 
@@ -91,6 +96,10 @@ c.JupyterHub.authenticator_class = LTI13Authenticator
 
 # Spawn containers with custom dockerspawner class
 c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
+
+# Spawn containers with by role or workspace type
+c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
+# c.JupyterHub.spawner_class = IllumiDeskWorkSpaceDockerSpawner
 
 ##########################################
 # END JUPYTERHUB APPLICATION
