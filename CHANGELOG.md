@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines. For a more complete description of this project's features, [visit the IllumiDesk docs](https://docs.illumidesk.com).
 
 ## 0.8.0 (2020-07-08)
 
