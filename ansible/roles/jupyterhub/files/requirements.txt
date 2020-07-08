@@ -17,6 +17,7 @@ oauthenticator==0.11.0
 
 # Spawners
 dockerspawner==0.11.1
+git+git://github.com/jupyterhub/wrapspawner.git@94b779af3926a90be922356bb9ab18153b918733
 
 # Setup course service
 quart==0.11.5

@@ -1,88 +1,158 @@
 import os
 import pytest
 import types
+
 from dockerspawner.dockerspawner import DockerSpawner
-from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
+
+from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
+from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner
 
 
-@pytest.fixture(scope="function")
-def setup_environ(monkeypatch):
+def test_get_image_name_uses_correct_image_with_student_role_in_user_environment(
+    monkeypatch, setup_image_environ, mock_user
+):
     """
-    Set the enviroment variables used in Course class
+    Does the internal image_from_role set the correct image with the student role?
     """
-    monkeypatch.setenv('DOCKER_STANDARD_IMAGE', 'standard_image')
-    monkeypatch.setenv('DOCKER_LEARNER_IMAGE', 'learner_image')
-    monkeypatch.setenv('DOCKER_INSTRUCTOR_IMAGE', 'instructor_image')
-    monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader_image')
+    sut = IllumiDeskRoleDockerSpawner()
+    attrs = {'name': 'foo', 'environment': {'USER_ROLE': 'Student'}}
+    mock_user.configure_mock(**attrs)
+    sut.user = mock_user
+
+    assert sut._image_from_role(mock_user.environment.get('USER_ROLE')) == os.environ.get('DOCKER_LEARNER_IMAGE')
 
 
-def test_image_from_role_raises_an_error_with_empty_user_role():
+def test_get_image_name_uses_correct_image_with_learner_role_in_user_environment(
+    monkeypatch, setup_image_environ, mock_user
+):
     """
-    Does the internal image_from_role method accept and empty/none value?
+    Does the internal image_from_role method return student image when using the Student role?
     """
-    sut = IllumiDeskDockerSpawner()
-    with pytest.raises(ValueError):
-        sut._image_from_role('')
+    sut = IllumiDeskRoleDockerSpawner()
+    attrs = {'name': 'foo', 'environment': {'USER_ROLE': 'Learner'}}
+    mock_user.configure_mock(**attrs)
+    sut.user = mock_user
+
+    assert sut._image_from_role(mock_user.environment.get('USER_ROLE')) == os.environ.get('DOCKER_LEARNER_IMAGE')
 
 
-def test_image_from_role_uses_default_image_for_role_not_considered(setup_environ):
+def test_get_image_name_uses_correct_image_with_instructor_role_in_user_environment(
+    monkeypatch, setup_image_environ, mock_user
+):
     """
-    Does the internal image_from_role method return our standard image?
+    Does the internal image_from_role method return instructor image when using the Instructor role?
     """
-    sut = IllumiDeskDockerSpawner()
-    result = sut._image_from_role('unknown')
-    assert result == os.environ.get('DOCKER_STANDARD_IMAGE')
+    sut = IllumiDeskRoleDockerSpawner()
+    attrs = {'name': 'foo', 'environment': {'USER_ROLE': 'Instructor'}}
+    mock_user.configure_mock(**attrs)
+    sut.user = mock_user
 
-
-def test_image_from_role_uses_correct_image_for_STUDENT_role(setup_environ):
-    """
-    Does the internal image_from_role method return student image?
-    """
-    sut = IllumiDeskDockerSpawner()
-    # act
-    image = sut._image_from_role('Student')
-    assert image == os.environ.get('DOCKER_LEARNER_IMAGE')
-
-
-def test_image_from_role_uses_correct_image_for_INSTRUCTOR_role(setup_environ):
-    """
-    Does the internal image_from_role method return instructor image?
-    """
-    sut = IllumiDeskDockerSpawner()
-    # act
-    image = sut._image_from_role('Instructor')
-    assert image == os.environ.get('DOCKER_INSTRUCTOR_IMAGE')
-
-
-def test_image_from_role_uses_correct_image_for_GRADER_role(setup_environ):
-    """
-    Does the internal image_from_role method return grader image?
-    """
-    sut = IllumiDeskDockerSpawner()
-    # act
-    image = sut._image_from_role('Grader')
-    assert image == os.environ.get('DOCKER_GRADER_IMAGE')
+    assert sut._image_from_role(mock_user.environment.get('USER_ROLE')) == os.environ.get('DOCKER_INSTRUCTOR_IMAGE')
 
 
 @pytest.mark.asyncio
-async def test_ensure_environment_assigned_to_user_role_from_auth_state():
+async def test_ensure_environment_assigned_to_user_role_from_auth_state_in_user_environment(
+    monkeypatch, auth_state_dict
+):
     """
     Does the user's docker container environment reflect his/her role?
     """
-    test_spawner = IllumiDeskDockerSpawner()
+    sut = IllumiDeskRoleDockerSpawner()
+    monkeypatch.setitem(auth_state_dict['auth_state'], 'user_role', 'Learner')
 
-    authenticator_auth_state = {
-        'name': 'username',
-        'auth_state': {
-            'course_id': 'intro101',
-            'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-            'user_role': 'Learner',
-        },
-    }
+    await sut.auth_state_hook(sut, auth_state_dict['auth_state'])
+    assert sut.environment['USER_ROLE'] == 'Learner'
 
-    await test_spawner.auth_state_hook(None, authenticator_auth_state['auth_state'])
 
-    assert test_spawner.environment['USER_ROLE'] == 'Learner'
+@pytest.mark.asyncio
+async def test_get_image_name_uses_correct_image_for_rstudio_workspace_type(
+    monkeypatch, auth_state_dict, mock_user, setup_image_environ
+):
+    """
+    Does the user's docker container environment reflect the rstudio workspace?
+    """
+    sut = IllumiDeskWorkSpaceDockerSpawner()
+    monkeypatch.setitem(auth_state_dict['auth_state'], 'workspace_type', 'rstudio')
+    attrs = {'name': 'foo', 'environment': {'USER_WORKSPACE_TYPE': 'rstudio'}}
+    mock_user.configure_mock(**attrs)
+    sut.user = mock_user
+
+    assert sut._image_from_workspace_type(mock_user.environment.get('USER_WORKSPACE_TYPE')) == os.environ.get(
+        'DOCKER_RSTUDIO_IMAGE'
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_image_name_uses_correct_image_for_theia_workspace_type(
+    monkeypatch, auth_state_dict, mock_user, setup_image_environ
+):
+    """
+    Does the user's docker container environment reflect the theia workspace?
+    """
+    sut = IllumiDeskWorkSpaceDockerSpawner()
+    monkeypatch.setitem(auth_state_dict['auth_state'], 'workspace_type', 'theia')
+    attrs = {'name': 'foo', 'environment': {'USER_WORKSPACE_TYPE': 'theia'}}
+    mock_user.configure_mock(**attrs)
+    sut.user = mock_user
+
+    assert sut._image_from_workspace_type(mock_user.environment.get('USER_WORKSPACE_TYPE')) == os.environ.get(
+        'DOCKER_THEIA_IMAGE'
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_image_name_uses_correct_image_for_vscode_workspace_type(
+    monkeypatch, auth_state_dict, mock_user, setup_image_environ
+):
+    """
+    Does the user's docker container environment reflect the vscode workspace?
+    """
+    sut = IllumiDeskWorkSpaceDockerSpawner()
+    monkeypatch.setitem(auth_state_dict['auth_state'], 'workspace_type', 'vscode')
+    attrs = {'name': 'foo', 'environment': {'USER_WORKSPACE_TYPE': 'vscode'}}
+    mock_user.configure_mock(**attrs)
+    sut.user = mock_user
+
+    assert sut._image_from_workspace_type(mock_user.environment.get('USER_WORKSPACE_TYPE')) == os.environ.get(
+        'DOCKER_VSCODE_IMAGE'
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_image_name_uses_correct_image_for_notebook_workspace_type(
+    monkeypatch, auth_state_dict, mock_user, setup_image_environ
+):
+    """
+    Does the user's docker container environment reflect the notebook workspace?
+    """
+    sut = IllumiDeskWorkSpaceDockerSpawner()
+    monkeypatch.setitem(auth_state_dict['auth_state'], 'workspace_type', 'notebook')
+    attrs = {'name': 'foo', 'environment': {'USER_WORKSPACE_TYPE': 'notebook'}}
+    mock_user.configure_mock(**attrs)
+    sut.user = mock_user
+
+    assert sut._image_from_workspace_type(mock_user.environment.get('USER_WORKSPACE_TYPE')) == os.environ.get(
+        'DOCKER_STANDARD_IMAGE'
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_image_name_uses_correct_image_for_empty_workspace_type(
+    monkeypatch, auth_state_dict, mock_user, setup_image_environ
+):
+    """
+    Does the user's docker container environment reflect the notebook workspace when
+    it's set to empty?
+    """
+    sut = IllumiDeskWorkSpaceDockerSpawner()
+    monkeypatch.setitem(auth_state_dict['auth_state'], 'workspace_type', '')
+    attrs = {'name': 'foo', 'environment': {'USER_WORKSPACE_TYPE': 'notebook'}}
+    mock_user.configure_mock(**attrs)
+    sut.user = mock_user
+
+    assert sut._image_from_workspace_type(mock_user.environment.get('USER_WORKSPACE_TYPE')) == os.environ.get(
+        'DOCKER_STANDARD_IMAGE'
+    )
 
 
 def test_dockerspawner_uses_raw_username_in_format_volume_name():
@@ -92,7 +162,7 @@ def test_dockerspawner_uses_raw_username_in_format_volume_name():
     d = DockerSpawner()
     # notice we're not using variable for username,
     # it helps understanding how volumes are binding
-    d.user = types.SimpleNamespace(name="dbs__user5")
-    d.volumes = {"data/{raw_username}": {"bind": "/home/{raw_username}"}}
-    assert d.volume_binds == {"data/dbs__user5": {"bind": "/home/dbs__user5", "mode": "rw"}}
-    assert d.volume_mount_points == ["/home/dbs__user5"]
+    d.user = types.SimpleNamespace(name='dbs__user5')
+    d.volumes = {'data/{raw_username}': {'bind': '/home/{raw_username}'}}
+    assert d.volume_binds == {'data/dbs__user5': {'bind': '/home/dbs__user5', 'mode': 'rw'}}
+    assert d.volume_mount_points == ['/home/dbs__user5']

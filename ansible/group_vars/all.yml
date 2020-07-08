@@ -11,6 +11,8 @@ course_id: "{{ course_id_param | default('intro101') }}"
 git_nb_hash_commit: "{{ git_nb_hash_commit_param | default('76402a27fd13e649a3166b1da5a162ac476912bf') }}"
 # https://github.com/jupyterhub/jupyterhub/commit/65de8c49167738fde9d7e88245593301a2a6a42a
 git_jhub_hash_commit: "{{ git_jhub_hash_commit_param | default('fd28e224f2de5e7b525483330150988ec3e295c6') }}"
+# https://github.com/binder-examples/r-conda/commit/f2de174cc427c583d082bfb1d72f10d9c19a5f4e
+git_rstudio_hash_commit: "{{ git_rstudio_hash_commit_param | default('f2de174cc427c583d082bfb1d72f10d9c19a5f4e') }}"
 
 # upstream source images
 docker_notebook_hash_commit: "{{ git_nb_hash_commit[0:12] }}"
@@ -18,6 +20,8 @@ docker_notebook_base_image: "{{ docker_notebook_base_image_param | default('jupy
 docker_jhub_hash_commit: "{{ git_jhub_hash_commit[0:12] }}"
 docker_jhub_base_image: "{{ docker_jhub_base_image_param | default('jupyterhub/jupyterhub:1.2.0dev') }}"
 docker_setup_course_image: "{{ docker_setup_course_image_param | default('illumidesk/setup-course') }}"
+docker_rstudio_hash_commit: "{{ git_rstudio_hash_commit[0:12] }}"
+docker_rstudio_base_image: "{{ docker_rstudio_base_image_param | default('illumidesk/rstudio:') }}base-{{ docker_rstudio_hash_commit }}"
 
 ## Docker
 # dockerfiles
@@ -26,7 +30,10 @@ docker_notebook_base_dockerfile: "{{ docker_notebook_base_dockerfile_param | def
 docker_notebook_learner_dockerfile: "{{ docker_notebook_learner_dockerfile_param | default('Dockerfile.learner') }}"
 docker_notebook_instructor_dockerfile: "{{ docker_notebook_instructor_dockerfile_param | default('Dockerfile.instructor') }}"
 docker_notebook_grader_dockerfile: "{{ docker_notebook_grader_dockerfile_param | default('Dockerfile.grader') }}"
+docker_rstudio_dockerfile: "{{ docker_rstudio_dockerfile_dockerfile_param | default('Dockerfile.rstudio') }}"
 docker_setup_course_dockerfile: "{{ docker_setup_course_dockerfile_param | default('Dockerfile.setup-course') }}"
+docker_theia_dockerfile: "{{ docker_theia_dockerfile_dockerfile_param | default('Dockerfile.theia') }}"
+docker_vscode_dockerfile: "{{ docker_vscode_dockerfile_dockerfile_param | default('Dockerfile.vscode') }}"
 
 # built jupyterhub image
 docker_illumidesk_jhub_image: "{{ docker_illumidesk_jhub_image_param | default('illumidesk/jupyterhub:') }}{{ docker_jhub_hash_commit }}"
@@ -36,6 +43,11 @@ docker_illumidesk_notebook_base_image: "{{ docker_illumidesk_notebook_base_image
 docker_illumidesk_notebook_learner_image: "{{ docker_illumidesk_notebook_learner_image_param | default('illumidesk/notebook:learner') }}-{{ docker_notebook_hash_commit }}"
 docker_illumidesk_notebook_grader_image: "{{ docker_illumidesk_notebook_grader_image_param | default('illumidesk/notebook:grader') }}-{{ docker_notebook_hash_commit }}"
 docker_illumidesk_notebook_instructor_image: "{{ docker_illumidesk_notebook_instructor_image_param | default('illumidesk/notebook:instructor') }}-{{ docker_notebook_hash_commit }}"
+
+# additional workspace images
+docker_illumidesk_rstudio_image: "{{ docker_illumidesk_rstudio_image_param | default('illumidesk/rstudio:base') }}-ild-{{ docker_notebook_hash_commit }}"
+docker_illumidesk_theia_image: "{{ docker_illumidesk_theia_image_param | default('illumidesk/theia:base') }}-{{ docker_notebook_hash_commit }}"
+docker_illumidesk_vscode_image: "{{ docker_illumidesk_vscode_image_param | default('illumidesk/vscode:base') }}-{{ docker_notebook_hash_commit }}"
 
 # reverse-proxy image
 docker_proxy_image: "{{ docker_proxy_image_param | default('jupyterhub/configurable-http-proxy:4.2.0') }}"

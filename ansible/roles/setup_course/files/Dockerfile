@@ -9,18 +9,18 @@ RUN apk update \
 
 RUN apk update \
  && apk add --no-cache \
- g++ \
- gcc \
- libc-dev \
- libffi-dev \
- libressl-dev \
- libxslt-dev \
- linux-headers \
- make \
- musl-dev \
- openssl-dev \
- python3-dev \
- zeromq-dev
+    g++ \
+    gcc \
+    libc-dev \
+    libffi-dev \
+    libressl-dev \
+    libxslt-dev \
+    linux-headers \
+    make \
+    musl-dev \
+    openssl-dev \
+    python3-dev \
+    zeromq-dev
  
 RUN pip install --no-cache-dir \
     hypercorn
@@ -30,7 +30,8 @@ RUN pip3 install docker-compose
 # Install illumidesk package
 # there is a file dependency with illumidesk package existing in the working directory
 COPY illumidesk.zip /tmp/illumidesk.zip
-RUN python3 -m pip install --no-cache /tmp/illumidesk.zip
+RUN python3 -m pip install --no-cache /tmp/illumidesk.zip \
+ && rm /tmp/illumidesk.zip
 
 EXPOSE 8000
 

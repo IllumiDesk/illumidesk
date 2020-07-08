@@ -3,11 +3,19 @@ import sys
 
 import requests
 
+from dockerspawner import DockerSpawner  # noqa: F401
+
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
+from illumidesk.grades.handlers import SendGradesHandler
 from illumidesk.handlers.lms_grades import SendGradesHandler
 from illumidesk.handlers.lti import LTI13ConfigHandler
-from illumidesk.spawners.spawner import IllumiDeskDockerSpawner
+from illumidesk.handlers.lti import LTI13JWKSHandler
+from illumidesk.lti13.handlers import LTI13ConfigHandler
+from illumidesk.lti13.handlers import LTI13JWKSHandler
+from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
+from illumidesk.spawners.spawner import IllumiDeskWorkSpaceDockerSpawner  # noqa: F401
+
 
 c = get_config()
 
@@ -91,7 +99,11 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 c.JupyterHub.authenticator_class = LTI13Authenticator
 
 # Spawn containers with custom dockerspawner class
-c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
+c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
+
+# Spawn containers with by role or workspace type
+c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
+# c.JupyterHub.spawner_class = IllumiDeskWorkSpaceDockerSpawner
 
 ##########################################
 # END JUPYTERHUB APPLICATION
@@ -141,7 +153,8 @@ c.LTI13Authenticator.authorize_url = os.environ.get('LTI13_AUTHORIZE_URL')
 # this url pattern was changed to accept spaces in the assignment name
 c.JupyterHub.extra_handlers = [
     (r'/submit-grades/(?P<course_id>[a-zA-Z0-9-_]+)/(?P<assignment_name>.*)$', SendGradesHandler),
-    (r'/jwks$', LTI13ConfigHandler),
+    (r'/lti13/config$', LTI13ConfigHandler),
+    (r'/lti13/jwks$', LTI13JWKSHandler),
 ]
 
 ##########################################

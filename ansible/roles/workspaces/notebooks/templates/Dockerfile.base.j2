@@ -4,22 +4,35 @@ FROM $BASE_IMAGE
 ARG NBGRADER_VERSION=0.6.1
 
 ENV JHUB_CONFIG=$JHUB_CONFIG
+ENV DEBIAN_FRONTEND=noninteractive
 
 USER root
 
 RUN apt-get update \
- && apt-get upgrade -y \
- && apt-get install \
+ && apt-get install -y \
+    apt-transport-https \
+    curl \
+    dumb-init \
     ffmpeg \
-    nano -y \
+    htop \
+    libssl-dev \
+    lsb-release \
+    nano \
+    procps \
+    ssh \
+    sudo \
+    vim \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-USER $NB_UID
-
 # Install packages from requirements file
-COPY jupyter-notebook-requirements.txt /tmp/jupyternb/requirements.txt
-RUN python3 -m pip install --no-cache -r /tmp/jupyternb/requirements.txt
+WORKDIR $HOME
+
+USER $NB_USER
+
+COPY requirements.txt requirements.txt
+RUN python3 -m pip install -r requirements.txt \
+ && rm requirements.txt
 
 # Update JupyterHub version, so that its consistent with JupyterHub
 RUN git clone https://github.com/jupyterhub/jupyterhub \
@@ -70,13 +83,13 @@ RUN mkdir -p /home/$NB_USER/.local/share/ \
 # nbgrader
 # Install global extensions, and disable them globally. We will re-enable
 # specific ones for different user accounts using docker-entrypoint.sh
-RUN jupyter nbextension install --symlink --sys-prefix --py nbgrader --overwrite && \
-    jupyter nbextension disable --sys-prefix --py nbgrader && \
-    jupyter serverextension disable --sys-prefix --py nbgrader
+RUN jupyter nbextension install --symlink --sys-prefix --py nbgrader --overwrite \
+ && jupyter nbextension disable --sys-prefix --py nbgrader \
+ && jupyter serverextension disable --sys-prefix --py nbgrader
 
 # Everybody gets the validate extension, however.
-RUN jupyter nbextension enable --sys-prefix validate_assignment/main --section=notebook && \
-    jupyter serverextension enable --sys-prefix nbgrader.server_extensions.validate_assignment
+RUN jupyter nbextension enable --sys-prefix validate_assignment/main --section=notebook \
+ && jupyter serverextension enable --sys-prefix nbgrader.server_extensions.validate_assignment
 
 # nbgitpuller
 RUN jupyter serverextension enable nbgitpuller --sys-prefix

@@ -1,0 +1,1 @@
+jupyter-vscode-proxy==0.1

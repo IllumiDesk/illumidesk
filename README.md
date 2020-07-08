@@ -111,7 +111,7 @@ By default, this setup uses the `FirstUseAuthenticator` and as such accepts any 
 
 * **Authenticator**: Authentication service. This setup relies on the [FirstUseAuthenticator](https://github.com/jupyterhub/firstuseauthenticator).
 
-* **Spawner**: Spawning service to manage user notebooks. This setup uses [DockerSpawner](https://github.com/jupyterhub/dockerspawner).
+* **Spawner**: Spawning service to manage user notebooks. This setup uses classes which inherit from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class.
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
@@ -148,6 +148,44 @@ Then, rerun the `make deploy` copmmand to update your stack's settings.
 > **New in Version 0.5.0**: users that wish to provide their Learners with a shared Postgres container my do so by setting the `postgres_labs_enabled` to true.
 
 With the Postgres container enabled, users (both students and instructors) can connect to a shared Postgres database from within their Jupyter Notebooks by opening a connection with the standard `psycop2g` depency using the `postgres-labs` host name. IllumiDesk's [user guides provide additional examples](https://docs.illumidesk.com) on the commands and common use-cases available for this option.
+
+### Spawn Specific Workspace Types
+
+> **New in Version 0.8.0**: users can spawn specific workspace types by setting the `workspace_type` key when initiating the launch request. The `workspace_type` key can either be added as a query parameter or included within the request's body (when initiating an LTI launch).
+
+To enable this feature, you must set the `JupyterHub.spawner_class` to the `IllumiDeskWorkSpaceDockerSpawner` class. Like the `IllumiDeskRoleDockerSpawner` class, the `IllumiDeskWorkSpaceDockerSpawner` class inherits from the `IllumiDeskBaseDockerSpawner` class which manages the logic to assign the image to spawn based on the `workspace_type` key in the `auth_state` dictionary.
+
+Additional workspace types include:
+
+- THEIA IDE: `theia`
+- RStudio: `rstudio`
+- VS Code: `vscode`
+
+If a value is sent which is not recognized by the system, then the default Jupyter Notebook workspace is launched for the user.
+
+When specifying a workspace type with the query parameter add the key / value to the URL encoded request. For example, with LTI 1.1 launch requests the query parameter would look like so:
+
+```
+    <url>/lti/launch?next=/user-redirect/theia&workspace_type=theia...
+```
+
+Notice the `/user-redirect/theia` part. This path redirects the user directly to their user workspace, instead of seeing the default `Launch` button in the application's home page. The path value should correspond with the `workspace_type` value. Users do have the option to navigate back to the Jupyter Notebook interface (Classic or Lab) by appending the `/tree` or `/lab` paths after `.../user/<name>`.
+
+Various LMS's also support adding custom key/values to include with the launch request. For example, the Canvas LMS has the `Custom Fields` text box and Open edX has the `Custom Parameters` text box to support additional key/values to include with the launch request.
+
+These query parameters do not conflict with the `git clone/merge` feature when launching workspaces. It is common to use both options when launching workspaces. This allows instructors to build labs that clone/merge git-based sources and may spawn specific and optimized workspace environments.
+
+**Open edX**:
+
+    ```
+    ["next=/user-redirect/theia"]
+    ```
+    
+**Canvas LMS**:
+
+    ```
+    next=/user-redirect/lab
+    ```
 
 ### Defining Launch Requests to Clone / Merge Git-based Repos
 
@@ -239,25 +277,33 @@ The following docker images are created/pulled with this setup:
 
 When building the images the configuration files are copied to the image from the host using the `COPY` command. Environment variables are stored in `env.*` files. You can either customize the environment variables within the `env.*` files or add new ones as needed. The `env.*` files are used by docker-compose to reduce the file's verbosity.
 
-### Spawner
+### Spawners
 
-By default this setup includes the `IllumiDeskDockerSpawner` class which extends the `DockerSpawner` class. This implementation calls the `authenticator` function to get a list of the user's keys/values and uses the `pre_spawn_hook` to set the user's image based on user role.
+By default this setup includes the `IllumiDeskRoleDockerSpawner` and `IllumiDeskWorkSpaceDockerSpawner` classes. However, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary, and based on the spawner class sets the docker image to spawn based on eith the `user_role` or the `workspace_type` keys with the spawner's `auth_state_hook`. The `pre_spawn_hook` to add user directories with the appropriate permissions, since users are not added to the operating system.
+
+#### IllumiDeskRoleDockerSpawner
+
+The `IllumiDeskRoleDockerSpawner` interprets LTI-based roles to determine which container to launch based on the user's role. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
+
+#### IllumiDeskWorkSpaceDockerSpawner
+
+The `IllumiDeskWorkSpaceDockerSpawner` sets the image to spawn based on a provided `workspace_type` key. This allows content managers to specify images for labs, modules, or assignments. Refer [to the workspace type customization](#sApawn-specific-workspace-types) section for more information.
 
 Edit the `JupyterHub.spawner_class` to update the spawner used by JupyterHub when launching user containers. For example, if you are changing the spawner from `DockerSpawner` to `KubeSpawner`:
 
 Before:
 
 ```python
-c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
+c.JupyterHub.spawner_class = 'dockerspawner.IllumiDeskRoleDockerSpawner'
 ```
 
 After:
 
 ```python
-c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
+c.JupyterHub.spawner_class = 'kubespawner.IllumiDeskWorkSpaceDockerSpawner'
 ```
 
-As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub.
+As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub. In most cases the spawners provide drop-in replacement of the provided `IllumiDeskRoleDockerSpawner` or `IllumiDeskWorkspaceDockerSpawner` classes, however, setting spawners other than `IllumiDeskRoleDockerSpawner` may break compatibility with the grading services.
 
 ### Proxies
 
@@ -398,9 +444,14 @@ The services included with this setup rely on environment variables to work prop
 | DOCKER_GRADER_IMAGE | `string` | Docker image used by users with the Grader role. | `illumidesk/notebook:grader` |
 | DOCKER_INSTRUCTOR_IMAGE | `string` | Docker image used by users with the Instructor role. | `illumidesk/notebook:instructor` |
 | DOCKER_STANDARD_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/notebook:standard` |
+| DOCKER_THEIA_IMAGE | `string` | Docker image used for the THEIA IDE | `illumidesk/theiaide:latest` |
+| DOCKER_RSTUDIO_IMAGE | `string` | Docker image used for RStudio | `illumidesk/rstudio:latest` |
+| DOCKER_VSCODE_IMAGE | `string` | Docker image used for VS Code | `illumidesk/vscode:latest` |
 | DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |
 | DOCKER_NOTEBOOK_DIR | `string` | Working directory for Jupyter Notebooks | `/home/jovyan` |
 | EXCHANGE_DIR | `string` | Exchange directory path  | `/srv/nbgrader/exchange` |
+| ILLUMIDESK_HOST_SUBDOMAIN | `string` | IllumiDesk host sub-domain name  | `my` |
+| ILLUMIDESK_HOST_TLD | `string` | IllumiDesk host top level domain name  | `illumidesk.com` |
 | JUPYTERHUB_CRYPT_KEY | `string` | Cyptographic key used to encrypt cookies. | `<random_value>` |
 | JUPYTERHUB_API_TOKEN | `string` | API token used to authenticate grader service with JupyterHub. | `<random_value>` |
 | JUPYTERHUB_API_TOKEN_USER | `string` | Grader service user which owns JUPYTERHUB_API_TOKEN. | `grader-{course_id}` |
@@ -421,6 +472,7 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_USER | `string` | Postgres database username | `jupyterhub` |
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
+| USER_WORKSPACE_TYPE | `string` | User's workspace type to run. Accepted values are one of: `notebook`, `rstudio`, `theia`, `vscode`. Unrecognized values default to `notebook`. | `notebook` |
 
 ### Environment Variables pertaining to grader service, located in `env.service`
 

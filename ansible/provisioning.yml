@@ -32,12 +32,12 @@
       - { role: nbgrader, tags: nbgrader }
 
   # play 5
-  - name: User Notebooks
+  - name: User workspaces
     hosts: illumidesk
     become: true
     gather_facts: false
     roles:
-      - { role: notebooks, tags: notebooks }
+      - { role: workspaces, tags: workspaces }
 
   # play 6
   - name: Setup-Course app
