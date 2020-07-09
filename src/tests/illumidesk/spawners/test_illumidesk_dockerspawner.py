@@ -1,4 +1,5 @@
 import os
+from os import environ
 import pytest
 import types
 
@@ -9,56 +10,49 @@ from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner
 
 
 def test_get_image_name_uses_correct_image_with_student_role_in_user_environment(
-    monkeypatch, setup_image_environ, mock_user
+    setup_image_environ, mock_jhub_user
 ):
     """
     Does the internal image_from_role set the correct image with the student role?
     """
     sut = IllumiDeskRoleDockerSpawner()
-    attrs = {'name': 'foo', 'environment': {'USER_ROLE': 'Student'}}
-    mock_user.configure_mock(**attrs)
+    mock_user = mock_jhub_user(environ={'USER_ROLE': 'Student'})
     sut.user = mock_user
 
-    assert sut._image_from_role(mock_user.environment.get('USER_ROLE')) == os.environ.get('DOCKER_LEARNER_IMAGE')
+    assert sut._get_image_name() == os.environ.get('DOCKER_LEARNER_IMAGE')
 
 
-def test_get_image_name_uses_correct_image_with_learner_role_in_user_environment(
-    monkeypatch, setup_image_environ, mock_user
+def test_get_image_name_uses_correct_image_with_learner_role_in_user_environment(setup_image_environ, mock_jhub_user
 ):
     """
     Does the internal image_from_role method return student image when using the Student role?
     """
     sut = IllumiDeskRoleDockerSpawner()
-    attrs = {'name': 'foo', 'environment': {'USER_ROLE': 'Learner'}}
-    mock_user.configure_mock(**attrs)
+    mock_user = mock_jhub_user(environ={'USER_ROLE': 'Learner'})
     sut.user = mock_user
 
-    assert sut._image_from_role(mock_user.environment.get('USER_ROLE')) == os.environ.get('DOCKER_LEARNER_IMAGE')
+    assert sut._get_image_name() == os.environ.get('DOCKER_LEARNER_IMAGE')
 
 
-def test_get_image_name_uses_correct_image_with_instructor_role_in_user_environment(
-    monkeypatch, setup_image_environ, mock_user
+def test_get_image_name_uses_correct_image_with_instructor_role_in_user_environment(setup_image_environ, mock_jhub_user
 ):
     """
     Does the internal image_from_role method return instructor image when using the Instructor role?
     """
     sut = IllumiDeskRoleDockerSpawner()
-    attrs = {'name': 'foo', 'environment': {'USER_ROLE': 'Instructor'}}
-    mock_user.configure_mock(**attrs)
+    mock_user = mock_jhub_user(environ={'USER_ROLE': 'Instructor'})
     sut.user = mock_user
 
-    assert sut._image_from_role(mock_user.environment.get('USER_ROLE')) == os.environ.get('DOCKER_INSTRUCTOR_IMAGE')
+    assert sut._get_image_name() == os.environ.get('DOCKER_INSTRUCTOR_IMAGE')
 
 
 @pytest.mark.asyncio
-async def test_ensure_environment_assigned_to_user_role_from_auth_state_in_user_environment(
-    monkeypatch, auth_state_dict
+async def test_ensure_environment_assigned_to_user_role_from_auth_state_in_user_environment(auth_state_dict
 ):
     """
     Does the user's docker container environment reflect his/her role?
     """
     sut = IllumiDeskRoleDockerSpawner()
-    monkeypatch.setitem(auth_state_dict['auth_state'], 'user_role', 'Learner')
 
     await sut.auth_state_hook(sut, auth_state_dict['auth_state'])
     assert sut.environment['USER_ROLE'] == 'Learner'
@@ -72,7 +66,6 @@ async def test_get_image_name_uses_correct_image_for_rstudio_workspace_type(
     Does the user's docker container environment reflect the rstudio workspace?
     """
     sut = IllumiDeskWorkSpaceDockerSpawner()
-    monkeypatch.setitem(auth_state_dict['auth_state'], 'workspace_type', 'rstudio')
     attrs = {'name': 'foo', 'environment': {'USER_WORKSPACE_TYPE': 'rstudio'}}
     mock_user.configure_mock(**attrs)
     sut.user = mock_user
@@ -145,12 +138,13 @@ async def test_get_image_name_uses_correct_image_for_empty_workspace_type(
     it's set to empty?
     """
     sut = IllumiDeskWorkSpaceDockerSpawner()
-    monkeypatch.setitem(auth_state_dict['auth_state'], 'workspace_type', '')
-    attrs = {'name': 'foo', 'environment': {'USER_WORKSPACE_TYPE': 'notebook'}}
+    workspace_type = 'notebook'
+    mock_user.environment.get('USER_WORKSPACE_TYPE')
+    attrs = {'name': 'foo', 'environment': {'USER_WORKSPACE_TYPE': workspace_type}}
     mock_user.configure_mock(**attrs)
     sut.user = mock_user
 
-    assert sut._image_from_workspace_type(mock_user.environment.get('USER_WORKSPACE_TYPE')) == os.environ.get(
+    assert sut._get_image_name() == os.environ.get(
         'DOCKER_STANDARD_IMAGE'
     )
 

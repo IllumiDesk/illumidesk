@@ -4,7 +4,19 @@ import shutil
 from dockerspawner import DockerSpawner
 
 
-class IllumiDeskRoleDockerSpawner(DockerSpawner):
+class IllumiDeskDockerSpawner(DockerSpawner):
+    """
+    Defines the common behavior for our Spwaners that work with LTI versions 1.1 and 1.3
+    """
+    def _get_image_name(self) -> str:
+        raise NotImplementedError('It is necessary to implement the logic to indicate how to get the image name based on auth_state or environ in this child class')
+
+    def start(self) -> None:        
+        self.image = self._get_image_name()
+        self.log.debug('Starting with image: %s' % self.image)
+        return super().start()
+
+class IllumiDeskRoleDockerSpawner(IllumiDeskDockerSpawner):
     """
     Custom DockerSpawner which assigns a user notebook image
     based on the user's role. This spawner requires:
@@ -12,14 +24,15 @@ class IllumiDeskRoleDockerSpawner(DockerSpawner):
     2. That the user's `USER_ROLE` environment variable is set
     """
 
-    def _image_from_role(self, user_role: str) -> str:
+    def _get_image_name(self) -> str:
         """
-        Given a user role, return the right image
-        Args:
-            user_role: the user's role
+        Given a user role in the environ, return the right image        
         Returns:
             docker_image: docker image used to spawn container based on role
         """
+        user_role = self.user.spawner.environment.get('USER_ROLE') or 'Learner'
+        self.log.debug('User %s has role: %s' % (self.user.name, user_role))
+        
         if not user_role:
             user_role = 'Learner'
         # default to standard image, otherwise assign image based on role
@@ -67,15 +80,9 @@ class IllumiDeskRoleDockerSpawner(DockerSpawner):
             )
             os.chmod(user_path, 0o755)
 
-    def start(self) -> None:
-        user_role = self.user.spawner.environment.get('USER_ROLE') or 'Learner'
-        self.log.debug('User %s has role: %s' % (self.user.name, user_role))
-        self.image = self._image_from_role(str(user_role))
-        self.log.debug('Starting with image: %s' % self.image)
-        return super().start()
 
 
-class IllumiDeskWorkSpaceDockerSpawner(DockerSpawner):
+class IllumiDeskWorkSpaceDockerSpawner(IllumiDeskDockerSpawner):
     """
     Custom DockerSpawner which assigns a user notebook image
     based on the user's workspace type. This spawner requires:
@@ -84,14 +91,16 @@ class IllumiDeskWorkSpaceDockerSpawner(DockerSpawner):
     2. That the user's `WORKSPACE_TYPE` environment variable is set
     """
 
-    def _image_from_workspace_type(self, workspace_type: str) -> str:
+    def _get_image_name(self) -> str:
         """
-        Given a user role, return the right image
-        Args:
-            workspace_type: the user's workspace_type
+        Given a user role saved in spawner.environ, return the right image
+        
         Returns:
-            docker_image: docker image used to spawn container based on workspace_type
+            docker_image: image name used to spawn container based on workspace_type
         """
+        workspace_type = self.user.spawner.environment.get('USER_WORKSPACE_TYPE') or 'notebook'
+        self.log.debug('User %s has workspace type: %s' % (self.user.name, workspace_type))
+        
         if not workspace_type:
             raise ValueError('user_role is missing')
         # default to standard image, otherwise assign image based on role
@@ -140,10 +149,3 @@ class IllumiDeskWorkSpaceDockerSpawner(DockerSpawner):
                 user_path, user=int(os.environ.get('MNT_HOME_DIR_UID')), group=int(os.environ.get('MNT_HOME_DIR_GID')),
             )
             os.chmod(user_path, 0o755)
-
-    def start(self):
-        workspace_type = self.user.spawner.environment.get('USER_WORKSPACE_TYPE') or 'notebook'
-        self.log.debug('User %s has workspace type: %s' % (self.user.name, workspace_type))
-        self.image = self._image_from_workspace_type(str(workspace_type))
-        self.log.debug('Starting with image: %s' % self.image)
-        return super().start()

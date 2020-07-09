@@ -1,3 +1,4 @@
+from os import environ
 import pytest
 import uuid
 
@@ -185,13 +186,37 @@ def lti13_login_params_dict(lti13_login_params):
 
 
 @pytest.fixture
-def mock_user():
-    mock_user = Mock()
-    attrs = {
-        'environment.get.side_effect': None,
-    }
-    mock_user.configure_mock(**attrs)
-    return mock_user
+def mock_jhub_user(request):
+    """
+    Creates a Authenticated User mock by returning a wrapper function to help us to customize its creation
+    Usage:
+        user_mocked = mock_jhub_user(environ={'USER_ROLE': 'Instructor'})
+        or
+        user_mocked = mock_jhub_user()
+        or
+        user_mocked = mock_jhub_user(environ={'USER_ROLE': 'Instructor'}, auth_state=[])
+    """
+    def _get_with_params(environ: dict = None, auth_state: list=[]) -> Mock:
+        """
+        wrapper function that accept environment and auth_state
+        Args:
+            auth_state: Helps with the `the get_auth_state` method
+        """
+        mock_user = Mock()
+        mock_spawner = Mock()
+        # define the mock attrs
+        spawner_attrs = {
+            'environment': environ or {}
+        }
+        mock_spawner.configure_mock(**spawner_attrs)
+        attrs = {
+            'name': 'user1', 
+            'spawner': mock_spawner,
+            "get_auth_state.side_effect": auth_state or [],
+        }
+        mock_user.configure_mock(**attrs)
+        return mock_user
+    return _get_with_params
 
 
 @pytest.fixture
