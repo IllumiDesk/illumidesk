@@ -57,58 +57,6 @@ dummy_lti13_id_token_uncrecognized_workspace_type = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJ
 dummy_lti13_id_token_vscode_workspace_type = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImtpZCI6IjIwMjAtMDQtMDFUMDA6MDA6MDRaIn0.eyJodHRwczovL3B1cmwuaW1zZ2xvYmFsLm9yZy9zcGVjL2x0aS9jbGFpbS9tZXNzYWdlX3R5cGUiOiJMdGlSZXNvdXJjZUxpbmtSZXF1ZXN0IiwiaHR0cHM6Ly9wdXJsLmltc2dsb2JhbC5vcmcvc3BlYy9sdGkvY2xhaW0vdmVyc2lvbiI6IjEuMy4wIiwiaHR0cHM6Ly9wdXJsLmltc2dsb2JhbC5vcmcvc3BlYy9sdGkvY2xhaW0vcmVzb3VyY2VfbGluayI6eyJpZCI6ImI4MWFjY2FjNzg1NDNjYjdjZDIzOWYzNzkyYmNmZGM3YzZlZmVhZGIiLCJkZXNjcmlwdGlvbiI6bnVsbCwidGl0bGUiOm51bGwsInZhbGlkYXRpb25fY29udGV4dCI6bnVsbCwiZXJyb3JzIjp7ImVycm9ycyI6e319fSwiYXVkIjoiMTI1OTAwMDAwMDAwMDAwMDcxIiwiYXpwIjoiMTI1OTAwMDAwMDAwMDAwMDcxIiwiaHR0cHM6Ly9wdXJsLmltc2dsb2JhbC5vcmcvc3BlYy9sdGkvY2xhaW0vZGVwbG95bWVudF9pZCI6Ijg0NzpiODFhY2NhYzc4NTQzY2I3Y2QyMzlmMzc5MmJjZmRjN2M2ZWZlYWRiIiwiZXhwIjoxNTg5ODQzNDIxLCJpYXQiOjE1ODk4Mzk4MjEsImlzcyI6Imh0dHBzOi8vY2FudmFzLmluc3RydWN0dXJlLmNvbSIsIm5vbmNlIjoiMTI1Njg3MDE4NDM3Njg3MjI5NjIxNTg5ODM5ODIyIiwic3ViIjoiODE3MTkzNGItZjVlMi00ZjRlLWJkYmQtNmQ3OTg2MTViOTNlIiwiaHR0cHM6Ly9wdXJsLmltc2dsb2JhbC5vcmcvc3BlYy9sdGkvY2xhaW0vdGFyZ2V0X2xpbmtfdXJpIjoiaHR0cHM6Ly9lZHUuZXhhbXBsZS5jb20vaHViIiwiaHR0cHM6Ly9wdXJsLmltc2dsb2JhbC5vcmcvc3BlYy9sdGkvY2xhaW0vY29udGV4dCI6eyJpZCI6ImI4MWFjY2FjNzg1NDNjYjdjZDIzOWYzNzkyYmNmZGM3YzZlZmVhZGIiLCJsYWJlbCI6ImludHJvMTAxIiwidGl0bGUiOiJpbnRybzEwMSIsInR5cGUiOlsiaHR0cDovL3B1cmwuaW1zZ2xvYmFsLm9yZy92b2NhYi9saXMvdjIvY291cnNlI0NvdXJzZU9mZmVyaW5nIl0sInZhbGlkYXRpb25fY29udGV4dCI6bnVsbCwiZXJyb3JzIjp7ImVycm9ycyI6e319fSwiaHR0cHM6Ly9wdXJsLmltc2dsb2JhbC5vcmcvc3BlYy9sdGkvY2xhaW0vdG9vbF9wbGF0Zm9ybSI6eyJndWlkIjoic3JudXo2aDFVOGtPTW1FVHpvcVpUSmlQV3piUFhJWWtBVW5uQUo0dTpjYW52YXMtbG1zIiwibmFtZSI6IklsbHVtaURlc2siLCJ2ZXJzaW9uIjoiY2xvdWQiLCJwcm9kdWN0X2ZhbWlseV9jb2RlIjoiY2FudmFzIiwidmFsaWRhdGlvbl9jb250ZXh0IjpudWxsLCJlcnJvcnMiOnsiZXJyb3JzIjp7fX19LCJodHRwczovL3B1cmwuaW1zZ2xvYmFsLm9yZy9zcGVjL2x0aS9jbGFpbS9sYXVuY2hfcHJlc2VudGF0aW9uIjp7ImRvY3VtZW50X3RhcmdldCI6ImlmcmFtZSIsImhlaWdodCI6NDAwLCJ3aWR0aCI6ODAwLCJyZXR1cm5fdXJsIjoiaHR0cHM6Ly9pbGx1bWlkZXNrLmluc3RydWN0dXJlLmNvbS9jb3Vyc2VzLzE0Ny9leHRlcm5hbF9jb250ZW50L3N1Y2Nlc3MvZXh0ZXJuYWxfdG9vbF9yZWRpcmVjdCIsImxvY2FsZSI6ImVuIiwidmFsaWRhdGlvbl9jb250ZXh0IjpudWxsLCJlcnJvcnMiOnsiZXJyb3JzIjp7fX19LCJsb2NhbGUiOiJlbiIsImh0dHBzOi8vcHVybC5pbXNnbG9iYWwub3JnL3NwZWMvbHRpL2NsYWltL3JvbGVzIjpbIiJdLCJodHRwczovL3B1cmwuaW1zZ2xvYmFsLm9yZy9zcGVjL2x0aS9jbGFpbS9jdXN0b20iOnsiZW1haWwiOiJmb29AZXhhbXBsZS5jb20iLCJ3b3Jrc3BhY2VfdHlwZSI6InZzY29kZSJ9LCJlcnJvcnMiOnsiZXJyb3JzIjp7fX0sImh0dHBzOi8vcHVybC5pbXNnbG9iYWwub3JnL3NwZWMvbHRpLWFncy9jbGFpbS9lbmRwb2ludCI6eyJzY29wZSI6WyJodHRwczovL3B1cmwuaW1zZ2xvYmFsLm9yZy9zcGVjL2x0aS1hZ3Mvc2NvcGUvbGluZWl0ZW0iLCJodHRwczovL3B1cmwuaW1zZ2xvYmFsLm9yZy9zcGVjL2x0aS1hZ3Mvc2NvcGUvbGluZWl0ZW0ucmVhZG9ubHkiLCJodHRwczovL3B1cmwuaW1zZ2xvYmFsLm9yZy9zcGVjL2x0aS1hZ3Mvc2NvcGUvcmVzdWx0LnJlYWRvbmx5IiwiaHR0cHM6Ly9wdXJsLmltc2dsb2JhbC5vcmcvc3BlYy9sdGktYWdzL3Njb3BlL3Njb3JlIl0sImxpbmVpdGVtcyI6Imh0dHBzOi8vaWxsdW1pZGVzay5pbnN0cnVjdHVyZS5jb20vYXBpL2x0aS9jb3Vyc2VzLzE0Ny9saW5lX2l0ZW1zIiwidmFsaWRhdGlvbl9jb250ZXh0IjpudWxsLCJlcnJvcnMiOnsiZXJyb3JzIjp7fX19LCJwaWN0dXJlIjoiaHR0cHM6Ly9jYW52YXMuaW5zdHJ1Y3R1cmUuY29tL2ltYWdlcy9tZXNzYWdlcy9hdmF0YXItNTAucG5nIiwiZW1haWwiOiJmb29AZXhhbXBsZS5jb20iLCJuYW1lIjoiRm9vIEJhciIsImdpdmVuX25hbWUiOiJGb28iLCJmYW1pbHlfbmFtZSI6IkJhciIsImh0dHBzOi8vcHVybC5pbXNnbG9iYWwub3JnL3NwZWMvbHRpL2NsYWltL2xpcyI6eyJwZXJzb25fc291cmNlZGlkIjoiZm9vIiwiY291cnNlX29mZmVyaW5nX3NvdXJjZWRpZCI6bnVsbCwidmFsaWRhdGlvbl9jb250ZXh0IjpudWxsLCJlcnJvcnMiOnsiZXJyb3JzIjp7fX19LCJodHRwczovL3B1cmwuaW1zZ2xvYmFsLm9yZy9zcGVjL2x0aS1ucnBzL2NsYWltL25hbWVzcm9sZXNlcnZpY2UiOnsiY29udGV4dF9tZW1iZXJzaGlwc191cmwiOiJodHRwczovL2lsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tL2FwaS9sdGkvY291cnNlcy8xNDcvbmFtZXNfYW5kX3JvbGVzIiwic2VydmljZV92ZXJzaW9ucyI6WyIyLjAiXSwidmFsaWRhdGlvbl9jb250ZXh0IjpudWxsLCJlcnJvcnMiOnsiZXJyb3JzIjp7fX19fQ.Iro6LPrcLp2slcF_HHYggRYG3tncZxsLE3cz0Q9jGu0'
 
 
-def factory_lti11_complete_launch_args(
-    lms_vendor: str = 'canvas', role: str = 'Instructor', workspace_type: str = 'notebook'
-) -> Dict[str, str]:
-    """
-    Valid response when retrieving jwks from the platform.
-    """
-    args = {
-        'oauth_callback': ['about:blank'.encode()],
-        'oauth_consumer_key': ['my_consumer_key'.encode()],
-        'oauth_signature_method': ['HMAC-SHA1'.encode()],
-        'oauth_timestamp': ['1585947271'.encode()],
-        'oauth_nonce': ['01fy8HKIASKuD9gK9vWUcBj9fql1nOCWfOLPzeylsmg'.encode()],
-        'oauth_signature': ['abc123'.encode()],
-        'oauth_version': ['1.0'.encode()],
-        'context_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
-        'context_label': ['intro101'.encode()],
-        'context_title': ['intro101'.encode()],
-        'course_lineitems': ['my.platform.com/api/lti/courses/1/line_items'.encode()],
-        'custom_canvas_assignment_title': ['test-assignment'.encode()],
-        'custom_canvas_user_login_id': ['student1'.encode()],
-        'custom_workspace_type': [workspace_type.encode()],
-        'ext_roles': ['urn:lti:instrole:ims/lis/Learner'.encode()],
-        'launch_presentation_document_target': ['iframe'.encode()],
-        'launch_presentation_height': ['1000'.encode()],
-        'launch_presentation_locale': ['en'.encode()],
-        'launch_presentation_return_url': [
-            'https: //illumidesk.instructure.com/courses/161/external_content/success/external_tool_redirect'.encode()
-        ],
-        'launch_presentation_width': ['1000'.encode()],
-        'lis_outcome_service_url': [
-            'http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ='.encode()
-        ],
-        'lis_person_contact_email_primary': ['student1@example.com'.encode()],
-        'lis_person_name_family': ['Bar'.encode()],
-        'lis_person_name_full': ['Foo Bar'.encode()],
-        'lis_person_name_given': ['Foo'.encode()],
-        'lti_message_type': ['basic-lti-launch-request'.encode()],
-        'lis_result_sourcedid': ['feb-123-456-2929::28883'.encode()],
-        'lti_version': ['LTI-1p0'.encode()],
-        'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
-        'resource_link_title': ['IllumiDesk'.encode()],
-        'roles': [role.encode()],
-        'tool_consumer_info_product_family_code': [lms_vendor.encode()],
-        'tool_consumer_info_version': ['cloud'.encode()],
-        'tool_consumer_instance_contact_email': ['notifications@mylms.com'.encode()],
-        'tool_consumer_instance_guid': ['srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:test-lms'.encode()],
-        'tool_consumer_instance_name': ['myorg'.encode()],
-        'user_id': ['185d6c59731a553009ca9b59ca3a885100000'.encode()],
-        'user_image': ['https://lms.example.com/avatar-50.png'.encode()],
-    }
-    return args
-
 
 def factory_lti13_resource_link_request() -> Dict[str, str]:
     """
