@@ -341,7 +341,7 @@ def make_auth_state_dict() -> Dict[str, str]:
 
 
 @pytest.fixture(scope='function')
-def make_lti11_basic_launch_args() -> Dict[str, str]:
+def make_lti11_basic_launch_request_args() -> Dict[str, str]:
     def _make_lti11_basic_launch_args(oauth_consumer_key: str = 'my_consumer_key', oauth_consumer_secret: str = 'my_shared_secret',):
         oauth_timestamp = str(int(time.time()))
         oauth_nonce = secrets.token_urlsafe(32)        
