@@ -1,6 +1,22 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines. For a more complete description of this project's features, [visit the IllumiDesk docs](https://docs.illumidesk.com).
+
+## 0.8.0 (2020-07-08)
+
+
+### Features
+
+* Add support to setup stack with AWS EFS-based mounts ([#159](https://github.com/IllumiDesk/illumidesk/issues/159)) ([d50d311](https://github.com/IllumiDesk/illumidesk/commit/d50d311faa7274c71b4bb5b7e88073eb4215debc))
+* Segregate public key endpoint from config endpoint for LTI 1.3 (public key) ([#171](https://github.com/IllumiDesk/illumidesk/issues/171)) ([e2dbca7](https://github.com/IllumiDesk/illumidesk/commit/e2dbca7f600e2ed0718a71d6f917cf8f2f38423f))
+* Support additional workspace types ([#164](https://github.com/IllumiDesk/illumidesk/issues/164)) ([6c13bc9](https://github.com/IllumiDesk/illumidesk/commit/6c13bc95feb632727e6df10ed9f6c398d3b66136))
+* Update nbgrader config file to include the code stub for julia language ([#181](https://github.com/IllumiDesk/illumidesk/issues/181)) ([add1b3c](https://github.com/IllumiDesk/illumidesk/commit/add1b3c90a394dd91cccc5b4f2dac40c3e830208))
+
+
+### Bug Fixes
+
+* Set python interpreter in hosts file ([#173](https://github.com/IllumiDesk/illumidesk/issues/173)) ([930b303](https://github.com/IllumiDesk/illumidesk/commit/930b3036c2d3f78a0e6c0d35b4bdbb97f41ebdda))
+* Update authentication validation steps ([#168](https://github.com/IllumiDesk/illumidesk/issues/168)) ([c507ca7](https://github.com/IllumiDesk/illumidesk/commit/c507ca71e693af81f17473d4850f5cf9b77929bb))
 
 ### 0.7.3 (2020-06-23)
 
