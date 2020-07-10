@@ -12,14 +12,14 @@ class IllumiDeskDockerSpawner(DockerSpawner):
     def _get_image_name(self) -> str:
         raise NotImplementedError('It is necessary to implement the logic to indicate how to get the image name based on auth_state or environ in this child class')
 
-    def auth_state_hook(self, spawner: DockerSpawner, auth_state: dict)-> None:
+    def auth_state_hook(self, spawner: DockerSpawner, auth_state: dict) -> None:
         # call our custom hook from here without issue related with 'invalid arguments number given'
         custom_auth_state_hook(spawner, auth_state)
     
     def pre_spawn_hook(self, spawner) -> None:
         custom_pre_spawn_hook(spawner)
 
-    def start(self) -> None:        
+    def start(self) -> None:
         self.image = self._get_image_name()
         self.log.debug('Starting with image: %s' % self.image)
         return super().start()
@@ -35,7 +35,7 @@ class IllumiDeskRoleDockerSpawner(IllumiDeskDockerSpawner):
 
     def _get_image_name(self) -> str:
         """
-        Given a user role in the environ, return the right image        
+        Given a user role in the environ, return the right image
         Returns:
             docker_image: docker image used to spawn container based on role
         """

@@ -1,4 +1,3 @@
-from os import environ
 import pytest
 import uuid
 
@@ -196,7 +195,7 @@ def mock_jhub_user(request):
         or
         user_mocked = mock_jhub_user(environ={'USER_ROLE': 'Instructor'}, auth_state=[])
     """
-    def _get_with_params(environ: dict = None, auth_state: list=[]) -> Mock:
+    def _get_with_params(environ: dict = None, auth_state: list = []) -> Mock:
         """
         wrapper function that accept environment and auth_state
         Args:
@@ -210,7 +209,7 @@ def mock_jhub_user(request):
         }
         mock_spawner.configure_mock(**spawner_attrs)
         attrs = {
-            'name': 'user1', 
+            'name': 'user1',
             'spawner': mock_spawner,
             "get_auth_state.side_effect": auth_state or [],
         }

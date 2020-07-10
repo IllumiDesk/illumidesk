@@ -1,5 +1,4 @@
 import os
-from os import environ
 import pytest
 import types
 
@@ -19,11 +18,10 @@ def test_get_image_name_returns_correct_image_for_student_role(
     sut.environment['USER_ROLE'] = 'Student'
     sut.user = mock_jhub_user()
 
-    assert sut._get_image_name() == os.environ.get('DOCKER_LEARNER_IMAGE')    
+    assert sut._get_image_name() == os.environ.get('DOCKER_LEARNER_IMAGE')
 
 
-def test_get_image_name_returns_correct_image_for_learner_role(setup_image_environ, mock_jhub_user
-):
+def test_get_image_name_returns_correct_image_for_learner_role(setup_image_environ, mock_jhub_user):
     """
     Does the internal get_image_name method return student image when using the learner role?
     """
@@ -34,8 +32,7 @@ def test_get_image_name_returns_correct_image_for_learner_role(setup_image_envir
     assert sut._get_image_name() == os.environ.get('DOCKER_LEARNER_IMAGE')
 
 
-def test_get_image_name_returns_correct_image_for_Instructor_role(setup_image_environ, mock_jhub_user
-):
+def test_get_image_name_returns_correct_image_for_Instructor_role(setup_image_environ, mock_jhub_user):
     """
     Does the internal get_image_name method return instructor image when using the Instructor role?
     """
@@ -46,8 +43,7 @@ def test_get_image_name_returns_correct_image_for_Instructor_role(setup_image_en
     assert sut._get_image_name() == os.environ.get('DOCKER_INSTRUCTOR_IMAGE')
 
 
-def test_get_image_name_returns_Standard_image_for_unknown_role(setup_image_environ, mock_jhub_user
-):
+def test_get_image_name_returns_Standard_image_for_unknown_role(setup_image_environ, mock_jhub_user):
     """
     Does the internal get_image_name method return Standard image when using an unknown role?
     """
@@ -85,7 +81,7 @@ async def test_get_image_name_returns_correct_image_for_theia_workspace_type(
     """
     sut = IllumiDeskWorkSpaceDockerSpawner()
     sut.user = mock_jhub_user()
-    auth_state_dict['auth_state']['workspace_type'] = 'theia'    
+    auth_state_dict['auth_state']['workspace_type'] = 'theia'
     # call our hook to set the environment in the spawner and pass into it the auth_state
     await sut.run_auth_state_hook(auth_state_dict['auth_state'])
     assert sut._get_image_name() == os.environ.get(

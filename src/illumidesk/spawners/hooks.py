@@ -9,7 +9,7 @@ def custom_auth_state_hook(spawner: Spawner, auth_state: dict) -> None:
     The USER_ROLE environment variable is used to select the notebook image based
     on the user's role.
     """
-    if not auth_state:        
+    if not auth_state:
         raise ValueError('auth_state not enabled.')
     spawner.log.debug('auth_state_hook set with %s role' % auth_state['user_role'])
     spawner.environment['USER_ROLE'] = auth_state['user_role']
@@ -19,8 +19,7 @@ def custom_auth_state_hook(spawner: Spawner, auth_state: dict) -> None:
         spawner.log.debug('Assigned USER_WORKSPACE_TYPE env var to %s' % spawner.environment['USER_WORKSPACE_TYPE'])
 
 
-
-def custom_pre_spawn_hook(spawner: Spawner) -> None:    
+def custom_pre_spawn_hook(spawner: Spawner) -> None:
     """
     Creates the user directory based on information passed from the
     `spawner` object.
