@@ -195,6 +195,7 @@ def mock_jhub_user(request):
         or
         user_mocked = mock_jhub_user(environ={'USER_ROLE': 'Instructor'}, auth_state=[])
     """
+
     def _get_with_params(environ: dict = None, auth_state: list = []) -> Mock:
         """
         wrapper function that accept environment and auth_state
@@ -204,9 +205,7 @@ def mock_jhub_user(request):
         mock_user = Mock()
         mock_spawner = Mock()
         # define the mock attrs
-        spawner_attrs = {
-            'environment': environ or {}
-        }
+        spawner_attrs = {'environment': environ or {}}
         mock_spawner.configure_mock(**spawner_attrs)
         attrs = {
             'name': 'user1',
@@ -215,6 +214,7 @@ def mock_jhub_user(request):
         }
         mock_user.configure_mock(**attrs)
         return mock_user
+
     return _get_with_params
 
 

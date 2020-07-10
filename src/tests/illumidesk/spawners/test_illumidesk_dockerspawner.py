@@ -8,9 +8,7 @@ from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
 from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner
 
 
-def test_get_image_name_returns_correct_image_for_student_role(
-    setup_image_environ, mock_jhub_user
-):
+def test_get_image_name_returns_correct_image_for_student_role(setup_image_environ, mock_jhub_user):
     """
     Does the internal get_image_name method return the correct image with the student role?
     """
@@ -67,9 +65,7 @@ async def test_get_image_name_returns_correct_image_for_rstudio_workspace_type(
     # call our hook to set the environment in the spawner and pass into it the auth_state
     await sut.run_auth_state_hook(auth_state_dict['auth_state'])
 
-    assert sut._get_image_name() == os.environ.get(
-        'DOCKER_RSTUDIO_IMAGE'
-    )
+    assert sut._get_image_name() == os.environ.get('DOCKER_RSTUDIO_IMAGE')
 
 
 @pytest.mark.asyncio
@@ -84,9 +80,7 @@ async def test_get_image_name_returns_correct_image_for_theia_workspace_type(
     auth_state_dict['auth_state']['workspace_type'] = 'theia'
     # call our hook to set the environment in the spawner and pass into it the auth_state
     await sut.run_auth_state_hook(auth_state_dict['auth_state'])
-    assert sut._get_image_name() == os.environ.get(
-        'DOCKER_THEIA_IMAGE'
-    )
+    assert sut._get_image_name() == os.environ.get('DOCKER_THEIA_IMAGE')
 
 
 @pytest.mark.asyncio
@@ -102,9 +96,7 @@ async def test_get_image_name_returns_correct_image_for_vscode_workspace_type(
     # call our hook to set the environment in the spawner and pass into it the auth_state
     await sut.run_auth_state_hook(auth_state_dict['auth_state'])
 
-    assert sut._get_image_name() == os.environ.get(
-        'DOCKER_VSCODE_IMAGE'
-    )
+    assert sut._get_image_name() == os.environ.get('DOCKER_VSCODE_IMAGE')
 
 
 @pytest.mark.asyncio
@@ -120,9 +112,7 @@ async def test_get_image_name_returns_correct_image_for_notebook_workspace_type(
     # call our hook to set the environment in the spawner and pass into it the auth_state
     await sut.run_auth_state_hook(auth_state_dict['auth_state'])
 
-    assert sut._get_image_name() == os.environ.get(
-        'DOCKER_STANDARD_IMAGE'
-    )
+    assert sut._get_image_name() == os.environ.get('DOCKER_STANDARD_IMAGE')
 
 
 @pytest.mark.asyncio
@@ -140,9 +130,7 @@ async def test_get_image_name_returns_default_image_for_empty_workspace_type(
     # call our hook to set the environment in the spawner and pass into it the auth_state
     await sut.run_auth_state_hook(auth_state_dict['auth_state'])
 
-    assert sut._get_image_name() == os.environ.get(
-        'DOCKER_STANDARD_IMAGE'
-    )
+    assert sut._get_image_name() == os.environ.get('DOCKER_STANDARD_IMAGE')
 
 
 def test_dockerspawner_uses_raw_username_in_format_volume_name():
