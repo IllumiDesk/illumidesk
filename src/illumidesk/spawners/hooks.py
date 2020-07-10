@@ -1,9 +1,11 @@
 import os
 import shutil
-from dockerspawner import DockerSpawner
+from jupyterhub.spawner import Spawner
+
+from illumidesk import spawners
 
 
-async def custom_auth_state_hook(spawner: DockerSpawner, auth_state: dict) -> None:
+def custom_auth_state_hook(spawner: Spawner, auth_state: dict) -> None:
     """
     Customized hook to assign USER_ROLE environment variable to LTI user role.
     The USER_ROLE environment variable is used to select the notebook image based
@@ -20,7 +22,7 @@ async def custom_auth_state_hook(spawner: DockerSpawner, auth_state: dict) -> No
 
 
 
-def custom_pre_spawn_hook(spawner: DockerSpawner) -> None:    
+def custom_pre_spawn_hook(spawner: Spawner) -> None:    
     """
     Creates the user directory based on information passed from the
     `spawner` object.
@@ -32,6 +34,7 @@ def custom_pre_spawn_hook(spawner: DockerSpawner) -> None:
     username = spawner.user.name
     user_path = os.path.join('/home', username)
     if not os.path.exists(user_path):
+        spawner.log.debug(f'Creating workdir {user_path} for the user {username}')
         os.mkdir(user_path)
         shutil.chown(
             user_path, user=int(os.environ.get('MNT_HOME_DIR_UID')), group=int(os.environ.get('MNT_HOME_DIR_GID')),
