@@ -87,8 +87,8 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
 c.JupyterHub.authenticator_class = LTI11Authenticator
 
 # Spawn containers with by role or workspace type
-# c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
-c.JupyterHub.spawner_class = IllumiDeskWorkSpaceDockerSpawner
+c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
+# c.JupyterHub.spawner_class = IllumiDeskWorkSpaceDockerSpawner
 
 ##########################################
 # END JUPYTERHUB APPLICATION

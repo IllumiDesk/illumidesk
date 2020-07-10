@@ -1,13 +1,14 @@
 import os
 
 from dockerspawner import DockerSpawner
+
 from illumidesk.spawners.hooks import custom_auth_state_hook
 from illumidesk.spawners.hooks import custom_pre_spawn_hook
 
 
-class IllumiDeskDockerSpawner(DockerSpawner):
+class IllumiDeskBaseDockerSpawner(DockerSpawner):
     """
-    Defines the common behavior for our Spwaners that work with LTI versions 1.1 and 1.3
+    Extends the DockerSpawner by defining the common behavior for our Spwaners that work with LTI versions 1.1 and 1.3
     """
 
     def _get_image_name(self) -> str:
@@ -28,7 +29,7 @@ class IllumiDeskDockerSpawner(DockerSpawner):
         return super().start()
 
 
-class IllumiDeskRoleDockerSpawner(IllumiDeskDockerSpawner):
+class IllumiDeskRoleDockerSpawner(IllumiDeskBaseDockerSpawner):
     """
     Custom DockerSpawner which assigns a user notebook image
     based on the user's role. This spawner requires:
@@ -58,7 +59,7 @@ class IllumiDeskRoleDockerSpawner(IllumiDeskDockerSpawner):
         return docker_image
 
 
-class IllumiDeskWorkSpaceDockerSpawner(IllumiDeskDockerSpawner):
+class IllumiDeskWorkSpaceDockerSpawner(IllumiDeskBaseDockerSpawner):
     """
     Custom DockerSpawner which assigns a user notebook image
     based on the user's workspace type. This spawner requires:
