@@ -1,7 +1,7 @@
 ---
 - name: copy setup-course dockerfile
-  copy:
-    src: Dockerfile
+  template:
+    src: Dockerfile.setup-course.j2
     dest: "{{ working_dir }}/Dockerfile.setup-course"
 
 - name: create the setup course env var file from template

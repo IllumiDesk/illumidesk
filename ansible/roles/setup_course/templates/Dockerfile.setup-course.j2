@@ -1,6 +1,15 @@
 ARG BASE_IMAGE={{docker_illumidesk_jhub_image}}
 FROM ${BASE_IMAGE}
 
+# Uninstall Python - Make sure before going for it
+RUN apt purge remove python \
+ && apt purge python3
+
+# Refresh the packages index and install python3.8
+RUN apt update \
+ && add-apt-repository ppa:deadsnakes/ppa \
+ && apt install python3.8
+
 WORKDIR /usr/src/app
  
 RUN python3 -m pip install --no-cache-dir \
