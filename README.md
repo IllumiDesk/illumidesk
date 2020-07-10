@@ -109,6 +109,8 @@ By default, this setup uses the `FirstUseAuthenticator` and as such accepts any 
 
 * **JupyterHub**: Runs [JupyterHub](https://jupyterhub.readthedocs.org/en/latest/getting-started.html#overview) within a Docker container running as root.
 
+* **Setup Course Image**: This image uses the built JupyterHub custom image as the base image (basically to avoid having to re install common dependencies). This image uses the [Quart](https://pgjones.gitlab.io/quart/) web server to communicate with the JupyterHub to scaffold host directories, launch shared grader notebooks as JupyterHub services, and updated configurations. This service is only applicable when using either LTI 1.1 or LTI 1.3 authenticators.
+
 * **Authenticator**: Authentication service. This setup relies on the [FirstUseAuthenticator](https://github.com/jupyterhub/firstuseauthenticator).
 
 * **Spawner**: Spawning service to manage user notebooks. This setup uses classes which inherit from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class.
