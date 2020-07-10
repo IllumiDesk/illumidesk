@@ -17,6 +17,8 @@ from tornado.httpclient import AsyncHTTPClient
 from tests.illumidesk.factory import factory_http_response
 from tests.illumidesk.mocks import mock_handler
 
+from typing import Dict
+
 
 @pytest.fixture(scope='module')
 def auth_state_dict():
@@ -309,3 +311,26 @@ def http_async_httpclient_with_simple_response(request):
         return_value=factory_http_response(handler=local_handler.request, body=test_request_body_param),
     ):
         yield AsyncHTTPClient()
+
+
+@pytest.fixture(scope='function')
+def make_auth_state_dict() -> Dict[str, str]:
+    """
+    Creates an authentication dictionary with default name and auth_state k/v's
+    """
+    def _make_auth_state_dict(
+        username: str = 'foo',
+        course_id: str = 'intro101',
+        lms_user_id: str = 'abc123',
+        user_role: str = 'Learner',
+        workspace_type: str = 'notebook'):
+        return {
+            'name': username,
+            'auth_state': {
+                'course_id': course_id,
+                'lms_user_id': lms_user_id,
+                'user_role': user_role,
+                'workspace_type': workspace_type,
+            },  # noqa: E231
+        }
+    return _make_auth_state_dict
