@@ -69,7 +69,7 @@ async def test_get_image_name_returns_correct_image_for_rstudio_workspace_type(
     sut.user = mock_jhub_user()
     auth_state_dict['auth_state']['workspace_type'] = 'rstudio'
     # call our hook to set the environment in the spawner and pass into it the auth_state
-    await sut.auth_state_hook(auth_state_dict['auth_state'])
+    await sut.run_auth_state_hook(auth_state_dict['auth_state'])
 
     assert sut._get_image_name() == os.environ.get(
         'DOCKER_RSTUDIO_IMAGE'
@@ -87,7 +87,7 @@ async def test_get_image_name_returns_correct_image_for_theia_workspace_type(
     sut.user = mock_jhub_user()
     auth_state_dict['auth_state']['workspace_type'] = 'theia'    
     # call our hook to set the environment in the spawner and pass into it the auth_state
-    await sut.auth_state_hook(auth_state_dict['auth_state'])
+    await sut.run_auth_state_hook(auth_state_dict['auth_state'])
     assert sut._get_image_name() == os.environ.get(
         'DOCKER_THEIA_IMAGE'
     )
@@ -104,7 +104,7 @@ async def test_get_image_name_returns_correct_image_for_vscode_workspace_type(
     sut.user = mock_jhub_user()
     auth_state_dict['auth_state']['workspace_type'] = 'vscode'
     # call our hook to set the environment in the spawner and pass into it the auth_state
-    await sut.auth_state_hook(auth_state_dict['auth_state'])
+    await sut.run_auth_state_hook(auth_state_dict['auth_state'])
 
     assert sut._get_image_name() == os.environ.get(
         'DOCKER_VSCODE_IMAGE'
@@ -122,7 +122,7 @@ async def test_get_image_name_returns_correct_image_for_notebook_workspace_type(
     sut.user = mock_jhub_user()
     auth_state_dict['auth_state']['workspace_type'] = 'notebook'
     # call our hook to set the environment in the spawner and pass into it the auth_state
-    await sut.auth_state_hook(auth_state_dict['auth_state'])
+    await sut.run_auth_state_hook(auth_state_dict['auth_state'])
 
     assert sut._get_image_name() == os.environ.get(
         'DOCKER_STANDARD_IMAGE'
@@ -142,7 +142,7 @@ async def test_get_image_name_returns_default_image_for_empty_workspace_type(
     # remove the `workspace_type` key
     del auth_state_dict['auth_state']['workspace_type']
     # call our hook to set the environment in the spawner and pass into it the auth_state
-    await sut.auth_state_hook(auth_state_dict['auth_state'])
+    await sut.run_auth_state_hook(auth_state_dict['auth_state'])
 
     assert sut._get_image_name() == os.environ.get(
         'DOCKER_STANDARD_IMAGE'

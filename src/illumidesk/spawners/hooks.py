@@ -2,8 +2,6 @@ import os
 import shutil
 from jupyterhub.spawner import Spawner
 
-from illumidesk import spawners
-
 
 def custom_auth_state_hook(spawner: Spawner, auth_state: dict) -> None:
     """
