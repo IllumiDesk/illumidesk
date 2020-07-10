@@ -9,7 +9,7 @@ from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
 from illumidesk.grades.handlers import SendGradesHandler
 from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
-from illumidesk.spawners.spawner import IllumiDeskWorkSpaceDockerSpawner  # noqa: F401
+from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner  # noqa: F401
 
 
 c = get_config()
