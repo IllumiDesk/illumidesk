@@ -1,10 +1,35 @@
 import os
-import shutil
 
 from dockerspawner import DockerSpawner
 
+from illumidesk.spawners.hooks import custom_auth_state_hook
+from illumidesk.spawners.hooks import custom_pre_spawn_hook
 
-class IllumiDeskRoleDockerSpawner(DockerSpawner):
+
+class IllumiDeskBaseDockerSpawner(DockerSpawner):
+    """
+    Extends the DockerSpawner by defining the common behavior for our Spwaners that work with LTI versions 1.1 and 1.3
+    """
+
+    def _get_image_name(self) -> str:
+        raise NotImplementedError(
+            'It is necessary to implement the logic to indicate how to get the image name based on auth_state or environ in this child class'
+        )
+
+    def auth_state_hook(self, spawner: DockerSpawner, auth_state: dict) -> None:
+        # call our custom hook from here without issue related with 'invalid arguments number given'
+        custom_auth_state_hook(spawner, auth_state)
+
+    def pre_spawn_hook(self, spawner) -> None:
+        custom_pre_spawn_hook(spawner)
+
+    def start(self) -> None:
+        self.image = self._get_image_name()
+        self.log.debug('Starting with image: %s' % self.image)
+        return super().start()
+
+
+class IllumiDeskRoleDockerSpawner(IllumiDeskBaseDockerSpawner):
     """
     Custom DockerSpawner which assigns a user notebook image
     based on the user's role. This spawner requires:
@@ -12,16 +37,15 @@ class IllumiDeskRoleDockerSpawner(DockerSpawner):
     2. That the user's `USER_ROLE` environment variable is set
     """
 
-    def _image_from_role(self, user_role: str) -> str:
+    def _get_image_name(self) -> str:
         """
-        Given a user role, return the right image
-        Args:
-            user_role: the user's role
+        Given a user role in the environ, return the right image
         Returns:
             docker_image: docker image used to spawn container based on role
         """
-        if not user_role:
-            user_role = 'Learner'
+        user_role = self.environment.get('USER_ROLE') or 'Learner'
+        self.log.debug('User %s has role: %s' % (self.user.name, user_role))
+
         # default to standard image, otherwise assign image based on role
         self.log.debug('User role used to set image: %s' % user_role)
         docker_image = str(os.environ.get('DOCKER_STANDARD_IMAGE'))
@@ -34,48 +58,8 @@ class IllumiDeskRoleDockerSpawner(DockerSpawner):
         self.log.debug('Image based on user role set to %s' % docker_image)
         return docker_image
 
-    async def auth_state_hook(self, spawner: DockerSpawner, auth_state: dict) -> None:
-        """
-        Customized hook to assign USER_ROLE environment variable to LTI user role.
-        The USER_ROLE environment variable is used to select the notebook image based
-        on the user's role.
-        """
-        if not auth_state:
-            self.log.debug('auth_state not enabled.')
-            return
-        self.log.debug('auth_state_hook set with %s role' % auth_state['user_role'])
-        self.environment['USER_ROLE'] = auth_state['user_role']
-        self.log.debug('Assigned USER_ROLE env var to %s' % self.environment['USER_ROLE'])
 
-    # Create a new user directory if it does not exist on the host, regardless
-    # of whether or not its mounted with NFS.
-    def pre_spawn_hook(self, spawner: DockerSpawner) -> None:
-        """
-        Creates the user directory based on information passed from the
-        `spawner` object.
-        Args:
-            spawner: JupyterHub spawner object
-        """
-        if not self.user.name:
-            raise ValueError('Spawner object does not contain the username')
-        username = self.user.name
-        user_path = os.path.join('/home', username)
-        if not os.path.exists(user_path):
-            os.mkdir(user_path)
-            shutil.chown(
-                user_path, user=int(os.environ.get('MNT_HOME_DIR_UID')), group=int(os.environ.get('MNT_HOME_DIR_GID')),
-            )
-            os.chmod(user_path, 0o755)
-
-    def start(self) -> None:
-        user_role = self.user.spawner.environment.get('USER_ROLE') or 'Learner'
-        self.log.debug('User %s has role: %s' % (self.user.name, user_role))
-        self.image = self._image_from_role(str(user_role))
-        self.log.debug('Starting with image: %s' % self.image)
-        return super().start()
-
-
-class IllumiDeskWorkSpaceDockerSpawner(DockerSpawner):
+class IllumiDeskWorkSpaceDockerSpawner(IllumiDeskBaseDockerSpawner):
     """
     Custom DockerSpawner which assigns a user notebook image
     based on the user's workspace type. This spawner requires:
@@ -84,16 +68,16 @@ class IllumiDeskWorkSpaceDockerSpawner(DockerSpawner):
     2. That the user's `WORKSPACE_TYPE` environment variable is set
     """
 
-    def _image_from_workspace_type(self, workspace_type: str) -> str:
+    def _get_image_name(self) -> str:
         """
-        Given a user role, return the right image
-        Args:
-            workspace_type: the user's workspace_type
+        Given a user role saved in spawner.environ, return the right image
+        
         Returns:
-            docker_image: docker image used to spawn container based on workspace_type
+            docker_image: image name used to spawn container based on workspace_type
         """
-        if not workspace_type:
-            raise ValueError('user_role is missing')
+        workspace_type = self.environment.get('USER_WORKSPACE_TYPE') or 'notebook'
+        self.log.debug('User %s has workspace type: %s' % (self.user.name, workspace_type))
+
         # default to standard image, otherwise assign image based on role
         self.log.debug('User role used to set image: %s' % workspace_type)
         docker_image = str(os.environ.get('DOCKER_STANDARD_IMAGE'))
@@ -105,45 +89,3 @@ class IllumiDeskWorkSpaceDockerSpawner(DockerSpawner):
             docker_image = str(os.environ.get('DOCKER_VSCODE_IMAGE'))
         self.log.debug('Image based on workspace type set to %s' % docker_image)
         return docker_image
-
-    async def auth_state_hook(self, spawner: DockerSpawner, auth_state: dict) -> None:
-        """
-        Customized hook to assign USER_ROLE environment variable to LTI user role.
-        The USER_ROLE environment variable is used to select the notebook image based
-        on the user's role.
-        """
-        if not auth_state:
-            self.log.debug('auth_state not enabled.')
-            return
-        self.log.debug('auth_state_hook set with %s role' % auth_state['user_role'])
-        self.environment['USER_ROLE'] = auth_state['user_role']
-        self.log.debug('Assigned USER_ROLE env var to %s' % self.environment['USER_ROLE'])
-        self.environment['USER_WORKSPACE_TYPE'] = auth_state['workspace_type']
-        self.log.debug('Assigned USER_WORKSPACE_TYPE env var to %s' % self.environment['USER_WORKSPACE_TYPE'])
-
-    # Create a new user directory if it does not exist on the host, regardless
-    # of whether or not its mounted with NFS.
-    def pre_spawn_hook(self, spawner: DockerSpawner) -> None:
-        """
-        Creates the user directory based on information passed from the
-        `spawner` object.
-        Args:
-            spawner: JupyterHub spawner object
-        """
-        if not self.user.name:
-            raise ValueError('Spawner object does not contain the username')
-        username = self.user.name
-        user_path = os.path.join('/home', username)
-        if not os.path.exists(user_path):
-            os.mkdir(user_path)
-            shutil.chown(
-                user_path, user=int(os.environ.get('MNT_HOME_DIR_UID')), group=int(os.environ.get('MNT_HOME_DIR_GID')),
-            )
-            os.chmod(user_path, 0o755)
-
-    def start(self):
-        workspace_type = self.user.spawner.environment.get('USER_WORKSPACE_TYPE') or 'notebook'
-        self.log.debug('User %s has workspace type: %s' % (self.user.name, workspace_type))
-        self.image = self._image_from_workspace_type(str(workspace_type))
-        self.log.debug('Starting with image: %s' % self.image)
-        return super().start()
