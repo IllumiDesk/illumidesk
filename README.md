@@ -109,17 +109,19 @@ By default, this setup uses the `FirstUseAuthenticator` and as such accepts any 
 
 * **JupyterHub**: Runs [JupyterHub](https://jupyterhub.readthedocs.org/en/latest/getting-started.html#overview) within a Docker container running as root.
 
-* **Setup Course Image**: This image uses the built JupyterHub custom image as the base image (basically to avoid having to re install common dependencies). This image uses the [Quart](https://pgjones.gitlab.io/quart/) web server to communicate with the JupyterHub to scaffold host directories, launch shared grader notebooks as JupyterHub services, and updated configurations. This service is only applicable when using either LTI 1.1 or LTI 1.3 authenticators.
+* **Setup Course Image**: Runs client services to communicate with the `JupyterHub REST API` to dynamically setup new courses. This service is only applicable when using either `LTI 1.1` or `LTI 1.3` authenticators.
 
-* **Authenticator**: Authentication service. This setup relies on the [FirstUseAuthenticator](https://github.com/jupyterhub/firstuseauthenticator).
+* **Authenticator**: The JupyterHub compatible authentication service. We recommend either using the `LTI11Authenticator` or `LTI13Authenticator` with your Learning Management System to take advantage of the latest features, however, the [FirstUseAuthenticator](https://github.com/jupyterhub/firstuseauthenticator) is available in case an LTI compatible LMS isn't available.
 
-* **Spawner**: Spawning service to manage user notebooks. This setup uses classes which inherit from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class.
+* **Spawner**: Spawning service to manage user notebooks. This setup uses two classes which inherit from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class: the `IllumiDeskRoleDockerSpawner` (to set the user's docker image based on LTI role) and the `IllumiDeskWorkSpaceDockerSpawner` (to set the user's docker image base on desired workspace type).
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
 * **Databases**: This setup relies on a standard `postgres` database running in its own container for the JupyterHub application and another separate and optional Postgres database for lab environments (useful to connect from user notebooks).
 
 * **Network**: An external bridge network named `jupyter-network` is used by default. The grader service and the user notebooks are attached to this network.
+
+* **Workspaces**: User servers are set and launched based on either the user's LTI compatible role (student or instructor) or by workspace type (Jupyter Classic, Jupyter Lab, THEIA IDE, RStudio, or VS Code).
 
 ## Customization
 
