@@ -1,20 +1,19 @@
-ARG BASE_IMAGE={{docker_illumidesk_jhub_image}}
-FROM ${BASE_IMAGE}
+FROM python:3.8-buster
 
-# Uninstall Python - Make sure before going for it
-RUN apt purge remove python \
- && apt purge python3
+SHELL [ "/bin/bash", "-c" ]
 
-# Refresh the packages index and install python3.8
-RUN apt update \
- && add-apt-repository ppa:deadsnakes/ppa \
- && apt install python3.8
+WORKDIR /tmp
+
+# Install illumidesk package
+COPY illumidesk.zip /tmp/illumidesk.zip
+RUN python3 -m pip install --no-cache /tmp/illumidesk.zip \
+ && rm /tmp/illumidesk.zip
+ 
+COPY setup-course-requirements.txt /tmp/requirements.txt
+RUN python3 -m pip install --no-cache-dir \
+    -r /tmp/requirements.txt
 
 WORKDIR /usr/src/app
- 
-RUN python3 -m pip install --no-cache-dir \
-    docker-compose \
-    hypercorn
 
 EXPOSE 8000
 
