@@ -1,0 +1,22 @@
+FROM python:3.8-buster
+
+SHELL [ "/bin/bash", "-c" ]
+
+WORKDIR /tmp
+
+# Install illumidesk package
+COPY illumidesk.zip /tmp/illumidesk.zip
+RUN python3 -m pip install --no-cache /tmp/illumidesk.zip \
+ && rm /tmp/illumidesk.zip
+ 
+COPY setup-course-requirements.txt /tmp/requirements.txt
+RUN python3 -m pip install --no-cache-dir \
+    -r /tmp/requirements.txt
+
+WORKDIR /usr/src/app
+
+EXPOSE 8000
+
+CMD ["hypercorn", "--bind", "0.0.0.0:8000", "--workers", "1", "illumidesk.setup_course.app:app"]
+
+HEALTHCHECK CMD curl --fail http://localhost:8000/config || exit 1
