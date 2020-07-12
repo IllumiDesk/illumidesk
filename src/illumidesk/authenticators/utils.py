@@ -15,7 +15,7 @@ class LTIUtils(LoggingConfigurable):
     which work in conjunction with LTI requests.
     """
 
-    def normalize_name_for_containers(self, name: str) -> str:
+    def normalize_string(self, name: str) -> str:
         """
         Function used to strip special characters and convert strings
         to docker container compatible names. This function is used mostly
