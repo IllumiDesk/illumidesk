@@ -117,8 +117,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_name(monke
     ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
-            auth_state_dict['name'] = 'Foo'
-            assert result['name'] == auth_state_dict['name']
+            assert result['name'] == 'Foo'
 
 
 @pytest.mark.asyncio

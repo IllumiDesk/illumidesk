@@ -61,7 +61,6 @@ async def test_setup_course_hook_calls_normalize_strings(
     """
     Does the setup_course_hook return normalized strings for the username and the course_id?
     """
-    local_utils = LTIUtils()
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
     local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = auth_state_dict
