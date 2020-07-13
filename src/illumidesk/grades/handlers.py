@@ -26,7 +26,7 @@ class SendGradesHandler(BaseHandler):
         LTI authenticator version (1.1 or 1.3).
         
         Arguments:
-          course_id: course name which has been previously normalized by the LTIUtils.normalize_name_for_containers
+          course_id: course name which has been previously normalized by the LTIUtils.normalize_string
             function.
           assignment_name: assignment name which should coincide with the assignment name within the LMS.
           
