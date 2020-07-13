@@ -1,3 +1,5 @@
+from io import StringIO
+import json
 import pytest
 import secrets
 import time
@@ -17,8 +19,9 @@ from illumidesk.authenticators.utils import LTIUtils
 from oauthlib.oauth1.rfc5849 import signature
 
 from tornado.httpclient import AsyncHTTPClient
+from tornado.httpclient import HTTPResponse
+from tornado.httputil import HTTPHeaders
 
-from tests.illumidesk.factory import factory_http_response
 from tests.illumidesk.mocks import mock_handler
 
 from typing import Dict
@@ -303,8 +306,51 @@ def test_quart_client(monkeypatch, tmp_path):
     return app.test_client()
 
 
-@pytest.fixture
-def http_async_httpclient_with_simple_response(request):
+@pytest.fixture(scope='function')
+def make_http_response() -> HTTPResponse:
+    async def _make_http_response(
+        handler: RequestHandler,
+        code: int = 200,
+        reason: str = 'OK',
+        headers: HTTPHeaders = HTTPHeaders({'content-type': 'application/json'}),
+        effective_url: str = 'http://hub.example.com/',
+        body: Dict[str, str] = {'foo': 'bar'},
+    ) -> HTTPResponse:
+        """
+        Creates an HTTPResponse object from a given request. The buffer key is used to
+        add data to the response's body using an io.StringIO object. This factory method assumes
+        the body's buffer is an encoded JSON string.
+
+        This awaitable factory method requires a tornado.web.RequestHandler object with a valid
+        request property, which in turn requires a valid jupyterhub.auth.Authenticator object. Use
+        a dictionary to represent the StringIO body in the response.
+
+        Example:
+
+            response_args = {'handler': local_handler.request, 'body': {'code': 200}}
+            http_response = await factory_http_response(**response_args)
+
+        Args:
+        handler: tornado.web.RequestHandler object.
+        code: response code, e.g. 200 or 404
+        reason: reason phrase describing the status code
+        headers: HTTPHeaders (response header object), use the dict within the constructor, e.g.
+            {"content-type": "application/json"}
+        effective_url: final location of the resource after following any redirects
+        body: dictionary that represents the StringIO (buffer) body
+        
+        Returns:
+        A tornado.client.HTTPResponse object
+        """
+        dict_to_buffer = StringIO(json.dumps(body)) if body is not None else None
+        return HTTPResponse(
+            request=handler, code=code, reason=reason, headers=headers, effective_url=effective_url, buffer=dict_to_buffer
+        )
+    return _make_http_response
+
+
+@pytest.fixture(scope='function')
+def http_async_httpclient_with_simple_response(request, make_http_response):
     """
     Creates a patch of AsyncHttpClient.fetch method, useful when other tests are making http request
     """
@@ -313,7 +359,7 @@ def http_async_httpclient_with_simple_response(request):
     with patch.object(
         AsyncHTTPClient,
         'fetch',
-        return_value=factory_http_response(handler=local_handler.request, body=test_request_body_param),
+        return_value=make_http_response(handler=local_handler.request, body=test_request_body_param),
     ):
         yield AsyncHTTPClient()
 

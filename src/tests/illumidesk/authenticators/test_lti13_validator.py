@@ -7,7 +7,6 @@ from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 
-from tests.illumidesk.factory import factory_lti13_empty_platform_jwks
 from tests.illumidesk.factory import dummy_lti13_id_token_complete
 
 

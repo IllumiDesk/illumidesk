@@ -9,7 +9,6 @@ from illumidesk.grades.exceptions import AssignmentWithoutGradesError
 from illumidesk.grades.exceptions import GradesSenderMissingInfoError
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 
-from tests.illumidesk.factory import factory_http_response
 from tests.illumidesk.mocks import mock_handler
 
 from tornado.httpclient import AsyncHTTPClient
@@ -73,7 +72,7 @@ class TestLTI13GradesSender:
                 await sut.send_grades()
 
     @pytest.mark.asyncio
-    async def test_sender_calls__set_access_token_header_before_to_send_grades(self, lti_config_environ):
+    async def test_sender_calls__set_access_token_header_before_to_send_grades(self, lti_config_environ, make_http_response):
         sut = LTI13GradeSender(
             'course-id', 'lab', {'course_lineitems': 'canvas.docker.com/api/lti/courses/1/line_items'}
         )
@@ -91,9 +90,9 @@ class TestLTI13GradesSender:
                     AsyncHTTPClient,
                     'fetch',
                     side_effect=[
-                        factory_http_response(handler=local_handler.request, body=[line_item_result]),
-                        factory_http_response(handler=local_handler.request, body=line_item_result),
-                        factory_http_response(handler=local_handler.request, body=[]),
+                        make_http_response(handler=local_handler.request, body=[line_item_result]),
+                        make_http_response(handler=local_handler.request, body=line_item_result),
+                        make_http_response(handler=local_handler.request, body=[]),
                     ],
                 ):
                     await sut.send_grades()
