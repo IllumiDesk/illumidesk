@@ -24,7 +24,6 @@ from tests.illumidesk.factory import dummy_lti13_id_token_misssing_all_except_na
 from tests.illumidesk.factory import dummy_lti13_id_token_misssing_all_except_given_name
 from tests.illumidesk.factory import dummy_lti13_id_token_misssing_all_except_family_name
 from tests.illumidesk.factory import dummy_lti13_id_token_misssing_all_except_person_sourcedid
-from tests.illumidesk.factory import factory_lti13_resource_link_request
 
 
 @pytest.mark.asyncio
@@ -42,7 +41,7 @@ async def test_authenticator_invokes_lti13validator_handler_get_argument():
 
 
 @pytest.mark.asyncio
-async def test_authenticator_invokes_lti13validator_jwt_verify_and_decode():
+async def test_authenticator_invokes_lti13validator_jwt_verify_and_decode(make_lti13_resource_link_request):
     """
     Does the authenticator invoke the LTI13Validator jwt_verify_and_decode method?
     """
@@ -50,7 +49,7 @@ async def test_authenticator_invokes_lti13validator_jwt_verify_and_decode():
     request_handler = mock_handler(RequestHandler, authenticator=authenticator)
     with patch.object(RequestHandler, 'get_argument', return_value=dummy_lti13_id_token_complete.encode()):
         with patch.object(
-            LTI13LaunchValidator, 'jwt_verify_and_decode', return_value=factory_lti13_resource_link_request()
+            LTI13LaunchValidator, 'jwt_verify_and_decode', return_value=make_lti13_resource_link_request()
         ) as mock_verify_and_decode:
             _ = await authenticator.authenticate(request_handler, None)
             assert mock_verify_and_decode.called
