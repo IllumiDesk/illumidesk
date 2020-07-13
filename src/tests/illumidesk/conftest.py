@@ -22,6 +22,7 @@ from tests.illumidesk.factory import factory_http_response
 from tests.illumidesk.mocks import mock_handler
 
 from typing import Dict
+from typing import List
 
 
 @pytest.fixture(scope='module')
@@ -520,3 +521,41 @@ def make_lti13_resource_link_request() -> Dict[str, str]:
         }
         return jws
     return _make_lti13_resource_link_request
+
+
+@pytest.fixture(scope='function')
+def make_lti13_platform_jwks() -> Dict[str, List[Dict[str, str]]]:
+    def _make_lti13_platform_jwks():
+        """
+        Valid response when retrieving jwks from the platform.
+        """
+        jwks = {
+            "keys": [
+                {
+                    "kty": "RSA",
+                    "e": "AQAB",
+                    "n": "sBrymOqJsg3huJMJmmYi7kSQX5IPPFJokfZaFPCM87TDBtjvV_ha_i_wJYDGoiqM3GKY-h1PditDxpMrqUOwKoIYXYySKurdAQr_G2pmkkdFtX0FDclgzjJyioElpgzrZdgy4y5TaW-HOOCaW7fFFOArkCkwqdAdxXRH4daLQCX0QyAPbgZPigsWbMm9DnQlBYIfkDVAf0kmiOvWsYOvuEMbapgZC5meW6XcNRQ2goEp6RJWF5SQ0ZTI64rxFG2FiGpqF4LyzgtP1th4qBKMTyKFfiHn0CA_LBIaZ90_htR6onTKgYr8v4TREJkdLyu7tyrSZjfUYCTdzkLFT9_dXQ",
+                    "kid": "2020-03-01T00:00:01Z",
+                    "alg": "RS256",
+                    "use": "sig",
+                },
+                {
+                    "kty": "RSA",
+                    "e": "AQAB",
+                    "n": "7AugnfFImg9HWNN1gfp-9f0Qx26ctPMVGj4BmKdknP2wnVWQPn7jvYl6J0H7YZY40adSePU-urJ2ICQnVyJjKu9DPNOvWanB-hG96zhf_6wsU8rZJhXwfJzM-K7xhd7f0pf0VFG7HZAJXFazoPkCTLpdQ_daNVp7jklhz2qzBe0Y_cIZaCqfAWMI7M046kYKkvk87rPkwi75O3sOqF7GmOIWCHqNzt3p69gPeYOirin9XeAEL9ZmTwgtVHSXM8W1sLCnTEukRLuuAZzTjC79B7TwEqDu5kXI7MuOHOueX3ePKjulXwRDVxK4JyuT0XPBe6xrFbh9hXBK9SB3XY33mw",
+                    "kid": "2020-04-01T00:00:04Z",
+                    "alg": "RS256",
+                    "use": "sig",
+                },
+                {
+                    "kty": "RSA",
+                    "e": "AQAB",
+                    "n": "x5bJTy70O2XAMGVYq7ahfHZC6yovIfrH9pglFare2icDKVGA7u-9Fdruuma4lwwhRg6d7H3avZLY392zJKJByVkjNEfl0tszhbJ99jWoIzhvPNlk0_tCo1_9oCGEjZgh1wB8wVJIDm-Rt6ar5JwYNBGqPXbjWZTVRm5w9GccqLuK7Bc9RBecmU-WI1_pbWyz0T2I-9kn39K0u4Xhv3zTrZg_mkGsTNsVpBKkSSlHJnxsxq2_0v6TYNtzVmp2s7G11V3Ftp1gRQNaZcP2cEKISTip_Zj-bp63n8LaqH52Go1Jt7d1YFUSVth2OeWg4PURel8RIW5d0XwyaVVGbDMR2Q",
+                    "kid": "2020-05-01T00:00:01Z",
+                    "alg": "RS256",
+                    "use": "sig",
+                },
+            ]
+        }
+        return jwks
+    return _make_lti13_platform_jwks
