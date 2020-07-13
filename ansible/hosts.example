@@ -59,6 +59,12 @@ all:
       #   lti11_enabled and lti13_enabled are mutually exclusive, therefore
       #   set one to true to enable the desired lti auth standard.
 
+      ### Genaral Options
+      #-------------------
+      # provide a list of admin users separated by commas. Usernames should represent
+      # the normalized username with logging into the system.
+      # admin_users: foo,biz,bar
+
       ### LTI 1.1
       #-------------------
 
