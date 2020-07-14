@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 
-from tests.illumidesk.factory import dummy_lti13_id_token_complete
+from tests.illumidesk.factory import lti13_id_token_complete
 
 
 @pytest.mark.asyncio
@@ -20,7 +20,7 @@ async def test_validator_jwt_verify_and_decode_invokes_retrieve_matching_jwk(mak
     with patch.object(
         validator, '_retrieve_matching_jwk', return_value=None
     ) as mock_retrieve_matching_jwks:
-        _ = await validator.jwt_verify_and_decode(dummy_lti13_id_token_complete, jwks_endoint, True)
+        _ = await validator.jwt_verify_and_decode(lti13_id_token_complete, jwks_endoint, True)
 
         assert mock_retrieve_matching_jwks.called
 
@@ -35,7 +35,7 @@ async def test_validator_jwt_verify_and_decode_raises_an_error_with_no_retrieved
     jwks_endoint = 'https://my.platform.domain/api/lti/security/jwks'
     
     with(pytest.raises(ValueError)):
-        await validator.jwt_verify_and_decode(dummy_lti13_id_token_complete, jwks_endoint, True)
+        await validator.jwt_verify_and_decode(lti13_id_token_complete, jwks_endoint, True)
 
 
 def test_validate_empty_roles_claim_value(make_lti13_resource_link_request):
