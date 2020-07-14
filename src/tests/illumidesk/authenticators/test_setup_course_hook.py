@@ -75,7 +75,12 @@ async def test_setup_course_hook_calls_normalize_strings(
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_raises_json_decode_error_without_client_fetch_response(
-    monkeypatch, setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_mock_request_handler, make_http_response
+    monkeypatch,
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_mock_request_handler,
+    make_http_response,
 ):
     """
     Does the setup course hook raise a json decode error if the response form the setup course
@@ -98,7 +103,11 @@ async def test_setup_course_hook_raises_json_decode_error_without_client_fetch_r
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_calls_add_student_to_jupyterhub_group_when_role_is_learner(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
 ):
     """
     Is the jupyterhub_api add student to jupyterhub group function called when the user role is
@@ -121,7 +130,12 @@ async def test_setup_course_hook_calls_add_student_to_jupyterhub_group_when_role
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_is_learner(
-    monkeypatch, setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_mock_request_handler, make_http_response
+    monkeypatch,
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_mock_request_handler,
+    make_http_response,
 ):
     """
     Is the jupyterhub_api add user to nbgrader gradebook function called when the user role is
@@ -144,7 +158,12 @@ async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_calls_add_instructor_to_jupyterhub_group_when_role_is_instructor(
-    monkeypatch, setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_mock_request_handler, make_http_response
+    monkeypatch,
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_mock_request_handler,
+    make_http_response,
 ):
     """
     Is the jupyterhub_api add instructor to jupyterhub group function called when the user role is
@@ -164,7 +183,11 @@ async def test_setup_course_hook_calls_add_instructor_to_jupyterhub_group_when_r
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_when_role_is_instructor(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
 ):
     """
     Is the jupyterhub_api add student to jupyterhub group function called when the user role is
@@ -191,7 +214,11 @@ async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_w
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_when_role_is_instructor(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
 ):
     """
     Is the jupyterhub_api add student gradebook function called when the user role is
@@ -214,7 +241,11 @@ async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_w
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_does_not_call_add_instructor_to_jupyterhub_group_when_role_is_learner(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
 ):
     """
     Is the jupyterhub_api add instructor to jupyterhub group function not called when the user role is
@@ -238,8 +269,12 @@ async def test_setup_course_hook_does_not_call_add_instructor_to_jupyterhub_grou
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_initialize_data_dict(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
-    ):
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
+):
     """
     Is the data dictionary correctly initialized when properly setting the org env-var and and consistent with the
     course id value in the auth state?
@@ -287,7 +322,11 @@ async def test_setup_course_hook_initializes_url_variable_with_host_and_port(
 
 @pytest.mark.asyncio()
 async def test_is_new_course_initiates_rolling_update(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
 ):
     """
     If the course is a new setup does it initiate a rolling update?

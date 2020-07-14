@@ -8,7 +8,9 @@ from tornado.web import RequestHandler
 
 
 @pytest.mark.asyncio
-async def test_get_method_raises_permission_error_if_pem_file_is_protected(lti_config_environ, make_mock_request_handler):
+async def test_get_method_raises_permission_error_if_pem_file_is_protected(
+    lti_config_environ, make_mock_request_handler
+):
     """
     Is a permission error raised if the private key is protected after calling the
     handler's method?

@@ -14,7 +14,9 @@ from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
-async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authenticator, make_lti11_success_authentication_request_args):
+async def test_authenticator_returns_auth_state_with_canvas_fields(
+    lti11_authenticator, make_lti11_success_authentication_request_args
+):
     """
     Do we get a valid username when sending an argument with the custom canvas id?
     """
@@ -40,7 +42,9 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(lti11_authent
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
-async def test_authenticator_returns_auth_state_with_other_lms_vendor(lti11_authenticator,make_lti11_success_authentication_request_args):
+async def test_authenticator_returns_auth_state_with_other_lms_vendor(
+    lti11_authenticator, make_lti11_success_authentication_request_args
+):
     """
     Do we get a valid username with lms vendors other than canvas?
     """
@@ -74,16 +78,18 @@ async def test_authenticator_uses_lti11validator(make_lti11_success_authenticati
         handler.request = request
 
         handler.request.arguments = make_lti11_success_authentication_request_args('lmsvendor')
-        handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args('lmsvendor')[x][
-            0
-        ].decode()
+        handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args(
+            'lmsvendor'
+        )[x][0].decode()
 
         _ = await authenticator.authenticate(handler, None)
         assert mock_validator.called
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_lti_grades_sender_control_file_when_student(tmp_path, make_lti11_success_authentication_request_args):
+async def test_authenticator_uses_lti_grades_sender_control_file_when_student(
+    tmp_path, make_lti11_success_authentication_request_args
+):
     """
     Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
     Student string?
@@ -103,17 +109,21 @@ async def test_authenticator_uses_lti_grades_sender_control_file_when_student(tm
                 handler = Mock(spec=RequestHandler)
                 request = HTTPServerRequest(method='POST', connection=Mock(),)
                 handler.request = request
-                handler.request.arguments = make_lti11_success_authentication_request_args(lms_vendor='edx', role='Student')
-                handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args('Student')[x][
-                    0
-                ].decode()
+                handler.request.arguments = make_lti11_success_authentication_request_args(
+                    lms_vendor='edx', role='Student'
+                )
+                handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args(
+                    'Student'
+                )[x][0].decode()
 
                 _ = await authenticator.authenticate(handler, None)
                 assert mock_register_data.called
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_lti_grades_sender_control_file_when_learner(tmp_path, make_lti11_success_authentication_request_args):
+async def test_authenticator_uses_lti_grades_sender_control_file_when_learner(
+    tmp_path, make_lti11_success_authentication_request_args
+):
     """
     Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
     Learner string?
@@ -133,17 +143,21 @@ async def test_authenticator_uses_lti_grades_sender_control_file_when_learner(tm
                 handler = Mock(spec=RequestHandler)
                 request = HTTPServerRequest(method='POST', connection=Mock(),)
                 handler.request = request
-                handler.request.arguments = make_lti11_success_authentication_request_args(lms_vendor='canvas', role='Learner')
-                handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args('Learner')[x][
-                    0
-                ].decode()
+                handler.request.arguments = make_lti11_success_authentication_request_args(
+                    lms_vendor='canvas', role='Learner'
+                )
+                handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args(
+                    'Learner'
+                )[x][0].decode()
 
                 _ = await authenticator.authenticate(handler, None)
                 assert mock_register_data.called
 
 
 @pytest.mark.asyncio
-async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_instructor(tmp_path, make_lti11_success_authentication_request_args):
+async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_instructor(
+    tmp_path, make_lti11_success_authentication_request_args
+):
     """
     Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
     Instructor string?
@@ -163,10 +177,12 @@ async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_in
                 handler = Mock(spec=RequestHandler)
                 request = HTTPServerRequest(method='POST', connection=Mock(),)
                 handler.request = request
-                handler.request.arguments = make_lti11_success_authentication_request_args(lms_vendor='canvas', role='Instructor')
-                handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args('Instructor')[
-                    x
-                ][0].decode()
+                handler.request.arguments = make_lti11_success_authentication_request_args(
+                    lms_vendor='canvas', role='Instructor'
+                )
+                handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args(
+                    'Instructor'
+                )[x][0].decode()
 
                 _ = await authenticator.authenticate(handler, None)
                 assert not mock_register_data.called
@@ -184,9 +200,9 @@ async def test_authenticator_invokes_validator_with_decoded_dict(make_lti11_succ
         handler.request = request
         handler.request.protocol = 'https'
         handler.request.arguments = make_lti11_success_authentication_request_args('canvas')
-        handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args('canvas')[x][
-            0
-        ].decode()
+        handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args('canvas')[
+            x
+        ][0].decode()
 
         _ = await authenticator.authenticate(handler, None)
         # check our validator was called
@@ -201,7 +217,9 @@ async def test_authenticator_invokes_validator_with_decoded_dict(make_lti11_succ
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
-async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service_url(lti11_authenticator, make_lti11_success_authentication_request_args):
+async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service_url(
+    lti11_authenticator, make_lti11_success_authentication_request_args
+):
     """
     Are we able to handle requests with a missing lis_outcome_service_url key?
     """
@@ -229,7 +247,9 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
-async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedid(lti11_authenticator,make_lti11_success_authentication_request_args):
+async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedid(
+    lti11_authenticator, make_lti11_success_authentication_request_args
+):
     """
     Are we able to handle requests with a missing lis_result_sourcedid key?
     """
@@ -257,7 +277,9 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
-async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(lti11_authenticator,make_lti11_success_authentication_request_args):
+async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
+    lti11_authenticator, make_lti11_success_authentication_request_args
+):
     """
     Are we able to handle requests with lis_result_sourcedid set to an empty value?
     """
@@ -285,7 +307,9 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
-async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_url(lti11_authenticator, make_lti11_success_authentication_request_args):
+async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_url(
+    lti11_authenticator, make_lti11_success_authentication_request_args
+):
     """
     Are we able to handle requests with lis_outcome_service_url set to an empty value?
     """
@@ -313,7 +337,9 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
-async def test_authenticator_returns_default_workspace_type_when_missing(lti11_validator, make_lti11_success_authentication_request_args):
+async def test_authenticator_returns_default_workspace_type_when_missing(
+    lti11_validator, make_lti11_success_authentication_request_args
+):
     """
     Do we get the default workspace_type when its not sent with the launch request?
     """
@@ -340,7 +366,9 @@ async def test_authenticator_returns_default_workspace_type_when_missing(lti11_v
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
-async def test_authenticator_returns_default_workspace_type_when_unrecognized(lti11_validator, make_lti11_success_authentication_request_args):
+async def test_authenticator_returns_default_workspace_type_when_unrecognized(
+    lti11_validator, make_lti11_success_authentication_request_args
+):
     """
     Do we get the default workspace_type when is not recognized with the launch request?
     """
@@ -367,7 +395,9 @@ async def test_authenticator_returns_default_workspace_type_when_unrecognized(lt
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
-async def test_authenticator_returns_custom_workspace_type_when_set(lti11_validator, make_lti11_success_authentication_request_args):
+async def test_authenticator_returns_custom_workspace_type_when_set(
+    lti11_validator, make_lti11_success_authentication_request_args
+):
     """
     Do we get the custom workspace_type when its sent with the launch request?
     """

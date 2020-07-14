@@ -25,7 +25,9 @@ async def test_authenticator_invokes_lti13validator_handler_get_argument(
 
 
 @pytest.mark.asyncio
-async def test_authenticator_invokes_lti13validator_jwt_verify_and_decode(make_lti13_resource_link_request, make_mock_request_handler):
+async def test_authenticator_invokes_lti13validator_jwt_verify_and_decode(
+    make_lti13_resource_link_request, make_mock_request_handler
+):
     """
     Does the authenticator invoke the LTI13Validator jwt_verify_and_decode method?
     """
@@ -48,7 +50,9 @@ async def test_authenticator_invokes_lti13validator_validate_launch_request(
     """
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
-    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)):
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
         with patch.object(
             LTI13LaunchValidator, 'validate_launch_request', return_value=True
         ) as mock_verify_authentication_request:
@@ -65,7 +69,9 @@ async def test_authenticator_returns_course_id_in_auth_state_with_valid_resource
     """
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
-    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)):
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
             assert result['auth_state']['course_id'] == 'intro101'
@@ -85,9 +91,7 @@ async def test_authenticator_returns_auth_state_name_from_lti13_email_claim(
     lti13_json['given_name'] = ''
     lti13_json['family_name'] = ''
     lti13_json['email'] = 'usertest@example.com'
-    with patch.object(
-        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(lti13_json)
-    ):
+    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(lti13_json)):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
             assert result['name'] == 'usertest'
@@ -190,7 +194,9 @@ async def test_authenticator_returns_workspace_type_in_auth_state(
     """
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
-    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)):
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
 
@@ -206,9 +212,13 @@ async def test_authenticator_returns_learner_role_in_auth_state(
     """
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
-    make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/roles'] = 'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner'
+    make_lti13_resource_link_request[
+        'https://purl.imsglobal.org/spec/lti/claim/roles'
+    ] = 'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner'
 
-    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)):
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
             assert result['auth_state']['user_role'] == 'Learner'
@@ -223,10 +233,14 @@ async def test_authenticator_returns_instructor_role_in_auth_state_with_instruct
     """
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
-    make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/roles'] = ['http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor']
+    make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/roles'] = [
+        'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor'
+    ]
     id_token = build_lti13_jwt_id_token(make_lti13_resource_link_request)
-    
-    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)):
+
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
             assert result['auth_state']['user_role'] == 'Instructor'
@@ -242,8 +256,12 @@ async def test_authenticator_returns_student_role_in_auth_state_with_learner_rol
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
     # set our role to test
-    make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/roles'] = ['http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner']
-    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)):
+    make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/roles'] = [
+        'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner'
+    ]
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
             assert result['auth_state']['user_role'] == 'Learner'
@@ -259,9 +277,13 @@ async def test_authenticator_returns_student_role_in_auth_state_with_student_rol
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
     # set our role to test
-    make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/roles'] = ['http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student']
+    make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/roles'] = [
+        'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student'
+    ]
 
-    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)):
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
             assert result['auth_state']['user_role'] == 'Learner'
@@ -278,7 +300,9 @@ async def test_authenticator_returns_learner_role_in_auth_state_with_empty_roles
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
     make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/roles'] = []
-    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)):
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
             assert result['auth_state']['user_role'] == 'Learner'
@@ -314,7 +338,9 @@ async def test_authenticator_returns_default_workspace_type_with_missing_workspa
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
     # remove the custom claim
     del make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type']
-    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)):
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
             assert result['auth_state']['workspace_type'] == 'notebook'
@@ -368,7 +394,9 @@ async def test_authenticator_returns_theia_workspace_image_with_theia_workspace_
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
     make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type'] = 'theia'
 
-    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)):
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
             assert result['auth_state']['workspace_type'] == 'theia'

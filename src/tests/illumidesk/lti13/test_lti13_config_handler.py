@@ -68,7 +68,9 @@ async def test_get_method_writes_a_json_with_required_keys(mock_write, lti_confi
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
-async def test_get_method_writes_our_company_name_in_the_title_field(mock_write, lti_config_environ, make_mock_request_handler):
+async def test_get_method_writes_our_company_name_in_the_title_field(
+    mock_write, lti_config_environ, make_mock_request_handler
+):
     """
     Does the get method write 'Illumidesk' value as the title in the json?
     """
@@ -85,7 +87,9 @@ async def test_get_method_writes_our_company_name_in_the_title_field(mock_write,
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
-async def test_get_method_writes_email_field_within_custom_fields(mock_write, lti_config_environ, make_mock_request_handler):
+async def test_get_method_writes_email_field_within_custom_fields(
+    mock_write, lti_config_environ, make_mock_request_handler
+):
     """
     Does the get method write 'email' field as a custom_fields?
     """

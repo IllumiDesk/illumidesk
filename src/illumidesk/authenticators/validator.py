@@ -1,5 +1,4 @@
 import json
-from sys import platform
 import jwt
 import time
 
@@ -9,7 +8,6 @@ from josepy.jws import JWS
 from josepy.jws import Header
 
 from oauthlib.oauth1.rfc5849 import signature
-from requests.api import head
 
 from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
@@ -145,10 +143,10 @@ class LTI13LaunchValidator(LoggingConfigurable):
         resp = await client.fetch(endpoint, validate_cert=verify)
         platform_jwks = json.loads(resp.body)
         self.log.debug('Retrieved jwks from lms platform %s' % platform_jwks)
-        
+
         if not platform_jwks or 'keys' not in platform_jwks:
             raise ValueError('Platform endpoint returned an empty jwks')
-        
+
         key = None
         for jwk in platform_jwks['keys']:
             if jwk['kid'] != header_kid:
@@ -159,7 +157,7 @@ class LTI13LaunchValidator(LoggingConfigurable):
             error_msg = f'There is not a key matching in the platform jwks for the jwt received. kid: {header_kid}'
             self.log.debug(error_msg)
             raise ValueError(error_msg)
-        
+
         return key
 
     async def jwt_verify_and_decode(
@@ -188,8 +186,8 @@ class LTI13LaunchValidator(LoggingConfigurable):
         self.log.debug('Header from decoded jwt %s' % header)
 
         key_from_jwks = await self._retrieve_matching_jwk(jwks_endpoint, verify, header.kid)
-        self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (id_token, key_from_jwks, verify))        
-        
+        self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (id_token, key_from_jwks, verify))
+
         return jwt.decode(id_token, key=key_from_jwks, verify=False, audience=audience)
 
     def validate_launch_request(self, jwt_decoded: Dict[str, Any],) -> bool:

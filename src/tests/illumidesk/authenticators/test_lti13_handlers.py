@@ -70,9 +70,7 @@ async def test_lti_13_login_handler_invokes_validate_login_request_method(
 
 
 @pytest.mark.asyncio
-async def test_lti_13_login_handler_invokes_redirect_method(
-    monkeypatch, lti13_auth_params, make_mock_request_handler
-):
+async def test_lti_13_login_handler_invokes_redirect_method(monkeypatch, lti13_auth_params, make_mock_request_handler):
     """
     Does the LTI13LoginHandler call the redirect function once it
     receiving the post request?

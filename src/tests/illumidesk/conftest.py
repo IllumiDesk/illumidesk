@@ -312,6 +312,7 @@ def make_mock_request_handler() -> RequestHandler:
     """
     Sourced from https://github.com/jupyterhub/oauthenticator/blob/master/oauthenticator/tests/mocks.py
     """
+
     def _make_mock_request_handler(
         handler: RequestHandler, uri: str = 'https://hub.example.com', method: str = 'GET', **settings: dict
     ) -> RequestHandler:
@@ -326,6 +327,7 @@ def make_mock_request_handler() -> RequestHandler:
         handler = RequestHandler(application=application, request=request,)
         handler._transforms = []
         return handler
+
     return _make_mock_request_handler
 
 
@@ -367,8 +369,14 @@ def make_http_response() -> HTTPResponse:
         """
         dict_to_buffer = StringIO(json.dumps(body)) if body is not None else None
         return HTTPResponse(
-            request=handler, code=code, reason=reason, headers=headers, effective_url=effective_url, buffer=dict_to_buffer
+            request=handler,
+            code=code,
+            reason=reason,
+            headers=headers,
+            effective_url=effective_url,
+            buffer=dict_to_buffer,
         )
+
     return _make_http_response
 
 
@@ -392,12 +400,14 @@ def make_auth_state_dict() -> Dict[str, str]:
     """
     Creates an authentication dictionary with default name and auth_state k/v's
     """
+
     def _make_auth_state_dict(
         username: str = 'foo',
         course_id: str = 'intro101',
         lms_user_id: str = 'abc123',
         user_role: str = 'Learner',
-        workspace_type: str = 'notebook'):
+        workspace_type: str = 'notebook',
+    ):
         return {
             'name': username,
             'auth_state': {
@@ -407,14 +417,17 @@ def make_auth_state_dict() -> Dict[str, str]:
                 'workspace_type': workspace_type,
             },  # noqa: E231
         }
+
     return _make_auth_state_dict
 
 
 @pytest.fixture(scope='function')
 def make_lti11_basic_launch_request_args() -> Dict[str, str]:
-    def _make_lti11_basic_launch_args(oauth_consumer_key: str = 'my_consumer_key', oauth_consumer_secret: str = 'my_shared_secret',):
+    def _make_lti11_basic_launch_args(
+        oauth_consumer_key: str = 'my_consumer_key', oauth_consumer_secret: str = 'my_shared_secret',
+    ):
         oauth_timestamp = str(int(time.time()))
-        oauth_nonce = secrets.token_urlsafe(32)        
+        oauth_nonce = secrets.token_urlsafe(32)
         args = {
             'lti_message_type': 'basic-lti-launch-request',
             'lti_version': 'LTI-1p0'.encode(),
@@ -441,8 +454,8 @@ def make_lti11_basic_launch_request_args() -> Dict[str, str]:
 
         args['oauth_signature'] = signature.sign_hmac_sha1(base_string, oauth_consumer_secret, None)
         return args
-    return _make_lti11_basic_launch_args
 
+    return _make_lti11_basic_launch_args
 
 
 @pytest.fixture(scope='function')
@@ -498,6 +511,7 @@ def make_lti11_success_authentication_request_args():
             'user_image': ['https://lms.example.com/avatar-50.png'.encode()],
         }
         return args
+
     return _make_lti11_success_authentication_request_args
 
 
@@ -625,6 +639,7 @@ def make_lti13_platform_jwks() -> Dict[str, List[Dict[str, str]]]:
             ]
         }
         return jwks
+
     return _make_lti13_platform_jwks
 
 
