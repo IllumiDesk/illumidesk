@@ -2,31 +2,31 @@ from io import StringIO
 import json
 import jwt
 import pytest
+import os
 import secrets
 import time
 import uuid
 
 from Crypto.PublicKey import RSA
 
-from tornado.web import Application
-from tornado.web import RequestHandler
-
-from unittest.mock import patch
-from unittest.mock import Mock
-
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 from illumidesk.authenticators.utils import LTIUtils
 
 from oauthlib.oauth1.rfc5849 import signature
 
+from tornado.web import Application
+from tornado.web import RequestHandler
+
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpclient import HTTPResponse
 from tornado.httputil import HTTPHeaders
-
-from tests.illumidesk.mocks import mock_handler
+from tornado.httputil import HTTPServerRequest
 
 from typing import Dict
 from typing import List
+
+from unittest.mock import patch
+from unittest.mock import Mock
 
 
 @pytest.fixture(scope='module')
@@ -308,6 +308,28 @@ def test_quart_client(monkeypatch, tmp_path):
 
 
 @pytest.fixture(scope='function')
+def make_mock_request_handler() -> RequestHandler:
+    """
+    Sourced from https://github.com/jupyterhub/oauthenticator/blob/master/oauthenticator/tests/mocks.py
+    """
+    def _make_mock_request_handler(
+        handler: RequestHandler, uri: str = 'https://hub.example.com', method: str = 'GET', **settings: dict
+    ) -> RequestHandler:
+        """Instantiate a Handler in a mock application"""
+        application = Application(
+            hub=Mock(base_url='/hub/', server=Mock(base_url='/hub/'),),
+            cookie_secret=os.urandom(32),
+            db=Mock(rollback=Mock(return_value=None)),
+            **settings,
+        )
+        request = HTTPServerRequest(method=method, uri=uri, connection=Mock(),)
+        handler = RequestHandler(application=application, request=request,)
+        handler._transforms = []
+        return handler
+    return _make_mock_request_handler
+
+
+@pytest.fixture(scope='function')
 def make_http_response() -> HTTPResponse:
     async def _make_http_response(
         handler: RequestHandler,
@@ -351,11 +373,11 @@ def make_http_response() -> HTTPResponse:
 
 
 @pytest.fixture(scope='function')
-def http_async_httpclient_with_simple_response(request, make_http_response):
+def http_async_httpclient_with_simple_response(request, make_http_response, make_mock_request_handler):
     """
     Creates a patch of AsyncHttpClient.fetch method, useful when other tests are making http request
     """
-    local_handler = mock_handler(RequestHandler)
+    local_handler = make_mock_request_handler(RequestHandler)
     test_request_body_param = request.param if hasattr(request, 'param') else {'message': 'ok'}
     with patch.object(
         AsyncHTTPClient,

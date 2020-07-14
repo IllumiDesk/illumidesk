@@ -16,8 +16,6 @@ from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 
-from tests.illumidesk.mocks import mock_handler
-
 
 @pytest.mark.asyncio
 async def test_setup_course_hook_is_assigned_to_lti11_authenticator_post_auth_hook():
@@ -38,14 +36,16 @@ async def test_setup_course_hook_is_assigned_to_lti13_authenticator_post_auth_ho
 
 
 @pytest.mark.asyncio()
-async def test_setup_course_hook_raises_environment_error_with_missing_org(monkeypatch, make_auth_state_dict, setup_course_hook_environ):
+async def test_setup_course_hook_raises_environment_error_with_missing_org(
+    monkeypatch, make_auth_state_dict, setup_course_hook_environ, make_mock_request_handler
+):
     """
     Is an environment error raised when the organization name is missing when calling
     the setup_course_hook function?
     """
     monkeypatch.setenv('ORGANIZATION_NAME', '')
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict()
     with pytest.raises(EnvironmentError):
         await local_authenticator.post_auth_hook(local_authenticator, local_handler, local_authentication)
@@ -53,14 +53,14 @@ async def test_setup_course_hook_raises_environment_error_with_missing_org(monke
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_raises_json_decode_error_without_client_fetch_response(
-    monkeypatch, setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response
+    monkeypatch, setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_mock_request_handler, make_http_response
 ):
     """
     Does the setup course hook raise a json decode error if the response form the setup course
     microservice is null or empty?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict()
 
     with patch.object(
@@ -76,14 +76,14 @@ async def test_setup_course_hook_raises_json_decode_error_without_client_fetch_r
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_calls_add_student_to_jupyterhub_group_when_role_is_learner(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response
+    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
 ):
     """
     Is the jupyterhub_api add student to jupyterhub group function called when the user role is
     the learner role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict()
 
     with patch.object(
@@ -99,14 +99,14 @@ async def test_setup_course_hook_calls_add_student_to_jupyterhub_group_when_role
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_is_learner(
-    monkeypatch, setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response
+    monkeypatch, setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_mock_request_handler, make_http_response
 ):
     """
     Is the jupyterhub_api add user to nbgrader gradebook function called when the user role is
     the learner role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict()
 
     with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
@@ -122,14 +122,14 @@ async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_calls_add_instructor_to_jupyterhub_group_when_role_is_instructor(
-    monkeypatch, setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response
+    monkeypatch, setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_mock_request_handler, make_http_response
 ):
     """
     Is the jupyterhub_api add instructor to jupyterhub group function called when the user role is
     the instructor role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict(user_role='Instructor')
 
     with patch.object(
@@ -142,14 +142,14 @@ async def test_setup_course_hook_calls_add_instructor_to_jupyterhub_group_when_r
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_when_role_is_instructor(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response
+    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
 ):
     """
     Is the jupyterhub_api add student to jupyterhub group function called when the user role is
     the instructor role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict(user_role='Instructor')
     response_args = {'handler': local_handler.request}
 
@@ -169,14 +169,14 @@ async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_w
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_when_role_is_instructor(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response
+    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
 ):
     """
     Is the jupyterhub_api add student gradebook function called when the user role is
     the instructor role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict(user_role='Instructor')
 
     with patch.object(
@@ -192,14 +192,14 @@ async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_w
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_does_not_call_add_instructor_to_jupyterhub_group_when_role_is_learner(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response
+    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
 ):
     """
     Is the jupyterhub_api add instructor to jupyterhub group function not called when the user role is
     the learner role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict()
 
     with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
@@ -216,14 +216,14 @@ async def test_setup_course_hook_does_not_call_add_instructor_to_jupyterhub_grou
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_initialize_data_dict(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response
+    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
     ):
     """
     Is the data dictionary correctly initialized when properly setting the org env-var and and consistent with the
     course id value in the auth state?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict()
 
     expected_data = {
@@ -265,12 +265,13 @@ async def test_setup_course_hook_initializes_url_variable_with_host_and_port(
 
 @pytest.mark.asyncio()
 async def test_is_new_course_initiates_rolling_update(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response):
+    setup_course_environ, setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler
+):
     """
     If the course is a new setup does it initiate a rolling update?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = mock_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict()
 
     response_args = {'handler': local_handler.request, 'body': {'is_new_setup': True}}
