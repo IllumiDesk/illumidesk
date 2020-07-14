@@ -1,6 +1,6 @@
 {
     "name": "illumidesk",
-    "version": "0.8.0",
+    "version": "0.8.1",
     "description": "Teach and learning with web-based notebooks!",
     "scripts": {
         "release": "standard-version"
@@ -13,6 +13,6 @@
     },
     "license": "MIT",
     "devDependencies": {
-        "standard-version": "^8.0.0"
+        "standard-version": "^8.0.1"
     }
 }

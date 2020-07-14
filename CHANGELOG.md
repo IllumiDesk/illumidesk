@@ -1,6 +1,18 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines. For a more complete description of this project's features, [visit the IllumiDesk docs](https://docs.illumidesk.com).
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+### 0.8.1 (2020-07-11)
+
+
+### Features
+
+* Add Java kernel ([#187](https://github.com/IllumiDesk/illumidesk/issues/187)) ([5800408](https://github.com/IllumiDesk/illumidesk/commit/5800408c1285a669f3ed95d53e4c12fc799d0800))
+* Improve deployment times with ansible-playbook by updating setup-course base image ([#199](https://github.com/IllumiDesk/illumidesk/pull/199)) ([a958f57](https://github.com/IllumiDesk/illumidesk/commit/a958f578c9cfddda531590c0548e2927a2e52842))
+
+### Bug Fixes
+
+* Normalize course label for LTI 1.3 ([#198](https://github.com/IllumiDesk/illumidesk/issues/198)) ([4d5cffe](https://github.com/IllumiDesk/illumidesk/commit/4d5cffe4641b4b114ca8a944438d1ed52d248679))
 
 ## 0.8.0 (2020-07-08)
 

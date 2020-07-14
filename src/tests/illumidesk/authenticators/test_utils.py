@@ -9,62 +9,62 @@ from unittest.mock import Mock
 from illumidesk.authenticators.utils import LTIUtils
 
 
-def test_normalize_name_for_containers_raises_value_error_with_missing_name():
+def test_normalize_string_raises_value_error_with_missing_name():
     """
     Does a missing container name raise a value error?
     """
     container_name = ''
     utils = LTIUtils()
     with pytest.raises(ValueError):
-        normalized_container_name = utils.normalize_name_for_containers(container_name)
+        normalized_container_name = utils.normalize_string(container_name)
 
 
-def test_normalize_name_for_containers_return_false_with_missing_name():
+def test_normalize_string_return_false_with_missing_name():
     """
     Does a missing container name raise a value error?
     """
     container_name = ''
     utils = LTIUtils()
     with pytest.raises(ValueError):
-        normalized_container_name = utils.normalize_name_for_containers(container_name)
+        normalized_container_name = utils.normalize_string(container_name)
 
 
-def test_normalize_name_for_containers_with_long_name():
+def test_normalize_string_with_long_name():
     """
     Does a container name with more than 20 characters get normalized?
     """
     container_name = 'this_is_a_really_long_container_name'
     utils = LTIUtils()
-    normalized_container_name = utils.normalize_name_for_containers(container_name)
+    normalized_container_name = utils.normalize_string(container_name)
 
     assert len(normalized_container_name) <= 20
 
 
-def test_normalize_name_for_containers_with_special_characters():
+def test_normalize_string_with_special_characters():
     """
     Does a container name with with special characters get normalized?
     """
     container_name = '#$%_this_is_a_container_name'
     utils = LTIUtils()
-    normalized_container_name = utils.normalize_name_for_containers(container_name)
+    normalized_container_name = utils.normalize_string(container_name)
     regex = re.compile('[@!#$%^&*()<>?/\\|}{~:]')
 
     assert regex.search(normalized_container_name) is None
 
 
-def test_normalize_name_for_containers_with_first_letter_as_alphanumeric():
+def test_normalize_string_with_first_letter_as_alphanumeric():
     """
     Does a container name with start with an alphanumeric character?
     """
     container_name = '___this_is_a_container_name'
     utils = LTIUtils()
-    normalized_container_name = utils.normalize_name_for_containers(container_name)
+    normalized_container_name = utils.normalize_string(container_name)
     regex = re.compile('_.-')
     first_character = normalized_container_name[0]
     assert first_character != regex.search(normalized_container_name)
 
 
-def test_normalize_name_for_containers_raises_value_error_with_missing_name():
+def test_normalize_string_raises_value_error_with_missing_name():
     """
     Does a missing container name raise a value error?
     """
@@ -72,7 +72,7 @@ def test_normalize_name_for_containers_raises_value_error_with_missing_name():
     utils = LTIUtils()
 
     with pytest.raises(ValueError):
-        utils.normalize_name_for_containers(container_name)
+        utils.normalize_string(container_name)
 
 
 def test_get_protocol_with_more_than_one_value():

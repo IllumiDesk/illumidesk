@@ -15,6 +15,7 @@ from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
+from illumidesk.authenticators.utils import LTIUtils
 
 
 @pytest.mark.asyncio
@@ -49,6 +50,27 @@ async def test_setup_course_hook_raises_environment_error_with_missing_org(
     local_authentication = make_auth_state_dict()
     with pytest.raises(EnvironmentError):
         await local_authenticator.post_auth_hook(local_authenticator, local_handler, local_authentication)
+
+
+@pytest.mark.asyncio()
+async def test_setup_course_hook_calls_normalize_strings(
+    auth_state_dict, setup_course_environ, setup_course_hook_environ, make_mock_request_handler, make_http_response
+):
+    """
+    Does the setup_course_hook return normalized strings for the username and the course_id?
+    """
+    local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_authentication = auth_state_dict
+
+    with patch.object(LTIUtils, 'normalize_string', return_value='intro101') as mock_normalize_string:
+        with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
+            with patch.object(JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None):
+                with patch.object(
+                    AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)
+                ):
+                    _ = await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                    assert mock_normalize_string.called
 
 
 @pytest.mark.asyncio()

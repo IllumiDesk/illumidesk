@@ -54,15 +54,18 @@ async def setup_course_hook(
     Returns:
         authentication (Required): updated authentication object
     """
+    lti_utils = LTIUtils()
+    jupyterhub_api = JupyterHubAPI()
+
     announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
     org = os.environ.get('ORGANIZATION_NAME')
     if not org:
         raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
-    username = authentication['name']
+    # normalize the name and course_id strings in authentication dictionary
+    course_id = lti_utils.normalize_string(authentication['auth_state']['course_id'])
+    username = lti_utils.normalize_string(authentication['name'])
     lms_user_id = authentication['auth_state']['lms_user_id']
-    course_id = authentication['auth_state']['course_id']
     user_role = authentication['auth_state']['user_role']
-    jupyterhub_api = JupyterHubAPI()
     # TODO: verify the logic to simplify groups creation and membership
     if user_role == 'Student' or user_role == 'Learner':
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
@@ -172,8 +175,7 @@ class LTI11Authenticator(LTIAuthenticator):
             # runs as a docker container we need to normalize the string so we can use it
             # as a container name.
             if 'context_label' in args and args['context_label'] is not None:
-                course_label = args['context_label']
-                course_id = lti_utils.normalize_name_for_containers(course_label)
+                course_id = args['context_label']
                 self.log.debug('Course context_label normalized to: %s' % course_id)
             else:
                 raise HTTPError(400, 'Course label not included in the LTI request')
@@ -340,11 +342,11 @@ class LTI13Authenticator(OAuthenticator):
             if 'email' in jwt_decoded.keys() and jwt_decoded.get('email'):
                 username = lti_utils.email_to_username(jwt_decoded['email'])
             elif 'name' in jwt_decoded.keys() and jwt_decoded.get('name'):
-                username = lti_utils.normalize_name_for_containers(jwt_decoded.get('name'))
+                username = jwt_decoded.get('name')
             elif 'given_name' in jwt_decoded.keys() and jwt_decoded.get('given_name'):
-                username = lti_utils.normalize_name_for_containers(jwt_decoded.get('given_name'))
+                username = jwt_decoded.get('given_name')
             elif 'family_name' in jwt_decoded.keys() and jwt_decoded.get('family_name'):
-                username = lti_utils.normalize_name_for_containers(jwt_decoded.get('family_name'))
+                username = jwt_decoded.get('family_name')
             elif (
                 'person_sourcedid' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']
                 and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid']

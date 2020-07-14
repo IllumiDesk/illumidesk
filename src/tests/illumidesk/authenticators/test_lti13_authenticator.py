@@ -102,7 +102,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_name(
     """
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
-    make_lti13_resource_link_request['name'] = 'user1'
+    make_lti13_resource_link_request['name'] = 'Foo'
     make_lti13_resource_link_request['given_name'] = ''
     make_lti13_resource_link_request['family_name'] = ''
     make_lti13_resource_link_request['email'] = ''
@@ -111,8 +111,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_name(
     ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
-
-            assert result['name'] == 'user1'
+            assert result['name'] == 'Foo'
 
 
 @pytest.mark.asyncio
@@ -125,7 +124,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_given_name
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
     make_lti13_resource_link_request['name'] = ''
-    make_lti13_resource_link_request['given_name'] = 'user test'
+    make_lti13_resource_link_request['given_name'] = 'Foo Bar'
     make_lti13_resource_link_request['family_name'] = ''
     make_lti13_resource_link_request['email'] = ''
     with patch.object(
@@ -133,8 +132,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_given_name
     ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
-
-            assert result['name'] == 'usertest'
+            assert result['name'] == 'Foo Bar'
 
 
 @pytest.mark.asyncio
@@ -156,7 +154,7 @@ async def test_authenticator_returns_username_in_auth_state_with_family_name(
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
 
-            assert result['name'] == 'familyname'
+            assert result['name'] == 'Family name'
 
 
 @pytest.mark.asyncio
