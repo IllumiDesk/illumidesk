@@ -7,11 +7,10 @@ from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 
-from tests.illumidesk.factory import lti13_id_token_complete
 
 
 @pytest.mark.asyncio
-async def test_validator_jwt_verify_and_decode_invokes_retrieve_matching_jwk(make_lti13_platform_jwks):
+async def test_validator_jwt_verify_and_decode_invokes_retrieve_matching_jwk(make_lti13_resource_link_request, make_lti13_jwt_id_token):
     """
     Does the validator jwt_verify_and_decode method invoke the retrieve_matching_jwk method?
     """
@@ -20,13 +19,15 @@ async def test_validator_jwt_verify_and_decode_invokes_retrieve_matching_jwk(mak
     with patch.object(
         validator, '_retrieve_matching_jwk', return_value=None
     ) as mock_retrieve_matching_jwks:
-        _ = await validator.jwt_verify_and_decode(lti13_id_token_complete, jwks_endoint, True)
+        _ = await validator.jwt_verify_and_decode(make_lti13_jwt_id_token(make_lti13_resource_link_request), jwks_endoint, True)
 
         assert mock_retrieve_matching_jwks.called
 
 
 @pytest.mark.asyncio
-async def test_validator_jwt_verify_and_decode_raises_an_error_with_no_retrieved_platform_keys(http_async_httpclient_with_simple_response):
+async def test_validator_jwt_verify_and_decode_raises_an_error_with_no_retrieved_platform_keys(
+    http_async_httpclient_with_simple_response, make_lti13_resource_link_request, make_lti13_jwt_id_token
+):
     """
     Does the validator jwt_verify_and_decode method return None when no keys are returned from the
     retrieve_matching_jwk method?
@@ -35,7 +36,7 @@ async def test_validator_jwt_verify_and_decode_raises_an_error_with_no_retrieved
     jwks_endoint = 'https://my.platform.domain/api/lti/security/jwks'
     
     with(pytest.raises(ValueError)):
-        await validator.jwt_verify_and_decode(lti13_id_token_complete, jwks_endoint, True)
+        await validator.jwt_verify_and_decode(make_lti13_jwt_id_token(make_lti13_resource_link_request), jwks_endoint, True)
 
 
 def test_validate_empty_roles_claim_value(make_lti13_resource_link_request):
@@ -43,7 +44,7 @@ def test_validate_empty_roles_claim_value(make_lti13_resource_link_request):
     Is the JWT valid with an empty roles claim value?
     """
     validator = LTI13LaunchValidator()
-    jws = make_lti13_resource_link_request()
+    jws = make_lti13_resource_link_request
     jws['https://purl.imsglobal.org/spec/lti/claim/roles'] = ''
 
     assert validator.validate_launch_request(jws)
@@ -89,7 +90,7 @@ def test_validate_invalid_resource_link_request_message_type_claim_value(make_lt
     Is the JWT valid with an incorrect message type claim?
     """
     validator = LTI13LaunchValidator()
-    jws = make_lti13_resource_link_request()
+    jws = make_lti13_resource_link_request
     jws['https://purl.imsglobal.org/spec/lti/claim/message_type'] = 'FakeLinkRequest'
 
     with pytest.raises(HTTPError):
@@ -101,7 +102,7 @@ def test_validate_invalid_version_request_claim_value(make_lti13_resource_link_r
     Is the JWT valid with an incorrect version claim?
     """
     validator = LTI13LaunchValidator()
-    jws = make_lti13_resource_link_request()
+    jws = make_lti13_resource_link_request
     jws['https://purl.imsglobal.org/spec/lti/claim/version'] = '1.0.0'
 
     with pytest.raises(HTTPError):
@@ -113,7 +114,7 @@ def test_validate_empty_conext_label_claim_value(make_lti13_resource_link_reques
     Is the JWT valid with an empty context label claim?
     """
     validator = LTI13LaunchValidator()
-    jws = make_lti13_resource_link_request()
+    jws = make_lti13_resource_link_request
     jws['https://purl.imsglobal.org/spec/lti/claim/context']['label'] = ''
 
     with pytest.raises(HTTPError):
@@ -125,7 +126,7 @@ def test_validate_empty_deployment_id_request_claim_value(make_lti13_resource_li
     Is the JWT valid with an empty deployment_id claim?
     """
     validator = LTI13LaunchValidator()
-    jws = make_lti13_resource_link_request()
+    jws = make_lti13_resource_link_request
     jws['https://purl.imsglobal.org/spec/lti/claim/deployment_id'] = ''
 
     assert validator.validate_launch_request(jws) is True
@@ -136,7 +137,7 @@ def test_validate_empty_target_link_uri_request_claim_value(make_lti13_resource_
     Is the JWT valid with an empty target link uri claim?
     """
     validator = LTI13LaunchValidator()
-    jws = make_lti13_resource_link_request()
+    jws = make_lti13_resource_link_request
     jws['https://purl.imsglobal.org/spec/lti/claim/target_link_uri'] = ''
 
     assert validator.validate_launch_request(jws) is True
@@ -147,7 +148,7 @@ def test_validate_empty_resource_link_id_request_claim_value(make_lti13_resource
     Is the JWT valid with an empty resource request id uri claim?
     """
     validator = LTI13LaunchValidator()
-    jws = make_lti13_resource_link_request()
+    jws = make_lti13_resource_link_request
     jws['https://purl.imsglobal.org/spec/lti/claim/resource_link']['id'] = ''
 
     with pytest.raises(HTTPError):
@@ -159,7 +160,7 @@ def test_validate_empty_context_label_request_claim_value(make_lti13_resource_li
     Is the JWT valid with an empty resource request id uri claim?
     """
     validator = LTI13LaunchValidator()
-    jws = make_lti13_resource_link_request()
+    jws = make_lti13_resource_link_request
     jws['https://purl.imsglobal.org/spec/lti/claim/context']['label'] = ''
 
     with pytest.raises(HTTPError):
