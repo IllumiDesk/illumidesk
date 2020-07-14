@@ -607,7 +607,7 @@ def make_lti13_platform_jwks() -> Dict[str, List[Dict[str, str]]]:
 
 
 @pytest.fixture(scope='function')
-def make_lti13_jwt_id_token() -> str:
+def build_lti13_jwt_id_token() -> str:
     def _make_lti13_jwt_id_token(json_lti13_launch_request: Dict[str, str]):
         """
         Returns a valid jwt lti13 id token from a json
@@ -616,4 +616,4 @@ def make_lti13_jwt_id_token() -> str:
         encoded_jwt = jwt.encode(json_lti13_launch_request, 'secret', algorithm='HS256')
         return encoded_jwt
 
-    return _make_lti13_jwt_id_token        
+    return _make_lti13_jwt_id_token

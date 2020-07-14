@@ -10,7 +10,7 @@ from illumidesk.authenticators.validator import LTI13LaunchValidator
 
 
 @pytest.mark.asyncio
-async def test_validator_jwt_verify_and_decode_invokes_retrieve_matching_jwk(make_lti13_resource_link_request, make_lti13_jwt_id_token):
+async def test_validator_jwt_verify_and_decode_invokes_retrieve_matching_jwk(make_lti13_resource_link_request, build_lti13_jwt_id_token):
     """
     Does the validator jwt_verify_and_decode method invoke the retrieve_matching_jwk method?
     """
@@ -19,14 +19,14 @@ async def test_validator_jwt_verify_and_decode_invokes_retrieve_matching_jwk(mak
     with patch.object(
         validator, '_retrieve_matching_jwk', return_value=None
     ) as mock_retrieve_matching_jwks:
-        _ = await validator.jwt_verify_and_decode(make_lti13_jwt_id_token(make_lti13_resource_link_request), jwks_endoint, True)
+        _ = await validator.jwt_verify_and_decode(build_lti13_jwt_id_token(make_lti13_resource_link_request), jwks_endoint, True)
 
         assert mock_retrieve_matching_jwks.called
 
 
 @pytest.mark.asyncio
 async def test_validator_jwt_verify_and_decode_raises_an_error_with_no_retrieved_platform_keys(
-    http_async_httpclient_with_simple_response, make_lti13_resource_link_request, make_lti13_jwt_id_token
+    http_async_httpclient_with_simple_response, make_lti13_resource_link_request, build_lti13_jwt_id_token
 ):
     """
     Does the validator jwt_verify_and_decode method return None when no keys are returned from the
@@ -36,7 +36,7 @@ async def test_validator_jwt_verify_and_decode_raises_an_error_with_no_retrieved
     jwks_endoint = 'https://my.platform.domain/api/lti/security/jwks'
     
     with(pytest.raises(ValueError)):
-        await validator.jwt_verify_and_decode(make_lti13_jwt_id_token(make_lti13_resource_link_request), jwks_endoint, True)
+        await validator.jwt_verify_and_decode(build_lti13_jwt_id_token(make_lti13_resource_link_request), jwks_endoint, True)
 
 
 def test_validate_empty_roles_claim_value(make_lti13_resource_link_request):
