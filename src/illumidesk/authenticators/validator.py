@@ -181,7 +181,7 @@ class LTI13LaunchValidator(LoggingConfigurable):
             self.log.debug('JWK verification is off, returning token %s' % jwt.decode(id_token, verify=False))
             return jwt.decode(id_token, verify=False)
 
-        jws = JWS.from_compact(bytes(id_token, 'utf-8'))
+        jws = JWS.from_compact(id_token)
         self.log.debug('Retrieving matching jws %s' % jws)
         json_header = jws.signature.protected
         header = Header.json_loads(json_header)

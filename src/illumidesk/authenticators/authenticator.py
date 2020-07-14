@@ -394,7 +394,6 @@ class LTI13Authenticator(OAuthenticator):
                     'user_role': user_role,
                     'workspace_type': workspace_type,
                     'course_lineitems': course_lineitems,
-                    'user_role': user_role,
                     'lms_user_id': lms_user_id,
                 },  # noqa: E231
             }
