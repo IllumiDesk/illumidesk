@@ -61,9 +61,9 @@ all:
 
       ### Genaral Options
       #-------------------
-      # provide a list of admin users separated by commas. Usernames should represent
-      # the normalized username with logging into the system.
-      # admin_users: foo,biz,bar
+      # provide a string of that represents one admin user. Username should represent
+      # the normalized username once logged into the system.
+      # admin_user: foo
 
       ### LTI 1.1
       #-------------------
