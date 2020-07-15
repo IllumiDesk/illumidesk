@@ -164,7 +164,7 @@ c.Authenticator.whitelist = [
 # BEGIN GENERAL AUTHENTICATION
 ##########################################
 
-admin_user = os.environ.get('JUPYTERHUB_ADMIN_USERS')
+admin_user = os.environ.get('JUPYTERHUB_ADMIN_USER')
 # Add other admin users as needed
 c.Authenticator.admin_users = {
     admin_user,
