@@ -117,9 +117,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_name(monke
     ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
-            monkeypatch.setitem(auth_state_dict, 'name', 'foo')
-
-            assert result['name'] == auth_state_dict['name']
+            assert result['name'] == 'Foo'
 
 
 @pytest.mark.asyncio
@@ -134,9 +132,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_given_name
     ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
-            monkeypatch.setitem(auth_state_dict, 'name', 'foobar')
-
-            assert result['name'] == auth_state_dict['name']
+            assert result['name'] == 'Foo Bar'
 
 
 @pytest.mark.asyncio
@@ -151,8 +147,7 @@ async def test_authenticator_returns_username_in_auth_state_with_family_name(mon
     ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
-            monkeypatch.setitem(auth_state_dict, 'name', 'bar')
-
+            auth_state_dict['name'] = 'Bar'
             assert result['name'] == auth_state_dict['name']
 
 
