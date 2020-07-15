@@ -9,16 +9,6 @@ from unittest.mock import Mock
 from illumidesk.authenticators.utils import LTIUtils
 
 
-def test_normalize_string_raises_value_error_with_missing_name():
-    """
-    Does a missing container name raise a value error?
-    """
-    container_name = ''
-    utils = LTIUtils()
-    with pytest.raises(ValueError):
-        normalized_container_name = utils.normalize_string(container_name)
-
-
 def test_normalize_string_return_false_with_missing_name():
     """
     Does a missing container name raise a value error?
@@ -26,7 +16,7 @@ def test_normalize_string_return_false_with_missing_name():
     container_name = ''
     utils = LTIUtils()
     with pytest.raises(ValueError):
-        normalized_container_name = utils.normalize_string(container_name)
+        utils.normalize_string(container_name)
 
 
 def test_normalize_string_with_long_name():

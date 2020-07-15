@@ -238,7 +238,6 @@ class LTI11Authenticator(LTIAuthenticator):
                     username = args['user_id']
                 else:
                     raise HTTPError(400, 'Unable to get username from request arguments')
-            self.log.debug('Assigned username is: %s' % username)
 
             # use the user_id to identify the unique user id, if its not sent with the request
             # then default to the username
@@ -261,8 +260,12 @@ class LTI11Authenticator(LTIAuthenticator):
                         assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
                     )
 
+            # ensure the user name is normalized
+            username_normalized = lti_utils.normalize_string(username)
+            self.log.debug('Assigned username is: %s' % username_normalized)
+
             return {
-                'name': username,
+                'name': username_normalized,
                 'auth_state': {
                     'course_id': course_id,
                     'lms_user_id': lms_user_id,
@@ -354,6 +357,8 @@ class LTI13Authenticator(OAuthenticator):
                 username = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid'].lower()
             if username == '':
                 raise HTTPError('Unable to set the username')
+            # ensure the username is normalized
+            username_normalized = lti_utils.normalize_string(username)
             self.log.debug('username is %s' % username)
 
             # assign a workspace type, if provided, otherwise defaults to jupyter classic nb
@@ -389,8 +394,12 @@ class LTI13Authenticator(OAuthenticator):
             if 'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded:
                 course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
 
+            # ensure the user name is normalized
+            username_normalized = lti_utils.normalize_string(username)
+            self.log.debug('Assigned username is: %s' % username_normalized)
+
             return {
-                'name': username,
+                'name': username_normalized,
                 'auth_state': {
                     'course_id': course_id,
                     'user_role': user_role,

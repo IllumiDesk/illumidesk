@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.authenticator import LTI11Authenticator
+from illumidesk.authenticators.authenticator import LTIUtils
 from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 
@@ -70,6 +71,9 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(
 
 @pytest.mark.asyncio
 async def test_authenticator_uses_lti11validator(make_lti11_success_authentication_request_args):
+    """
+    Ensure that we call the LTI11Validator from the LTI11Authenticator.
+    """
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True) as mock_validator:
 
         authenticator = LTI11Authenticator()
@@ -84,6 +88,27 @@ async def test_authenticator_uses_lti11validator(make_lti11_success_authenticati
 
         _ = await authenticator.authenticate(handler, None)
         assert mock_validator.called
+
+
+@pytest.mark.asyncio
+async def test_authenticator_uses_lti_utils_normalize_string(make_lti11_success_authentication_request_args):
+    """
+    Ensure that we call the normalize string method with the LTI11Authenticator.
+    """
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        with patch.object(LTIUtils, 'normalize_string', return_value='foobar') as mock_normalize_string:
+            authenticator = LTI11Authenticator()
+            handler = Mock(spec=RequestHandler)
+            request = HTTPServerRequest(method='POST', connection=Mock(),)
+            handler.request = request
+
+            handler.request.arguments = make_lti11_success_authentication_request_args('lmsvendor')
+            handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args(
+                'lmsvendor'
+            )[x][0].decode()
+
+            _ = await authenticator.authenticate(handler, None)
+            assert mock_normalize_string.called
 
 
 @pytest.mark.asyncio
