@@ -11,7 +11,6 @@ c.NotebookApp.iopub_data_rate_limit = 1.0e10
 c.NotebookApp.ip = '0.0.0.0'
 c.NotebookApp.open_browser = False
 c.NotebookApp.tornado_settings = {'headers': {"Content-Security-Policy": "frame-ancestors 'self' *"}}
-
 c.NotebookApp.token = ''
 c.NotebookApp.allow_root = True
 c.NotebookApp.allow_origin = '*'
