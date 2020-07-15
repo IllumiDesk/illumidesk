@@ -12,19 +12,17 @@ from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.grades.senders import LTIGradeSender
 from illumidesk.grades.handlers import SendGradesHandler
 
-from tests.illumidesk.mocks import mock_handler
-
 
 @pytest.fixture()
-def send_grades_handler_lti11():
+def send_grades_handler_lti11(make_mock_request_handler):
     jhub_settings = {'authenticator_class': LTI11Authenticator}
-    request_handler = mock_handler(RequestHandler, **jhub_settings)
+    request_handler = make_mock_request_handler(RequestHandler, **jhub_settings)
     send_grades_handler = SendGradesHandler(request_handler.application, request_handler.request)
     return send_grades_handler
 
 
 @pytest.fixture()
-def send_grades_handler_lti13():
+def send_grades_handler_lti13(make_mock_request_handler):
     jhub_settings = {'authenticator_class': LTI13Authenticator}
 
     async def user_auth_state():
@@ -38,7 +36,7 @@ def send_grades_handler_lti13():
         mock_user.configure_mock(**attrs)
         return mock_user
 
-    request_handler = mock_handler(RequestHandler, **jhub_settings)
+    request_handler = make_mock_request_handler(RequestHandler, **jhub_settings)
     send_grades_handler = SendGradesHandler(request_handler.application, request_handler.request)
     setattr(send_grades_handler, '_jupyterhub_user', mock_user())
     return send_grades_handler
