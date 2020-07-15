@@ -129,20 +129,36 @@ class LTI13LaunchValidator(LoggingConfigurable):
     provider with LTI 1.1).
     """
 
-    async def _retrieve_matching_jwk(self, endpoint: str, verify: bool = True) -> Dict[str, str]:
+    async def _retrieve_matching_jwk(self, endpoint: str, header_kid: str, verify: bool = True) -> Any:
         """
         Retrieves the matching cryptographic key from the platform as a
         JSON Web Key (JWK).
 
         Args:
-          endpoint: platform endpoint
-          token: jwt token
+          endpoint: platform jwks endpoint
+          header_kid: the kid received within the id_token
           verify: if true, validate certificate
         """
         client = AsyncHTTPClient()
         resp = await client.fetch(endpoint, validate_cert=verify)
-        self.log.debug('Retrieving matching jwk %s' % json.loads(resp.body))
-        return json.loads(resp.body)
+        platform_jwks = json.loads(resp.body)
+        self.log.debug('Retrieved jwks from lms platform %s' % platform_jwks)
+
+        if not platform_jwks or 'keys' not in platform_jwks:
+            raise ValueError('Platform endpoint returned an empty jwks')
+
+        key = None
+        for jwk in platform_jwks['keys']:
+            if jwk['kid'] != header_kid:
+                continue
+            key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(jwk))
+            self.log.debug('Get keys from jwks dict  %s' % key)
+        if key is None:
+            error_msg = f'There is not a key matching in the platform jwks for the jwt received. kid: {header_kid}'
+            self.log.debug(error_msg)
+            raise ValueError(error_msg)
+
+        return key
 
     async def jwt_verify_and_decode(
         self, id_token: str, jwks_endpoint: str, verify: bool = True, audience: str = None
@@ -162,23 +178,17 @@ class LTI13LaunchValidator(LoggingConfigurable):
         if verify is False:
             self.log.debug('JWK verification is off, returning token %s' % jwt.decode(id_token, verify=False))
             return jwt.decode(id_token, verify=False)
-        retrieved_jwks = await self._retrieve_matching_jwk(jwks_endpoint, verify)
-        jws = JWS.from_compact(bytes(id_token, 'utf-8'))
+
+        jws = JWS.from_compact(id_token)
         self.log.debug('Retrieving matching jws %s' % jws)
         json_header = jws.signature.protected
         header = Header.json_loads(json_header)
         self.log.debug('Header from decoded jwt %s' % header)
-        key = None
-        for jwk in retrieved_jwks['keys']:
-            if jwk['kid'] != header.kid:
-                continue
-            key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(jwk))
-            self.log.debug('Get keys from jwks dict  %s' % key)
-        if key is None:
-            self.log.debug('Key is None, returning None')
-            return None
-        self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (id_token, key, verify))
-        return jwt.decode(id_token, key=key, verify=False, audience=audience)
+
+        key_from_jwks = await self._retrieve_matching_jwk(jwks_endpoint, verify, header.kid)
+        self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (id_token, key_from_jwks, verify))
+
+        return jwt.decode(id_token, key=key_from_jwks, verify=False, audience=audience)
 
     def validate_launch_request(self, jwt_decoded: Dict[str, Any],) -> bool:
         """
