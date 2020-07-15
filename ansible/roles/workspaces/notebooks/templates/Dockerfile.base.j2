@@ -59,13 +59,6 @@ RUN python3 -m pip install nbgrader==$NBGRADER_VERSION && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 
-# copy global nbgrader config
-COPY global_nbgrader_config.py /etc/jupyter/nbgrader_config.py
-
-# support iframes with jupyter notebooks, copy to local config scope to override
-# global notebook configs if they are present
-COPY jupyter_notebook_config.py /etc/jupyterhub/jupyter_notebook_config.py
-
 # enable classic notebook extensions
 # https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/install.html
 RUN jupyter contrib nbextension install --sys-prefix && \
@@ -75,9 +68,18 @@ RUN jupyter contrib nbextension install --sys-prefix && \
 # install plotly-orca with npm globally
 RUN npm install -g electron@6.1.4 orca
 
-# with nbgrader installed, add scripts/configs and update permissions
-USER root
+# copy global nbgrader config
+COPY global_nbgrader_config.py /etc/jupyter/nbgrader_config.py
 
+# support iframes with jupyter notebooks, copy to local config scope to override
+# global notebook configs if they are present
+COPY jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
+
+# Fix permissions on /etc/jupyter as root
+USER root
+RUN fix-permissions /etc/jupyter/
+
+# with nbgrader installed, add scripts/configs and update permissions
 RUN mkdir -p /srv/nbgrader/exchange \
  && fix-permissions /srv/nbgrader/exchange
 
