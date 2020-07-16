@@ -8,6 +8,7 @@ from unittest.mock import patch
 from docker.errors import NotFound
 
 from illumidesk.setup_course.course import Course
+from illumidesk.setup_course.constants import NB_GRADER_CONFIG_TEMPLATE
 
 
 def test_initializer_requires_arguments():
@@ -158,3 +159,15 @@ def test_course_nbgrader_config_path_is_created(setup_course_environ):
     with patch('shutil.chown', autospec=True):
         course.create_directories()
         assert course.nbgrader_config_path.exists()
+
+
+def test_course_nbgrader_config_path_is_created_with_our_constant_template(setup_course_environ):
+    """
+    Is the nbgrader directory created as part of setup?
+    """
+    course = Course(org='org1', course_id='example', domain='example.com')
+    with patch('shutil.chown', autospec=True):
+        course.create_directories()
+        with course.nbgrader_config_path.open('r') as nbgrader_template:
+            content = nbgrader_template.read()
+            assert content == NB_GRADER_CONFIG_TEMPLATE.format(grader_name=course.grader_name, course_id=course.course_id)
