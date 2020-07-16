@@ -60,6 +60,8 @@ cp ansible/hosts.example ansible/hosts
 
 By default this setup uses the `FristUseAuthenticator`. Refer to the [customization](#customization) section if you would like to use LTI 1.1 with your LMS.
 
+> **NOTE**: the default admin user is set to `admin`. To update this default value, change the `admin_user` variable to another username. Refere to the `hosts.example` file for example.
+
 4. Run the deployment script (the script will prompt you for certain values):
 
     ```bash
@@ -445,6 +447,7 @@ The services included with this setup rely on environment variables to work prop
 | DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |
 | DOCKER_NOTEBOOK_DIR | `string` | Working directory for Jupyter Notebooks | `/home/jovyan` |
 | EXCHANGE_DIR | `string` | Exchange directory path  | `/srv/nbgrader/exchange` |
+| JUPYTERHUB_ADMIN_USER | `string` | JupyterHub admin user  | `admin` |
 | JUPYTERHUB_CRYPT_KEY | `string` | Cyptographic key used to encrypt cookies. | `<random_value>` |
 | JUPYTERHUB_API_TOKEN | `string` | API token used to authenticate grader service with JupyterHub. | `<random_value>` |
 | JUPYTERHUB_API_TOKEN_USER | `string` | Grader service user which owns JUPYTERHUB_API_TOKEN. | `grader-{course_id}` |

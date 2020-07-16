@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
+from illumidesk.authenticators.authenticator import LTIUtils
 
 
 @pytest.mark.asyncio
@@ -58,6 +59,24 @@ async def test_authenticator_invokes_lti13validator_validate_launch_request(
         ) as mock_verify_authentication_request:
             _ = await authenticator.authenticate(request_handler, None)
             assert mock_verify_authentication_request.called
+
+
+@pytest.mark.asyncio
+async def test_authenticator_invokes_lti_utils_normalize_string(
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+):
+    """
+    Does the authenticator invoke the LTIUtils normalize_string method?
+    """
+    authenticator = LTI13Authenticator()
+    request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
+        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
+            with patch.object(LTIUtils, 'normalize_string', return_value=True) as mock_normalize_string:
+                _ = await authenticator.authenticate(request_handler, None)
+                assert mock_normalize_string.called
 
 
 @pytest.mark.asyncio
@@ -115,7 +134,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_name(
     ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
-            assert result['name'] == 'Foo'
+            assert result['name'] == 'foo'
 
 
 @pytest.mark.asyncio
@@ -136,7 +155,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_given_name
     ):
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
-            assert result['name'] == 'Foo Bar'
+            assert result['name'] == 'foobar'
 
 
 @pytest.mark.asyncio
@@ -158,7 +177,7 @@ async def test_authenticator_returns_username_in_auth_state_with_family_name(
         with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
             result = await authenticator.authenticate(request_handler, None)
 
-            assert result['name'] == 'Family name'
+            assert result['name'] == 'familyname'
 
 
 @pytest.mark.asyncio

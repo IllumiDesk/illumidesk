@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.8.2 (2020-07-16)
+
+
+### Features
+
+* Complete Julia dynamic config setup ([#222](https://github.com/IllumiDesk/illumidesk/issues/222)) ([e5ebea5](https://github.com/IllumiDesk/illumidesk/commit/e5ebea52f0b4d16ded03a6c9604d490311c8e8f1))
+
+
+### Bug Fixes
+
+* Copy notebook config to global /etc/jupyter location ([#209](https://github.com/IllumiDesk/illumidesk/issues/209)) ([e16cccf](https://github.com/IllumiDesk/illumidesk/commit/e16cccf1ff7b80684a395b64d7a82a2ae2396ebe))
+* Update LTI configs with admin_user environment variable ([#219](https://github.com/IllumiDesk/illumidesk/issues/219)) ([3c99d58](https://github.com/IllumiDesk/illumidesk/commit/3c99d5831b1dd194fdf49ac1c0398703a475e6d8))
+* Update setup-course service default docker CMD ([#197](https://github.com/IllumiDesk/illumidesk/issues/197)) ([02c5b4d](https://github.com/IllumiDesk/illumidesk/commit/02c5b4d7de7fd03210ff3e5b9f359f14b2934b5e))
+* Updates response of the `/jwks` endpoint ([#220](https://github.com/IllumiDesk/illumidesk/issues/220)) ([0dc1264](https://github.com/IllumiDesk/illumidesk/commit/0dc1264d8bff472fdeb4b0cf8a2c96dd92c350b7))
+
 ### 0.8.1 (2020-07-11)
 
 

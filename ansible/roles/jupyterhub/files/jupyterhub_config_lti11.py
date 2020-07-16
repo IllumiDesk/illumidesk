@@ -146,9 +146,10 @@ c.LTIAuthenticator.consumers = {
 # Post auth hook to setup course
 c.Authenticator.post_auth_hook = setup_course_hook
 
+admin_user = os.environ.get('JUPYTERHUB_ADMIN_USER')
 # Add other admin users as needed
 c.Authenticator.admin_users = {
-    'admin',
+    admin_user,
 }
 
 # If using an authenticator which requires additional logic,
