@@ -115,4 +115,8 @@ class LTI13JWKSHandler(BaseHandler):
 
         jwk = get_jwk(public_key)
         self.log.debug('the jwks is %s' % jwk)
-        self.write(json.dumps(jwk))
+        keys_obj ={'keys': []}
+        keys_obj['keys'].append(jwk)
+        # we do not need to use json.dumps because tornado is converting our dict automatically and adding the content-type as json
+        # https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.write
+        self.write(keys_obj)
