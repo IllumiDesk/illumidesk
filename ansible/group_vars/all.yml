@@ -57,7 +57,7 @@ docker_proxy_image: "{{ docker_proxy_image_param | default('jupyterhub/configura
 jupyter_notebook_config: "{{ jupyter_notebook_config_param | default('jupyter_notebook_config.py') }}"
 
 # Admin users
-admin_user: "{{ admin_user_param | default('') }}"
+admin_user: "{{ admin_user_param | default('admin') }}"
 
 # Mount directories
 mnt_root: "{{ mnt_root_param | default('/mnt') }}"
