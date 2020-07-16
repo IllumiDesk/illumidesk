@@ -234,6 +234,12 @@ class LTI11Authenticator(LTIAuthenticator):
             elif not username and 'lis_person_sourcedid' in args.keys() and args.get('lis_person_sourcedid'):
                 username = args.get('lis_person_sourcedid')
                 self.log.debug('using lis_person_sourcedid for username')
+            elif not username and 'lis_person_name_family' in args.keys() and args.get('lis_person_name_family'):
+                username = args.get('lis_person_name_family')
+                self.log.debug('using lis_person_name_family for username')
+            elif not username and 'lis_person_name_full' in args.keys() and args.get('lis_person_name_full'):
+                username = args.get('lis_person_name_full')
+                self.log.debug('using lis_person_name_full for username')
             elif not username and 'user_id' in args.keys() and args.get('user_id'):
                 username = args.get('user_id')
             elif not username:
