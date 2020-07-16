@@ -170,4 +170,6 @@ def test_course_nbgrader_config_path_is_created_with_our_constant_template(setup
         course.create_directories()
         with course.nbgrader_config_path.open('r') as nbgrader_template:
             content = nbgrader_template.read()
-            assert content == NB_GRADER_CONFIG_TEMPLATE.format(grader_name=course.grader_name, course_id=course.course_id)
+            assert content == NB_GRADER_CONFIG_TEMPLATE.format(
+                grader_name=course.grader_name, course_id=course.course_id
+            )
