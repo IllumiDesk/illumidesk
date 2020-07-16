@@ -58,6 +58,10 @@ c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secr
 # Allow admin access to end-user notebooks
 c.JupyterHub.admin_access = True
 
+# JupyterHub's base url
+base_url = os.environ.get('JUPYTERHUB_BASE_URL') or '/test/'
+c.JupyterHub.base_url = base_url
+
 # Define some static services that jupyterhub will manage
 # Although the cull-idle service is internal, and therefore does not need an explicit
 # registration of the jupyterhub api token, we add it here so the internal api client
