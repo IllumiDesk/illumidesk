@@ -60,6 +60,8 @@ cp ansible/hosts.example ansible/hosts
 
 By default this setup uses the `FristUseAuthenticator`. Refer to the [customization](#customization) section if you would like to use LTI 1.1 with your LMS.
 
+> **NOTE**: the default admin user is set to `admin`. To update this default value, change the `admin_user` variable to another username. Refere to the `hosts.example` file for example.
+
 4. Run the deployment script (the script will prompt you for certain values):
 
     ```bash
