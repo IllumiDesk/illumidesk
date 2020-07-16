@@ -161,7 +161,7 @@ c.JupyterHub.extra_handlers = [
 # Post auth hook to setup course
 c.Authenticator.post_auth_hook = setup_course_hook
 
-admin_user = os.environ.get('JUPYTERHUB_ADMIN_USERS')
+admin_user = os.environ.get('JUPYTERHUB_ADMIN_USER')
 # Add other admin users as needed
 c.Authenticator.admin_users = {
     admin_user,
