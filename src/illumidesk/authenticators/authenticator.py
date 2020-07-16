@@ -165,16 +165,13 @@ class LTI11Authenticator(LTIAuthenticator):
         if validator.validate_launch_request(launch_url, handler.request.headers, args):
             # get the lms vendor to implement optional logic for said vendor
             lms_vendor = ''
-            if (
-                'tool_consumer_info_product_family_code' in args
-                and args['tool_consumer_info_product_family_code'] is not None
-            ):
+            if 'tool_consumer_info_product_family_code' in args and args['tool_consumer_info_product_family_code']:
                 lms_vendor = args['tool_consumer_info_product_family_code']
 
             # We use the course_id to setup the grader service notebook. Since this service
             # runs as a docker container we need to normalize the string so we can use it
             # as a container name.
-            if 'context_label' in args and args['context_label'] is not None:
+            if 'context_label' in args and args['context_label']:
                 course_id = args['context_label']
                 self.log.debug('Course context_label normalized to: %s' % course_id)
             else:
@@ -187,7 +184,7 @@ class LTI11Authenticator(LTIAuthenticator):
                 workspace_type = (
                     args['custom_workspace_type'] if 'custom_workspace_type' in args else args['workspace_type']
                 )
-            if workspace_type is None or workspace_type not in WORKSPACE_TYPES:
+            if not workspace_type or workspace_type not in WORKSPACE_TYPES:
                 workspace_type = 'notebook'
             self.log.debug('Workspace type assigned as: %s' % workspace_type)
 
@@ -195,7 +192,7 @@ class LTI11Authenticator(LTIAuthenticator):
             # roles, where the roles' value is <handle>,<full URN>.
             # https://www.imsglobal.org/specs/ltiv1p0/implementation-guide#toc-16
             user_role = 'Learner'
-            if 'roles' in args and args['roles'] is not None:
+            if 'roles' in args and args['roles']:
                 user_role = args['roles'].split(',')[0]
                 self.log.debug('User LTI role is: %s' % user_role)
             else:
@@ -209,7 +206,7 @@ class LTI11Authenticator(LTIAuthenticator):
             assignment_name = args['resource_link_title'] if 'resource_link_title' in args else 'unknown'
             if lms_vendor == 'canvas':
                 self.log.debug('TC is a Canvas LMS instance')
-                if 'custom_canvas_user_login_id' in args and args['custom_canvas_user_login_id'] is not None:
+                if 'custom_canvas_user_login_id' in args and args['custom_canvas_user_login_id']:
                     custom_canvas_user_id = args['custom_canvas_user_login_id']
                     username = lti_utils.email_to_username(custom_canvas_user_id)
                     self.log.debug('using custom_canvas_user_id for username')
@@ -217,27 +214,30 @@ class LTI11Authenticator(LTIAuthenticator):
                 assignment_name = (
                     args['custom_canvas_assignment_title'] if 'custom_canvas_assignment_title' in args else 'unknown'
                 )
-            else:
-                if (
-                    username == ''
-                    and 'lis_person_contact_email_primary' in args
-                    and args['lis_person_contact_email_primary'] is not None
-                ):
-                    email = args['lis_person_contact_email_primary']
-                    username = lti_utils.email_to_username(email)
-                    self.log.debug('using lis_person_contact_email_primary for username')
-                elif 'lis_person_name_given' in args and args['lis_person_name_given'] is not None:
-                    username = args['lis_person_name_given']
-                    self.log.debug('using lis_person_name_given for username')
-                elif 'lis_person_sourcedid' in args and args['lis_person_sourcedid'] is not None:
-                    username = args['lis_person_sourcedid']
-                    self.log.debug('using lis_person_sourcedid for username')
-            if username == '':
-                self.log.debug('using user_id for username')
-                if 'user_id' in args and args['user_id'] is not None:
-                    username = args['user_id']
-                else:
-                    raise HTTPError(400, 'Unable to get username from request arguments')
+            if (
+                not username
+                and 'lis_person_contact_email_primary' in args
+                and args['lis_person_contact_email_primary']
+            ):
+                email = args['lis_person_contact_email_primary']
+                username = lti_utils.email_to_username(email)
+                self.log.debug('using lis_person_contact_email_primary for username')
+            elif not username and 'lis_person_name_given' in args and args['lis_person_name_given']:
+                username = args['lis_person_name_given']
+                self.log.debug('using lis_person_name_given for username')
+            elif not username and 'lis_person_sourcedid' in args and args['lis_person_sourcedid']:
+                username = args['lis_person_sourcedid']
+                self.log.debug('using lis_person_sourcedid for username')
+            elif not username and 'lis_person_name_family' in args and args['lis_person_name_family']:
+                username = args['lis_person_name_family']
+                self.log.debug('using lis_person_name_family for username')
+            elif not username and 'lis_person_name_full' in args and args['lis_person_name_full']:
+                username = args['lis_person_name_full']
+                self.log.debug('using lis_person_name_full for username')
+            elif not username and 'user_id' in args and args['user_id']:
+                username = args['user_id']
+            elif not username:
+                raise HTTPError(400, 'Unable to get username from request arguments')
 
             # use the user_id to identify the unique user id, if its not sent with the request
             # then default to the username
@@ -245,13 +245,13 @@ class LTI11Authenticator(LTIAuthenticator):
 
             # with all info extracted from lms request, register info for grades sender only if the user has
             # the Learner role
-            lis_outcome_service_url = None
-            lis_result_sourcedid = None
+            lis_outcome_service_url = ''
+            lis_result_sourcedid = ''
             if user_role == 'Learner' or user_role == 'Student':
                 # the next fields must come in args
-                if 'lis_outcome_service_url' in args and args['lis_outcome_service_url'] is not None:
+                if 'lis_outcome_service_url' in args and args['lis_outcome_service_url']:
                     lis_outcome_service_url = args['lis_outcome_service_url']
-                if 'lis_result_sourcedid' in args and args['lis_result_sourcedid'] is not None:
+                if 'lis_result_sourcedid' in args and args['lis_result_sourcedid']:
                     lis_result_sourcedid = args['lis_result_sourcedid']
                 # only if both values exist we can register them to submit grades later
                 if lis_outcome_service_url and lis_result_sourcedid:
@@ -342,14 +342,14 @@ class LTI13Authenticator(OAuthenticator):
             course_id = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
             self.log.debug('Normalized course label is %s' % course_id)
             username = ''
-            if 'email' in jwt_decoded.keys() and jwt_decoded.get('email'):
+            if 'email' in jwt_decoded and jwt_decoded['email']:
                 username = lti_utils.email_to_username(jwt_decoded['email'])
-            elif 'name' in jwt_decoded.keys() and jwt_decoded.get('name'):
-                username = jwt_decoded.get('name')
-            elif 'given_name' in jwt_decoded.keys() and jwt_decoded.get('given_name'):
-                username = jwt_decoded.get('given_name')
-            elif 'family_name' in jwt_decoded.keys() and jwt_decoded.get('family_name'):
-                username = jwt_decoded.get('family_name')
+            elif 'name' in jwt_decoded and jwt_decoded['name']:
+                username = jwt_decoded['name']
+            elif 'given_name' in jwt_decoded and jwt_decoded['given_name']:
+                username = jwt_decoded['given_name']
+            elif 'family_name' in jwt_decoded and jwt_decoded['family_name']:
+                username = jwt_decoded['family_name']
             elif (
                 'person_sourcedid' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']
                 and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid']
@@ -365,11 +365,11 @@ class LTI13Authenticator(OAuthenticator):
             workspace_type = ''
             if (
                 'https://purl.imsglobal.org/spec/lti/claim/custom' in jwt_decoded
-                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom'] is not None
+                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']
             ):
                 if (
                     'workspace_type' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']
-                    and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type'] is not None
+                    and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type']
                 ):
                     workspace_type = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type']
             if workspace_type not in WORKSPACE_TYPES:
@@ -392,7 +392,9 @@ class LTI13Authenticator(OAuthenticator):
             # Values for the send-grades functionality
             course_lineitems = ''
             if 'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded:
-                course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
+                course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint'].get(
+                    'lineitems'
+                )
 
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)
