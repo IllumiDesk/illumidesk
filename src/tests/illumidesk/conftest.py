@@ -64,6 +64,7 @@ def jupyterhub_api_environ(monkeypatch):
     """
     monkeypatch.setenv('JUPYTERHUB_API_TOKEN', str(uuid.uuid4()))
     monkeypatch.setenv('JUPYTERHUB_API_URL', 'https://localhost/hub/api')
+    monkeypatch.setenv('JUPYTERHUB_ADMIN_USER', 'admin')
 
 
 @pytest.fixture(scope='function')
