@@ -15,9 +15,7 @@ from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
-async def test_authenticator_returns_auth_state_with_canvas_fields(
-    lti11_authenticator, make_lti11_success_authentication_request_args
-):
+async def test_authenticator_returns_auth_state_with_canvas_fields(make_lti11_success_authentication_request_args):
     """
     Do we get a valid username when sending an argument with the custom canvas id?
     """
@@ -43,9 +41,7 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
-async def test_authenticator_returns_auth_state_with_other_lms_vendor(
-    lti11_authenticator, make_lti11_success_authentication_request_args
-):
+async def test_authenticator_returns_auth_state_with_other_lms_vendor(make_lti11_success_authentication_request_args):
     """
     Do we get a valid username with lms vendors other than canvas?
     """
@@ -243,7 +239,7 @@ async def test_authenticator_invokes_validator_with_decoded_dict(make_lti11_succ
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service_url(
-    lti11_authenticator, make_lti11_success_authentication_request_args
+    make_lti11_success_authentication_request_args,
 ):
     """
     Are we able to handle requests with a missing lis_outcome_service_url key?
@@ -273,7 +269,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedid(
-    lti11_authenticator, make_lti11_success_authentication_request_args
+    make_lti11_success_authentication_request_args,
 ):
     """
     Are we able to handle requests with a missing lis_result_sourcedid key?
@@ -303,7 +299,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
-    lti11_authenticator, make_lti11_success_authentication_request_args
+    make_lti11_success_authentication_request_args,
 ):
     """
     Are we able to handle requests with lis_result_sourcedid set to an empty value?
@@ -333,7 +329,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_url(
-    lti11_authenticator, make_lti11_success_authentication_request_args
+    make_lti11_success_authentication_request_args,
 ):
     """
     Are we able to handle requests with lis_outcome_service_url set to an empty value?
@@ -371,6 +367,40 @@ async def test_authenticator_returns_default_workspace_type_when_missing(
     with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
         args = make_lti11_success_authentication_request_args('canvas', 'Instructor', '')
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+                'workspace_type': 'notebook',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_correct_username_when_using_email_as_username(
+    lti11_validator, make_lti11_success_authentication_request_args
+):
+    """
+    Do we get a valid username when the username is sent as the primary email address?
+    """
+    with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = make_lti11_success_authentication_request_args('canvas', 'Instructor', '')
+        args['custom_canvas_user_login_id'] = [b'']
+        # args['lis_person_contact_email_primary'] = [b'foo@example.com']
+        # args['lis_person_name_family'] = [b'']
+        # args['lis_person_name_full'] = [b'']
+        # args['lis_person_name_given'] = [b'']
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
