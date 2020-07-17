@@ -1,145 +1,20 @@
 ---
-- name: create instructor dockerfile
-  template:
-    src: "notebooks/templates/{{ docker_notebook_instructor_dockerfile }}.j2"
-    dest: "{{ working_dir }}/workspaces/notebooks/{{ docker_notebook_instructor_dockerfile }}"
-
-- name: create learner dockerfile
-  template:
-    src: "notebooks/templates/{{ docker_notebook_learner_dockerfile }}.j2"
-    dest: "{{ working_dir }}/workspaces/notebooks/{{ docker_notebook_learner_dockerfile }}"
-
-- name: create grader notebook dockerfile from template
-  template:
-    src: "notebooks/templates/{{ docker_notebook_grader_dockerfile }}.j2"
-    dest: "{{ working_dir }}/workspaces/notebooks/{{ docker_notebook_grader_dockerfile }}"
-
-- name: copy the jupyter notebook configuration file
-  copy:
-    src: notebooks/files/jupyter_notebook_config.py
-    dest: "{{ working_dir }}/workspaces/notebooks/jupyter_notebook_config.py"
-  
-- name: copy requirements.txt for base notebook image
-  copy:
-    src: notebooks/files/requirements.txt
-    dest: "{{ working_dir }}/workspaces/notebooks/requirements.txt"
-
-- name: create rstudio dockerfile from template
-  template:
-    src: "rstudio/templates/{{ docker_rstudio_dockerfile }}.j2"
-    dest: "{{ working_dir }}/workspaces/rstudio/{{ docker_rstudio_dockerfile }}"
-
-- name: copy requirements.txt for rstudio image
-  template:
-    src: "rstudio/files/requirements.txt"
-    dest: "{{ working_dir }}/workspaces/rstudio/requirements.txt"
-
-- name: copy rserver.conf for rstudio image
-  template:
-    src: "rstudio/files/rserver.conf"
-    dest: "{{ working_dir }}/workspaces/rstudio/rserver.conf"
-
-- name: create theia ide dockerfile from template
-  template:
-    src: "theia/templates/{{ docker_theia_dockerfile }}.j2"
-    dest: "{{ working_dir }}/workspaces/theia/{{ docker_theia_dockerfile }}"
-
-- name: copy requirements.txt for theia image
-  template:
-    src: "theia/files/requirements.txt"
-    dest: "{{ working_dir }}/workspaces/theia/requirements.txt"
-
-- name: copy package.json for theia image
-  template:
-    src: "theia/files/package.json"
-    dest: "{{ working_dir }}/workspaces/theia/package.json"
-
-- name: copy run_theia.sh for theia image
-  template:
-    src: "theia/files/run_theia.sh"
-    dest: "{{ working_dir }}/workspaces/theia/run_theia.sh"
-
-- name: create vscode dockerfile from template
-  template:
-    src: "vscode/templates/{{ docker_vscode_dockerfile }}.j2"
-    dest: "{{ working_dir }}/workspaces/vscode/{{ docker_vscode_dockerfile }}"
-
-- name: copy requirements.txt for vscode image
-  template:
-    src: "vscode/files/requirements.txt"
-    dest: "{{ working_dir }}/workspaces/vscode/requirements.txt"
-
-- name: pull base jupyter/datascience notebook image
-  docker_image:
-    name: "{{ docker_notebook_base_image }}"
-    source: pull
-
-- name: build base notebook image
+- name: pull base illumidesk/base-notebook image
   docker_image:
     name: "{{ docker_illumidesk_notebook_base_image }}"
-    build:
-      path: "{{ working_dir }}/workspaces/notebooks"
-      dockerfile: "{{ docker_notebook_base_dockerfile }}"
-      pull: no
-    source: build
-    force_source: yes
+    source: pull
 
-- name: build custom grader notebook image
-  docker_image:
-    name: "{{ docker_illumidesk_notebook_grader_image }}"
-    build:
-      path: "{{ working_dir }}/workspaces/notebooks"
-      dockerfile: "{{ docker_notebook_grader_dockerfile }}"
-      pull: no
-    source: build
-    force_source: yes
-
-- name: build custom instructor notebook image
+- name: pull base illumidesk/instructor-notebook image
   docker_image:
     name: "{{ docker_illumidesk_notebook_instructor_image }}"
-    build:
-      path: "{{ working_dir }}/workspaces/notebooks"
-      dockerfile: "{{ docker_notebook_instructor_dockerfile }}"
-      pull: no
-    source: build
-    force_source: yes
+    source: pull
 
-- name: build custom learner notebook image
+- name: pull base illumidesk/learner-notebook image
   docker_image:
     name: "{{ docker_illumidesk_notebook_learner_image }}"
-    build:
-      path: "{{ working_dir }}/workspaces/notebooks"
-      dockerfile: "{{ docker_notebook_learner_dockerfile }}"
-      pull: no
-    source: build
-    force_source: yes
+    source: pull
 
-- name: build rstudio image
+- name: pull base illumidesk/grader-notebook image
   docker_image:
-    name: "{{ docker_illumidesk_rstudio_image }}"
-    build:
-      path: "{{ working_dir }}/workspaces/rstudio"
-      dockerfile: "{{ docker_rstudio_dockerfile }}"
-      pull: no
-    source: build
-    force_source: yes
-
-- name: build theia image
-  docker_image:
-    name: "{{ docker_illumidesk_theia_image }}"
-    build:
-      path: "{{ working_dir }}//workspaces/theia"
-      dockerfile: "{{ docker_theia_dockerfile }}"
-      pull: no
-    source: build
-    force_source: yes
-
-- name: build vscode image
-  docker_image:
-    name: "{{ docker_illumidesk_vscode_image }}"
-    build:
-      path: "{{ working_dir }}/workspaces/vscode"
-      dockerfile: "{{ docker_vscode_dockerfile }}"
-      pull: no
-    source: build
-    force_source: yes
+    name: "{{ docker_illumidesk_notebook_grader_image }}"
+    source: pull
