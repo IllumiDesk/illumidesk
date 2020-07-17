@@ -193,7 +193,7 @@
 {% block script %}
 {% endblock %}
 <script>
-  $.get("/services/announcement", function(data) {
+  $.get("/test/services/announcement", function(data) {
       let msg = data["announcement"];
       if (msg != undefined && msg != ""){
         $(".service-announcement > div").html(data["announcement"]);

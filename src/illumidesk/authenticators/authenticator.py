@@ -31,6 +31,7 @@ from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 async def setup_course_hook(
@@ -58,6 +59,8 @@ async def setup_course_hook(
     jupyterhub_api = JupyterHubAPI()
 
     announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
+    announcement_prefix = os.environ.get('ANNOUNCEMENT_SERVICE_PREFIX_URL') or '/services/announcement'
+
     org = os.environ.get('ORGANIZATION_NAME')
     if not org:
         raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
@@ -93,7 +96,7 @@ async def setup_course_hook(
     # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
     if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
         # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
-        url = f'http://localhost:{int(announcement_port)}/services/announcement'
+        url = f'http://localhost:{int(announcement_port)}{announcement_prefix}'
         jupyterhub_api_token = os.environ.get('JUPYTERHUB_API_TOKEN')
         headers['Authorization'] = f'token {jupyterhub_api_token}'
         body_data = {'announcement': 'A new service was detected, please reload this page...'}

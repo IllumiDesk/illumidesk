@@ -59,7 +59,7 @@ c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secr
 c.JupyterHub.admin_access = True
 
 # JupyterHub's base url
-base_url = os.environ.get('JUPYTERHUB_BASE_URL') or '/test/'
+base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
 c.JupyterHub.base_url = base_url
 
 # Define some static services that jupyterhub will manage
@@ -67,6 +67,8 @@ c.JupyterHub.base_url = base_url
 # registration of the jupyterhub api token, we add it here so the internal api client
 # can use the token to utilize RESTful endpoints with full CRUD priviledges.
 announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
+announcement_prefix = os.environ.get('ANNOUNCEMENT_SERVICE_PREFIX_URL') or '/services/announcement'
+
 c.JupyterHub.services = [
     {
         'name': 'idle-culler',
@@ -77,7 +79,7 @@ c.JupyterHub.services = [
     {
         'name': 'announcement',
         'url': f'http://0.0.0.0:{int(announcement_port)}',  # allow external connections with 0.0.0.0
-        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix /services/announcement'.split(),
+        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix {announcement_prefix}'.split(),
     },
 ]
 

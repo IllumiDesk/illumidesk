@@ -59,6 +59,9 @@ jupyter_notebook_config: "{{ jupyter_notebook_config_param | default('jupyter_no
 # Admin users
 admin_user: "{{ admin_user_param | default('admin') }}"
 
+# Base URL. Add the / character before the value, for example /acme.
+base_url: "{{ base_url_param | default('') }}"
+
 # Mount directories
 mnt_root: "{{ mnt_root_param | default('/mnt') }}"
 
