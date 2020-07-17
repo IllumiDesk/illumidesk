@@ -39,10 +39,10 @@ docker_vscode_dockerfile: "{{ docker_vscode_dockerfile_dockerfile_param | defaul
 docker_illumidesk_jhub_image: "{{ docker_illumidesk_jhub_image_param | default('illumidesk/jupyterhub:') }}{{ docker_jhub_hash_commit }}"
 
 # illumidesk notebooks base and custom images
-docker_illumidesk_notebook_base_image: "{{ docker_illumidesk_notebook_base_image_param | default('illumidesk/datascience-notebook:base-') }}{{ docker_notebook_hash_commit }}"
-docker_illumidesk_notebook_learner_image: "{{ docker_illumidesk_notebook_learner_image_param | default('illumidesk/notebook:learner') }}-{{ docker_notebook_hash_commit }}"
-docker_illumidesk_notebook_grader_image: "{{ docker_illumidesk_notebook_grader_image_param | default('illumidesk/notebook:grader') }}-{{ docker_notebook_hash_commit }}"
-docker_illumidesk_notebook_instructor_image: "{{ docker_illumidesk_notebook_instructor_image_param | default('illumidesk/notebook:instructor') }}-{{ docker_notebook_hash_commit }}"
+docker_illumidesk_notebook_base_image: "{{ docker_illumidesk_notebook_base_image_param | default('illumidesk/base-notebook:latest') }}"
+docker_illumidesk_notebook_learner_image: "{{ docker_illumidesk_notebook_learner_image_param | default('illumidesk/learner-notebook:latest') }}"
+docker_illumidesk_notebook_grader_image: "{{ docker_illumidesk_notebook_grader_image_param | default('illumidesk/grader-notebook:latest') }}"
+docker_illumidesk_notebook_instructor_image: "{{ docker_illumidesk_notebook_instructor_image_param | default('illumidesk/instructor-notebook:latest') }}"
 
 # additional workspace images
 docker_illumidesk_rstudio_image: "{{ docker_illumidesk_rstudio_image_param | default('illumidesk/rstudio:base') }}-ild-{{ docker_notebook_hash_commit }}"
