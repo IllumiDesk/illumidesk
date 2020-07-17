@@ -1,9 +1,4 @@
 ---
-- name: create base notebook dockerfile from template
-  template:
-    src: "notebooks/templates/{{ docker_notebook_base_dockerfile }}.j2"
-    dest: "{{ working_dir }}/workspaces/notebooks/{{ docker_notebook_base_dockerfile }}"
-
 - name: create instructor dockerfile
   template:
     src: "notebooks/templates/{{ docker_notebook_instructor_dockerfile }}.j2"
