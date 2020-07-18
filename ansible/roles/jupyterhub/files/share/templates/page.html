@@ -192,8 +192,9 @@
 
 {% block script %}
 {% endblock %}
-<script>
-  $.get("/test/services/announcement", function(data) {
+<script>  
+  let annuncement_url = `${window.jhdata.prefix}services/announcement`;
+  $.get(annuncement_url, function(data) {
       let msg = data["announcement"];
       if (msg != undefined && msg != ""){
         $(".service-announcement > div").html(data["announcement"]);
