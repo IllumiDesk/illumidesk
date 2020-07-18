@@ -20,6 +20,8 @@ from traitlets import Unicode
 from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
+from illumidesk.apis.announcement_service import ANNOUNCEMENT_INTERNAL_URL
+
 from illumidesk.authenticators.constants import WORKSPACE_TYPES
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
@@ -27,6 +29,7 @@ from illumidesk.authenticators.handlers import LTI13CallbackHandler
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
+
 from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 
@@ -57,10 +60,6 @@ async def setup_course_hook(
     """
     lti_utils = LTIUtils()
     jupyterhub_api = JupyterHubAPI()
-
-    announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
-    jhub_base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
-    announcement_prefix = f'{jhub_base_url}/services/announcement'
 
     org = os.environ.get('ORGANIZATION_NAME')
     if not org:
@@ -97,16 +96,15 @@ async def setup_course_hook(
     # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
     if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
         # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
-        url = f'http://localhost:{int(announcement_port)}{announcement_prefix}'
         jupyterhub_api_token = os.environ.get('JUPYTERHUB_API_TOKEN')
-        headers['Authorization'] = f'token {jupyterhub_api_token}'
+        headers['Authorization'] = f'token {jupyterhub_api_token}'        
         body_data = {'announcement': 'A new service was detected, please reload this page...'}
-        await client.fetch(url, headers=headers, body=json.dumps(body_data), method='POST')
+
+        await client.fetch(ANNOUNCEMENT_INTERNAL_URL, headers=headers, body=json.dumps(body_data), method='POST')
 
         logger.debug('The current jupyterhub instance will be updated by setup-course service...')
         url = f'http://{service_name}:{port}/rolling-update'
-        # our setup-course not requires auth
-        del headers['Authorization']
+        # our setup-course not requires the Authentication header but not affected the call      
         # WE'RE NOT USING <<<AWAIT>>> because the rolling update should occur later
         client.fetch(url, headers=headers, body='', method='POST')
 

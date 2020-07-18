@@ -1,4 +1,4 @@
-from json import JSONDecodeError
+import json
 import os
 
 from jupyterhub.auth import Authenticator
@@ -11,10 +11,11 @@ from tornado.httpclient import AsyncHTTPClient
 from unittest.mock import patch
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
+from illumidesk.apis.announcement_service import ANNOUNCEMENT_INTERNAL_URL
+
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
-from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.authenticators.utils import LTIUtils
 
 
@@ -97,7 +98,7 @@ async def test_setup_course_hook_raises_json_decode_error_without_client_fetch_r
             with patch.object(
                 AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request, body=None)
             ):
-                with pytest.raises(JSONDecodeError):
+                with pytest.raises(json.JSONDecodeError):
                     await setup_course_hook(local_authenticator, local_handler, local_authentication)
 
 
@@ -301,23 +302,49 @@ async def test_setup_course_hook_initialize_data_dict(
 
 
 @pytest.mark.asyncio()
-async def test_setup_course_hook_initializes_url_variable_with_host_and_port(
-    setup_course_environ, setup_course_hook_environ, make_auth_state_dict
+async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
+    jupyterhub_api_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
 ):
     """
-    Is the url and port for the setup course service endpoint correctly set?
+    Is the annuncement service called in new setup?
     """
-    service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME')
-    docker_port = os.environ.get('DOCKER_SETUP_COURSE_PORT')
-    announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT')
-    url = f'http://localhost:{int(announcement_port)}/services/announcement'
-    actual_service_name_url = f'http://{service_name}:{docker_port}'
-    expected_service_name_url = 'http://setup-course:8000'
-    expected_announcement_url = 'http://localhost:8889/services/announcement'
-    actual_announcement_url = f'http://localhost:{int(announcement_port)}/services/announcement'
+    local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_authentication = make_auth_state_dict()
 
-    assert expected_service_name_url == actual_service_name_url
-    assert expected_announcement_url == actual_announcement_url
+    response_args = {'handler': local_handler.request, 'body': {'is_new_setup': True}}
+    with patch.object(
+        JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None
+    ) as mock_add_student_to_jupyterhub_group:
+        with patch.object(JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None):
+
+            with patch.object(
+                AsyncHTTPClient,
+                'fetch',
+                side_effect=[
+                    make_http_response(**response_args),
+                    make_http_response(**response_args),
+                    None
+                ],  # noqa: E231
+            ) as mock_client:
+                
+                await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                # our httpclient was called 3 times
+                assert mock_client.called
+                assert mock_client._mock_call_count == 3
+                
+                headers = {'Content-Type': 'application/json', 'Authorization': f'token {os.environ.get("JUPYTERHUB_API_TOKEN")}'}
+                # the announcement service was called by using specific args
+                mock_client.assert_any_call(
+                    ANNOUNCEMENT_INTERNAL_URL,
+                    headers=headers,
+                    body=json.dumps({'announcement': 'A new service was detected, please reload this page...'}),
+                    method='POST',
+                )
 
 
 @pytest.mark.asyncio()
