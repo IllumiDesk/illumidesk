@@ -44,6 +44,10 @@ data_dir = '/data'
 
 c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secret')
 
+# JupyterHub's base url
+base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
+c.JupyterHub.base_url = base_url
+
 # The instructor1 and instructor2 users have access to different shared
 # grader notebooks. bitdiddle, hacker, and reasoner students are from
 # the `nbgrader quickstart <course name>` command.
@@ -61,6 +65,9 @@ c.JupyterHub.load_groups = {
 
 # Allow admin access to end-user notebooks
 c.JupyterHub.admin_access = True
+
+announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
+announcement_prefix = f'{base_url}/services/announcement'
 
 # Start the grader notebook as a service. The port can be whatever you want
 # and the group has to match the name of the DEMO_GRADER_NAME group defined above.
@@ -80,8 +87,8 @@ c.JupyterHub.services = [
     },
     {
         'name': 'announcement',
-        'url': 'http://0.0.0.0:8889',
-        'command': 'python3 /srv/jupyterhub/announcement.py --port 8889 --api-prefix /services/announcement'.split(),
+        'url': f'http://0.0.0.0:{int(announcement_port)}',  # allow external connections with 0.0.0.0
+        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix {announcement_prefix}'.split(),
     },
 ]
 

@@ -59,7 +59,8 @@ async def setup_course_hook(
     jupyterhub_api = JupyterHubAPI()
 
     announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
-    announcement_prefix = os.environ.get('ANNOUNCEMENT_SERVICE_PREFIX_URL') or '/services/announcement'
+    jhub_base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
+    announcement_prefix = f'{jhub_base_url}/services/announcement'
 
     org = os.environ.get('ORGANIZATION_NAME')
     if not org:

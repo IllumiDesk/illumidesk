@@ -67,7 +67,8 @@ c.JupyterHub.base_url = base_url
 # registration of the jupyterhub api token, we add it here so the internal api client
 # can use the token to utilize RESTful endpoints with full CRUD priviledges.
 announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
-announcement_prefix = os.environ.get('ANNOUNCEMENT_SERVICE_PREFIX_URL') or '/services/announcement'
+announcement_prefix = f'{base_url}/services/announcement'
+print('announcement_prefix', announcement_prefix)
 
 c.JupyterHub.services = [
     {
