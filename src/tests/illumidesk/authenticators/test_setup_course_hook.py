@@ -303,10 +303,7 @@ async def test_setup_course_hook_initialize_data_dict(
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
-    setup_course_hook_environ,
-    make_auth_state_dict,
-    make_http_response,
-    make_mock_request_handler,
+    setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler,
 ):
     """
     Is the annuncement service called in new setup?
@@ -327,7 +324,7 @@ async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
                 side_effect=[
                     make_http_response(**response_args),
                     make_http_response(**response_args),
-                    None
+                    None,
                 ],  # noqa: E231
             ) as mock_client:
                 with patch.object(AnnouncementService, 'add_announcement') as mock_announcement:

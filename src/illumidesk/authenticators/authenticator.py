@@ -100,7 +100,7 @@ async def setup_course_hook(
 
         logger.debug('The current jupyterhub instance will be updated by setup-course service...')
         url = f'http://{service_name}:{port}/rolling-update'
-        # our setup-course not requires the Authentication header but not affected the call      
+        # our setup-course not requires the Authentication header but not affected the call
         # WE'RE NOT USING <<<AWAIT>>> because the rolling update should occur later
         client.fetch(url, headers=headers, body='', method='POST')
 
