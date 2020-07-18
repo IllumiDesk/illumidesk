@@ -11,7 +11,7 @@ from tornado.httpclient import AsyncHTTPClient
 from unittest.mock import patch
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
-from illumidesk.apis.announcement_service import ANNOUNCEMENT_INTERNAL_URL
+from illumidesk.apis.announcement_service import AnnouncementService
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
@@ -303,7 +303,6 @@ async def test_setup_course_hook_initialize_data_dict(
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
-    jupyterhub_api_environ,
     setup_course_hook_environ,
     make_auth_state_dict,
     make_http_response,
@@ -331,20 +330,9 @@ async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
                     None
                 ],  # noqa: E231
             ) as mock_client:
-                
-                await setup_course_hook(local_authenticator, local_handler, local_authentication)
-                # our httpclient was called 3 times
-                assert mock_client.called
-                assert mock_client._mock_call_count == 3
-                
-                headers = {'Content-Type': 'application/json', 'Authorization': f'token {os.environ.get("JUPYTERHUB_API_TOKEN")}'}
-                # the announcement service was called by using specific args
-                mock_client.assert_any_call(
-                    ANNOUNCEMENT_INTERNAL_URL,
-                    headers=headers,
-                    body=json.dumps({'announcement': 'A new service was detected, please reload this page...'}),
-                    method='POST',
-                )
+                with patch.object(AnnouncementService, 'add_announcement') as mock_announcement:
+                    await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                    assert mock_announcement.called
 
 
 @pytest.mark.asyncio()
