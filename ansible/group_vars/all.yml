@@ -6,13 +6,12 @@ working_dir: "{{ ansible_env.PWD }}/illumidesk_deployment"
 org_name: "{{ org_name_param | default('my-org') }}"
 course_id: "{{ course_id_param | default('intro101') }}"
 
-## Upstream jupyterhub/jupyterhub
-# https://github.com/jupyterhub/jupyterhub/commit/65de8c49167738fde9d7e88245593301a2a6a42a
-git_jhub_hash_commit: "{{ git_jhub_hash_commit_param | default('3d524f2092c8f1ca4c2953d78156b73107ef8c1c') }}"
-
 ## Docker
+# base jupyterhub image
+docker_jhub_base_image: "{{ docker_jhub_base_image_param | default('jupyterhub/jupyterhub:1.2') }}"
+
 # built jupyterhub image
-docker_illumidesk_jhub_image: "{{ docker_illumidesk_jhub_image_param | default('illumidesk/jupyterhub:') }}{{ docker_jhub_hash_commit }}"
+docker_illumidesk_jhub_image: "{{ docker_illumidesk_jhub_image_param | default('illumidesk/jupyterhub:latest') }}"
 
 # illumidesk notebooks base and custom images
 docker_illumidesk_notebook_base_image: "{{ docker_illumidesk_notebook_base_image_param | default('illumidesk/base-notebook:latest') }}"
@@ -21,12 +20,16 @@ docker_illumidesk_notebook_grader_image: "{{ docker_illumidesk_notebook_grader_i
 docker_illumidesk_notebook_instructor_image: "{{ docker_illumidesk_notebook_instructor_image_param | default('illumidesk/instructor-notebook:latest') }}"
 
 # additional workspace images
-docker_illumidesk_rstudio_image: "{{ docker_illumidesk_rstudio_image_param | default('illumidesk/rstudio:base') }}-ild-{{ docker_notebook_hash_commit }}"
-docker_illumidesk_theia_image: "{{ docker_illumidesk_theia_image_param | default('illumidesk/theia:base') }}-{{ docker_notebook_hash_commit }}"
-docker_illumidesk_vscode_image: "{{ docker_illumidesk_vscode_image_param | default('illumidesk/vscode:base') }}-{{ docker_notebook_hash_commit }}"
+docker_illumidesk_rstudio_image: "{{ docker_illumidesk_rstudio_image_param | default('illumidesk/rstudio:latest') }}"
+docker_illumidesk_theia_image: "{{ docker_illumidesk_theia_image_param | default('illumidesk/theia:latest') }}"
+docker_illumidesk_vscode_image: "{{ docker_illumidesk_vscode_image_param | default('illumidesk/vscode:latest') }}"
 
-# reverse-proxy image
-docker_proxy_image: "{{ docker_proxy_image_param | default('jupyterhub/configurable-http-proxy:4.2.0') }}"
+# setup-course image
+docker_setup_course_image: "{{ docker_setup_course_image_param | default('illumidesk/setup-course:latest') }}"
+
+# dockerfiles
+docker_jupyterhub_dockerfile: "{{ docker_jupyterhub_dockerfile_param | default('Dockerfile.jhub') }}"
+docker_setup_course_dockerfile: "{{ docker_setup_course_dockerfile_param | default('Dockerfile.setup-course') }}"
 
 ## Jupyterhub
 # Admin users

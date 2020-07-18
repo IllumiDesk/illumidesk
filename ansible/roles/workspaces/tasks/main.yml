@@ -21,15 +21,15 @@
 
 - name: pull base illumidesk/rstudio image
   docker_image:
-    name: "{{ docker_illumidesk_notebook_rstudio_image }}"
+    name: "{{ docker_illumidesk_rstudio_image }}"
     source: pull
 
 - name: pull base illumidesk/theia image
   docker_image:
-    name: "{{ docker_illumidesk_notebook_theia_image }}"
+    name: "{{ docker_illumidesk_theia_image }}"
     source: pull
 
 - name: pull base illumidesk/vscode image
   docker_image:
-    name: "{{ docker_illumidesk_notebook_vscode_image }}"
+    name: "{{ docker_illumidesk_vscode_image }}"
     source: pull
