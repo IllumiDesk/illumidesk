@@ -1,7 +1,8 @@
 import sys
 import os
 
-from dockerspawner import DockerSpawner  # noqa: F401
+from dockerspawner import DockerSpawner
+from illumidesk.apis.announcement_service import ANNOUNCEMENT_JHUB_SERVICE_DEFINITION  # noqa: F401
 
 from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner
 
@@ -66,9 +67,6 @@ c.JupyterHub.load_groups = {
 # Allow admin access to end-user notebooks
 c.JupyterHub.admin_access = True
 
-announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
-announcement_prefix = f'{base_url}/services/announcement'
-
 # Start the grader notebook as a service. The port can be whatever you want
 # and the group has to match the name of the DEMO_GRADER_NAME group defined above.
 # The cull_idle service conserves resources.
@@ -85,11 +83,7 @@ c.JupyterHub.services = [
         'admin': True,
         'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
     },
-    {
-        'name': 'announcement',
-        'url': f'http://0.0.0.0:{int(announcement_port)}',  # allow external connections with 0.0.0.0
-        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix {announcement_prefix}'.split(),
-    },
+    ANNOUNCEMENT_JHUB_SERVICE_DEFINITION,
 ]
 
 # Refrain from cleaning up servers when restarting the hub

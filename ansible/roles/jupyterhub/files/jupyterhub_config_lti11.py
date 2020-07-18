@@ -3,8 +3,9 @@ import sys
 
 import requests
 
-from dockerspawner import DockerSpawner  # noqa: F401
+from dockerspawner import DockerSpawner
 
+from illumidesk.apis.announcement_service import ANNOUNCEMENT_JHUB_SERVICE_DEFINITION  # noqa: F401
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
 from illumidesk.grades.handlers import SendGradesHandler
@@ -61,8 +62,6 @@ c.JupyterHub.base_url = base_url
 # Although the cull-idle service is internal, and therefore does not need an explicit
 # registration of the jupyterhub api token, we add it here so the internal api client
 # can use the token to utilize RESTful endpoints with full CRUD priviledges.
-announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
-announcement_prefix = f'{base_url}/services/announcement'
 
 c.JupyterHub.services = [
     {
@@ -71,11 +70,7 @@ c.JupyterHub.services = [
         'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
         'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
     },
-    {
-        'name': 'announcement',
-        'url': f'http://0.0.0.0:{int(announcement_port)}',  # allow external connections with 0.0.0.0
-        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix {announcement_prefix}'.split(),
-    },
+    ANNOUNCEMENT_JHUB_SERVICE_DEFINITION,
 ]
 
 # Refrain from cleaning up servers when restarting the hub
