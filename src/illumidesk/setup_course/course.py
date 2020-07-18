@@ -173,7 +173,7 @@ class Course:
                 f'JUPYTERHUB_SERVICE_NAME={self.course_id}',
                 f'JUPYTERHUB_API_TOKEN={self.token}',
                 f'JUPYTERHUB_API_URL={jupyterhub_api_url}',
-                # f'JUPYTERHUB_BASE_URL=https://{self.domain}/',
+                f'JUPYTERHUB_BASE_URL={base_url}/',
                 f'JUPYTERHUB_SERVICE_PREFIX={base_url}/services/{self.course_id}',
                 f'JUPYTERHUB_CLIENT_ID=service-{self.course_id}',
                 f'JUPYTERHUB_USER={self.grader_name}',
