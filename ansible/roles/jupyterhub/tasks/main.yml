@@ -55,31 +55,29 @@
     src: requirements.txt
     dest: "{{ working_dir }}/jupyterhub-requirements.txt"
 
-- name: is lti11 enabled
+- name: Authentication type to install
   debug:
-    msg: "is lti11 enabled?: {{ lti11_enabled }}"
+    msg: "authentication_type?: {{ authentication_type }}"
 
-- name: is lti13 enabled
-  debug:
-    msg: "is lti13 enabled?: {{ lti13_enabled }}"
+- name: copy the base of jupyterhub configuration file with common settings
+  template:
+   src: jupyterhub_config_base.py.j2
+   dest: "{{ working_dir }}/jupyterhub_config.py"
 
-- name: copy the jupyterhub configuration file with firstuse authenticator config
+- name: copy the custom jupyterhub configuration file with firstuse authenticator settings
   copy:
     src: jupyterhub_config_fu.py
-    dest: "{{ working_dir }}/jupyterhub_config.py"
-  when: not lti11_enabled|bool and not lti13_enabled|bool
+    dest: "{{ working_dir }}/jupyterhub_config_fu.py"
 
-- name: copy the jupyterhub configuration file with lti v1.1 config
+- name: copy the custom jupyterhub configuration file with lti v1.1 settings
   copy:
     src: jupyterhub_config_lti11.py
-    dest: "{{ working_dir }}/jupyterhub_config.py"
-  when: lti11_enabled|bool
+    dest: "{{ working_dir }}/jupyterhub_config_lti11.py"
 
-- name: copy the jupyterhub configuration file with lti v1.3 config
+- name: copy the custom jupyterhub configuration file with lti v1.3 settings
   copy:
     src: jupyterhub_config_lti13.py
-    dest: "{{ working_dir }}/jupyterhub_config.py"
-  when: lti13_enabled|bool
+    dest: "{{ working_dir }}/jupyterhub_config_lti13.py"
 
 - name: copy postgres utility scripts
   copy:
@@ -116,11 +114,11 @@
     src: Dockerfile.jhub.j2
     dest: "{{ working_dir }}/Dockerfile.jhub"
 
-- name: create grader service env var file from template
+- name: create grader service env var file from template (only for FirstUseAuthenticator)
   template:
     src: env.service.j2
     dest: "{{ working_dir }}/env.service"
-  when: not lti11_enabled|bool
+  when: authentication_type == "fu"
 
 - name: create the jupyterhub env var file from template
   template:

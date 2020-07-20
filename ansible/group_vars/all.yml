@@ -74,15 +74,13 @@ aws_region: "{{ aws_region_param | default('us-west-2') }}"
 # Postgres for notebooks labs
 postgres_labs_enabled: "{{ postgres_labs_enabled_param | default('false') }}"
 
-# Enable/disable LTI v1.1 config
-lti11_enabled: "{{ lti11_enabled_param | default('false')}}"
+# Specify the authentication type to install/use in the deployment
+# choices are: fu (FirstUseAuthentication, LTI11 or LT13 Authentication)
+authentication_type: "{{ authentication_type_param | default('fu') }}"
 
 # LTI 1.1 credentials
 lti11_consumer_key: "{{ lti11_consumer_key_result }}"
 lti11_shared_secret: "{{ lti11_shared_secret_result }}"
-
-# Enable/disable LTI v1.3 config
-lti13_enabled: "{{ lti13_enabled_param | default('false')}}"
 
 # LTI 1.3 config
 lti13_client_id: "{{ lti13_client_id_param | default('')}}"

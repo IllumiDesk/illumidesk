@@ -40,7 +40,7 @@ services:
       - ./reverse-proxy/:/etc/traefik/
       - /var/run/docker.sock:/var/run/docker.sock
     restart: on-failure
-{% if lti11_enabled is sameas false and lti13_enabled is sameas false%}
+{% if authentication_type == "fu" %}
   {{course_id}}:
     restart: on-failure
     image: {{docker_illumidesk_notebook_grader_image}}
