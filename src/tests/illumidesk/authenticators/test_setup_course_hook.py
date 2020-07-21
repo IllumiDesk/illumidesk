@@ -8,7 +8,7 @@ import pytest
 from tornado.web import RequestHandler
 from tornado.httpclient import AsyncHTTPClient
 
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.announcement_service import AnnouncementService
@@ -328,12 +328,10 @@ async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
             ):
                 async def announcement_resp():
                     return None
+                AnnouncementService.add_announcement = Mock(return_value=announcement_resp())
                 
-                with patch.object(
-                    AnnouncementService, 'add_announcement',
-                    return_value=announcement_resp) as mock_announcement:
-                    await setup_course_hook(local_authenticator, local_handler, local_authentication)
-                    assert mock_announcement.called
+                await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                assert AnnouncementService.add_announcement.called
 
 
 @pytest.mark.asyncio()
