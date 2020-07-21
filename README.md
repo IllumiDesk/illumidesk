@@ -437,11 +437,11 @@ The services included with this setup rely on environment variables to work prop
 | DEMO_INSTRUCTOR_GROUP | `string` | Demo instructor group name. | `formgrade-{course_id}` |
 | DEMO_STUDENT_GROUP | `string` | Demo student group name. | `nbgrader-{course_id}` |
 | DEMO_GRADER_NAME | `string` | Demo grader service name. | `service-{course_id}` |
-| DOCKER_LEARNER_IMAGE | `string` | Docker image used by users with the Learner role. | `illumidesk/notebook:learner` |
-| DOCKER_GRADER_IMAGE | `string` | Docker image used by users with the Grader role. | `illumidesk/notebook:grader` |
-| DOCKER_INSTRUCTOR_IMAGE | `string` | Docker image used by users with the Instructor role. | `illumidesk/notebook:instructor` |
-| DOCKER_STANDARD_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/notebook:standard` |
-| DOCKER_THEIA_IMAGE | `string` | Docker image used for the THEIA IDE | `illumidesk/theiaide:latest` |
+| DOCKER_LEARNER_IMAGE | `string` | Docker image used by users with the Learner role. | `illumidesk/learner-notebook:latest` |
+| DOCKER_GRADER_IMAGE | `string` | Docker image used by users with the Grader role. | `illumidesk/grader-notebook:latest` |
+| DOCKER_INSTRUCTOR_IMAGE | `string` | Docker image used by users with the Instructor role. | `illumidesk/instructor-notebook:latest` |
+| DOCKER_STANDARD_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/base-notebook:latest` |
+| DOCKER_THEIA_IMAGE | `string` | Docker image used for the THEIA IDE | `illumidesk/theia:latest` |
 | DOCKER_RSTUDIO_IMAGE | `string` | Docker image used for RStudio | `illumidesk/rstudio:latest` |
 | DOCKER_VSCODE_IMAGE | `string` | Docker image used for VS Code | `illumidesk/vscode:latest` |
 | DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |

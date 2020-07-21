@@ -127,6 +127,11 @@
     src: env.jhub.j2
     dest: "{{ working_dir }}/env.jhub"
 
+- name: create base jupyterhub dockerfile from template
+  template:
+    src: Dockerfile.jhub.j2
+    dest: "{{ working_dir }}/Dockerfile.jhub"
+
 - name: build jupyterhub image
   docker_image:
     name: "{{ docker_illumidesk_jhub_image }}"
