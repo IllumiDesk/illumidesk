@@ -42,6 +42,10 @@ COPY share/templates/. /usr/local/share/jupyterhub/templates/.
 
 # /etc/jupyterhub/jupyterhub_config.py by default
 COPY jupyterhub_config.py /etc/jupyterhub/jupyterhub_config.py
+# copy others configuration files to load custom settings based in the authentication type used
+COPY jupyterhub_config_fu.py /etc/jupyterhub/jupyterhub_config_fu.py
+COPY jupyterhub_config_lti11.py /etc/jupyterhub/jupyterhub_config_lti11.py
+COPY jupyterhub_config_lti13.py /etc/jupyterhub/jupyterhub_config_lti13.py
 
 WORKDIR /srv/jupyterhub
 

@@ -144,4 +144,4 @@ c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 {% set existing_sub_config_files = { 'fu': 'jupyterhub_config_fu.py', 'lti11': 'jupyterhub_config_lti11.py', 'lti13': 'jupyterhub_config_lti13.py'} -%}
 
 {% set authentication_config_file = existing_sub_config_files[authentication_type] | default("jupyterhub_config_fu.py") -%}
-load_subconfig('{{authentication_config_file}}')
+load_subconfig('/etc/jupyterhub/{{authentication_config_file}}')
