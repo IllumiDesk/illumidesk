@@ -323,11 +323,13 @@ async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
                 'fetch',
                 side_effect=[
                     make_http_response(**response_args),
-                    make_http_response(**response_args),
                     None,
                 ],  # noqa: E231
-            ) as mock_client:
-                with patch.object(AnnouncementService, 'add_announcement') as mock_announcement:
+            ):
+                announcement_resp = await make_http_response(handler=local_handler.request)
+                with patch.object(
+                    AnnouncementService, 'add_announcement',
+                    return_value=announcement_resp) as mock_announcement:
                     await setup_course_hook(local_authenticator, local_handler, local_authentication)
                     assert mock_announcement.called
 
