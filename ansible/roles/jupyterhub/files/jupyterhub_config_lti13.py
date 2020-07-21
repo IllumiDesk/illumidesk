@@ -12,6 +12,12 @@ from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner  # noq
 
 c = get_config()
 
+# FIRST load the base configuration file (with common settings)
+load_subconfig('/etc/jupyterhub/jupyterhub_config_base.py')
+# THEN override the settings that apply only with LT13 authentication type
+
+# Do not redirect user to his/her server (if running)
+c.JupyterHub.redirect_to_server = False
 # LTI 1.3 authenticator class.
 c.JupyterHub.authenticator_class = LTI13Authenticator
 # Spawn containers with by role or workspace type

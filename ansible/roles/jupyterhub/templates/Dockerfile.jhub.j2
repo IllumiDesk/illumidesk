@@ -40,12 +40,10 @@ COPY favicon.ico /usr/local/share/jupyterhub/static/favicon.ico
 # Copy templates
 COPY share/templates/. /usr/local/share/jupyterhub/templates/.
 
+# Copy the base configuration file and the custom file containing special settings
 # /etc/jupyterhub/jupyterhub_config.py by default
 COPY jupyterhub_config.py /etc/jupyterhub/jupyterhub_config.py
-# copy others configuration files to load custom settings based in the authentication type used
-COPY jupyterhub_config_fu.py /etc/jupyterhub/jupyterhub_config_fu.py
-COPY jupyterhub_config_lti11.py /etc/jupyterhub/jupyterhub_config_lti11.py
-COPY jupyterhub_config_lti13.py /etc/jupyterhub/jupyterhub_config_lti13.py
+COPY jupyterhub_config_base.py /etc/jupyterhub/jupyterhub_config_base.py
 
 WORKDIR /srv/jupyterhub
 

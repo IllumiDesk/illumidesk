@@ -138,10 +138,3 @@ c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 ##########################################
 # END CUSTOM DOCKERSPAWNER
 ##########################################
-
-# THE MOST IMPORTANT PART IN THIS FILE IS LOAD SPECIFIC SUB-CONFIG BASED ON AUTHENTICATION TYPE SELECTED
-# LOAD A SUBCONFIG FILE
-{% set existing_sub_config_files = { 'fu': 'jupyterhub_config_fu.py', 'lti11': 'jupyterhub_config_lti11.py', 'lti13': 'jupyterhub_config_lti13.py'} -%}
-
-{% set authentication_config_file = existing_sub_config_files[authentication_type] | default("jupyterhub_config_fu.py") -%}
-load_subconfig('/etc/jupyterhub/{{authentication_config_file}}')

@@ -60,24 +60,27 @@
     msg: "authentication_type?: {{ authentication_type }}"
 
 - name: copy the base of jupyterhub configuration file with common settings
-  template:
-   src: jupyterhub_config_base.py.j2
-   dest: "{{ working_dir }}/jupyterhub_config.py"
+  copy:
+   src: jupyterhub_config_base.py
+   dest: "{{ working_dir }}/jupyterhub_config_base.py"
 
 - name: copy the custom jupyterhub configuration file with firstuse authenticator settings
   copy:
     src: jupyterhub_config_fu.py
-    dest: "{{ working_dir }}/jupyterhub_config_fu.py"
+    dest: "{{ working_dir }}/jupyterhub_config.py"
+  when: authentication_type == "fu"
 
 - name: copy the custom jupyterhub configuration file with lti v1.1 settings
   copy:
     src: jupyterhub_config_lti11.py
-    dest: "{{ working_dir }}/jupyterhub_config_lti11.py"
+    dest: "{{ working_dir }}/jupyterhub_config.py"
+  when: authentication_type == "lti11"
 
 - name: copy the custom jupyterhub configuration file with lti v1.3 settings
   copy:
     src: jupyterhub_config_lti13.py
-    dest: "{{ working_dir }}/jupyterhub_config_lti13.py"
+    dest: "{{ working_dir }}/jupyterhub_config.py"
+  when: authentication_type == "lti13"
 
 - name: copy postgres utility scripts
   copy:
