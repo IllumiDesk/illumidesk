@@ -326,7 +326,9 @@ async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
                     None,
                 ],  # noqa: E231
             ):
-                announcement_resp = await make_http_response(handler=local_handler.request)
+                async def announcement_resp():
+                    return None
+                
                 with patch.object(
                     AnnouncementService, 'add_announcement',
                     return_value=announcement_resp) as mock_announcement:
