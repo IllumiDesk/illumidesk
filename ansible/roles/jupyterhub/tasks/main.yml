@@ -63,12 +63,6 @@
   debug:
     msg: "is lti13 enabled?: {{ lti13_enabled }}"
 
-- name: copy the jupyterhub configuration file with firstuse authenticator config
-  copy:
-    src: jupyterhub_config_fu.py
-    dest: "{{ working_dir }}/jupyterhub_config.py"
-  when: not lti11_enabled|bool and not lti13_enabled|bool
-
 - name: copy the jupyterhub configuration file with lti v1.1 config
   copy:
     src: jupyterhub_config_lti11.py
@@ -115,12 +109,6 @@
   template:
     src: Dockerfile.jhub.j2
     dest: "{{ working_dir }}/Dockerfile.jhub"
-
-- name: create grader service env var file from template
-  template:
-    src: env.service.j2
-    dest: "{{ working_dir }}/env.service"
-  when: not lti11_enabled|bool
 
 - name: create the jupyterhub env var file from template
   template:
