@@ -1,7 +1,6 @@
 import os
 
-import requests
-
+from illumidesk.apis.setup_course_service import SetupCourseService
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
 
@@ -17,21 +16,17 @@ c = get_config()
 
 # FIRST load the base configuration file (with common settings)
 load_subconfig('/etc/jupyterhub/jupyterhub_config_base.py')
+
 # THEN override the settings that apply only with LT13 authentication type
 
-# Do not redirect user to his/her server (if running)
-c.JupyterHub.redirect_to_server = False
+##########################################
+# BEGIN LTI 1.3 AUTHENTICATOR
+##########################################
 # LTI 1.3 authenticator class.
 c.JupyterHub.authenticator_class = LTI13Authenticator
 # Spawn containers with by role or workspace type
 c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
 # c.JupyterHub.spawner_class = IllumiDeskWorkSpaceDockerSpawner
-
-
-##########################################
-# BEGIN LTI 1.3 AUTHENTICATOR
-##########################################
-
 # created after installing app in lms
 c.LTI13Authenticator.client_id = os.environ.get('LTI13_CLIENT_ID')
 c.LTI13Authenticator.endpoint = os.environ.get('LTI13_ENDPOINT')
@@ -46,7 +41,6 @@ c.JupyterHub.extra_handlers = [
     (r'/lti13/config$', LTI13ConfigHandler),
     (r'/lti13/jwks$', LTI13JWKSHandler),
 ]
-
 ##########################################
 # END LTI 1.3 AUTHENTICATOR
 ##########################################
@@ -69,23 +63,10 @@ c.Authenticator.enable_auth_state = True
 # SETUP COURSE SERVICE
 ##########################################
 # Dynamic config to setup new courses
-
-# course setup service name
-service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
-
-# course setup service port
-port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
-
-# get the response from course setup app endpoint
-response = requests.get(f'http://{service_name}:{port}/config')
-
-# store course setup configuration
-config = response.json()
-
+extra_services = SetupCourseService.get_current_service_definitions()
 # load k/v's when starting jupyterhub
-c.JupyterHub.load_groups.update(config['load_groups'])
-c.JupyterHub.services.extend(config['services'])
-
+c.JupyterHub.load_groups.update(extra_services['load_groups'])
+c.JupyterHub.services.extend(extra_services['services'])
 ##########################################
 # END SETUP COURSE SERVICE
 ##########################################

@@ -3,6 +3,7 @@ import sys
 
 import requests
 
+from illumidesk.apis.setup_course_service import SetupCourseService
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
 from illumidesk.grades.handlers import SendGradesHandler
@@ -62,23 +63,10 @@ c.Authenticator.enable_auth_state = True
 # SETUP COURSE SERVICE
 ##########################################
 # Dynamic config to setup new courses
-
-# course setup service name
-service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
-
-# course setup service port
-port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
-
-# get the response from course setup app endpoint
-response = requests.get(f'http://{service_name}:{port}/config')
-
-# store course setup configuration
-config = response.json()
-
+extra_services = SetupCourseService.get_current_service_definitions()
 # load k/v's when starting jupyterhub
-c.JupyterHub.load_groups.update(config['load_groups'])
-c.JupyterHub.services.extend(config['services'])
-
+c.JupyterHub.load_groups.update(extra_services['load_groups'])
+c.JupyterHub.services.extend(extra_services['services'])
 ##########################################
 # END SETUP COURSE SERVICE
 ##########################################

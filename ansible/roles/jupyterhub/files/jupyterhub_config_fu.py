@@ -1,7 +1,6 @@
 import os
 
 from dockerspawner import DockerSpawner
-from illumidesk.apis.announcement_service import ANNOUNCEMENT_JHUB_SERVICE_DEFINITION  # noqa: F401
 
 from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner
 
@@ -11,10 +10,6 @@ c = get_config()
 # FIRST load the base configuration file (with common settings)
 load_subconfig('/etc/jupyterhub/jupyterhub_config_base.py')
 # THEN override the settings that apply only with LT13 authentication type
-
-# JupyterHub's base url
-base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
-c.JupyterHub.base_url = base_url
 
 # The instructor1 and instructor2 users have access to different shared
 # grader notebooks. bitdiddle, hacker, and reasoner students are from

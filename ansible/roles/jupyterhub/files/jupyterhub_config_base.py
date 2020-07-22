@@ -1,6 +1,9 @@
 import os
 import sys
+
 from dockerspawner import DockerSpawner  # noqa: F401
+from illumidesk.apis.announcement_service import ANNOUNCEMENT_JHUB_SERVICE_DEFINITION
+
 
 c = get_config()
 
@@ -36,7 +39,6 @@ c.JupyterHub.cleanup_servers = False
 # Although the cull-idle service is internal, and therefore does not need an explicit
 # registration of the jupyterhub api token, we add it here so the internal api client
 # can use the token to utilize RESTful endpoints with full CRUD priviledges.
-announcement_port = os.environ.get('ANNOUNCEMENT_SERVICE_PORT') or '8889'
 c.JupyterHub.services = [
     {
         'name': 'idle-culler',
@@ -44,11 +46,7 @@ c.JupyterHub.services = [
         'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
         'api_token': os.environ.get('JUPYTERHUB_API_TOKEN'),
     },
-    {
-        'name': 'announcement',
-        'url': f'http://0.0.0.0:{int(announcement_port)}',  # allow external connections with 0.0.0.0
-        'command': f'python3 /srv/jupyterhub/announcement.py --port {int(announcement_port)} --api-prefix /services/announcement'.split(),
-    },
+    ANNOUNCEMENT_JHUB_SERVICE_DEFINITION,
 ]
 
 # JupyterHub postgres settings
@@ -58,6 +56,12 @@ c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
     host=os.environ.get('POSTGRES_HOST'),
     db=os.environ.get('POSTGRES_DB'),
 )
+# Do not redirect user to his/her server (if running)
+c.JupyterHub.redirect_to_server = False
+
+# JupyterHub's base url
+base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
+c.JupyterHub.base_url = base_url
 ##########################################
 # END JUPYTERHUB APPLICATION
 ##########################################
