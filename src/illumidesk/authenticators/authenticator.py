@@ -21,6 +21,7 @@ from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.announcement_service import AnnouncementService
+from illumidesk.apis.setup_course_service import SetupCourseService
 
 from illumidesk.authenticators.constants import WORKSPACE_TYPES
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
@@ -83,26 +84,15 @@ async def setup_course_hook(
         'course_id': course_id,
         'domain': handler.request.host,
     }
-    service_name = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
-    port = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
-    url = f'http://{service_name}:{port}'
-    headers = {'Content-Type': 'application/json'}
-    response = await client.fetch(url, headers=headers, body=json.dumps(data), method='POST')
-    if not response.body:
-        raise JSONDecodeError('The setup course response body is empty', '', 0)
-    resp_json = json.loads(response.body)
-    logger.debug(f'Setup-Course service response: {resp_json}')
+    setup_response = await SetupCourseService.register_new_service(data)    
 
     # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
-    if 'is_new_setup' in resp_json and resp_json['is_new_setup'] is True:
+    if 'is_new_setup' in setup_response and setup_response['is_new_setup'] is True:
         # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
         await AnnouncementService.add_announcement('A new service was detected, please reload this page...')
 
         logger.debug('The current jupyterhub instance will be updated by setup-course service...')
-        url = f'http://{service_name}:{port}/rolling-update'
-        # our setup-course not requires the Authentication header but not affected the call
-        # WE'RE NOT USING <<<AWAIT>>> because the rolling update should occur later
-        client.fetch(url, headers=headers, body='', method='POST')
+        SetupCourseService.make_rolling_update()
 
     return authentication
 
