@@ -111,15 +111,6 @@
     src: Dockerfile.jhub.j2
     dest: "{{ working_dir }}/Dockerfile.jhub"
 
-<<<<<<< HEAD
-- name: create grader service env var file from template (only for FirstUseAuthenticator)
-  template:
-    src: env.service.j2
-    dest: "{{ working_dir }}/env.service"
-  when: authentication_type == "fu"
-
-=======
->>>>>>> main
 - name: create the jupyterhub env var file from template
   template:
     src: env.jhub.j2
