@@ -4,9 +4,12 @@ import requests
 
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
+
 from illumidesk.grades.handlers import SendGradesHandler
+
 from illumidesk.lti13.handlers import LTI13ConfigHandler
 from illumidesk.lti13.handlers import LTI13JWKSHandler
+
 from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
 from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner  # noqa: F401
 
