@@ -40,20 +40,6 @@ services:
       - ./reverse-proxy/:/etc/traefik/
       - /var/run/docker.sock:/var/run/docker.sock
     restart: on-failure
-{% if authentication_type == "fu" %}
-  {{course_id}}:
-    restart: on-failure
-    image: {{docker_illumidesk_notebook_grader_image}}
-    container_name: {{course_id}}
-    user: root
-    volumes:
-      - {{mnt_root}}/{{org_name}}/home/grader-{{course_id}}:/home/grader-{{course_id}}
-      - {{mnt_root}}/{{org_name}}/exchange:/srv/nbgrader/exchange
-    env_file:
-      - env.service
-    command: >
-      start-notebook.sh --group=formgrade-{{course_id}} --allow-root
-{% endif %}
   setup-course:
     restart: on-failure
     image: {{docker_setup_course_image}}
