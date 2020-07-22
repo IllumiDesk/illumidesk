@@ -11,7 +11,6 @@ nbgrader==0.6.1
 jupyterhub-traefik-proxy==0.1.6
 
 # Authenticators
-jupyterhub-firstuseauthenticator==0.12
 jupyterhub-ltiauthenticator==0.4.0
 oauthenticator==0.11.0
 

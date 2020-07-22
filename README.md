@@ -58,7 +58,7 @@ cp ansible/hosts.example ansible/hosts
     - ansible_ssh_private_key_file: full path to SSH private key file used for SSH
     - ansible_password: optional value used when the target server requires a username/password
 
-By default this setup uses the `FristUseAuthenticator`. Refer to the [customization](#customization) section if you would like to use LTI 1.1 with your LMS.
+Refer to the [customization](#customization) section if you would like to use LTI 1.1 or LTI 1.3 with your LMS.
 
 > **NOTE**: the default admin user is set to `admin`. To update this default value, change the `admin_user` variable to another username. Refere to the `hosts.example` file for example.
 
@@ -80,11 +80,6 @@ Set `ARGS` to `-vv` to enable more verbosity or `-vvv` for super duper verbosity
 
     `http://<target_ipv4>:8000/`
 
-6. Login with either the instructor or student accounts:
-
-- **Instructor Role**: instructor1
-- **Student Role**: student1
-
 > **Tip**: To confirm the values you will need for the `make deploy` command to successfully connect to your instance, log into your remote instance with SSH. For example, a successfull connection with the `ssh -i my-ssh-key.pem ubuntu@1.2.3.4` command means that the values map to:
 
 > - ansible_host: 1.2.3.4
@@ -95,17 +90,15 @@ Set `ARGS` to `-vv` to enable more verbosity or `-vvv` for super duper verbosity
 
 ### Initial Course Setup
 
-By default, this setup uses the `FirstUseAuthenticator` and as such accepts any password you designate when first logging into the system.
+By default, this setup uses the `LTI11Authenticator`. Shared grader accounts and courses are dynamically configured when logging into the system. You may also configure the `ansible-playbook` to use the `LTI13Authenticator`.
 
-1. Log in with the instructor account which by default is `instructor1`
+If you would like to setup a quickstart course, [you may do so using the standard `nbgrader quickstart` command](https://nbgrader.readthedocs.io/en/stable/command_line_tools/nbgrader-quickstart.html?highlight=quickstart) (replace `<course_name>` with your desired course name):
 
-2. Access the shared grader notebook accessible by clicking on `Control Panel --> Services --> Course ID` (`intro101` by default)
+```bash
+nbgrader quickstart <course_name> --force
+```
 
-3. Open a Jupyter terminal by clicking on `New --> Terminal`.
-
-4. Type `nbgrader quickstart intro101 --force`
-
-5. Click on the `Grader Console` tab and follow the steps available within the nbgrader docs to generate and release assignments for the students.
+Click on the `Grader Console` tab and follow the steps available within the nbgrader docs to generate and release assignments for your learners.
 
 ## Components
 
@@ -113,7 +106,7 @@ By default, this setup uses the `FirstUseAuthenticator` and as such accepts any 
 
 * **Setup Course Image**: Runs client services to communicate with the `JupyterHub REST API` to dynamically setup new courses. This service is only applicable when using either `LTI 1.1` or `LTI 1.3` authenticators.
 
-* **Authenticator**: The JupyterHub compatible authentication service. We recommend either using the `LTI11Authenticator` or `LTI13Authenticator` with your Learning Management System to take advantage of the latest features, however, the [FirstUseAuthenticator](https://github.com/jupyterhub/firstuseauthenticator) is available in case an LTI compatible LMS isn't available.
+* **Authenticator**: The JupyterHub compatible authentication service. We recommend either using the `LTI11Authenticator` or `LTI13Authenticator` with your Learning Management System to take advantage of the latest features.
 
 * **Spawner**: Spawning service to manage user notebooks. This setup uses two classes which inherit from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class: the `IllumiDeskRoleDockerSpawner` (to set the user's docker image based on LTI role) and the `IllumiDeskWorkSpaceDockerSpawner` (to set the user's docker image base on desired workspace type).
 
@@ -469,19 +462,6 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
 | USER_WORKSPACE_TYPE | `string` | User's workspace type to run. Accepted values are one of: `notebook`, `rstudio`, `theia`, `vscode`. Unrecognized values default to `notebook`. | `notebook` |
-
-### Environment Variables pertaining to grader service, located in `env.service`
-
-> This file is only used when you're using the initial setup with FirstUseAuthenticator
-
-| Variable  |  Type | Description | Default Value |
-|---|---|---|---|
-| JUPYTERHUB_API_TOKEN | `string` | JupyterHub API token | `<randon_value>` |
-| JUPYTERHUB_API_URL | `string` | External facing API URL | `http://reverse-proxy:8000/hub/api` |
-| JUPYTERHUB_CLIENT_ID | `string` | JupyterHub client id used with OAuth2 | `service-{course_id}` |
-| JUPYTERHUB_SERVICE_PREFIX | `string` | JupyterHub client id used with OAuth2 | /`services/{course_id}` |
-| NB_USER | `string` | Notebook grader user | `grader-{course_id}` |
-| NB_UID | `string` | Notebook grader user id | `10001` |
 
 ### Environment Variables pertaining to setup-course service, located in `env.setup-course`
 
