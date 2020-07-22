@@ -1,6 +1,4 @@
 import os
-import json
-from json import JSONDecodeError
 import logging
 
 from jupyterhub.auth import Authenticator
@@ -11,7 +9,6 @@ from ltiauthenticator import LTIAuthenticator
 
 from oauthenticator.oauth2 import OAuthenticator
 
-from tornado.httpclient import AsyncHTTPClient
 from tornado.web import HTTPError
 from tornado.web import RequestHandler
 
@@ -78,13 +75,12 @@ async def setup_course_hook(
     elif user_role == 'Instructor':
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
-    client = AsyncHTTPClient()
     data = {
         'org': org,
         'course_id': course_id,
         'domain': handler.request.host,
     }
-    setup_response = await SetupCourseService.register_new_service(data)    
+    setup_response = await SetupCourseService.register_new_service(data)
 
     # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
     if 'is_new_setup' in setup_response and setup_response['is_new_setup'] is True:

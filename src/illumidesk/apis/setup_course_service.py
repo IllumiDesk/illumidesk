@@ -3,9 +3,8 @@ import logging
 import os
 
 from tornado.httpclient import AsyncHTTPClient
-from tornado.httpclient import HTTPResponse  # noqa: F401
 
-from typing import Awaitable, Dict
+from typing import Dict
 
 import requests
 
@@ -24,9 +23,10 @@ class SetupCourseService:
     """
     Wrapper class that contains the logic to make requests to our internal setup-course service
     """
+
     base_url = f'http://{INTENAL_SERVICE_NAME}:{SERVICE_PORT}'
     common_headers = {'Content-Type': 'application/json'}
-    
+
     @staticmethod
     def get_current_service_definitions() -> str:
         """
@@ -37,14 +37,14 @@ class SetupCourseService:
         # store course setup configuration
         config = response.json()
         return config
-    
+
     @staticmethod
     async def register_new_service(data: Dict[str, str]) -> str:
         """
         Helps to register (asynchronously) new course definition through the setup-course service
         Args:
             data: a dict with the org, course_id (label) and the domain. 
-        
+
         Example:
         ```await SetupCourseService.register_new_service(data = {
                 'org': org,
@@ -53,10 +53,14 @@ class SetupCourseService:
             })```
 
         """
-        client = AsyncHTTPClient()        
-        
+        client = AsyncHTTPClient()
+
         response = await client.fetch(
-            SetupCourseService.base_url, headers=SetupCourseService.common_headers, body=json.dumps(data), method='POST')
+            SetupCourseService.base_url,
+            headers=SetupCourseService.common_headers,
+            body=json.dumps(data),
+            method='POST',
+        )
         if not response.body:
             raise json.JSONDecodeError('The setup course response body is empty', '', 0)
         resp_json = json.loads(response.body)
@@ -70,6 +74,6 @@ class SetupCourseService:
         It's very important to understand that we not have to wait 'cause the current process/jupyterhub will be killed
         """
         client = AsyncHTTPClient()
-        url = f'{SetupCourseService.base_url}/rolling-update'        
+        url = f'{SetupCourseService.base_url}/rolling-update'
         # WE'RE NOT USING <<<AWAIT>>> because the rolling update should occur later
         client.fetch(url, headers=SetupCourseService.common_headers, body='', method='POST')

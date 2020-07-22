@@ -9,7 +9,6 @@ from tornado.web import RequestHandler
 from tornado.httpclient import AsyncHTTPClient
 
 from unittest.mock import AsyncMock
-from unittest.mock import Mock
 from unittest.mock import patch
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
@@ -321,15 +320,10 @@ async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
         with patch.object(JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None):
 
             with patch.object(
-                AsyncHTTPClient,
-                'fetch',
-                side_effect=[
-                    make_http_response(**response_args),
-                    None,
-                ],  # noqa: E231
+                AsyncHTTPClient, 'fetch', side_effect=[make_http_response(**response_args), None,],  # noqa: E231
             ):
                 AnnouncementService.add_announcement = AsyncMock(return_value=None)
-                
+
                 await setup_course_hook(local_authenticator, local_handler, local_authentication)
                 assert AnnouncementService.add_announcement.called
 
@@ -356,15 +350,10 @@ async def test_is_new_course_initiates_rolling_update(
         with patch.object(JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None):
 
             with patch.object(
-                AsyncHTTPClient,
-                'fetch',
-                side_effect=[
-                    make_http_response(**response_args),
-                    None,
-                ],  # noqa: E231
+                AsyncHTTPClient, 'fetch', side_effect=[make_http_response(**response_args), None,],  # noqa: E231
             ) as mock_client:
                 AnnouncementService.add_announcement = AsyncMock(return_value=None)
-                
+
                 await setup_course_hook(local_authenticator, local_handler, local_authentication)
                 assert mock_client.called
 
