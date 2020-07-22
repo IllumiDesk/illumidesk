@@ -1,7 +1,8 @@
 import sys
 import os
 
-from dockerspawner import DockerSpawner  # noqa: F401
+from dockerspawner import DockerSpawner
+from illumidesk.apis.announcement_service import ANNOUNCEMENT_JHUB_SERVICE_DEFINITION  # noqa: F401
 
 from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner
 
@@ -44,6 +45,10 @@ data_dir = '/data'
 
 c.JupyterHub.cookie_secret_file = os.path.join(data_dir, 'jupyterhub_cookie_secret')
 
+# JupyterHub's base url
+base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
+c.JupyterHub.base_url = base_url
+
 # The instructor1 and instructor2 users have access to different shared
 # grader notebooks. bitdiddle, hacker, and reasoner students are from
 # the `nbgrader quickstart <course name>` command.
@@ -78,11 +83,7 @@ c.JupyterHub.services = [
         'admin': True,
         'command': [sys.executable, '-m', 'jupyterhub_idle_culler', '--timeout=3600'],
     },
-    {
-        'name': 'announcement',
-        'url': 'http://0.0.0.0:8889',
-        'command': 'python3 /srv/jupyterhub/announcement.py --port 8889 --api-prefix /services/announcement'.split(),
-    },
+    ANNOUNCEMENT_JHUB_SERVICE_DEFINITION,
 ]
 
 # Refrain from cleaning up servers when restarting the hub
