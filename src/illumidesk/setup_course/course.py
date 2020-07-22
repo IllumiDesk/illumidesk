@@ -6,8 +6,10 @@ from pathlib import Path
 from secrets import token_hex
 import docker
 
-from .constants import NB_GRADER_CONFIG_TEMPLATE
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
+
+from .constants import NBGRADER_COURSE_CONFIG_TEMPLATE
+from .constants import NBGRADER_HOME_CONFIG_TEMPLATE
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -56,8 +58,12 @@ class Course:
         return self.grader_root / '.jupyter'
 
     @property
-    def nbgrader_config_path(self):
+    def nbgrader_home_config_path(self):
         return self.jupyter_config_path / 'nbgrader_config.py'
+
+    @property
+    def nbgrader_course_config_path(self):
+        return self.course_root / 'nbgrader_config.py'
 
     @property
     def is_new_setup(self):
@@ -120,11 +126,23 @@ class Course:
         shutil.chown(str(self.jupyter_config_path), user=self.uid, group=self.gid)
         logger.debug('Change course jupyter config permissions to %s:%s' % (self.uid, self.gid))
 
-        logger.debug('Course nbgrader_config.py path %s' % self.nbgrader_config_path)
-        nbgrader_config = NB_GRADER_CONFIG_TEMPLATE.format(grader_name=self.grader_name, course_id=self.course_id)
-        self.nbgrader_config_path.write_text(nbgrader_config)
-        shutil.chown(str(self.nbgrader_config_path), user=self.uid, group=self.gid)
-        logger.debug('Added nbgrader config %s with permissions %s:%s' % (nbgrader_config, self.uid, self.gid))
+        logger.debug('Grader home nbgrader_config.py path %s' % self.nbgrader_home_config_path)
+        nbgrader_config = NBGRADER_HOME_CONFIG_TEMPLATE.format(grader_name=self.grader_name, course_id=self.course_id)
+        self.nbgrader_home_config_path.write_text(nbgrader_config)
+        shutil.chown(str(self.nbgrader_home_config_path), user=self.uid, group=self.gid)
+        logger.debug(
+            'Added shared grader home nbgrader config %s with permissions %s:%s'
+            % (nbgrader_config, self.uid, self.gid)
+        )
+
+        logger.debug('Grader course nbgrader_config.py path %s' % self.nbgrader_course_config_path)
+        nbgrader_config = NBGRADER_COURSE_CONFIG_TEMPLATE.format(course_id=self.course_id)
+        self.nbgrader_course_config_path.write_text(nbgrader_config)
+        shutil.chown(str(self.nbgrader_course_config_path), user=self.uid, group=self.gid)
+        logger.debug(
+            'Added shared grader course nbgrader config %s with permissions %s:%s'
+            % (nbgrader_config, self.uid, self.gid)
+        )
 
     async def add_jupyterhub_grader_group(self):
         """

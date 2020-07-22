@@ -8,7 +8,8 @@ from unittest.mock import patch
 from docker.errors import NotFound
 
 from illumidesk.setup_course.course import Course
-from illumidesk.setup_course.constants import NB_GRADER_CONFIG_TEMPLATE
+from illumidesk.setup_course.constants import NBGRADER_HOME_CONFIG_TEMPLATE
+from illumidesk.setup_course.constants import NBGRADER_COURSE_CONFIG_TEMPLATE
 
 
 def test_initializer_requires_arguments():
@@ -151,25 +152,37 @@ def test_course_jupyter_config_path_is_created(setup_course_environ):
         assert course.jupyter_config_path.exists()
 
 
-def test_course_nbgrader_config_path_is_created(setup_course_environ):
+def test_course_nbgrader_home_config_path_is_created(setup_course_environ):
     """
     Is the nbgrader directory created as part of setup?
     """
     course = Course(org='org1', course_id='example', domain='example.com')
     with patch('shutil.chown', autospec=True):
         course.create_directories()
-        assert course.nbgrader_config_path.exists()
+        assert course.nbgrader_home_config_path.exists()
 
 
-def test_course_nbgrader_config_path_is_created_with_our_constant_template(setup_course_environ):
+def test_nbgrader_home_config_path_is_created_with_template(setup_course_environ):
     """
     Is the nbgrader directory created as part of setup?
     """
     course = Course(org='org1', course_id='example', domain='example.com')
     with patch('shutil.chown', autospec=True):
         course.create_directories()
-        with course.nbgrader_config_path.open('r') as nbgrader_template:
+        with course.nbgrader_home_config_path.open('r') as nbgrader_template:
             content = nbgrader_template.read()
-            assert content == NB_GRADER_CONFIG_TEMPLATE.format(
+            assert content == NBGRADER_HOME_CONFIG_TEMPLATE.format(
                 grader_name=course.grader_name, course_id=course.course_id
             )
+
+
+def test_nbgrader_course_config_path_is_created_with_template(setup_course_environ):
+    """
+    Is the grader's home directory nbgrader config created with the setup-course service?
+    """
+    course = Course(org='org1', course_id='example', domain='example.com')
+    with patch('shutil.chown', autospec=True):
+        course.create_directories()
+        with course.nbgrader_course_config_path.open('r') as nbgrader_template:
+            content = nbgrader_template.read()
+            assert content == NBGRADER_COURSE_CONFIG_TEMPLATE.format(course_id=course.course_id)

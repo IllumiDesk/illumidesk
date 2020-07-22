@@ -24,14 +24,6 @@
       - { role: jupyterhub, tags: jupyterhub }
 
   # play 4
-  - name: Grader Service
-    hosts: illumidesk
-    become: true
-    gather_facts: false
-    roles:
-      - { role: nbgrader, tags: nbgrader }
-
-  # play 5
   - name: User workspaces
     hosts: illumidesk
     become: true
@@ -39,7 +31,7 @@
     roles:
       - { role: workspaces, tags: workspaces }
 
-  # play 6
+  # play 5
   - name: Setup-Course app
     hosts: illumidesk
     become: true
@@ -47,7 +39,7 @@
     roles:
       - { role: setup_course, tags: setup_course }
 
-  # play 7
+  # play 6
   - name: Reverse proxy files
     hosts: illumidesk
     become: true
@@ -55,7 +47,7 @@
     roles:
       - { role: reverse-proxy, tags: proxy }
 
-# play 8      
+# play 7     
   - name: Launch stack
     hosts: illumidesk
     become: true
