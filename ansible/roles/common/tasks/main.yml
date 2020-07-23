@@ -90,9 +90,6 @@
   with_items:
     - { dest: "{{ mnt_root }}/{{ org_name }}", mode: '0755', owner: 'root', group: 'root' }
     - { dest: "{{ mnt_root }}/{{ org_name }}/exchange", mode: '0777', owner: 'root', group: 'root' }
-    - { dest: "{{ mnt_root }}/{{ org_name }}/home/grader-{{ course_id }}", mode: '0755', owner: '10001', group: '100' }
-    - { dest: "{{ mnt_root }}/{{ org_name }}/home/grader-{{ course_id }}/.jupyter", mode: '0755', owner: '10001', group: '100' }
-    - { dest: "{{ mnt_root }}/{{ org_name }}/home/grader-{{ course_id }}/{{ course_id }}", mode: '0755', owner: '10001', group: '100' }
 
 - name: add docker gpg apt key
   apt_key:
