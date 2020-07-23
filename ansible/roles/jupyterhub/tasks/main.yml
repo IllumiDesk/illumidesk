@@ -55,25 +55,26 @@
     src: requirements.txt
     dest: "{{ working_dir }}/jupyterhub-requirements.txt"
 
-- name: is lti11 enabled
+- name: Authentication type to install
   debug:
-    msg: "is lti11 enabled?: {{ lti11_enabled }}"
+    msg: "authentication_type?: {{ authentication_type }}"
 
-- name: is lti13 enabled
-  debug:
-    msg: "is lti13 enabled?: {{ lti13_enabled }}"
+- name: copy the base of jupyterhub configuration file with common settings
+  copy:
+   src: jupyterhub_config_base.py
+   dest: "{{ working_dir }}/jupyterhub_config_base.py"
 
-- name: copy the jupyterhub configuration file with lti v1.1 config
+- name: copy the custom jupyterhub configuration file with lti v1.1 settings
   copy:
     src: jupyterhub_config_lti11.py
     dest: "{{ working_dir }}/jupyterhub_config.py"
-  when: lti11_enabled|bool
+  when: authentication_type == "lti11"
 
-- name: copy the jupyterhub configuration file with lti v1.3 config
+- name: copy the custom jupyterhub configuration file with lti v1.3 settings
   copy:
     src: jupyterhub_config_lti13.py
     dest: "{{ working_dir }}/jupyterhub_config.py"
-  when: lti13_enabled|bool
+  when: authentication_type == "lti13"
 
 - name: copy postgres utility scripts
   copy:
