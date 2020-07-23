@@ -21,12 +21,12 @@ class AnnouncementService:
     Class helper to add announcements using a jupyterhub internal service (normally located at services/announcement)
     """
 
-    @classmethod
-    async def add_announcement(cls, message: str) -> None:
+    @staticmethod
+    async def add_announcement(message: str) -> None:
         # It should not raise an error if a message is not passed
         if not message:
             return
-        # we need call jhub services with Authorization header
+        # we need to call jhub services with Authorization header
         jupyterhub_api_token = os.environ.get('JUPYTERHUB_API_TOKEN')
 
         headers = {'Content-Type': 'application/json'}
