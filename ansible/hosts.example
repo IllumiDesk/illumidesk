@@ -34,9 +34,6 @@ all:
       # defaults to an empty string.
       # base_url: /path
 
-      # uncomment to add your custom course name, such as finance101
-      # course_id: intro101
-
       # uncomment to start a container within the docker-compose network which allows
       # users to connect to a shared postgres container (useful for lab environments)
       # postgres_labs_enabled: true

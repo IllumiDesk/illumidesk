@@ -3,8 +3,7 @@
 working_dir: "{{ ansible_env.PWD }}/illumidesk_deployment"
 
 # End-user account info
-org_name: "{{ org_name_param | default('my-org') }}"
-course_id: "{{ course_id_param | default('intro101') }}"
+org_name: "{{ org_name_param | default('my') }}"
 
 ## Docker
 # base jupyterhub image
