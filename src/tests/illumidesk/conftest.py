@@ -519,8 +519,7 @@ def make_lti11_success_authentication_request_args():
 @pytest.fixture(scope='function')
 def make_lti13_resource_link_request() -> Dict[str, str]:
     """
-    Returns valid json after decoding JSON Web Token (JWT) for resource link launch (core)
-    when Privacy is enabled.
+    Returns valid json after decoding JSON Web Token (JWT) for resource link launch (core).
     """
     jws = {
         'https://purl.imsglobal.org/spec/lti/claim/message_type': 'LtiResourceLinkRequest',
@@ -609,7 +608,8 @@ def make_lti13_resource_link_request() -> Dict[str, str]:
 @pytest.fixture(scope='function')
 def make_lti13_resource_link_request_privacy_enabled() -> Dict[str, str]:
     """
-    Returns valid json after decoding JSON Web Token (JWT) for resource link launch (core).
+    Returns valid json after decoding JSON Web Token (JWT) for resource link launch (core)
+    when Privacy is enabled.
     """
     jws = {
         'https://purl.imsglobal.org/spec/lti/claim/message_type': 'LtiResourceLinkRequest',
