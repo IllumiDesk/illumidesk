@@ -205,6 +205,27 @@ async def test_authenticator_returns_username_in_auth_state_with_person_sourcedi
 
 
 @pytest.mark.asyncio
+async def test_authenticator_returns_username_in_auth_state_with_privacy_enabled(
+    make_lti13_resource_link_request_privacy_enabled, build_lti13_jwt_id_token, make_mock_request_handler
+):
+    """
+    Do we get a valid username when initiating the login flow with privacy enabled?
+    """
+    authenticator = LTI13Authenticator()
+    request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
+
+    with patch.object(
+        RequestHandler,
+        'get_argument',
+        return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request_privacy_enabled),
+    ):
+        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
+            result = await authenticator.authenticate(request_handler, None)
+
+            assert result['name'] == '4'
+
+
+@pytest.mark.asyncio
 async def test_authenticator_returns_workspace_type_in_auth_state(
     make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
 ):
