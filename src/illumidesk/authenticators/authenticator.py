@@ -18,7 +18,8 @@ from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.announcement_service import AnnouncementService
-from illumidesk.apis.setup_course_service import SetupCourseService
+from illumidesk.apis.setup_course_service import make_rolling_update
+from illumidesk.apis.setup_course_service import register_new_service
 
 from illumidesk.authenticators.constants import WORKSPACE_TYPES
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
@@ -80,7 +81,7 @@ async def setup_course_hook(
         'course_id': course_id,
         'domain': handler.request.host,
     }
-    setup_response = await SetupCourseService.register_new_service(data)
+    setup_response = await register_new_service(data)
 
     # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
     if 'is_new_setup' in setup_response and setup_response['is_new_setup'] is True:
@@ -88,7 +89,7 @@ async def setup_course_hook(
         await AnnouncementService.add_announcement('A new service was detected, please reload this page...')
 
         logger.debug('The current jupyterhub instance will be updated by setup-course service...')
-        SetupCourseService.make_rolling_update()
+        make_rolling_update()
 
     return authentication
 

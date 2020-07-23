@@ -3,7 +3,7 @@ import sys
 
 import requests
 
-from illumidesk.apis.setup_course_service import SetupCourseService
+from illumidesk.apis.setup_course_service import get_current_service_definitions
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
 from illumidesk.grades.handlers import SendGradesHandler
@@ -52,9 +52,6 @@ c.JupyterHub.extra_handlers = [
 ##########################################
 # Post auth hook to setup course
 c.Authenticator.post_auth_hook = setup_course_hook
-# If using an authenticator which requires additional logic,
-# set to True.
-c.Authenticator.enable_auth_state = True
 ##########################################
 # END GENERAL AUTHENTICATION
 ##########################################
@@ -63,7 +60,7 @@ c.Authenticator.enable_auth_state = True
 # SETUP COURSE SERVICE
 ##########################################
 # Dynamic config to setup new courses
-extra_services = SetupCourseService.get_current_service_definitions()
+extra_services = get_current_service_definitions()
 # load k/v's when starting jupyterhub
 c.JupyterHub.load_groups.update(extra_services['load_groups'])
 c.JupyterHub.services.extend(extra_services['services'])
