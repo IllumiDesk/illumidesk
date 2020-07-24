@@ -1,9 +1,12 @@
 import logging
 import hashlib
+from logging import fatal
 import os
+import re
 
 from jupyterhub.handlers import BaseHandler
 
+from oauthenticator.oauth2 import _serialize_state
 from oauthenticator.oauth2 import guess_callback_uri
 from oauthenticator.oauth2 import OAuthLoginHandler
 from oauthenticator.oauth2 import OAuthCallbackHandler
@@ -13,6 +16,10 @@ from tornado.web import HTTPError
 from tornado.web import RequestHandler
 
 from typing import cast
+from urllib.parse import quote
+from urllib.parse import unquote
+from urllib.parse import urlparse
+import uuid
 
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 from illumidesk.authenticators.utils import LTIUtils
@@ -91,6 +98,36 @@ class LTI13LoginHandler(OAuthLoginHandler):
         if not url:
             raise EnvironmentError('LTI13_AUTHORIZE_URL env var is not set')
         handler.redirect(url_concat(url, args))
+    
+    def get_state(self):
+        next_url = original_next_url = self.get_argument('next', None)
+        if not next_url:
+            # try with the target_link_uri arg
+            target_link = self.get_argument('target_link_uri', '')
+            self.log.debug(f'Trying to get next-url from target_link_uri:{target_link}')
+            next_search = re.search('next=(.*)', target_link, re.IGNORECASE)
+            if next_search:
+                next_url = next_search.group(1)
+                # decode the some characters obtained with a link builder
+                next_url = unquote(next_url)
+        if next_url:
+            # avoid browsers treating \ as /
+            next_url = next_url.replace('\\', quote('\\'))
+            # disallow hostname-having urls,
+            # force absolute path redirect
+            urlinfo = urlparse(next_url)
+            next_url = urlinfo._replace(
+                scheme='', netloc='', path='/' + urlinfo.path.lstrip('/')
+            ).geturl()
+            if next_url != original_next_url:
+                self.log.warning(
+                    "Ignoring next_url %r, using %r", original_next_url, next_url
+                )
+        if self._state is None:
+            self._state = _serialize_state(
+                {'state_id': uuid.uuid4().hex, 'next_url': next_url}
+            )
+        return self._state
 
     def post(self):
         """
