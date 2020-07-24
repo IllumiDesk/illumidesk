@@ -167,3 +167,13 @@ def test_validate_empty_context_label_request_claim_value(make_lti13_resource_li
 
     with pytest.raises(HTTPError):
         validator.validate_launch_request(jws)
+
+
+def test_validate_claim_values_with_privacy_enabled(make_lti13_resource_link_request_privacy_enabled):
+    """
+    Is the JWT valid when privacy is enabled?
+    """
+    validator = LTI13LaunchValidator()
+    jws = make_lti13_resource_link_request_privacy_enabled
+
+    assert validator.validate_launch_request(jws)

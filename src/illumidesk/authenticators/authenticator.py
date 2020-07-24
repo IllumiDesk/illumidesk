@@ -336,15 +336,21 @@ class LTI13Authenticator(OAuthenticator):
             elif 'family_name' in jwt_decoded and jwt_decoded['family_name']:
                 username = jwt_decoded['family_name']
             elif (
-                'person_sourcedid' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']
+                'https://purl.imsglobal.org/spec/lti/claim/lis' in jwt_decoded
+                and 'person_sourcedid' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']
                 and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid']
             ):
                 username = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/lis']['person_sourcedid'].lower()
+            elif (
+                'lms_user_id' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']
+                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['lms_user_id']
+            ):
+                username = str(jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['lms_user_id'])
+            self.log.debug('username is %s' % username)
+            # ensure the username is normalized
+            self.log.debug('username is %s' % username)
             if username == '':
                 raise HTTPError('Unable to set the username')
-            # ensure the username is normalized
-            username_normalized = lti_utils.normalize_string(username)
-            self.log.debug('username is %s' % username)
 
             # assign a workspace type, if provided, otherwise defaults to jupyter classic nb
             workspace_type = ''

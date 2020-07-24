@@ -71,6 +71,7 @@ c.JupyterHub.base_url = base_url
 ##########################################
 # Use an external service to manage the proxy
 from jupyterhub_traefik_proxy import TraefikTomlProxy
+
 # configure JupyterHub to use TraefikTomlProxy
 c.JupyterHub.proxy_class = TraefikTomlProxy
 # mark the proxy as externally managed

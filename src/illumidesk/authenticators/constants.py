@@ -119,18 +119,20 @@ LTI13_OPTIONAL_CLAIMS = {
     },
     # user identity claims. sub (subject) is added to optional list to support anonymous
     # launches.
+    'aud': '',
+    'azp': '',
+    'exp': None,
+    'iat': None,
+    'iss': '',
+    'nonce': '',
     'sub': '',
-    'given_name': '',
-    'family_name': '',
-    'name': '',
-    'email': '',
     'https://purl.imsglobal.org/spec/lti/claim/tool_platform': {
         'guid': '',
-        'contact_email': '',
-        'description': '',
-        'url': '',
-        'product_family_code': '',
+        'name': '',
         'version': '',
+        'product_family_code': '',
+        'validation_context': None,
+        'errors': {'errors': {}},
     },
     'https://purl.imsglobal.org/spec/lti/claim/launch_presentation': {
         # one of frame, iframe, window
