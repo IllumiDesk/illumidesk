@@ -104,11 +104,11 @@ class LTI13LoginHandler(OAuthLoginHandler):
         if not next_url:
             # try with the target_link_uri arg
             target_link = self.get_argument('target_link_uri', '')
-            self.log.debug(f'Trying to get next-url from target_link_uri:{target_link}')
+            self.log.debug(f'Trying to get the next-url from target_link_uri: {target_link}')
             next_search = re.search('next=(.*)', target_link, re.IGNORECASE)
             if next_search:
                 next_url = next_search.group(1)
-                # decode the some characters obtained with a link builder
+                # decode the some characters obtained with the link builder
                 next_url = unquote(next_url)
         if next_url:
             # avoid browsers treating \ as /
