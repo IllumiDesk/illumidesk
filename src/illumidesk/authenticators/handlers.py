@@ -1,6 +1,5 @@
 import logging
 import hashlib
-from logging import fatal
 import os
 import re
 
@@ -98,7 +97,7 @@ class LTI13LoginHandler(OAuthLoginHandler):
         if not url:
             raise EnvironmentError('LTI13_AUTHORIZE_URL env var is not set')
         handler.redirect(url_concat(url, args))
-    
+
     def get_state(self):
         next_url = original_next_url = self.get_argument('next', None)
         if not next_url:
@@ -116,17 +115,11 @@ class LTI13LoginHandler(OAuthLoginHandler):
             # disallow hostname-having urls,
             # force absolute path redirect
             urlinfo = urlparse(next_url)
-            next_url = urlinfo._replace(
-                scheme='', netloc='', path='/' + urlinfo.path.lstrip('/')
-            ).geturl()
+            next_url = urlinfo._replace(scheme='', netloc='', path='/' + urlinfo.path.lstrip('/')).geturl()
             if next_url != original_next_url:
-                self.log.warning(
-                    "Ignoring next_url %r, using %r", original_next_url, next_url
-                )
+                self.log.warning("Ignoring next_url %r, using %r", original_next_url, next_url)
         if self._state is None:
-            self._state = _serialize_state(
-                {'state_id': uuid.uuid4().hex, 'next_url': next_url}
-            )
+            self._state = _serialize_state({'state_id': uuid.uuid4().hex, 'next_url': next_url})
         return self._state
 
     def post(self):
