@@ -186,19 +186,12 @@ class LTI11Authenticator(LTIAuthenticator):
             # Assign the user_id. Check the tool consumer (lms) vendor. If canvas use their
             # custom user id extension by default, else use standar lti values.
             username = ''
-            # GRADES-SENDER: retrieve assignment_name from standard property vs custom lms
-            # properties, such as custom_canvas_...
-            assignment_name = args['resource_link_title'] if 'resource_link_title' in args else 'unknown'
             if lms_vendor == 'canvas':
                 self.log.debug('TC is a Canvas LMS instance')
                 if 'custom_canvas_user_login_id' in args and args['custom_canvas_user_login_id']:
                     custom_canvas_user_id = args['custom_canvas_user_login_id']
                     username = lti_utils.email_to_username(custom_canvas_user_id)
                     self.log.debug('using custom_canvas_user_id for username')
-                # GRADES-SENDER >>>> retrieve assignment_name from custom property
-                assignment_name = (
-                    args['custom_canvas_assignment_title'] if 'custom_canvas_assignment_title' in args else 'unknown'
-                )
             if (
                 not username
                 and 'lis_person_contact_email_primary' in args
@@ -230,8 +223,20 @@ class LTI11Authenticator(LTIAuthenticator):
 
             # with all info extracted from lms request, register info for grades sender only if the user has
             # the Learner role
+            # GRADES-SENDER: retrieve assignment_name from standard property vs custom lms
+            # properties, such as custom_canvas_...
+            assignment_name = ''
+            context_id = ''
             lis_outcome_service_url = ''
             lis_result_sourcedid = ''
+            if lms_vendor == 'canvas':
+                self.log.debug('TC is a Canvas LMS instance')
+                if 'custom_canvas_assignment_title' in args and args['custom_canvas_assignment_title']:
+                    assignment_name = lti_utils.normalize_string(args['custom_canvas_assignment_title'])
+            else:
+                # edx includes the resource (assignment) within the context_id string
+                if 'context_id' in args and args['context_id']:
+                    assignment_name = context_id.split(':', 1)[1].split('+', 1)[0]
             if user_role == 'Learner' or user_role == 'Student':
                 # the next fields must come in args
                 if 'lis_outcome_service_url' in args and args['lis_outcome_service_url']:
