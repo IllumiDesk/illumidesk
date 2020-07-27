@@ -3,6 +3,7 @@ import os
 from illumidesk.apis.setup_course_service import get_current_service_definitions
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
+from illumidesk.authenticators.handlers import LTI13LoginHandler
 
 from illumidesk.grades.handlers import SendGradesHandler
 
@@ -38,6 +39,7 @@ c.LTI13Authenticator.authorize_url = os.environ.get('LTI13_AUTHORIZE_URL')
 # this url pattern was changed to accept spaces in the assignment name
 c.JupyterHub.extra_handlers = [
     (r'/submit-grades/(?P<course_id>[a-zA-Z0-9-_]+)/(?P<assignment_name>.*)$', SendGradesHandler),
+    (r'/lti/launch$', LTI13LoginHandler),
     (r'/lti13/config$', LTI13ConfigHandler),
     (r'/lti13/jwks$', LTI13JWKSHandler),
 ]
