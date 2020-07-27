@@ -226,7 +226,6 @@ class LTI11Authenticator(LTIAuthenticator):
             # GRADES-SENDER: retrieve assignment_name from standard property vs custom lms
             # properties, such as custom_canvas_...
             assignment_name = ''
-            context_id = ''
             lis_outcome_service_url = ''
             lis_result_sourcedid = ''
             if lms_vendor == 'canvas':
@@ -234,9 +233,8 @@ class LTI11Authenticator(LTIAuthenticator):
                 if 'custom_canvas_assignment_title' in args and args['custom_canvas_assignment_title']:
                     assignment_name = lti_utils.normalize_string(args['custom_canvas_assignment_title'])
             else:
-                # edx includes the resource (assignment) within the context_id string
-                if 'context_id' in args and args['context_id']:
-                    assignment_name = context_id.split(':', 1)[1].split('+', 1)[0]
+                if 'context_label' in args and args['context_label']:
+                    assignment_name = args['context_label']
             if user_role == 'Learner' or user_role == 'Student':
                 # the next fields must come in args
                 if 'lis_outcome_service_url' in args and args['lis_outcome_service_url']:
@@ -245,6 +243,11 @@ class LTI11Authenticator(LTIAuthenticator):
                     lis_result_sourcedid = args['lis_result_sourcedid']
                 # only if both values exist we can register them to submit grades later
                 if lis_outcome_service_url and lis_result_sourcedid:
+                    # if the assignment name is still empty, fetch it from the resource_link_id
+                    if assignment_name == '':
+                        if 'resource_link_id' in args and args['resource_link_id']:
+                            assignment_name = args['resource_link_id']
+                    assignment_name = args['resource_link_id']
                     control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
                     control_file.register_data(
                         assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
