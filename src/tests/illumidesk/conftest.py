@@ -8,6 +8,7 @@ import time
 import uuid
 
 from Crypto.PublicKey import RSA
+from illumidesk.authenticators import authenticator
 
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 from illumidesk.authenticators.utils import LTIUtils

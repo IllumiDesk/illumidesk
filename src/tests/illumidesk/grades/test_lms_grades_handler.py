@@ -15,7 +15,7 @@ from illumidesk.grades.handlers import SendGradesHandler
 
 @pytest.fixture()
 def send_grades_handler_lti11(make_mock_request_handler):
-    jhub_settings = {'authenticator_class': LTI11Authenticator}
+    jhub_settings = {'authenticator': LTI11Authenticator}
     request_handler = make_mock_request_handler(RequestHandler, **jhub_settings)
     send_grades_handler = SendGradesHandler(request_handler.application, request_handler.request)
     return send_grades_handler
@@ -23,7 +23,7 @@ def send_grades_handler_lti11(make_mock_request_handler):
 
 @pytest.fixture()
 def send_grades_handler_lti13(make_mock_request_handler):
-    jhub_settings = {'authenticator_class': LTI13Authenticator}
+    jhub_settings = {'authenticator': LTI13Authenticator}
 
     async def user_auth_state():
         return []
@@ -43,7 +43,6 @@ def send_grades_handler_lti13(make_mock_request_handler):
 
 
 @pytest.mark.asyncio
-@patch('illumidesk.grades.senders.LTI13GradeSender.send_grades')
 @patch('tornado.web.RequestHandler.write')
 async def test_SendGradesHandler_calls_authenticator_class_property(
     mock_write, send_grades_handler_lti13, send_grades_handler_lti11
@@ -53,19 +52,15 @@ async def test_SendGradesHandler_calls_authenticator_class_property(
     """
     with patch('illumidesk.grades.handlers.LTI13GradeSender') as mock_sender:
         instance = mock_sender.return_value
-        instance.send_grades = AsyncMock()
-        mock_authenticator_class = PropertyMock(return_value=LTI13Authenticator)
-        mock_sender.authenticator_class = mock_authenticator_class
+        instance.send_grades = AsyncMock()        
         await send_grades_handler_lti13.post('course_example', 'assignment_test')
-        mock_authenticator_class.called
+        assert mock_sender.called
 
-    with patch('illumidesk.grades.handlers.LTIGradeSender') as mock_sender:
-        instance = mock_sender.return_value
-        instance.send_grades = AsyncMock()
-        mock_authenticator_class = PropertyMock(return_value=LTI13Authenticator)
-        mock_sender.authenticator_class = mock_authenticator_class
-        await send_grades_handler_lti11.post('course_example', 'assignment_test')
-        mock_authenticator_class.called
+        with patch('illumidesk.grades.handlers.LTIGradeSender') as mocklti11_sender:
+            instance = mocklti11_sender.return_value
+            instance.send_grades = AsyncMock()            
+            await send_grades_handler_lti11.post('course_example', 'assignment_test')
+            mocklti11_sender.called
 
 
 @pytest.mark.asyncio
@@ -76,8 +71,8 @@ async def test_SendGradesHandler_authenticator_class_gets_its_value_from_setting
     """
     Does the SendGradesHandler.authenticator_class property gets its value from jhub settings?
     """
-    assert send_grades_handler_lti11.authenticator_class == LTI11Authenticator
-    assert send_grades_handler_lti13.authenticator_class == LTI13Authenticator
+    assert send_grades_handler_lti11.authenticator == LTI11Authenticator
+    assert send_grades_handler_lti13.authenticator == LTI13Authenticator
 
 
 @pytest.mark.asyncio
