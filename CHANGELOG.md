@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.8.4](https://github.com/IllumiDesk/illumidesk/compare/v0.8.3...v0.8.4) (2020-07-28)
+
+
+### Features
+
+* Fixes the use of next url with LTI 1.3 ([#244](https://github.com/IllumiDesk/illumidesk/issues/244)) ([2f90f8e](https://github.com/IllumiDesk/illumidesk/commit/2f90f8e4ac41eb6a2c41be0abf4e6bda04a57560))
+
 ### 0.8.3 (2020-07-23)
 
 
