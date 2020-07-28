@@ -5,7 +5,6 @@ from tornado.web import RequestHandler
 from unittest.mock import AsyncMock
 from unittest.mock import Mock
 from unittest.mock import patch
-from unittest.mock import PropertyMock
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
@@ -52,13 +51,13 @@ async def test_SendGradesHandler_calls_authenticator_class_property(
     """
     with patch('illumidesk.grades.handlers.LTI13GradeSender') as mock_sender:
         instance = mock_sender.return_value
-        instance.send_grades = AsyncMock()        
+        instance.send_grades = AsyncMock()
         await send_grades_handler_lti13.post('course_example', 'assignment_test')
         assert mock_sender.called
 
         with patch('illumidesk.grades.handlers.LTIGradeSender') as mocklti11_sender:
             instance = mocklti11_sender.return_value
-            instance.send_grades = AsyncMock()            
+            instance.send_grades = AsyncMock()
             await send_grades_handler_lti11.post('course_example', 'assignment_test')
             mocklti11_sender.called
 

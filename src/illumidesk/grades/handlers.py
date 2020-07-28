@@ -1,5 +1,4 @@
 import json
-from jupyterhub.auth import Authenticator
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.grades import exceptions
@@ -15,6 +14,7 @@ class SendGradesHandler(BaseHandler):
     """
     Defines a POST method to process grades submission for a specific assignment within a course
     """
+
     async def post(self, course_id: str, assignment_name: str) -> None:
         """
         Receives a request with the course name and the assignment name as path parameters
