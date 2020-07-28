@@ -1,9 +1,10 @@
 import hashlib
+from uuid import uuid4
+from oauthenticator.oauth2 import _deserialize_state, _serialize_state
 
 import pytest
 
 from unittest.mock import patch
-from unittest.mock import MagicMock
 
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.authenticator import LTI13LaunchValidator
@@ -89,8 +90,8 @@ async def test_lti_13_login_handler_invokes_redirect_method(monkeypatch, lti13_a
 
 
 @pytest.mark.asyncio
-async def test_lti_13_login_handler_sets_vars_for_redirect(
-    monkeypatch, lti13_auth_params, lti13_auth_params_dict, make_mock_request_handler
+async def test_lti_13_login_handler_calls_authorize_redirect_with_correct_values(
+    monkeypatch, lti13_auth_params_dict, make_mock_request_handler
 ):
     """
     Does the LTI13LoginHandler correctly set all variables needed for the redict method
@@ -99,40 +100,53 @@ async def test_lti_13_login_handler_sets_vars_for_redirect(
     expected = lti13_auth_params_dict
     monkeypatch.setenv('LTI13_AUTHORIZE_URL', 'http://my.lms.platform/api/lti/authorize_redirect')
     local_handler = make_mock_request_handler(LTI13LoginHandler)
-    local_utils = LTIUtils()
+    state_id = uuid4().hex
+    expected_state = _serialize_state({'state_id': state_id, 'next_url': ''})
     with patch.object(LTIUtils, 'convert_request_to_dict', return_value=lti13_auth_params_dict):
-        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
-            with patch.object(LTI13LoginHandler, 'redirect', return_value=None):
-                assert expected['client_id'] == '125900000000000081'
-                assert expected['redirect_uri'] == 'https://acme.illumidesk.com/hub/oauth_callback'
-                assert (
-                    expected['lti_message_hint']
-                    == 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA'
-                )
-                assert expected['login_hint'] == '185d6c59731a553009ca9b59ca3a885104ecb4ad'
-                assert (
-                    expected['state']
-                    == 'eyJzdGF0ZV9pZCI6ICI2ZjBlYzE1NjlhM2E0MDJkYWM2MTYyNjM2MWQwYzEyNSIsICJuZXh0X3VybCI6ICIvIn0='
-                )
-                assert expected['nonce'] == '38048502278109788461591832959'
+        with patch.object(LTI13LaunchValidator, 'validate_login_request', return_value=True):
+            with patch.object(LTI13LoginHandler, 'get_state', return_value=expected_state):
+                with patch.object(LTI13LoginHandler, 'authorize_redirect', return_value=None) as mock_auth_redirect:
+                    nonce_raw = hashlib.sha256(expected_state.encode())
+                    expected_nonce = nonce_raw.hexdigest()
+
+                    LTI13LoginHandler(local_handler.application, local_handler.request).post()
+                    assert mock_auth_redirect.called
+
+                    mock_auth_redirect.assert_called_with(
+                        client_id=expected['client_id'],
+                        login_hint=expected['login_hint'],
+                        lti_message_hint=expected['lti_message_hint'],
+                        redirect_uri='https://127.0.0.1/hub/oauth_callback',
+                        state=expected_state,
+                        nonce=expected_nonce,
+                    )
 
 
 @pytest.mark.asyncio
-async def test_lti_13_login_handler_nonce(monkeypatch, lti13_auth_params, lti13_auth_params_dict):
+async def test_lti_13_login_handler_sets_state_with_next_url_obtained_from_target_link_uri(
+    monkeypatch, lti13_login_params, make_mock_request_handler
+):
     """
     Do we get the expected nonce value result after hashing the state and returning the
     hexdigest?
     """
-    args_dict = lti13_auth_params_dict
     monkeypatch.setenv('LTI13_AUTHORIZE_URL', 'http://my.lms.platform/api/lti/authorize_redirect')
-    local_handler = MagicMock(spec=LTI13LoginHandler)
-    local_handler.request = lti13_auth_params
-    local_utils = LTIUtils()
-    with patch.object(LTIUtils, 'convert_request_to_dict', return_value=lti13_auth_params_dict):
-        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
-            with patch.object(LTI13LoginHandler, 'redirect', return_value=None):
-                expected = hashlib.sha256(
-                    b'eyJzdGF0ZV9pZCI6ICI2ZjBlYzE1NjlhM2E0MDJkYWM2MTYyNjM2MWQwYzEyNSIsICJuZXh0X3VybCI6ICIvIn0='
-                ).hexdigest()
-                result = hashlib.sha256(args_dict['state'].encode()).hexdigest()
-                assert expected == result
+    lti13_login_params['target_link_uri'] = [
+        (lti13_login_params['target_link_uri'][0].decode() + '?next=/user-redirect/lab').encode()
+    ]
+    local_handler = make_mock_request_handler(LTI13LoginHandler)
+
+    decoded_dict = LTIUtils().convert_request_to_dict(lti13_login_params)
+    with patch.object(LTIUtils, 'convert_request_to_dict', return_value=decoded_dict):
+        with patch.object(LTI13LaunchValidator, 'validate_login_request', return_value=True):
+            with patch.object(LTI13LoginHandler, 'authorize_redirect', return_value=None):
+                expected_state_json = {
+                    "state_id": "6f0ec1569a3a402dac61626361d0c125",
+                    "next_url": "/user-redirect/lab",
+                }
+
+                login_instance = LTI13LoginHandler(local_handler.application, local_handler.request)
+                login_instance.post()
+                assert login_instance._state
+                state_decoded = _deserialize_state(login_instance._state)
+                state_decoded['next_url'] == expected_state_json['next_url']

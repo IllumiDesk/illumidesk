@@ -20,3 +20,4 @@
   template:
     src: lti11-cartridge.xml.j2
     dest: "{{ working_dir }}/lti11-cartridge.xml"
+  when: authentication_type == "lti11"
