@@ -37,18 +37,22 @@
 - name: generate random lti11 client id (consumer key) # noqa 301 305
   shell: /usr/bin/openssl rand -hex 16
   register: _lti11_consumer_key_result
+  when: authentication_type == "lti11"
 
 - name: assign lti11 client id (consumer key) from stdout
   set_fact:
     lti11_consumer_key_result={{ _lti11_consumer_key_result.stdout }}
+  when: authentication_type == "lti11"
 
 - name: generate random lti11 shared secret # noqa 301 305
   shell: /usr/bin/openssl rand -hex 16
   register: _lti11_shared_secret_result
+  when: authentication_type == "lti11"
 
 - name: assign lti11 shared secret from stdout
   set_fact:
     lti11_shared_secret_result={{ _lti11_shared_secret_result.stdout }}
+  when: authentication_type == "lti11"
 
 - name: copy requirements.txt for base jupyterhub image
   copy:
