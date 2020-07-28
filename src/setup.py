@@ -51,6 +51,5 @@ setup(
         'filelock==3.0.12',
         'lti==0.9.5',
     ],  # noqa: E231
-    dependency_links=['https://github.com/IllumiDesk/nbgrader/archive/v0.6.1.zip'],
     package_data={'': ['*.html'],},  # noqa: E231
 )
