@@ -4,9 +4,6 @@ jupyterhub>=1.1.0
 # postgres
 psycopg2-binary==2.8.5
 
-# nbgrader
-# nbgrader==0.6.1
-
 # traefik (reverse proxy)
 jupyterhub-traefik-proxy==0.1.6
 

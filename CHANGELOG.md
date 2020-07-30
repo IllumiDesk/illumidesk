@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.8.3 (2020-07-23)
+
+
+### Features
+
+* Custom base url configuration ([#231](https://github.com/IllumiDesk/illumidesk/issues/231)) ([5c50458](https://github.com/IllumiDesk/illumidesk/commit/5c50458843d46bc30fac819cccbb00cb03258118))
+* Pull workspace images with ansible-playbook from registry ([#229](https://github.com/IllumiDesk/illumidesk/issues/229)) ([757006b](https://github.com/IllumiDesk/illumidesk/commit/757006b881fcc59abf963644979a55d5836d1750))
+* Set admin user with ansible configuration ([#213](https://github.com/IllumiDesk/illumidesk/issues/213)) ([eb7981f](https://github.com/IllumiDesk/illumidesk/commit/eb7981f3cc764d10c0d81f1387260cfdf9784262))
+* Add course template and use setup-course for course config ([#236](https://github.com/IllumiDesk/illumidesk/issues/236)) ([2f229e3](https://github.com/IllumiDesk/illumidesk/commit/2f229e316f317d94dfaa13e2a874a983792bb2cf))
+
+### Bug Fixes
+
+* Update required claims and username value when private ([#241](https://github.com/IllumiDesk/illumidesk/issues/241)) ([1c49ed6](https://github.com/IllumiDesk/illumidesk/commit/1c49ed66f71c6096b299473d06ede64bac145f79))
+* Update LTI configs with admin user env var ([#219](https://github.com/IllumiDesk/illumidesk/issues/219)) ([3c99d58](https://github.com/IllumiDesk/illumidesk/commit/3c99d5831b1dd194fdf49ac1c0398703a475e6d8))
+* Update nbgrader config template by adding a escape characters ([#230](https://github.com/IllumiDesk/illumidesk/issues/230)) ([57f5361](https://github.com/IllumiDesk/illumidesk/commit/57f53619ea8b6ea8dac09d19d9f0dbcf0f173e69))
+* Update required claims and username value when private ([#241](https://github.com/IllumiDesk/illumidesk/issues/241)) ([1c49ed6](https://github.com/IllumiDesk/illumidesk/commit/1c49ed66f71c6096b299473d06ede64bac145f79))
+
 ### 0.8.2 (2020-07-16)
 
 

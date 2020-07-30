@@ -15,10 +15,6 @@ class SendGradesHandler(BaseHandler):
     Defines a POST method to process grades submission for a specific assignment within a course
     """
 
-    @property
-    def authenticator_class(self):
-        return self.settings.get('authenticator_class', None)
-
     async def post(self, course_id: str, assignment_name: str) -> None:
         """
         Receives a request with the course name and the assignment name as path parameters
@@ -41,7 +37,7 @@ class SendGradesHandler(BaseHandler):
         lti_grade_sender = None
 
         # check lti version by the authenticator setting
-        if self.authenticator_class == LTI11Authenticator:
+        if isinstance(self.authenticator, LTI11Authenticator) or self.authenticator is LTI11Authenticator:
             lti_grade_sender = LTIGradeSender(course_id, assignment_name)
         else:            
             lti_grade_sender = LTI13GradeSender(course_id, assignment_name)
