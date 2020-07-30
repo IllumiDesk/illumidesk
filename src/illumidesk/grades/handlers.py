@@ -43,10 +43,8 @@ class SendGradesHandler(BaseHandler):
         # check lti version by the authenticator setting
         if self.authenticator_class == LTI11Authenticator:
             lti_grade_sender = LTIGradeSender(course_id, assignment_name)
-        else:
-            auth_state = await self.current_user.get_auth_state()
-            self.log.debug(f'auth_state from current_user:{auth_state}')
-            lti_grade_sender = LTI13GradeSender(course_id, assignment_name, auth_state)
+        else:            
+            lti_grade_sender = LTI13GradeSender(course_id, assignment_name)
         try:
             await lti_grade_sender.send_grades()
         except exceptions.GradesSenderCriticalError:

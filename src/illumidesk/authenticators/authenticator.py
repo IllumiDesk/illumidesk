@@ -18,6 +18,7 @@ from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.announcement_service import AnnouncementService
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.setup_course_service import make_rolling_update
 from illumidesk.apis.setup_course_service import register_new_service
 
@@ -381,12 +382,20 @@ class LTI13Authenticator(OAuthenticator):
             self.log.debug('user_role is %s' % user_role)
 
             lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
-            # Values for the send-grades functionality
-            course_lineitems = ''
-            if 'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded:
-                course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint'].get(
-                    'lineitems'
-                )
+            # Values for send-grades functionality
+            resource_link = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/resource_link']
+            resource_link_id = resource_link['id']
+            resource_link_title = resource_link['title'] or ''
+            course_lineitem_id = ''
+            if (
+                'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded
+                and 'lineitem' in jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']
+            ):
+                course_lineitem_id = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitem']
+            self.log.debug('Creating a new assignment from the Authentication flow with resource_link_id %s and title %s' % (resource_link_id, resource_link_title ))
+            nbgrader_service = NbGraderServiceHelper(course_id)
+            
+            await nbgrader_service.create_assignment_in_nbgrader(resource_link_title, resource_link_id, lms_lineitem_id=course_lineitem_id)
 
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)
@@ -397,8 +406,7 @@ class LTI13Authenticator(OAuthenticator):
                 'auth_state': {
                     'course_id': course_id,
                     'user_role': user_role,
-                    'workspace_type': workspace_type,
-                    'course_lineitems': course_lineitems,
+                    'workspace_type': workspace_type,                    
                     'lms_user_id': lms_user_id,
                 },  # noqa: E231
             }

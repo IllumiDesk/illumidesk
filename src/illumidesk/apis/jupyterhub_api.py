@@ -178,38 +178,6 @@ class JupyterHubAPI(LoggingConfigurable):
         except InvalidEntry as e:
             self.log.debug('Error during adding student to gradebook: %s' % e)
         gradebook.close()
-    
-    async def create_assignment_in_nbgrader_gradebook(
-        self, course_id: str, assignment_name: str, lms_resource_link_id: str
-    ) -> Awaitable['HTTPResponse']:
-        """
-        Adds an assignment to nbgrader database
-
-        Args:
-            course_id: The normalized string which represents the course label.
-            assignment_name: The assingment's name
-        Raises:
-            InvalidEntry: when there was an error adding the assignment to the database
-        """
-        if not course_id:
-            raise ValueError('course_id missing')
-        if not assignment_name:
-            raise ValueError('assignment_name missing')
-        if not lms_resource_link_id:
-            raise ValueError('lms_resource_link_id missing')
-        grader_name = f'grader-{course_id}'
-        db_url = Path('/home', grader_name, course_id, 'gradebook.db')        
-        self.log.debug('Gradebook path is %s' % db_url)
-        if not db_url.exists():
-            self.log.debug('Gradebook database file does not exist')
-            return
-        gradebook = Gradebook(f'sqlite:///{db_url}', course_id=course_id)
-        try:
-            gradebook.add_assignment(assignment_name, lms_resource_link_id=lms_resource_link_id)
-            self.log.debug('Added assignment %s with lms_resource_link_id %s to gradebook' % (assignment_name, lms_resource_link_id))
-        except InvalidEntry as e:
-            self.log.debug('Error during adding assignment to gradebook: %s' % e)
-        gradebook.close()
 
     async def add_student_to_jupyterhub_group(self, course_id: str, student: str) -> Awaitable['HTTPResponse']:
         """
