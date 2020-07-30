@@ -42,8 +42,8 @@ lint: venv
 	${VENV_BIN}/flake8 src
 	${VENV_BIN}/black .
 
-test: venv
-	${PYTHON} -m pytest -vv tests
+test: dev
+	${PYTHON} -m pytest -vv src/tests
 
 clean:
 	find . -name '*.pyc' -exec rm -f {} +
