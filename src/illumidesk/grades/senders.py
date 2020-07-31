@@ -217,9 +217,9 @@ class LTI13GradeSender(GradesBaseSender):
 
         await self._set_access_token_header()
 
-        lineitem_info = await self._get_line_item_info_by_assignment_name()
+        # lineitem_info = await self._get_line_item_info_by_assignment_name()
         assignment_info = self._retrieve_assignment_from_db()
-        score_maximum = lineitem_info['scoreMaximum']
+        score_maximum = assignment_info['scoreMaximum']
         client = AsyncHTTPClient()
         self.headers.update({'Content-Type': 'application/vnd.ims.lis.v1.score+json'})
         for grade in nbgrader_grades:
