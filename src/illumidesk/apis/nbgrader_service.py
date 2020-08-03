@@ -4,7 +4,7 @@ import os
 import shutil
 import sys
 
-from nbgrader.api import Gradebook
+from nbgrader.api import Assignment, Course, Gradebook
 from nbgrader.api import InvalidEntry
 
 from tornado.httpclient import HTTPResponse
@@ -37,10 +37,19 @@ class NbGraderServiceHelper:
         )
         shutil.chown(str(self.gradebook_path), user=self.uid, group=self.gid)
 
+    def update_course(self, **kwargs) -> None:
+        with Gradebook(f'sqlite:///{self.gradebook_path}', course_id=self.course_id) as gb:
+            gb.update_course(self.course_id, **kwargs)
 
-    async def create_assignment_in_nbgrader(
-        self, assignment_name: str, lms_resource_link_id: str, **kwargs: dict
-    ) -> Awaitable['HTTPResponse']:
+    def get_course(self) -> Course:
+        with Gradebook(f'sqlite:///{self.gradebook_path}', course_id=self.course_id) as gb:
+            course = gb.check_course(self.course_id)
+            logger.debug(f'course got from db:{course}')
+            return course
+
+    def create_assignment_in_nbgrader(
+        self, assignment_name: str, **kwargs: dict
+    ) -> Assignment:
         """
         Adds an assignment to nbgrader database
 
@@ -51,17 +60,17 @@ class NbGraderServiceHelper:
         """
         if not assignment_name:
             raise ValueError('assignment_name missing')
-        if not lms_resource_link_id:
-            raise ValueError('lms_resource_link_id missing')
-        try:
-            self.gb.update_or_create_assignment(assignment_name, lms_resource_link_id=lms_resource_link_id, **kwargs)
-            logger.debug('Added assignment %s with lms_resource_link_id %s to gradebook' % (assignment_name, lms_resource_link_id))
-            sourcedir = os.path.abspath(Path(self.course_dir, 'source', assignment_name))
-            if not os.path.isdir(sourcedir):
-                logger.debug('Creating source dir %s for the assignment %s' % (sourcedir, assignment_name))
-                os.makedirs(sourcedir)
-            logger.debug('Fixing folder permissions for %s' % sourcedir)
-            shutil.chown(str(sourcedir), user=self.uid, group=self.gid)
-        except InvalidEntry as e:
-            logger.debug('Error during adding assignment to gradebook: %s' % e)
-        self.gb.close()
+        assignment = None        
+        with Gradebook(f'sqlite:///{self.gradebook_path}', course_id=self.course_id) as gb:
+            try:
+                assignment = gb.update_or_create_assignment(assignment_name, **kwargs)
+                logger.debug('Added assignment %s to gradebook' % assignment_name)
+                sourcedir = os.path.abspath(Path(self.course_dir, 'source', assignment_name))
+                if not os.path.isdir(sourcedir):
+                    logger.debug('Creating source dir %s for the assignment %s' % (sourcedir, assignment_name))
+                    os.makedirs(sourcedir)
+                logger.debug('Fixing folder permissions for %s' % sourcedir)
+                shutil.chown(str(sourcedir), user=self.uid, group=self.gid)
+            except InvalidEntry as e:
+                logger.debug('Error during adding assignment to gradebook: %s' % e)
+        return assignment

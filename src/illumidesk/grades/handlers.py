@@ -1,5 +1,6 @@
 import json
 
+
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.grades import exceptions
 from illumidesk.grades.senders import LTI13GradeSender
@@ -8,6 +9,7 @@ from illumidesk.grades.senders import LTIGradeSender
 from jupyterhub.handlers import BaseHandler
 
 from tornado import web
+from tornado.httpclient import HTTPError
 
 
 class SendGradesHandler(BaseHandler):
@@ -47,6 +49,7 @@ class SendGradesHandler(BaseHandler):
             raise web.HTTPError(400, 'There was an critical error, please check logs.')
         except exceptions.AssignmentWithoutGradesError:
             raise web.HTTPError(400, 'There are no grades yet to submit')
-        except exceptions.GradesSenderMissingInfoError:
-            raise web.HTTPError(400, 'Impossible to send grades. There are missing values, please check logs.')
+        except exceptions.GradesSenderMissingInfoError as e:
+            self.log.error(f'There are missing values.{e}')
+            raise web.HTTPError(400, f'Impossible to send grades. There are missing values, please check logs.{e}')
         self.write(json.dumps({"success": True}))
