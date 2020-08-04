@@ -11,12 +11,13 @@ from illumidesk.authenticators.authenticator import LTIUtils
 
 @pytest.mark.asyncio
 async def test_authenticator_invokes_lti13validator_handler_get_argument(
-    build_lti13_jwt_id_token, make_lti13_resource_link_request, make_mock_request_handler
+    build_lti13_jwt_id_token, make_lti13_resource_link_request, make_mock_request_handler, mock_nbhelper
 ):
     """
     Does the authenticator invoke the RequestHandler get_argument method?
     """
     authenticator = LTI13Authenticator()
+
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
     with patch.object(
         request_handler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
@@ -27,7 +28,7 @@ async def test_authenticator_invokes_lti13validator_handler_get_argument(
 
 @pytest.mark.asyncio
 async def test_authenticator_invokes_lti13validator_jwt_verify_and_decode(
-    make_lti13_resource_link_request, make_mock_request_handler
+    make_lti13_resource_link_request, make_mock_request_handler, mock_nbhelper
 ):
     """
     Does the authenticator invoke the LTI13Validator jwt_verify_and_decode method?
@@ -44,7 +45,7 @@ async def test_authenticator_invokes_lti13validator_jwt_verify_and_decode(
 
 @pytest.mark.asyncio
 async def test_authenticator_invokes_lti13validator_validate_launch_request(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Does the authenticator invoke the LTI13Validator validate_launch_request method?
@@ -63,7 +64,7 @@ async def test_authenticator_invokes_lti13validator_validate_launch_request(
 
 @pytest.mark.asyncio
 async def test_authenticator_invokes_lti_utils_normalize_string(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Does the authenticator invoke the LTIUtils normalize_string method?
@@ -81,7 +82,11 @@ async def test_authenticator_invokes_lti_utils_normalize_string(
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_course_id_in_auth_state_with_valid_resource_link_request(
-    auth_state_dict, make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    auth_state_dict,
+    make_lti13_resource_link_request,
+    build_lti13_jwt_id_token,
+    make_mock_request_handler,
+    mock_nbhelper,
 ):
     """
     Do we get a valid course_id when receiving a valid resource link request?
@@ -98,7 +103,7 @@ async def test_authenticator_returns_course_id_in_auth_state_with_valid_resource
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_auth_state_name_from_lti13_email_claim(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we get a valid username when only including an email to the resource link request?
@@ -118,7 +123,7 @@ async def test_authenticator_returns_auth_state_name_from_lti13_email_claim(
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_username_in_auth_state_with_with_name(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we get a valid username when only including the name in the resource link request?
@@ -139,7 +144,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_name(
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_username_in_auth_state_with_with_given_name(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we get a valid username when only including the given name in the resource link request?
@@ -160,7 +165,7 @@ async def test_authenticator_returns_username_in_auth_state_with_with_given_name
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_username_in_auth_state_with_family_name(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we get a valid username when only including the family name in the resource link request?
@@ -182,7 +187,7 @@ async def test_authenticator_returns_username_in_auth_state_with_family_name(
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_username_in_auth_state_with_person_sourcedid(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we get a valid username when only including lis person sourcedid resource link request?
@@ -206,7 +211,10 @@ async def test_authenticator_returns_username_in_auth_state_with_person_sourcedi
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_username_in_auth_state_with_privacy_enabled(
-    make_lti13_resource_link_request_privacy_enabled, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request_privacy_enabled,
+    build_lti13_jwt_id_token,
+    make_mock_request_handler,
+    mock_nbhelper,
 ):
     """
     Do we get a valid username when initiating the login flow with privacy enabled?
@@ -227,7 +235,7 @@ async def test_authenticator_returns_username_in_auth_state_with_privacy_enabled
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_workspace_type_in_auth_state(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we get a valid lms_user_id in the auth_state when receiving a valid resource link request?
@@ -245,7 +253,7 @@ async def test_authenticator_returns_workspace_type_in_auth_state(
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_learner_role_in_auth_state(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the learner role in the auth_state when receiving a valid resource link request?
@@ -266,7 +274,7 @@ async def test_authenticator_returns_learner_role_in_auth_state(
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_instructor_role_in_auth_state_with_instructor_role(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the instructor role in the auth_state when receiving a valid resource link request?
@@ -288,7 +296,7 @@ async def test_authenticator_returns_instructor_role_in_auth_state_with_instruct
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_student_role_in_auth_state_with_learner_role(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the student role in the auth_state when receiving a valid resource link request with the Learner role?
@@ -309,7 +317,7 @@ async def test_authenticator_returns_student_role_in_auth_state_with_learner_rol
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_student_role_in_auth_state_with_student_role(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the student role in the auth_state when receiving a valid resource link request with the Student role?
@@ -331,7 +339,7 @@ async def test_authenticator_returns_student_role_in_auth_state_with_student_rol
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_learner_role_in_auth_state_with_empty_roles(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the learner role in the auth_state when receiving resource link request
@@ -350,7 +358,7 @@ async def test_authenticator_returns_learner_role_in_auth_state_with_empty_roles
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_default_workspace_type_with_unrecognized_workspace_type_in_custom_claim(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the default notebook image when the workspace type is unrecognized?
@@ -369,7 +377,7 @@ async def test_authenticator_returns_default_workspace_type_with_unrecognized_wo
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_default_workspace_type_with_missing_workspace_type_in_custom_claim(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the default notebook image when the workspace type is missing?
@@ -388,7 +396,7 @@ async def test_authenticator_returns_default_workspace_type_with_missing_workspa
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_notebook_as_workspace_type_in_auth_state_if_the_custom_claim_contains_this_value(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the workspace image to the notebook image when setting the workspace type to notebook?
@@ -406,7 +414,7 @@ async def test_authenticator_returns_notebook_as_workspace_type_in_auth_state_if
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_rstudio_workspace_image_with_rstudio_workspace_type_in_auth_state(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the workspace image to the rstudio image when setting the workspace type to rstudio?
@@ -425,7 +433,7 @@ async def test_authenticator_returns_rstudio_workspace_image_with_rstudio_worksp
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_theia_workspace_image_with_theia_workspace_type_in_auth_state(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the workspace image to the theia image when setting the workspace type to tbeia?
@@ -444,7 +452,7 @@ async def test_authenticator_returns_theia_workspace_image_with_theia_workspace_
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_vscode_workspace_image_with_vscode_workspace_type_in_auth_state(
-    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
     """
     Do we set the workspace image to the vscode image when setting the workspace type to vscode?

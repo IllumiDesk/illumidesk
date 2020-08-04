@@ -13,6 +13,7 @@ from pathlib import Path
 from nbgrader.api import Gradebook, MissingEntry
 
 from tornado.httpclient import AsyncHTTPClient
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 
 from illumidesk.lti13.auth import get_lms_access_token
 
@@ -143,33 +144,31 @@ class LTIGradeSender(GradesBaseSender):
 
 
 class LTI13GradeSender(GradesBaseSender):
-    def __init__(self, course_id: str, assignment_name: str, auth_state: dict):
+    def __init__(self, course_id: str, assignment_name: str):
         """
         Creates a new class to help us to send grades saved in the nbgrader gradebook (sqlite) back to the LMS
 
+        For simplify the submission we're using the lineitem_id (that is a url) obtained in authentication flow and it indicates us where send the scores
+        So the assignment item in the database should contains the 'lms_lineitem_id' with something like /api/lti/courses/:course_id/line_items/:line_item_id
         Args:
             course_id: It's the course label obtained from lti claims
             assignment_name: the asignment name used on the nbgrader console
-            auth_state: It's a dictionary with the auth state of the user. Saved when user logged in.
-                        The required key is 'course_lineitems' (obtained from the https://purl.imsglobal.org/spec/lti-ags/claim/endpoint claim)
-                        and its value is something like 'http://canvas.instructure.com/api/lti/courses/1/line_items'
         """
         super(LTI13GradeSender, self).__init__(course_id, assignment_name)
-        if auth_state is None or 'course_lineitems' not in auth_state:
-            logger.info('The key "course_lineitems" is missing in the user auth_state and it is required')
-            raise GradesSenderMissingInfoError()
 
-        logger.info(f'User auth_state received from SenderHandler: {auth_state}')
-        self.lineitems_url = auth_state['course_lineitems']
         self.private_key_path = os.environ.get('LTI13_PRIVATE_KEY')
         self.lms_token_url = os.environ['LTI13_TOKEN_URL']
         self.lms_client_id = os.environ['LTI13_CLIENT_ID']
+        # retrieve the course entity from nbgrader-gradebook
+        nbgrader_service = NbGraderServiceHelper(course_id)
+        course = nbgrader_service.get_course()
+        self.course = course
 
     async def _get_line_item_info_by_assignment_name(self) -> str:
         client = AsyncHTTPClient()
-        resp = await client.fetch(self.lineitems_url, headers=self.headers)
+        resp = await client.fetch(self.course.lms_lineitems_endpoint, headers=self.headers)
         items = json.loads(resp.body)
-        logger.debug(f'LineItems got from {self.lineitems_url} -> {items}')
+        logger.debug(f'LineItems retrieved: {items}')
         if not items or isinstance(items, list) is False:
             raise GradesSenderMissingInfoError(f'No line-items were detected for this course: {self.course_id}')
         lineitem_matched = None
@@ -212,18 +211,21 @@ class LTI13GradeSender(GradesBaseSender):
         client = AsyncHTTPClient()
         self.headers.update({'Content-Type': 'application/vnd.ims.lis.v1.score+json'})
         for grade in nbgrader_grades:
-            score = float(grade['score'])
-            data = {
-                'timestamp': datetime.now().isoformat(),
-                'userId': grade['lms_user_id'],
-                'scoreGiven': score,
-                'scoreMaximum': score_maximum,
-                'gradingProgress': 'FullyGraded',
-                'activityProgress': 'Completed',
-                'comment': '',
-            }
-            logger.info(f'data used to sent scores: {data}')
+            try:
+                score = float(grade['score'])
+                data = {
+                    'timestamp': datetime.now().isoformat(),
+                    'userId': grade['lms_user_id'],
+                    'scoreGiven': score,
+                    'scoreMaximum': score_maximum,
+                    'gradingProgress': 'FullyGraded',
+                    'activityProgress': 'Completed',
+                    'comment': '',
+                }
+                logger.info(f'data used to sent scores: {data}')
 
-            url = lineitem_info['id'] + '/scores'
-            logger.debug(f'URL for lineitem grades submission {url}')
-            await client.fetch(url, body=json.dumps(data), method='POST', headers=self.headers)
+                url = lineitem_info['id'] + '/scores'
+                logger.debug(f'URL for grades submission {url}')
+                await client.fetch(url, body=json.dumps(data), method='POST', headers=self.headers)
+            except Exception as e:
+                logger.error(f"Something went wrong by sending grader for {grade['lms_user_id']}.{e}")

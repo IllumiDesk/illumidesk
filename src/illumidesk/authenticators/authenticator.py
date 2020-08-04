@@ -18,6 +18,7 @@ from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.announcement_service import AnnouncementService
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.setup_course_service import make_rolling_update
 from illumidesk.apis.setup_course_service import register_new_service
 
@@ -68,11 +69,12 @@ async def setup_course_hook(
     username = lti_utils.normalize_string(authentication['name'])
     lms_user_id = authentication['auth_state']['lms_user_id']
     user_role = authentication['auth_state']['user_role']
+    # register the user (it doesn't matter if is a student or instructor) with her/his lms_user_id in nbgrader
+    await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
     if user_role == 'Student' or user_role == 'Learner':
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
         await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
-        await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
     elif user_role == 'Instructor':
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
@@ -244,7 +246,6 @@ class LTI11Authenticator(LTIAuthenticator):
                     control_file.register_data(
                         assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
                     )
-
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)
             self.log.debug('Assigned username is: %s' % username_normalized)
@@ -380,12 +381,22 @@ class LTI13Authenticator(OAuthenticator):
             self.log.debug('user_role is %s' % user_role)
 
             lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
-            # Values for the send-grades functionality
+            # Values for send-grades functionality
+            resource_link = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/resource_link']
+            resource_link_title = resource_link['title'] or ''
             course_lineitems = ''
-            if 'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded:
-                course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint'].get(
-                    'lineitems'
+            if (
+                'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded
+                and 'lineitems' in jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']
+            ):
+                course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
+            nbgrader_service = NbGraderServiceHelper(course_id)
+            nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
+            if resource_link_title:
+                self.log.debug(
+                    'Creating a new assignment from the Authentication flow with title %s' % resource_link_title
                 )
+                nbgrader_service.create_assignment_in_nbgrader(resource_link_title)
 
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)
@@ -397,7 +408,6 @@ class LTI13Authenticator(OAuthenticator):
                     'course_id': course_id,
                     'user_role': user_role,
                     'workspace_type': workspace_type,
-                    'course_lineitems': course_lineitems,
                     'lms_user_id': lms_user_id,
                 },  # noqa: E231
             }
