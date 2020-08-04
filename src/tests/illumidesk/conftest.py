@@ -1,6 +1,7 @@
 from io import StringIO
 import json
 import jwt
+from nbgrader.api import Course
 import pytest
 import os
 import secrets
@@ -55,6 +56,17 @@ def app():
 
     application = Application([(r'/', TestHandler),])  # noqa: E231
     return application
+
+
+@pytest.fixture(scope='function')
+def mock_nbhelper():
+    with patch.multiple(
+        'illumidesk.apis.nbgrader_service.NbGraderServiceHelper',
+        __init__=lambda x,y: None,
+        update_course=Mock(return_value=None),
+        get_course=Mock(return_value=Course(id='123', lms_lineitems_endpoint='canvas.docker.com/api/lti/courses/1/line_items'))
+    ) as mock_nb:
+        yield mock_nb
 
 
 @pytest.fixture(scope='function')

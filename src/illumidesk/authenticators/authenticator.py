@@ -392,11 +392,11 @@ class LTI13Authenticator(OAuthenticator):
                 and 'lineitems' in jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']
             ):
                 course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
-            self.log.debug('Creating a new assignment from the Authentication flow with title %s' % resource_link_title )
-            nbgrader_service = NbGraderServiceHelper(course_id)
-            
+            nbgrader_service = NbGraderServiceHelper(course_id)            
             nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
-            nbgrader_service.create_assignment_in_nbgrader(resource_link_title)
+            if resource_link_title:
+                self.log.debug('Creating a new assignment from the Authentication flow with title %s' % resource_link_title )
+                nbgrader_service.create_assignment_in_nbgrader(resource_link_title)
 
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)
