@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 import os
 import shutil
-import sys
 
 from nbgrader.api import Assignment, Course, Gradebook
 from nbgrader.api import InvalidEntry
@@ -17,6 +16,7 @@ class NbGraderServiceHelper:
     """
     Helper class to facilitate the use of nbgrader database and its methods
     """
+
     def __init__(self, course_id: str):
         if not course_id:
             raise ValueError('course_id missing')
@@ -31,7 +31,7 @@ class NbGraderServiceHelper:
         self.gradebook_path.parent.mkdir(exist_ok=True, parents=True)
         logger.debug('Gradebook path is %s' % self.gradebook_path)
         logger.debug("Creating gradebook instance")
-        # With new Gradebook instance the database is initiated/created 
+        # With new Gradebook instance the database is initiated/created
         with Gradebook(f'sqlite:///{self.gradebook_path}', course_id=self.course_id):
             logger.debug(
                 'Changing or making sure the gradebook directory permissions (with path %s) to %s:%s '
