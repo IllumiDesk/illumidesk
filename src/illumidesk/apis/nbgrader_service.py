@@ -14,6 +14,9 @@ logger.setLevel(logging.DEBUG)
 
 
 class NbGraderServiceHelper:
+    """
+    Helper class to facilitate the use of nbgrader database and its methods
+    """
     def __init__(self, course_id: str):
         if not course_id:
             raise ValueError('course_id missing')
@@ -21,19 +24,20 @@ class NbGraderServiceHelper:
         self.course_id = LTIUtils().normalize_string(course_id)
         self.uid = int(os.environ.get('NB_UID') or '10001')
         self.gid = int(os.environ.get('NB_GID') or '100')
-        grader_name = f'grader-{course_id}'
-        self.course_dir = f'/home/{grader_name}/{course_id}'
+        grader_name = f'grader-{self.course_id}'
+        self.course_dir = f'/home/{grader_name}/{self.course_id}'
         self.gradebook_path = Path(self.course_dir, 'gradebook.db')
         # make sure the gradebook path exists
         self.gradebook_path.parent.mkdir(exist_ok=True, parents=True)
         logger.debug('Gradebook path is %s' % self.gradebook_path)
-        logger.debug("creating gradebook instance")
-        
-        logger.debug(
-            'Changing or making sure the gradebook directory permissions (with path %s) to %s:%s '
-            % (self.gradebook_path, self.uid, self.gid)
-        )
-        shutil.chown(str(self.gradebook_path), user=self.uid, group=self.gid)
+        logger.debug("Creating gradebook instance")
+        # With new Gradebook instance the database is initiated/created 
+        with Gradebook(f'sqlite:///{self.gradebook_path}', course_id=self.course_id):
+            logger.debug(
+                'Changing or making sure the gradebook directory permissions (with path %s) to %s:%s '
+                % (self.gradebook_path, self.uid, self.gid)
+            )
+            shutil.chown(str(self.gradebook_path), user=self.uid, group=self.gid)
 
     def update_course(self, **kwargs) -> None:
         with Gradebook(f'sqlite:///{self.gradebook_path}', course_id=self.course_id) as gb:
