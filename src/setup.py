@@ -42,7 +42,7 @@ setup(
         'jupyterhub>=1.1.0',
         'jupyterhub-ltiauthenticator>=0.4.0',
         'jwcrypto==0.7',
-        'nbgrader@git+https://github.com/Illumidesk/nbgrader#egg=nbgrader-0.6.1',
+        'nbgrader@git+https://github.com/IllumiDesk/nbgrader#egg=nbgrader-0.6.2',
         'oauthenticator==0.11.0',
         'pem==20.1.0',
         'PyJWT==1.7.1',
