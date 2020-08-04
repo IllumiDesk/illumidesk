@@ -246,7 +246,13 @@ class LTI11Authenticator(LTIAuthenticator):
                     control_file.register_data(
                         assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
                     )
-
+            # create the assignment in nbgrader
+            nbgrader_service = NbGraderServiceHelper(course_id)            
+            if assignment_name:
+                self.log.debug(
+                    'Creating a new assignment from the Authentication flow with title %s' % assignment_name
+                )
+                nbgrader_service.create_assignment_in_nbgrader(assignment_name)
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)
             self.log.debug('Assigned username is: %s' % username_normalized)
