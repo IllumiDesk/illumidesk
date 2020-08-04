@@ -463,6 +463,25 @@ def test_launch_with_missing_resource_link_id(make_lti11_basic_launch_request_ar
         validator.validate_launch_request(launch_url, headers, args)
 
 
+def test_launch_with_missing_resource_link_id(make_lti11_basic_launch_request_args):
+    """
+    Does the launch request work with a missing resource_link_id key?
+    """
+    oauth_consumer_key = 'my_consumer_key'
+    oauth_consumer_secret = 'my_shared_secret'
+    launch_url = 'http://jupyterhub/hub/lti/launch'
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+    args = make_lti11_basic_launch_request_args(oauth_consumer_key, oauth_consumer_secret,)
+
+    del args['resource_link_id']
+
+    validator = LTI11LaunchValidator({oauth_consumer_key: oauth_consumer_secret})
+
+    with pytest.raises(HTTPError):
+        validator.validate_launch_request(launch_url, headers, args)
+
+
 def test_launch_with_none_or_empty_resource_link_id(make_lti11_basic_launch_request_args):
     """
     Does the launch request work with an empty or None resource_link_id value?

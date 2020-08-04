@@ -112,74 +112,6 @@ async def test_authenticator_uses_lti_utils_normalize_string(make_lti11_success_
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_lti_grades_sender_control_file_when_student(
-    tmp_path, make_lti11_success_authentication_request_args
-):
-    """
-    Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
-    Student string?
-    """
-
-    def _change_flag():
-        LTIGradesSenderControlFile.FILE_LOADED = True
-
-    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
-        with patch.object(LTIGradesSenderControlFile, 'register_data', return_value=None) as mock_register_data:
-            with patch.object(
-                LTIGradesSenderControlFile, '_loadFromFile', return_value=None
-            ) as mock_loadFromFileMethod:
-                mock_loadFromFileMethod.side_effect = _change_flag
-                sender_controlfile = LTIGradesSenderControlFile(tmp_path)
-                authenticator = LTI11Authenticator()
-                handler = Mock(spec=RequestHandler)
-                request = HTTPServerRequest(method='POST', connection=Mock(),)
-                handler.request = request
-                handler.request.arguments = make_lti11_success_authentication_request_args(
-                    lms_vendor='edx', role='Student'
-                )
-                handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args(
-                    'Student'
-                )[x][0].decode()
-
-                _ = await authenticator.authenticate(handler, None)
-                assert mock_register_data.called
-
-
-@pytest.mark.asyncio
-async def test_authenticator_uses_lti_grades_sender_control_file_when_learner(
-    tmp_path, make_lti11_success_authentication_request_args
-):
-    """
-    Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
-    Learner string?
-    """
-
-    def _change_flag():
-        LTIGradesSenderControlFile.FILE_LOADED = True
-
-    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
-        with patch.object(LTIGradesSenderControlFile, 'register_data', return_value=None) as mock_register_data:
-            with patch.object(
-                LTIGradesSenderControlFile, '_loadFromFile', return_value=None
-            ) as mock_loadFromFileMethod:
-                mock_loadFromFileMethod.side_effect = _change_flag
-                sender_controlfile = LTIGradesSenderControlFile(tmp_path)
-                authenticator = LTI11Authenticator()
-                handler = Mock(spec=RequestHandler)
-                request = HTTPServerRequest(method='POST', connection=Mock(),)
-                handler.request = request
-                handler.request.arguments = make_lti11_success_authentication_request_args(
-                    lms_vendor='canvas', role='Learner'
-                )
-                handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args(
-                    'Learner'
-                )[x][0].decode()
-
-                _ = await authenticator.authenticate(handler, None)
-                assert mock_register_data.called
-
-
-@pytest.mark.asyncio
 async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_instructor(
     tmp_path, make_lti11_success_authentication_request_args
 ):
@@ -210,7 +142,7 @@ async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_in
                 )[x][0].decode()
 
                 _ = await authenticator.authenticate(handler, None)
-                assert not mock_register_data.called
+                assert mock_register_data.called
 
 
 @pytest.mark.asyncio
@@ -238,6 +170,36 @@ async def test_authenticator_invokes_validator_with_decoded_dict(make_lti11_succ
         }
         # check validator was called with correct dict params (decoded)
         mock_validator.assert_called_with('https://example.com/hub', {}, decoded_args)
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
+async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service_url(
+    lti11_validator, make_lti11_success_authentication_request_args,
+):
+    """
+    Are we able to handle requests with a missing lis_outcome_service_url key?
+    """
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = make_lti11_success_authentication_request_args('canvas', 'Learner')
+        del args['lis_outcome_service_url']
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'student1',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Learner',
+                'workspace_type': 'notebook',
+            },
+        }
+        assert result == expected
 
 
 @pytest.mark.asyncio

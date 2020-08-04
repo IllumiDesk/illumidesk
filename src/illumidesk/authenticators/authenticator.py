@@ -69,11 +69,11 @@ async def setup_course_hook(
     lms_user_id = authentication['auth_state']['lms_user_id']
     user_role = authentication['auth_state']['user_role']
     # TODO: verify the logic to simplify groups creation and membership
+    await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
     if user_role == 'Student' or user_role == 'Learner':
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
         await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
-        await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
-    elif user_role == 'Instructor':
+    elif user_role == 'Instructor' or 'urn:lti:role:ims/lis/TeachingAssistant':
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
     data = {
@@ -186,9 +186,6 @@ class LTI11Authenticator(LTIAuthenticator):
             # Assign the user_id. Check the tool consumer (lms) vendor. If canvas use their
             # custom user id extension by default, else use standar lti values.
             username = ''
-            # GRADES-SENDER: retrieve assignment_name from standard property vs custom lms
-            # properties, such as custom_canvas_...
-            assignment_name = args['resource_link_title'] if 'resource_link_title' in args else 'unknown'
             if lms_vendor == 'canvas':
                 self.log.debug('TC is a Canvas LMS instance')
                 if 'custom_canvas_user_login_id' in args and args['custom_canvas_user_login_id']:
@@ -228,22 +225,31 @@ class LTI11Authenticator(LTIAuthenticator):
             # then default to the username
             lms_user_id = args['user_id'] if 'user_id' in args else username
 
+            # GRADES-SENDER: retrieve assignment_name from standard property vs custom lms
             # with all info extracted from lms request, register info for grades sender only if the user has
             # the Learner role
+            assignment_name = ''
+            # the next fields must come in args
+            if 'custom_canvas_assignment_title' in args and args['custom_canvas_assignment_title']:
+                assignment_name = lti_utils.normalize_string(args['custom_canvas_assignment_title'])
+            # this requires adding a the assignment_title as a custom parameter in the tool consumer (lms)
+            elif 'custom_assignment_title' in args and args['custom_assignment_title']:
+                assignment_name = lti_utils.normalize_string(args['custom_assignment_title'])
+            elif 'resource_link_title' in args and args['resource_link_title']:
+                assignment_name = lti_utils.normalize_string(args['resource_link_title'])
+            elif 'resource_link_id' in args and args['resource_link_id']:
+                assignment_name = lti_utils.normalize_string(args['resource_link_id'])
+            # fetch the information necessary to track assignments with the control file
+            # only if both values exist we can register them to submit grades later
             lis_outcome_service_url = ''
             lis_result_sourcedid = ''
-            if user_role == 'Learner' or user_role == 'Student':
-                # the next fields must come in args
-                if 'lis_outcome_service_url' in args and args['lis_outcome_service_url']:
-                    lis_outcome_service_url = args['lis_outcome_service_url']
-                if 'lis_result_sourcedid' in args and args['lis_result_sourcedid']:
-                    lis_result_sourcedid = args['lis_result_sourcedid']
-                # only if both values exist we can register them to submit grades later
-                if lis_outcome_service_url and lis_result_sourcedid:
-                    control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
-                    control_file.register_data(
-                        assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
-                    )
+            if 'lis_outcome_service_url' in args and args['lis_outcome_service_url']:
+                lis_outcome_service_url = args['lis_outcome_service_url']
+            if 'lis_result_sourcedid' in args and args['lis_result_sourcedid']:
+                lis_result_sourcedid = args['lis_result_sourcedid']
+            if lis_outcome_service_url and lis_result_sourcedid:
+                control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
+                control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
 
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)
