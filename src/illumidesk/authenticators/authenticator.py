@@ -383,7 +383,6 @@ class LTI13Authenticator(OAuthenticator):
             lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
             # Values for send-grades functionality
             resource_link = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/resource_link']
-            resource_link_id = resource_link['id']
             resource_link_title = resource_link['title'] or ''
             course_lineitems = ''
             if (
