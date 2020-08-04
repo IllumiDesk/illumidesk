@@ -1,10 +1,8 @@
-from _pytest.mark import param
 import pytest
 
 from tornado.web import RequestHandler
 
-from unittest.mock import Mock, patch
-from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
+from unittest.mock import patch
 
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
@@ -19,7 +17,7 @@ async def test_authenticator_invokes_lti13validator_handler_get_argument(
     Does the authenticator invoke the RequestHandler get_argument method?
     """
     authenticator = LTI13Authenticator()
-    
+
     request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
     with patch.object(
         request_handler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
@@ -84,7 +82,11 @@ async def test_authenticator_invokes_lti_utils_normalize_string(
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_course_id_in_auth_state_with_valid_resource_link_request(
-    auth_state_dict, make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
+    auth_state_dict,
+    make_lti13_resource_link_request,
+    build_lti13_jwt_id_token,
+    make_mock_request_handler,
+    mock_nbhelper,
 ):
     """
     Do we get a valid course_id when receiving a valid resource link request?
@@ -209,7 +211,10 @@ async def test_authenticator_returns_username_in_auth_state_with_person_sourcedi
 
 @pytest.mark.asyncio
 async def test_authenticator_returns_username_in_auth_state_with_privacy_enabled(
-    make_lti13_resource_link_request_privacy_enabled, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
+    make_lti13_resource_link_request_privacy_enabled,
+    build_lti13_jwt_id_token,
+    make_mock_request_handler,
+    mock_nbhelper,
 ):
     """
     Do we get a valid username when initiating the login flow with privacy enabled?

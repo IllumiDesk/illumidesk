@@ -74,7 +74,7 @@ async def setup_course_hook(
     # TODO: verify the logic to simplify groups creation and membership
     if user_role == 'Student' or user_role == 'Learner':
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
-        await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)        
+        await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
     elif user_role == 'Instructor':
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
@@ -392,10 +392,12 @@ class LTI13Authenticator(OAuthenticator):
                 and 'lineitems' in jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']
             ):
                 course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
-            nbgrader_service = NbGraderServiceHelper(course_id)            
+            nbgrader_service = NbGraderServiceHelper(course_id)
             nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
             if resource_link_title:
-                self.log.debug('Creating a new assignment from the Authentication flow with title %s' % resource_link_title )
+                self.log.debug(
+                    'Creating a new assignment from the Authentication flow with title %s' % resource_link_title
+                )
                 nbgrader_service.create_assignment_in_nbgrader(resource_link_title)
 
             # ensure the user name is normalized
@@ -407,7 +409,7 @@ class LTI13Authenticator(OAuthenticator):
                 'auth_state': {
                     'course_id': course_id,
                     'user_role': user_role,
-                    'workspace_type': workspace_type,                    
+                    'workspace_type': workspace_type,
                     'lms_user_id': lms_user_id,
                 },  # noqa: E231
             }

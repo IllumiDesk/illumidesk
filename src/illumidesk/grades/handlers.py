@@ -9,7 +9,6 @@ from illumidesk.grades.senders import LTIGradeSender
 from jupyterhub.handlers import BaseHandler
 
 from tornado import web
-from tornado.httpclient import HTTPError
 
 
 class SendGradesHandler(BaseHandler):
@@ -41,7 +40,7 @@ class SendGradesHandler(BaseHandler):
         # check lti version by the authenticator setting
         if isinstance(self.authenticator, LTI11Authenticator) or self.authenticator is LTI11Authenticator:
             lti_grade_sender = LTIGradeSender(course_id, assignment_name)
-        else:            
+        else:
             lti_grade_sender = LTI13GradeSender(course_id, assignment_name)
         try:
             await lti_grade_sender.send_grades()

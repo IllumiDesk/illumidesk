@@ -175,13 +175,13 @@ async def test_setup_course_hook_calls_add_instructor_to_jupyterhub_group_when_r
     local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict(user_role='Instructor')
 
-    with patch.object(
-        JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None
-    ):
+    with patch.object(JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None):
         with patch.object(
             JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
         ) as mock_add_instructor_to_jupyterhub_group:
-            with patch.object(AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)):
+            with patch.object(
+                AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)
+            ):
                 await setup_course_hook(local_authenticator, local_handler, local_authentication)
                 assert mock_add_instructor_to_jupyterhub_group.called
 
@@ -202,9 +202,7 @@ async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_w
     local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
     local_authentication = make_auth_state_dict(user_role='Instructor')
 
-    with patch.object(
-        JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None
-    ):
+    with patch.object(JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None):
         with patch.object(
             JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None
         ) as mock_add_student_to_jupyterhub_group:

@@ -7,11 +7,6 @@ import sys
 from nbgrader.api import Assignment, Course, Gradebook
 from nbgrader.api import InvalidEntry
 
-from tornado.httpclient import HTTPResponse
-
-from typing import Awaitable
-
-
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -28,12 +23,13 @@ class NbGraderServiceHelper:
 
         self.gradebook_path = Path(self.course_dir, 'gradebook.db')
         # make sure the gradebook path exists
-        self.gradebook_path.parent.mkdir(exist_ok=True, parents=True)   
+        self.gradebook_path.parent.mkdir(exist_ok=True, parents=True)
         logger.debug('Gradebook path is %s' % self.gradebook_path)
         logger.debug("creating gradebook instance")
         self.gb = Gradebook(f'sqlite:///{self.gradebook_path}', course_id=self.course_id)
         logger.debug(
-            'Changing or making sure the gradebook directory permissions (with path %s) to %s:%s ' % (self.gradebook_path, self.uid, self.gid)
+            'Changing or making sure the gradebook directory permissions (with path %s) to %s:%s '
+            % (self.gradebook_path, self.uid, self.gid)
         )
         shutil.chown(str(self.gradebook_path), user=self.uid, group=self.gid)
 
@@ -47,20 +43,18 @@ class NbGraderServiceHelper:
             logger.debug(f'course got from db:{course}')
             return course
 
-    def create_assignment_in_nbgrader(
-        self, assignment_name: str, **kwargs: dict
-    ) -> Assignment:
+    def create_assignment_in_nbgrader(self, assignment_name: str, **kwargs: dict) -> Assignment:
         """
         Adds an assignment to nbgrader database
 
-        Args:           
+        Args:
             assignment_name: The assingment's name
         Raises:
             InvalidEntry: when there was an error adding the assignment to the database
         """
         if not assignment_name:
             raise ValueError('assignment_name missing')
-        assignment = None        
+        assignment = None
         with Gradebook(f'sqlite:///{self.gradebook_path}', course_id=self.course_id) as gb:
             try:
                 assignment = gb.update_or_create_assignment(assignment_name, **kwargs)

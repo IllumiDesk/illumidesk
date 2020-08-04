@@ -1,7 +1,6 @@
-from nbgrader.api import Course
 import pytest
 
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from illumidesk.grades.senders import LTIGradeSender
 from illumidesk.grades.senders import LTI13GradeSender
@@ -52,16 +51,14 @@ class TestLTI11GradesSender:
 
 class TestLTI13GradesSender:
     def test_sender_sets_lineitems_url_with_the_value_in_auth_state_dict(self, lti_config_environ, mock_nbhelper):
-        sut = LTI13GradeSender(
-            'course-id', 'lab'
-        )
+        sut = LTI13GradeSender('course-id', 'lab')
         assert sut.course.lms_lineitems_endpoint == 'canvas.docker.com/api/lti/courses/1/line_items'
 
     @pytest.mark.asyncio
-    async def test_sender_raises_AssignmentWithoutGradesError_if_there_are_not_grades(self, lti_config_environ, mock_nbhelper):
-        sut = LTI13GradeSender(
-            'course-id', 'lab'
-        )
+    async def test_sender_raises_AssignmentWithoutGradesError_if_there_are_not_grades(
+        self, lti_config_environ, mock_nbhelper
+    ):
+        sut = LTI13GradeSender('course-id', 'lab')
         with patch.object(LTI13GradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [])):
             with pytest.raises(AssignmentWithoutGradesError):
                 await sut.send_grades()
@@ -70,9 +67,7 @@ class TestLTI13GradesSender:
     async def test_sender_calls__set_access_token_header_before_to_send_grades(
         self, lti_config_environ, make_http_response, make_mock_request_handler, mock_nbhelper
     ):
-        sut = LTI13GradeSender(
-            'course-id', 'lab'
-        )
+        sut = LTI13GradeSender('course-id', 'lab')
         local_handler = make_mock_request_handler(RequestHandler)
         access_token_result = {'token_type': '', 'access_token': ''}
         line_item_result = {'label': 'lab', 'id': 'line_item_url', 'scoreMaximum': 40}
@@ -100,9 +95,7 @@ class TestLTI13GradesSender:
     async def test_sender_raises_an_error_if_no_line_items_were_found(
         self, lti_config_environ, http_async_httpclient_with_simple_response, mock_nbhelper
     ):
-        sut = LTI13GradeSender(
-            'course-id', 'lab'
-        )
+        sut = LTI13GradeSender('course-id', 'lab')
 
         access_token_result = {'token_type': '', 'access_token': ''}
         with patch('illumidesk.grades.senders.get_lms_access_token', return_value=access_token_result) as mock_method:
