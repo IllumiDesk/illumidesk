@@ -408,6 +408,7 @@ class LTI13Authenticator(OAuthenticator):
             nbgrader_service = NbGraderServiceHelper(course_id)
             nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
             if resource_link_title:
+                # resource_link_title_normalize = lti_utils.normalize_string(resource_link_title)
                 self.log.debug(
                     'Creating a new assignment from the Authentication flow with title %s' % resource_link_title
                 )

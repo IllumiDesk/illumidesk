@@ -15,7 +15,7 @@
 {% elif login_service %}
 <div class="service-login">
   <a role="button" class='btn btn-jupyter btn-lg' href='{{authenticator_login_url}}'>
-    Sign in with {{login_service}}
+    Sign in with your Learning Management System (LMS)
   </a>
 </div>
 {% else %}
@@ -26,8 +26,8 @@
   <div class='auth-form-body'>
 
     <p id='insecure-login-warning' class='hidden'>
-    Warning: JupyterHub seems to be served over an unsecured HTTP connection.
-    We strongly recommend enabling HTTPS for JupyterHub.
+    Warning: IllumiDesk seems to be served over an unsecured HTTP connection.
+    We strongly recommend enabling HTTPS for IllumiDesk.
     </p>
 
     {% if login_error %}
