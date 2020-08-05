@@ -69,7 +69,7 @@ async def setup_course_hook(
     username = lti_utils.normalize_string(authentication['name'])
     lms_user_id = authentication['auth_state']['lms_user_id']
     user_role = authentication['auth_state']['user_role']
-    # register the user (it doesn't matter if is a student or instructor) with her/his lms_user_id in nbgrader
+    # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
     await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
     if user_role == 'Student' or user_role == 'Learner':
@@ -188,19 +188,13 @@ class LTI11Authenticator(LTIAuthenticator):
             # Assign the user_id. Check the tool consumer (lms) vendor. If canvas use their
             # custom user id extension by default, else use standar lti values.
             username = ''
-            # GRADES-SENDER: retrieve assignment_name from standard property vs custom lms
-            # properties, such as custom_canvas_...
-            assignment_name = args['resource_link_title'] if 'resource_link_title' in args else 'unknown'
+
             if lms_vendor == 'canvas':
                 self.log.debug('TC is a Canvas LMS instance')
                 if 'custom_canvas_user_login_id' in args and args['custom_canvas_user_login_id']:
                     custom_canvas_user_id = args['custom_canvas_user_login_id']
                     username = lti_utils.email_to_username(custom_canvas_user_id)
                     self.log.debug('using custom_canvas_user_id for username')
-                # GRADES-SENDER >>>> retrieve assignment_name from custom property
-                assignment_name = (
-                    args['custom_canvas_assignment_title'] if 'custom_canvas_assignment_title' in args else 'unknown'
-                )
             if (
                 not username
                 and 'lis_person_contact_email_primary' in args
@@ -230,22 +224,43 @@ class LTI11Authenticator(LTIAuthenticator):
             # then default to the username
             lms_user_id = args['user_id'] if 'user_id' in args else username
 
-            # with all info extracted from lms request, register info for grades sender only if the user has
-            # the Learner role
+            # GRADES-SENDER: fetch the information needed to register assignments within the control file
+            # retrieve assignment_name from standard property vs custom lms properties
+            assignment_name = ''
+            # the next fields must come in args
+            if 'custom_canvas_assignment_title' in args and args['custom_canvas_assignment_title']:
+                assignment_name = lti_utils.normalize_string(args['custom_canvas_assignment_title'])
+            # this requires adding a the assignment_title as a custom parameter in the tool consumer (lms)
+            elif 'custom_assignment_title' in args and args['custom_assignment_title']:
+                assignment_name = lti_utils.normalize_string(args['custom_assignment_title'])
+            elif 'resource_link_title' in args and args['resource_link_title']:
+                assignment_name = lti_utils.normalize_string(args['resource_link_title'])
+            elif 'resource_link_id' in args and args['resource_link_id']:
+                assignment_name = lti_utils.normalize_string(args['resource_link_id'])
+
+            
+            # Get lis_outcome_service_url and lis_result_sourcedid values that will help us to submit grades later
             lis_outcome_service_url = ''
             lis_result_sourcedid = ''
-            if user_role == 'Learner' or user_role == 'Student':
-                # the next fields must come in args
-                if 'lis_outcome_service_url' in args and args['lis_outcome_service_url']:
-                    lis_outcome_service_url = args['lis_outcome_service_url']
-                if 'lis_result_sourcedid' in args and args['lis_result_sourcedid']:
-                    lis_result_sourcedid = args['lis_result_sourcedid']
-                # only if both values exist we can register them to submit grades later
-                if lis_outcome_service_url and lis_result_sourcedid:
-                    control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
-                    control_file.register_data(
-                        assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
-                    )
+                        
+            # the next fields must come in args
+            if 'lis_outcome_service_url' in args and args['lis_outcome_service_url']:
+                lis_outcome_service_url = args['lis_outcome_service_url']
+            if 'lis_result_sourcedid' in args and args['lis_result_sourcedid']:
+                lis_result_sourcedid = args['lis_result_sourcedid']
+            # only if both values exist we can register them to submit grades later
+            if lis_outcome_service_url and lis_result_sourcedid:
+                control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
+                control_file.register_data(
+                    assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
+                )
+            # Assignment creation
+            nbgrader_service = NbGraderServiceHelper(course_id)            
+            if assignment_name:
+                self.log.debug(
+                    'Creating a new assignment from the Authentication flow with title %s' % assignment_name
+                )
+                nbgrader_service.create_assignment_in_nbgrader(assignment_name)
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)
             self.log.debug('Assigned username is: %s' % username_normalized)

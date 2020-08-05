@@ -66,5 +66,5 @@ class NbGraderServiceHelper:
                 logger.debug('Fixing folder permissions for %s' % sourcedir)
                 shutil.chown(str(sourcedir), user=self.uid, group=self.gid)
             except InvalidEntry as e:
-                logger.debug('Error during adding assignment to gradebook: %s' % e)
+                logger.debug('Error ocurred by adding assignment to gradebook: %s' % e)
         return assignment
