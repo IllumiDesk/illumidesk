@@ -192,11 +192,23 @@ class LTI11Authenticator(LTIAuthenticator):
             # properties, such as custom_canvas_...
             assignment_name = args['resource_link_title'] if 'resource_link_title' in args else 'unknown'
             if lms_vendor == 'canvas':
+                login_id = ''
+                user_id = ''
                 self.log.debug('TC is a Canvas LMS instance')
-                if 'custom_canvas_user_login_id' in args and args['custom_canvas_user_login_id']:
-                    custom_canvas_user_id = args['custom_canvas_user_login_id']
-                    username = lti_utils.email_to_username(custom_canvas_user_id)
-                    self.log.debug('using custom_canvas_user_id for username')
+                if (
+                    'custom_canvas_user_login_id' in args
+                    and args['custom_canvas_user_login_id']
+                    and 'custom_canvas_user_id' in args
+                    and args['custom_canvas_user_id']
+                ):
+                    custom_canvas_user_login_id = args['custom_canvas_user_login_id']
+                    login_id = lti_utils.email_to_username(custom_canvas_user_login_id)
+                    self.log.debug('using custom_canvas_user_login_id for username')
+                if 'custom_canvas_user_id' in args and args['custom_canvas_user_id']:
+                    custom_canvas_user_id = args['custom_canvas_user_id']
+                    user_id = lti_utils.email_to_username(custom_canvas_user_id)
+                    self.log.debug('using custom_canvas_user_login_id for username')
+                username = f'{login_id}-{user_id}'
                 # GRADES-SENDER >>>> retrieve assignment_name from custom property
                 assignment_name = (
                     args['custom_canvas_assignment_title'] if 'custom_canvas_assignment_title' in args else 'unknown'
