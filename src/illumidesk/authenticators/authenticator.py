@@ -207,7 +207,7 @@ class LTI11Authenticator(LTIAuthenticator):
                 if 'custom_canvas_user_id' in args and args['custom_canvas_user_id']:
                     custom_canvas_user_id = args['custom_canvas_user_id']
                     user_id = lti_utils.email_to_username(custom_canvas_user_id)
-                    self.log.debug('using custom_canvas_user_login_id for username')
+                    self.log.debug('using custom_canvas_user_id for username')
                 username = f'{login_id}-{user_id}'
                 # GRADES-SENDER >>>> retrieve assignment_name from custom property
                 assignment_name = (
