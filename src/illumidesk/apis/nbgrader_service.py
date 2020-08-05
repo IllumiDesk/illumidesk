@@ -67,12 +67,13 @@ class NbGraderServiceHelper:
             try:
                 assignment = gb.update_or_create_assignment(assignment_name, **kwargs)
                 logger.debug('Added assignment %s to gradebook' % assignment_name)
-                sourcedir = os.path.abspath(Path(self.course_dir, 'source', assignment_name))
-                if not os.path.isdir(sourcedir):
-                    logger.debug('Creating source dir %s for the assignment %s' % (sourcedir, assignment_name))
-                    os.makedirs(sourcedir)
-                logger.debug('Fixing folder permissions for %s' % sourcedir)
-                shutil.chown(str(sourcedir), user=self.uid, group=self.gid)
+                assignment_dir = os.path.abspath(Path(self.course_dir, 'source', assignment_name))
+                if not os.path.isdir(assignment_dir):
+                    logger.debug('Creating source dir %s for the assignment %s' % (assignment_dir, assignment_name))
+                    os.makedirs(assignment_dir)
+                logger.debug('Fixing folder permissions for %s' % assignment_dir)
+                shutil.chown(str(Path(assignment_dir).parent), user=self.uid, group=self.gid)
+                shutil.chown(str(assignment_dir), user=self.uid, group=self.gid)
             except InvalidEntry as e:
                 logger.debug('Error during adding assignment to gradebook: %s' % e)
         return assignment
