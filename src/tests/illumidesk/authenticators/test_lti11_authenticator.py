@@ -12,11 +12,15 @@ from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTIUtils
 from illumidesk.grades.senders import LTIGradesSenderControlFile
 
+@pytest.fixture(scope='function')
+def gradesender_controlfile_mock():
+    with patch.object(LTIGradesSenderControlFile, '_loadFromFile') as mock_loadFromFile:
+        yield mock_loadFromFile
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_canvas_fields(
-    lti11_validator, make_lti11_success_authentication_request_args
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock
 ):
     """
     Do we get a valid username when sending an argument with the custom canvas id?
@@ -392,7 +396,7 @@ async def test_authenticator_returns_default_workspace_type_when_missing(
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_correct_username_when_using_email_as_username(
-    lti11_validator, make_lti11_success_authentication_request_args
+    lti11_validator, make_lti11_success_authentication_request_args, mock_nbhelper
 ):
     """
     Do we get a valid username when the username is sent as the primary email address?
