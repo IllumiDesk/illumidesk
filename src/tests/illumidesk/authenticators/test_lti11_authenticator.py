@@ -12,15 +12,21 @@ from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTIUtils
 from illumidesk.grades.senders import LTIGradesSenderControlFile
 
+
 @pytest.fixture(scope='function')
 def gradesender_controlfile_mock():
-    with patch.object(LTIGradesSenderControlFile, '_loadFromFile') as mock_loadFromFile:
-        yield mock_loadFromFile
+    with patch.multiple(
+        'illumidesk.grades.sender_controlfile.LTIGradesSenderControlFile', 
+        _loadFromFile=Mock(),
+        register_data=Mock(return_value=None)
+        ) as mock_controlfile:
+        yield mock_controlfile
+
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_canvas_fields(
-    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock
+    mock_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Do we get a valid username when sending an argument with the custom canvas id?
@@ -48,7 +54,7 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_other_lms_vendor(
-    lti11_validator, make_lti11_success_authentication_request_args
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Do we get a valid username with lms vendors other than canvas?
@@ -74,7 +80,7 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_lti11validator(make_lti11_success_authentication_request_args):
+async def test_authenticator_uses_lti11validator(make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper):
     """
     Ensure that we call the LTI11Validator from the LTI11Authenticator.
     """
@@ -95,7 +101,7 @@ async def test_authenticator_uses_lti11validator(make_lti11_success_authenticati
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_lti_utils_normalize_string(make_lti11_success_authentication_request_args):
+async def test_authenticator_uses_lti_utils_normalize_string(make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper):
     """
     Ensure that we call the normalize string method with the LTI11Authenticator.
     """
@@ -116,8 +122,8 @@ async def test_authenticator_uses_lti_utils_normalize_string(make_lti11_success_
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_lti_grades_sender_control_file_when_student(
-    tmp_path, make_lti11_success_authentication_request_args
+async def test_authenticator_uses_lti_grades_sender_control_file_with_student_role(
+    tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
 ):
     """
     Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
@@ -132,8 +138,7 @@ async def test_authenticator_uses_lti_grades_sender_control_file_when_student(
             with patch.object(
                 LTIGradesSenderControlFile, '_loadFromFile', return_value=None
             ) as mock_loadFromFileMethod:
-                mock_loadFromFileMethod.side_effect = _change_flag
-                sender_controlfile = LTIGradesSenderControlFile(tmp_path)
+                mock_loadFromFileMethod.side_effect = _change_flag                
                 authenticator = LTI11Authenticator()
                 handler = Mock(spec=RequestHandler)
                 request = HTTPServerRequest(method='POST', connection=Mock(),)
@@ -150,8 +155,8 @@ async def test_authenticator_uses_lti_grades_sender_control_file_when_student(
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_lti_grades_sender_control_file_when_learner(
-    tmp_path, make_lti11_success_authentication_request_args
+async def test_authenticator_uses_lti_grades_sender_control_file_with_learner_role(
+    tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
 ):
     """
     Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
@@ -167,7 +172,6 @@ async def test_authenticator_uses_lti_grades_sender_control_file_when_learner(
                 LTIGradesSenderControlFile, '_loadFromFile', return_value=None
             ) as mock_loadFromFileMethod:
                 mock_loadFromFileMethod.side_effect = _change_flag
-                sender_controlfile = LTIGradesSenderControlFile(tmp_path)
                 authenticator = LTI11Authenticator()
                 handler = Mock(spec=RequestHandler)
                 request = HTTPServerRequest(method='POST', connection=Mock(),)
@@ -184,8 +188,8 @@ async def test_authenticator_uses_lti_grades_sender_control_file_when_learner(
 
 
 @pytest.mark.asyncio
-async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_instructor(
-    tmp_path, make_lti11_success_authentication_request_args
+async def test_authenticator_uses_lti_grades_sender_control_file_with_instructor_role(
+    tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
 ):
     """
     Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
@@ -201,7 +205,6 @@ async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_in
                 LTIGradesSenderControlFile, '_loadFromFile', return_value=None
             ) as mock_loadFromFileMethod:
                 mock_loadFromFileMethod.side_effect = _change_flag
-                sender_controlfile = LTIGradesSenderControlFile(tmp_path)
                 authenticator = LTI11Authenticator()
                 handler = Mock(spec=RequestHandler)
                 request = HTTPServerRequest(method='POST', connection=Mock(),)
@@ -214,11 +217,11 @@ async def test_authenticator_does_not_set_lti_grades_sender_control_file_when_in
                 )[x][0].decode()
 
                 _ = await authenticator.authenticate(handler, None)
-                assert not mock_register_data.called
+                assert mock_register_data.called
 
 
 @pytest.mark.asyncio
-async def test_authenticator_invokes_validator_with_decoded_dict(make_lti11_success_authentication_request_args):
+async def test_authenticator_invokes_validator_with_decoded_dict(make_lti11_success_authentication_request_args, mock_nbhelper, gradesender_controlfile_mock):
     """
     Does the authentictor call the validator?
     """
@@ -247,7 +250,7 @@ async def test_authenticator_invokes_validator_with_decoded_dict(make_lti11_succ
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service_url(
-    lti11_validator, make_lti11_success_authentication_request_args,
+    lti11_validator, make_lti11_success_authentication_request_args, mock_nbhelper, gradesender_controlfile_mock
 ):
     """
     Are we able to handle requests with a missing lis_outcome_service_url key?
@@ -277,7 +280,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedid(
-    lti11_validator, make_lti11_success_authentication_request_args,
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Are we able to handle requests with a missing lis_result_sourcedid key?
@@ -307,7 +310,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
-    lti11_validator, make_lti11_success_authentication_request_args,
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Are we able to handle requests with lis_result_sourcedid set to an empty value?
@@ -337,7 +340,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_url(
-    lti11_validator, make_lti11_success_authentication_request_args,
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Are we able to handle requests with lis_outcome_service_url set to an empty value?
@@ -367,7 +370,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_default_workspace_type_when_missing(
-    lti11_validator, make_lti11_success_authentication_request_args
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Do we get the default workspace_type when its not sent with the launch request?
@@ -396,7 +399,7 @@ async def test_authenticator_returns_default_workspace_type_when_missing(
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_correct_username_when_using_email_as_username(
-    lti11_validator, make_lti11_success_authentication_request_args, mock_nbhelper
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Do we get a valid username when the username is sent as the primary email address?
@@ -430,42 +433,7 @@ async def test_authenticator_returns_correct_username_when_using_email_as_userna
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_correct_username_when_using_lis_person_name_given_as_username(
-    lti11_validator, make_lti11_success_authentication_request_args
-):
-    """
-    Do we get a valid username when the username is sent with lis_person_name_given?
-    """
-    with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
-        authenticator = LTI11Authenticator()
-        args = make_lti11_success_authentication_request_args('canvas', 'Instructor', '')
-        args['custom_canvas_user_login_id'] = [b'']
-        args['lis_person_contact_email_primary'] = [b'']
-        args['lis_person_name_given'] = [b'foo']
-        args['lis_person_name_family'] = [b'']
-        args['lis_person_name_full'] = [b'']
-
-        handler = Mock(
-            spec=RequestHandler,
-            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
-        )
-        result = await authenticator.authenticate(handler, None)
-        expected = {
-            'name': 'foo',
-            'auth_state': {
-                'course_id': 'intro101',
-                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-                'user_role': 'Instructor',
-                'workspace_type': 'notebook',
-            },
-        }
-        assert result == expected
-
-
-@pytest.mark.asyncio
-@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
-async def test_authenticator_returns_correct_username_when_using_lis_person_name_given_as_username(
-    lti11_validator, make_lti11_success_authentication_request_args
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Do we get a valid username when the username is sent as the primary email address?
@@ -499,7 +467,7 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_correct_username_when_using_lis_person_name_family_as_username(
-    lti11_validator, make_lti11_success_authentication_request_args
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Do we get a valid username when the username is sent with the family name?
@@ -533,7 +501,7 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_correct_username_when_using_lis_person_name_full_as_username(
-    lti11_validator, make_lti11_success_authentication_request_args
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Do we get a valid username when the username is sent with the family name?
@@ -567,7 +535,7 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_correct_username_when_using_user_id_as_username(
-    lti11_validator, make_lti11_success_authentication_request_args
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Ensure the username doesn't exceed thirty characters when using the user_id as username.
@@ -601,7 +569,7 @@ async def test_authenticator_returns_correct_username_when_using_user_id_as_user
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_default_workspace_type_when_unrecognized(
-    lti11_validator, make_lti11_success_authentication_request_args
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Do we get the default workspace_type when is not recognized with the launch request?
@@ -630,7 +598,7 @@ async def test_authenticator_returns_default_workspace_type_when_unrecognized(
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_custom_workspace_type_when_set(
-    lti11_validator, make_lti11_success_authentication_request_args
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Do we get the custom workspace_type when its sent with the launch request?
