@@ -534,7 +534,7 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
-async def test_authenticator_returns_correct_username_when_using_user_id_as_username(
+async def test_authenticator_returns_username_from_user_id_with_another_lms(
     lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
@@ -568,8 +568,8 @@ async def test_authenticator_returns_correct_username_when_using_user_id_as_user
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
-async def test_authenticator_returns_correct_username_when_using_user_id_as_username(
-    lti11_validator, make_lti11_success_authentication_request_args
+async def test_authenticator_returns_login_id_plus_user_id_as_username_with_canvas(
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
     """
     Ensure the username reflects the custom_canvas_user_login_id and custom_canvas_user_id
