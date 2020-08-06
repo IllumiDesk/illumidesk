@@ -187,6 +187,34 @@ async def test_setup_course_hook_calls_add_instructor_to_jupyterhub_group_when_r
 
 
 @pytest.mark.asyncio()
+async def test_setup_course_hook_calls_add_instructor_to_jupyterhub_group_when_role_is_TeachingAssistant(
+    monkeypatch,
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_mock_request_handler,
+    make_http_response,
+):
+    """
+    Is the jupyterhub_api add instructor to jupyterhub group function called when the user role is
+    the instructor role?
+    """
+    local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_authentication = make_auth_state_dict(user_role='urn:lti:role:ims/lis/TeachingAssistants')
+
+    with patch.object(JupyterHubAPI, 'add_user_to_nbgrader_gradebook', return_value=None):
+        with patch.object(
+            JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
+        ) as mock_add_instructor_to_jupyterhub_group:
+            with patch.object(
+                AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)
+            ):
+                await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                assert mock_add_instructor_to_jupyterhub_group.called
+
+
+@pytest.mark.asyncio()
 async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_when_role_is_instructor(
     setup_course_environ,
     setup_course_hook_environ,
