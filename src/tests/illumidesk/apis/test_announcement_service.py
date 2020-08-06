@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 
 @pytest.mark.asyncio
-async def test_add_announcement__call_fetch_with_correct_url(
+async def test_add_announcement_method_calls_announcement_service(
     jupyterhub_api_environ, make_http_response, make_mock_request_handler
 ):
     local_handler = make_mock_request_handler(RequestHandler)

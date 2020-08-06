@@ -1,4 +1,5 @@
 import re
+from sqlalchemy.sql.sqltypes import Boolean
 
 from tornado.web import RequestHandler
 
@@ -7,6 +8,8 @@ from typing import Dict
 from typing import List
 
 from traitlets.config import LoggingConfigurable
+
+from illumidesk.authenticators.constants import DEFAULT_ROLE_NAMES_FOR_STUDENT
 
 
 class LTIUtils(LoggingConfigurable):
@@ -108,3 +111,9 @@ class LTIUtils(LoggingConfigurable):
         for k, values in arguments.items():
             args[k] = values[0].decode()
         return args
+
+
+def user_is_a_student(user_role: str) -> Boolean:
+  if not user_role:
+    raise ValueError('user_role must have a value')
+  return user_role.lower() in DEFAULT_ROLE_NAMES_FOR_STUDENT

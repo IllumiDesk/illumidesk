@@ -322,3 +322,6 @@ WORKSPACE_TYPES = [
     'theia',
     'vscode',
 ]
+
+# the list of roles that recognize a user as a Student
+DEFAULT_ROLE_NAMES_FOR_STUDENT = ['student', 'learner']

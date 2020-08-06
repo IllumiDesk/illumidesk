@@ -26,7 +26,7 @@ from illumidesk.authenticators.constants import WORKSPACE_TYPES
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
-from illumidesk.authenticators.utils import LTIUtils
+from illumidesk.authenticators.utils import LTIUtils, user_is_a_student
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 
@@ -72,7 +72,7 @@ async def setup_course_hook(
     # register the user (it doesn't matter if is a student or instructor) with her/his lms_user_id in nbgrader
     await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
-    if user_role in ('Student', 'Learner'):
+    if user_is_a_student(user_role):
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
         await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
     elif user_role in ('Instructor', 'urn:lti:role:ims/lis/TeachingAssistant'):
@@ -246,7 +246,7 @@ class LTI11Authenticator(LTIAuthenticator):
             # the Learner role
             lis_outcome_service_url = ''
             lis_result_sourcedid = ''
-            if user_role == 'Learner' or user_role == 'Student':
+            if user_is_a_student(user_role):
                 # the next fields must come in args
                 if 'lis_outcome_service_url' in args and args['lis_outcome_service_url']:
                     lis_outcome_service_url = args['lis_outcome_service_url']
