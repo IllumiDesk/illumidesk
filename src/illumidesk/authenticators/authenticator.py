@@ -72,10 +72,10 @@ async def setup_course_hook(
     # register the user (it doesn't matter if is a student or instructor) with her/his lms_user_id in nbgrader
     await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
-    if user_role == 'Student' or user_role == 'Learner':
+    if user_role in ('Student', 'Learner'):
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
         await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
-    elif user_role == 'Instructor':
+    elif user_role in ('Instructor', 'urn:lti:role:ims/lis/TeachingAssistant'):
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
     data = {
