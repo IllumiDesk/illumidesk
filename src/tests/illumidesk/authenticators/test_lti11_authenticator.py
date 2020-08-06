@@ -40,7 +40,7 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'student1',
+            'name': 'student1-1091',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
@@ -266,7 +266,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'student1',
+            'name': 'student1-1091',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
@@ -296,7 +296,7 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'student1',
+            'name': 'student1-1091',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
@@ -326,7 +326,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'student1',
+            'name': 'student1-1091',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
@@ -356,7 +356,7 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'student1',
+            'name': 'student1-1091',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
@@ -385,7 +385,7 @@ async def test_authenticator_returns_default_workspace_type_when_missing(
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'student1',
+            'name': 'student1-1091',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
@@ -406,7 +406,7 @@ async def test_authenticator_returns_correct_username_when_using_email_as_userna
     """
     with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = make_lti11_success_authentication_request_args('canvas', 'Instructor', '')
+        args = make_lti11_success_authentication_request_args('edx', 'Instructor', '')
         args['custom_canvas_user_login_id'] = [b'']
         args['lis_person_contact_email_primary'] = [b'foo@example.com']
         args['lis_person_name_family'] = [b'']
@@ -440,7 +440,7 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
     """
     with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = make_lti11_success_authentication_request_args('canvas', 'Instructor', '')
+        args = make_lti11_success_authentication_request_args('d2l', 'Instructor', '')
         args['custom_canvas_user_login_id'] = [b'']
         args['lis_person_contact_email_primary'] = [b'']
         args['lis_person_name_given'] = [b'foo']
@@ -474,7 +474,7 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
     """
     with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = make_lti11_success_authentication_request_args('canvas', 'Instructor', '')
+        args = make_lti11_success_authentication_request_args('edx', 'Instructor', '')
         args['custom_canvas_user_login_id'] = [b'']
         args['lis_person_contact_email_primary'] = [b'']
         args['lis_person_name_given'] = [b'']
@@ -508,7 +508,7 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
     """
     with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = make_lti11_success_authentication_request_args('canvas', 'Instructor', '')
+        args = make_lti11_success_authentication_request_args('moodle', 'Instructor', '')
         args['custom_canvas_user_login_id'] = [b'']
         args['lis_person_contact_email_primary'] = [b'']
         args['lis_person_name_given'] = [b'']
@@ -542,7 +542,7 @@ async def test_authenticator_returns_correct_username_when_using_user_id_as_user
     """
     with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
-        args = make_lti11_success_authentication_request_args('canvas', 'Instructor', '')
+        args = make_lti11_success_authentication_request_args('moodle', 'Instructor', '')
         args['custom_canvas_user_login_id'] = [b'']
         args['lis_person_contact_email_primary'] = [b'']
         args['lis_person_name_given'] = [b'']
@@ -556,6 +556,42 @@ async def test_authenticator_returns_correct_username_when_using_user_id_as_user
         result = await authenticator.authenticate(handler, None)
         expected = {
             'name': '185d6c59731a553009ca',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+                'workspace_type': 'notebook',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_correct_username_when_using_user_id_as_username(
+    lti11_validator, make_lti11_success_authentication_request_args
+):
+    """
+    Ensure the username reflects the custom_canvas_user_login_id and custom_canvas_user_id
+    when the lms vendor is canvas.
+    """
+    with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = make_lti11_success_authentication_request_args('canvas', 'Instructor', '')
+        args['custom_canvas_user_login_id'] = [b'foobar']
+        args['custom_canvas_user_id'] = [b'123123']
+        args['lis_person_contact_email_primary'] = [b'']
+        args['lis_person_name_given'] = [b'']
+        args['lis_person_name_family'] = [b'']
+        args['lis_person_name_full'] = [b'']
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'foobar-123123',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
@@ -584,7 +620,7 @@ async def test_authenticator_returns_default_workspace_type_when_unrecognized(
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'student1',
+            'name': 'student1-1091',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
@@ -613,7 +649,7 @@ async def test_authenticator_returns_custom_workspace_type_when_set(
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            'name': 'student1',
+            'name': 'student1-1091',
             'auth_state': {
                 'course_id': 'intro101',
                 'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',

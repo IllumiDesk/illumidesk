@@ -188,13 +188,24 @@ class LTI11Authenticator(LTIAuthenticator):
             # Assign the user_id. Check the tool consumer (lms) vendor. If canvas use their
             # custom user id extension by default, else use standar lti values.
             username = ''
-
             if lms_vendor == 'canvas':
+                login_id = ''
+                user_id = ''
                 self.log.debug('TC is a Canvas LMS instance')
-                if 'custom_canvas_user_login_id' in args and args['custom_canvas_user_login_id']:
-                    custom_canvas_user_id = args['custom_canvas_user_login_id']
-                    username = lti_utils.email_to_username(custom_canvas_user_id)
+                if (
+                    'custom_canvas_user_login_id' in args
+                    and args['custom_canvas_user_login_id']
+                    and 'custom_canvas_user_id' in args
+                    and args['custom_canvas_user_id']
+                ):
+                    custom_canvas_user_login_id = args['custom_canvas_user_login_id']
+                    login_id = lti_utils.email_to_username(custom_canvas_user_login_id)
+                    self.log.debug('using custom_canvas_user_login_id for username')
+                if 'custom_canvas_user_id' in args and args['custom_canvas_user_id']:
+                    custom_canvas_user_id = args['custom_canvas_user_id']
+                    user_id = lti_utils.email_to_username(custom_canvas_user_id)
                     self.log.debug('using custom_canvas_user_id for username')
+                username = f'{login_id}-{user_id}'                
             if (
                 not username
                 and 'lis_person_contact_email_primary' in args
