@@ -26,7 +26,8 @@ from illumidesk.authenticators.constants import WORKSPACE_TYPES
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
-from illumidesk.authenticators.utils import LTIUtils, user_is_a_student
+from illumidesk.authenticators.utils import LTIUtils, user_is_an_instructor
+from illumidesk.authenticators.utils import user_is_a_student
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 
@@ -75,7 +76,7 @@ async def setup_course_hook(
     if user_is_a_student(user_role):
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
         await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
-    elif user_role in ('Instructor', 'urn:lti:role:ims/lis/TeachingAssistant'):
+    elif user_is_an_instructor(user_role):
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
     data = {

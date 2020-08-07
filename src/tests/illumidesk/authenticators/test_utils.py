@@ -6,7 +6,7 @@ from tornado.web import RequestHandler
 
 from unittest.mock import Mock
 
-from illumidesk.authenticators.utils import LTIUtils
+from illumidesk.authenticators.utils import LTIUtils, user_is_a_student, user_is_an_instructor
 
 
 def test_normalize_string_return_false_with_missing_name():
@@ -154,3 +154,50 @@ def test_email_to_username_retrieves_only_first_part_before_plus_symbol():
     # act
     result = utils.email_to_username(email)
     assert result == 'user'
+
+
+def test_user_is_a_student_method_raises_an_error_with_missing_value():
+    with pytest.raises(ValueError):
+        user_is_a_student('')
+
+
+def test_user_is_a_student_method_returns_true_when_learner_role():
+    result = user_is_a_student('Learner')
+    assert result is True
+
+
+def test_user_is_a_student_method_returns_false_when_role_not_supported():
+    result = user_is_a_student('Unknown')
+    assert result is False
+
+
+def test_user_is_a_student_method_returns_false_when_instructor_role():
+    result = user_is_a_student('Instructor')
+    assert result is False
+
+
+def test_user_is_a_student_method_ignores_case():
+    result = user_is_a_student('learner')
+    assert result is True
+    result = user_is_a_student('LeArNeR')
+    assert result is True
+
+
+def test_user_is_an_instructor_method_returns_true_when_Instructor_role():
+    result = user_is_an_instructor('Instructor')
+    assert result is True
+
+
+def test_user_is_an_instructor_method_ignores_case():
+    result = user_is_an_instructor('insTructoR')
+    assert result is True
+
+
+def test_user_is_an_instructor_method_returns_true_when_TeachingAssistant_role():
+    result = user_is_an_instructor('urn:lti:role:ims/lis/teachingassistant')
+    assert result is True
+
+
+def test_user_is_an_instructor_method_returns_true_when_other_role():
+    result = user_is_an_instructor('Student')
+    assert result is False
