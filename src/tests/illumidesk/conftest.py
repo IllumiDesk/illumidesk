@@ -64,6 +64,7 @@ def mock_nbhelper():
         'illumidesk.apis.nbgrader_service.NbGraderServiceHelper',
         __init__=lambda x, y: None,
         update_course=Mock(return_value=None),
+        create_assignment_in_nbgrader=Mock(return_value=None),
         get_course=Mock(
             return_value=Course(id='123', lms_lineitems_endpoint='canvas.docker.com/api/lti/courses/1/line_items')
         ),

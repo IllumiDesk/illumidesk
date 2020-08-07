@@ -75,5 +75,5 @@ class NbGraderServiceHelper:
                 shutil.chown(str(Path(assignment_dir).parent), user=self.uid, group=self.gid)
                 shutil.chown(str(assignment_dir), user=self.uid, group=self.gid)
             except InvalidEntry as e:
-                logger.debug('Error during adding assignment to gradebook: %s' % e)
+                logger.debug('Error ocurred by adding assignment to gradebook: %s' % e)
         return assignment
