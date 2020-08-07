@@ -126,7 +126,7 @@ def user_is_an_instructor(user_role: str) -> Boolean:
     raise ValueError('user_role must have a value')
   # find the extra role names to recognize an instructor (to be added in the grader group)
   extra_roles = os.environ.get('EXTRA_ROLE_NAMES_FOR_INSTRUCTOR') or []
-  if extra_roles and ',' in extra_roles:
-    extra_roles = extra_roles.split(',')
+  if extra_roles:
+    extra_roles = extra_roles.lower().split(',')
     DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR.extend(extra_roles)
   return user_role.lower() in DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR
