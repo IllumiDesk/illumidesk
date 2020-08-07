@@ -81,7 +81,7 @@ def test_new_instance_calls_chown_method_for_gradebook_path(
 def test_create_assignment_in_nbgrader_method_fixes_source_directory_permissions(
     mock_gradebook, mock_path_mkdir, mock_makedirs
 ):
-    course_id = 'intro101'    
+    course_id = 'intro101'
     with patch.object(shutil, 'chown') as mock_chown:
         sut = NbGraderServiceHelper(course_id)
         sut.create_assignment_in_nbgrader('lab-abc')
@@ -95,7 +95,7 @@ def test_create_assignment_in_nbgrader_method_fixes_source_directory_permissions
 def test_create_assignment_in_nbgrader_method_fixes_assignment_directory_permissions(
     mock_gradebook, mock_path_mkdir, mock_makedirs
 ):
-    course_id = 'intro101'    
+    course_id = 'intro101'
     with patch.object(shutil, 'chown') as mock_chown:
         sut = NbGraderServiceHelper(course_id)
         sut.create_assignment_in_nbgrader('lab-abc')

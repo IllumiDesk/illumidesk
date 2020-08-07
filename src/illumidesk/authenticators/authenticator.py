@@ -206,7 +206,7 @@ class LTI11Authenticator(LTIAuthenticator):
                     custom_canvas_user_id = args['custom_canvas_user_id']
                     user_id = lti_utils.email_to_username(custom_canvas_user_id)
                     self.log.debug('using custom_canvas_user_id for username')
-                username = f'{login_id}-{user_id}'                
+                username = f'{login_id}-{user_id}'
             if (
                 not username
                 and 'lis_person_contact_email_primary' in args
@@ -249,11 +249,11 @@ class LTI11Authenticator(LTIAuthenticator):
                 assignment_name = lti_utils.normalize_string(args['resource_link_title'])
             elif 'resource_link_id' in args and args['resource_link_id']:
                 assignment_name = lti_utils.normalize_string(args['resource_link_id'])
-            
+
             # Get lis_outcome_service_url and lis_result_sourcedid values that will help us to submit grades later
             lis_outcome_service_url = ''
             lis_result_sourcedid = ''
-                        
+
             # the next fields must come in args
             if 'lis_outcome_service_url' in args and args['lis_outcome_service_url']:
                 lis_outcome_service_url = args['lis_outcome_service_url']
@@ -262,10 +262,8 @@ class LTI11Authenticator(LTIAuthenticator):
             # only if both values exist we can register them to submit grades later
             if lis_outcome_service_url and lis_result_sourcedid:
                 control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
-                control_file.register_data(
-                    assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
-                )
-            # Assignment creation            
+                control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
+            # Assignment creation
             if assignment_name:
                 nbgrader_service = NbGraderServiceHelper(course_id)
                 self.log.debug(

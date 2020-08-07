@@ -16,10 +16,10 @@ from illumidesk.grades.senders import LTIGradesSenderControlFile
 @pytest.fixture(scope='function')
 def gradesender_controlfile_mock():
     with patch.multiple(
-        'illumidesk.grades.sender_controlfile.LTIGradesSenderControlFile', 
+        'illumidesk.grades.sender_controlfile.LTIGradesSenderControlFile',
         _loadFromFile=Mock(),
-        register_data=Mock(return_value=None)
-        ) as mock_controlfile:
+        register_data=Mock(return_value=None),
+    ) as mock_controlfile:
         yield mock_controlfile
 
 
@@ -80,7 +80,9 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_lti11validator(make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper):
+async def test_authenticator_uses_lti11validator(
+    make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
+):
     """
     Ensure that we call the LTI11Validator from the LTI11Authenticator.
     """
@@ -101,7 +103,9 @@ async def test_authenticator_uses_lti11validator(make_lti11_success_authenticati
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_lti_utils_normalize_string(make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper):
+async def test_authenticator_uses_lti_utils_normalize_string(
+    make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
+):
     """
     Ensure that we call the normalize string method with the LTI11Authenticator.
     """
@@ -138,7 +142,7 @@ async def test_authenticator_uses_lti_grades_sender_control_file_with_student_ro
             with patch.object(
                 LTIGradesSenderControlFile, '_loadFromFile', return_value=None
             ) as mock_loadFromFileMethod:
-                mock_loadFromFileMethod.side_effect = _change_flag                
+                mock_loadFromFileMethod.side_effect = _change_flag
                 authenticator = LTI11Authenticator()
                 handler = Mock(spec=RequestHandler)
                 request = HTTPServerRequest(method='POST', connection=Mock(),)
@@ -221,7 +225,9 @@ async def test_authenticator_uses_lti_grades_sender_control_file_with_instructor
 
 
 @pytest.mark.asyncio
-async def test_authenticator_invokes_validator_with_decoded_dict(make_lti11_success_authentication_request_args, mock_nbhelper, gradesender_controlfile_mock):
+async def test_authenticator_invokes_validator_with_decoded_dict(
+    make_lti11_success_authentication_request_args, mock_nbhelper, gradesender_controlfile_mock
+):
     """
     Does the authentictor call the validator?
     """
