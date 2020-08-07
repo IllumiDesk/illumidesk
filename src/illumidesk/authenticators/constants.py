@@ -322,3 +322,8 @@ WORKSPACE_TYPES = [
     'theia',
     'vscode',
 ]
+
+# the list of roles that recognize a user as a Student
+DEFAULT_ROLE_NAMES_FOR_STUDENT = ['student', 'learner']
+# the list of roles that recognize a user as an Instructor
+DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR = ['instructor', 'urn:lti:role:ims/lis/teachingassistant']

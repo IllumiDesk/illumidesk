@@ -1,4 +1,6 @@
+import os
 import re
+from sqlalchemy.sql.sqltypes import Boolean
 
 from tornado.web import RequestHandler
 
@@ -7,6 +9,9 @@ from typing import Dict
 from typing import List
 
 from traitlets.config import LoggingConfigurable
+
+from illumidesk.authenticators.constants import DEFAULT_ROLE_NAMES_FOR_STUDENT
+from illumidesk.authenticators.constants import DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR
 
 
 class LTIUtils(LoggingConfigurable):
@@ -108,3 +113,20 @@ class LTIUtils(LoggingConfigurable):
         for k, values in arguments.items():
             args[k] = values[0].decode()
         return args
+
+
+def user_is_a_student(user_role: str) -> Boolean:
+  if not user_role:
+    raise ValueError('user_role must have a value')
+  return user_role.lower() in DEFAULT_ROLE_NAMES_FOR_STUDENT
+
+
+def user_is_an_instructor(user_role: str) -> Boolean:
+  if not user_role:
+    raise ValueError('user_role must have a value')
+  # find the extra role names to recognize an instructor (to be added in the grader group)
+  extra_roles = os.environ.get('EXTRA_ROLE_NAMES_FOR_INSTRUCTOR') or []
+  if extra_roles:
+    extra_roles = extra_roles.lower().split(',')
+    DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR.extend(extra_roles)
+  return user_role.lower() in DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR

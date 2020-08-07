@@ -26,7 +26,8 @@ from illumidesk.authenticators.constants import WORKSPACE_TYPES
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
-from illumidesk.authenticators.utils import LTIUtils
+from illumidesk.authenticators.utils import LTIUtils, user_is_an_instructor
+from illumidesk.authenticators.utils import user_is_a_student
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 
@@ -72,10 +73,10 @@ async def setup_course_hook(
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
     await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
-    if user_role == 'Student' or user_role == 'Learner':
+    if user_is_a_student(user_role):
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
         await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
-    elif user_role == 'Instructor':
+    elif user_is_an_instructor(user_role):
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
     data = {
@@ -248,7 +249,6 @@ class LTI11Authenticator(LTIAuthenticator):
                 assignment_name = lti_utils.normalize_string(args['resource_link_title'])
             elif 'resource_link_id' in args and args['resource_link_id']:
                 assignment_name = lti_utils.normalize_string(args['resource_link_id'])
-
             
             # Get lis_outcome_service_url and lis_result_sourcedid values that will help us to submit grades later
             lis_outcome_service_url = ''
@@ -265,9 +265,9 @@ class LTI11Authenticator(LTIAuthenticator):
                 control_file.register_data(
                     assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid
                 )
-            # Assignment creation
-            nbgrader_service = NbGraderServiceHelper(course_id)            
+            # Assignment creation            
             if assignment_name:
+                nbgrader_service = NbGraderServiceHelper(course_id)
                 self.log.debug(
                     'Creating a new assignment from the Authentication flow with title %s' % assignment_name
                 )

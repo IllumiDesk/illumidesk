@@ -2,6 +2,8 @@ import os
 
 from dockerspawner import DockerSpawner
 
+from illumidesk.authenticators.utils import user_is_a_student
+
 from illumidesk.spawners.hooks import custom_auth_state_hook
 from illumidesk.spawners.hooks import custom_pre_spawn_hook
 
@@ -49,7 +51,7 @@ class IllumiDeskRoleDockerSpawner(IllumiDeskBaseDockerSpawner):
         # default to standard image, otherwise assign image based on role
         self.log.debug('User role used to set image: %s' % user_role)
         docker_image = str(os.environ.get('DOCKER_STANDARD_IMAGE'))
-        if user_role == 'Learner' or user_role == 'Student':
+        if user_is_a_student(user_role):
             docker_image = str(os.environ.get('DOCKER_LEARNER_IMAGE'))
         elif user_role == 'Instructor':
             docker_image = str(os.environ.get('DOCKER_INSTRUCTOR_IMAGE'))
