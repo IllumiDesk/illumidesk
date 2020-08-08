@@ -6,6 +6,9 @@ import time
 
 import docker
 from docker.errors import NotFound
+import requests
+from sqlalchemy.sql.sqltypes import Boolean
+from traitlets.traitlets import Bool
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -56,3 +59,27 @@ class SetupUtils:
             filters={'label': [f'com.docker.compose.service={self.jupyterhub_container_name}']}
         )
         logger.debug(f'Pruning unused jupyterhub containers {self.jupyterhub_container_name}')
+    
+    def auto_grade(self, course_id: str, assignment_name: str) -> Boolean:
+        # get the grader container by its name
+        # step 1: collect
+        logger.debug(f'Starting step 1 of the auto-grading feature for:{course_id}, {assignment_name}')
+        try:
+            course_dir = f'/home/grader-{course_id}/{course_id}'
+            self.docker_client.containers.get(f'grader-{course_id}').exec_run(
+                cmd=f'nbgrader collect --assignment={assignment_name} --db="sqlite:///{course_dir}/gradebook.db" --course-dir="{course_dir}"'
+            )
+            logger.debug(f'Starting step 2 of the auto-grading feature')
+            # step 2: autograde
+            self.docker_client.containers.get(f'grader-{course_id}').exec_run(
+                cmd=f'nbgrader autograde --assignment={assignment_name} --db="sqlite:///{course_dir}/gradebook.db" --course-dir="{course_dir}"'
+            )
+            logger.debug(f'Starting step 3 of the auto-grading feature')
+            # step 3: send grades to LMS
+            req = requests.request(
+                url=  f'http://reverse-proxy:8000/hub/submit-grades/{course_id}/{assignment_name}',
+                method='POST'
+            )
+            return True if req.ok else False
+        except Exception as e:
+            logger.error(f'An error occurred in auto-grading feature.{e}')

@@ -75,6 +75,18 @@ async def restart():
     return {'message': 'OK'}
 
 
+@app.route("/auto-grade/<string:course_id>/<string:assignment_name>", methods=['POST'])
+def autograding(course_id, assignment_name):
+    logger.debug('Received request to auto-grade.')
+    utils = SetupUtils()
+    try:        
+        utils.auto_grade(course_id, assignment_name)
+    except Exception as e:
+        logger.error(f'Unable to auto-grade:{e}', exc_info=True)
+        return {'error': 500}
+    return {'message': 'OK'}
+
+
 def update_jupyterhub_config(course: Course):
     """
     We can add groups and users with the REST API, but not services. Therefore
