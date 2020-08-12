@@ -11,7 +11,6 @@ from illumidesk.lti13.handlers import LTI13ConfigHandler
 from illumidesk.lti13.handlers import LTI13JWKSHandler
 
 from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
-from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner  # noqa: F401
 
 c = get_config()
 
