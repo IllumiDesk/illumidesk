@@ -15,9 +15,6 @@ def custom_auth_state_hook(spawner: Spawner, auth_state: dict) -> None:
     spawner.log.debug('auth_state_hook set with %s role' % auth_state['user_role'])
     spawner.environment['USER_ROLE'] = auth_state['user_role']
     spawner.log.debug('Assigned USER_ROLE env var to %s' % spawner.environment['USER_ROLE'])
-    if 'workspace_type' in auth_state:
-        spawner.environment['USER_WORKSPACE_TYPE'] = auth_state['workspace_type']
-        spawner.log.debug('Assigned USER_WORKSPACE_TYPE env var to %s' % spawner.environment['USER_WORKSPACE_TYPE'])
 
 
 def custom_pre_spawn_hook(spawner: Spawner) -> None:

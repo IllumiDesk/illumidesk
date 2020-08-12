@@ -22,9 +22,8 @@ load_subconfig('/etc/jupyterhub/jupyterhub_config_base.py')
 ##########################################
 # LTI 1.1 authenticator class.
 c.JupyterHub.authenticator_class = LTI11Authenticator
-# Spawn containers with by role or workspace type
+# Spawn containers with by role
 c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
-# c.JupyterHub.spawner_class = IllumiDeskWorkSpaceDockerSpawner
 ##########################################
 # END JUPYTERHUB APPLICATION
 ##########################################

@@ -22,7 +22,6 @@ from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.setup_course_service import make_rolling_update
 from illumidesk.apis.setup_course_service import register_new_service
 
-from illumidesk.authenticators.constants import WORKSPACE_TYPES
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
@@ -165,17 +164,6 @@ class LTI11Authenticator(LTIAuthenticator):
             else:
                 raise HTTPError(400, 'Course label not included in the LTI request')
 
-            # Users have the option to initiate a launch request with the workspace_type they would like
-            # to launch. edX prepends arguments with custom_*, so we need to check for those too.
-            workspace_type = ''
-            if 'custom_workspace_type' in args or 'workspace_type' in args:
-                workspace_type = (
-                    args['custom_workspace_type'] if 'custom_workspace_type' in args else args['workspace_type']
-                )
-            if not workspace_type or workspace_type not in WORKSPACE_TYPES:
-                workspace_type = 'notebook'
-            self.log.debug('Workspace type assigned as: %s' % workspace_type)
-
             # Get the user's role, assign to Learner role by default. Roles are sent as institution
             # roles, where the roles' value is <handle>,<full URN>.
             # https://www.imsglobal.org/specs/ltiv1p0/implementation-guide#toc-16
@@ -279,8 +267,7 @@ class LTI11Authenticator(LTIAuthenticator):
                 'auth_state': {
                     'course_id': course_id,
                     'lms_user_id': lms_user_id,
-                    'user_role': user_role,
-                    'workspace_type': workspace_type,
+                    'user_role': user_role
                 },  # noqa: E231
             }
 
@@ -377,21 +364,6 @@ class LTI13Authenticator(OAuthenticator):
             if username == '':
                 raise HTTPError('Unable to set the username')
 
-            # assign a workspace type, if provided, otherwise defaults to jupyter classic nb
-            workspace_type = ''
-            if (
-                'https://purl.imsglobal.org/spec/lti/claim/custom' in jwt_decoded
-                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']
-            ):
-                if (
-                    'workspace_type' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']
-                    and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type']
-                ):
-                    workspace_type = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/custom']['workspace_type']
-            if workspace_type not in WORKSPACE_TYPES:
-                workspace_type = 'notebook'
-            self.log.debug('workspace type is %s' % workspace_type)
-
             user_role = ''
             for role in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/roles']:
                 if role.find('Instructor') >= 1:
@@ -432,7 +404,6 @@ class LTI13Authenticator(OAuthenticator):
                 'auth_state': {
                     'course_id': course_id,
                     'user_role': user_role,
-                    'workspace_type': workspace_type,
                     'lms_user_id': lms_user_id,
                 },  # noqa: E231
             }
