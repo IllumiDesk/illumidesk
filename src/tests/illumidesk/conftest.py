@@ -38,8 +38,7 @@ def auth_state_dict():
             'course_id': 'intro101',
             'course_lineitems': 'my.platform.com/api/lti/courses/1/line_items',
             'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-            'user_role': 'Learner',
-            'workspace_type': 'notebook',
+            'user_role': 'Learner',            
         },
     }
     return authenticator_auth_state
@@ -275,9 +274,6 @@ def setup_image_environ(monkeypatch):
     monkeypatch.setenv('DOCKER_LEARNER_IMAGE', 'learner_image')
     monkeypatch.setenv('DOCKER_INSTRUCTOR_IMAGE', 'instructor_image')
     monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader_image')
-    monkeypatch.setenv('DOCKER_THEIA_IMAGE', 'theia_image')
-    monkeypatch.setenv('DOCKER_RSTUDIO_IMAGE', 'rstudio_image')
-    monkeypatch.setenv('DOCKER_VSCODE_IMAGE', 'vscode_image')
 
 
 @pytest.fixture(scope='function')
@@ -421,8 +417,7 @@ def make_auth_state_dict() -> Dict[str, str]:
         username: str = 'foo',
         course_id: str = 'intro101',
         lms_user_id: str = 'abc123',
-        user_role: str = 'Learner',
-        workspace_type: str = 'notebook',
+        user_role: str = 'Learner'
     ):
         return {
             'name': username,
@@ -430,7 +425,6 @@ def make_auth_state_dict() -> Dict[str, str]:
                 'course_id': course_id,
                 'lms_user_id': lms_user_id,
                 'user_role': user_role,
-                'workspace_type': workspace_type,
             },  # noqa: E231
         }
 
@@ -477,7 +471,7 @@ def make_lti11_basic_launch_request_args() -> Dict[str, str]:
 @pytest.fixture(scope='function')
 def make_lti11_success_authentication_request_args():
     def _make_lti11_success_authentication_request_args(
-        lms_vendor: str = 'canvas', role: str = 'Instructor', workspace_type: str = 'notebook'
+        lms_vendor: str = 'canvas', role: str = 'Instructor'
     ) -> Dict[str, str]:
         """
         Return a valid request arguments make from LMS to our tool (when authentication steps were success)
@@ -499,7 +493,6 @@ def make_lti11_success_authentication_request_args():
             'custom_canvas_enrollment_state': ['active'.encode()],
             'custom_canvas_user_id': ['1091'.encode()],
             'custom_canvas_user_login_id': ['student1@example.com'.encode()],
-            'custom_workspace_type': [workspace_type.encode()],
             'ext_roles': ['urn:lti:instrole:ims/lis/Learner'.encode()],
             'launch_presentation_document_target': ['iframe'.encode()],
             'launch_presentation_height': ['1000'.encode()],
@@ -589,7 +582,7 @@ def make_lti13_resource_link_request() -> Dict[str, str]:
             'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner',
             'http://purl.imsglobal.org/vocab/lis/v2/system/person#User',
         ],
-        'https://purl.imsglobal.org/spec/lti/claim/custom': {'email': 'foo@example.com', 'workspace_type': 'notebook'},
+        'https://purl.imsglobal.org/spec/lti/claim/custom': {'email': 'foo@example.com'},
         'errors': {'errors': {}},
         'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint': {
             'scope': [

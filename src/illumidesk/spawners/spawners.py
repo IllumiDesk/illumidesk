@@ -59,35 +59,3 @@ class IllumiDeskRoleDockerSpawner(IllumiDeskBaseDockerSpawner):
             docker_image = str(os.environ.get('DOCKER_GRADER_IMAGE'))
         self.log.debug('Image based on user role set to %s' % docker_image)
         return docker_image
-
-
-class IllumiDeskWorkSpaceDockerSpawner(IllumiDeskBaseDockerSpawner):
-    """
-    Custom DockerSpawner which assigns a user notebook image
-    based on the user's workspace type. This spawner requires:
-    
-    1. That the `Authenticator.enable_auth_state = True`
-    2. That the user's `WORKSPACE_TYPE` environment variable is set
-    """
-
-    def _get_image_name(self) -> str:
-        """
-        Given a user role saved in spawner.environ, return the right image
-        
-        Returns:
-            docker_image: image name used to spawn container based on workspace_type
-        """
-        workspace_type = self.environment.get('USER_WORKSPACE_TYPE') or 'notebook'
-        self.log.debug('User %s has workspace type: %s' % (self.user.name, workspace_type))
-
-        # default to standard image, otherwise assign image based on role
-        self.log.debug('User role used to set image: %s' % workspace_type)
-        docker_image = str(os.environ.get('DOCKER_STANDARD_IMAGE'))
-        if workspace_type == 'rstudio':
-            docker_image = str(os.environ.get('DOCKER_RSTUDIO_IMAGE'))
-        elif workspace_type == 'theia':
-            docker_image = str(os.environ.get('DOCKER_THEIA_IMAGE'))
-        elif workspace_type == 'vscode':
-            docker_image = str(os.environ.get('DOCKER_VSCODE_IMAGE'))
-        self.log.debug('Image based on workspace type set to %s' % docker_image)
-        return docker_image

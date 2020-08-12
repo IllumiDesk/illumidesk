@@ -108,7 +108,7 @@ Click on the `Grader Console` tab and follow the steps available within the nbgr
 
 * **Authenticator**: The JupyterHub compatible authentication service. We recommend either using the `LTI11Authenticator` or `LTI13Authenticator` with your Learning Management System to take advantage of the latest features.
 
-* **Spawner**: Spawning service to manage user notebooks. This setup uses two classes which inherit from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class: the `IllumiDeskRoleDockerSpawner` (to set the user's docker image based on LTI role) and the `IllumiDeskWorkSpaceDockerSpawner` (to set the user's docker image base on desired workspace type).
+* **Spawner**: Spawning service to manage user notebooks. This setup uses one class which inherits from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class: the `IllumiDeskRoleDockerSpawner` to set the user's docker image based on LTI role.
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
@@ -116,7 +116,7 @@ Click on the `Grader Console` tab and follow the steps available within the nbgr
 
 * **Network**: An external bridge network named `jupyter-network` is used by default. The grader service and the user notebooks are attached to this network.
 
-* **Workspaces**: User servers are set and launched based on either the user's LTI compatible role (student or instructor) or by workspace type (Jupyter Classic, Jupyter Lab, THEIA IDE, RStudio, or VS Code).
+* **Workspaces**: User servers are set and launched based on either the user's LTI compatible role (student/learner group or instructor group) or by specifying the ?next=/user-redirect/<workspace_type> as a query parameter that identifies the workspace type by path, for example: next=/user-redirect/theia for the Theia IDE or next=/user-redirect/vscode for VS Code IDE.
 
 ## Customization
 
@@ -148,27 +148,32 @@ Then, rerun the `make deploy` copmmand to update your stack's settings.
 
 With the Postgres container enabled, users (both students and instructors) can connect to a shared Postgres database from within their Jupyter Notebooks by opening a connection with the standard `psycop2g` depency using the `postgres-labs` host name. IllumiDesk's [user guides provide additional examples](https://docs.illumidesk.com) on the commands and common use-cases available for this option.
 
-### Spawn Specific Workspace Types
+### Additional Workspace Types
 
-> **New in Version 0.8.0**: users can spawn specific workspace types by setting the `workspace_type` key when initiating the launch request. The `workspace_type` key can either be added as a query parameter or included within the request's body (when initiating an LTI launch).
+Additional workspace types are supported by any workspace type that is supported by the underlying [jupyter-server-proxy] package. This stack has been tested with a variety of workspace types including:
 
-To enable this feature, you must set the `JupyterHub.spawner_class` to the `IllumiDeskWorkSpaceDockerSpawner` class. Like the `IllumiDeskRoleDockerSpawner` class, the `IllumiDeskWorkSpaceDockerSpawner` class inherits from the `IllumiDeskBaseDockerSpawner` class which manages the logic to assign the image to spawn based on the `workspace_type` key in the `auth_state` dictionary.
+IDEs
 
-Additional workspace types include:
+Theia
+RStudio
+VS Code
+Data Tools
 
-- THEIA IDE: `theia`
-- RStudio: `rstudio`
-- VS Code: `vscode`
+OpenRefine
+Visualization/Dashboard Servers
 
-If a value is sent which is not recognized by the system, then the default Jupyter Notebook workspace is launched for the user.
+Plotly Dash
+Streamlit
+Bokeh Server
+Jupyter Voila
 
-When specifying a workspace type with the query parameter add the key / value to the URL encoded request. For example, with LTI 1.1 launch requests the query parameter would look like so:
+When you want to use a specific workspace type simply leverage the existing [user redirect](https://jupyterhub.readthedocs.io/en/stable/reference/urls.html#user-redirect) functionality available with JupyterHub combined with the query parameter next. For example, with LTI 1.1 the launch url would look like so:
 
 ```
-    <url>/lti/launch?next=/user-redirect/theia&workspace_type=theia...
+    https://my.example.com/hub/lti/launch?next=/user-redirect/theia
 ```
 
-Notice the `/user-redirect/theia` part. This path redirects the user directly to their user workspace, instead of seeing the default `Launch` button in the application's home page. The path value should correspond with the `workspace_type` value. Users do have the option to navigate back to the Jupyter Notebook interface (Classic or Lab) by appending the `/tree` or `/lab` paths after `.../user/<name>`.
+Similar to how users can toggle between /tree and /lab for Jupyter Classic and JupyterLab, respectively, the user may set other workspace types with recognized paths that point to specific workspace types. There is no restriction on what path to use, in so long as the jupyter-server-proxy implementation available with the end-user workspace [has that path defined as an entrypoint](https://jupyter-server-proxy.readthedocs.io/en/latest/server-process.html#server-process-options).
 
 Various LMS's also support adding custom key/values to include with the launch request. For example, the Canvas LMS has the `Custom Fields` text box and Open edX has the `Custom Parameters` text box to support additional key/values to include with the launch request.
 
@@ -177,14 +182,14 @@ These query parameters do not conflict with the `git clone/merge` feature when l
 **Open edX**:
 
     ```
-    ["next=/user-redirect/theia","workspace_type=theia"]
+    ["next=/user-redirect/theia", "another_custom_param=abc"]
     ```
     
 **Canvas LMS**:
 
     ```
-    next=/user-redirect/lab
-    workspace_type=theia
+    next=/user-redirect/vscode
+    another_custom_param=abc
     ```
 
 ### Defining Launch Requests to Clone / Merge Git-based Repos
@@ -269,15 +274,11 @@ When building the images the configuration files are copied to the image from th
 
 ### Spawners
 
-By default this setup includes the `IllumiDeskRoleDockerSpawner` and `IllumiDeskWorkSpaceDockerSpawner` classes. However, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary, and based on the spawner class sets the docker image to spawn based on eith the `user_role` or the `workspace_type` keys with the spawner's `auth_state_hook`. The `pre_spawn_hook` to add user directories with the appropriate permissions, since users are not added to the operating system.
+By default this setup includes the `IllumiDeskRoleDockerSpawner` class. However, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary, and based on the spawner class sets the docker image to spawn based on the `user_role` key with the spawner's `auth_state_hook`. The `pre_spawn_hook` to add user directories with the appropriate permissions, since users are not added to the operating system.
 
 #### IllumiDeskRoleDockerSpawner
 
 The `IllumiDeskRoleDockerSpawner` interprets LTI-based roles to determine which container to launch based on the user's role. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
-
-#### IllumiDeskWorkSpaceDockerSpawner
-
-The `IllumiDeskWorkSpaceDockerSpawner` sets the image to spawn based on a provided `workspace_type` key. This allows content managers to specify images for labs, modules, or assignments. Refer [to the workspace type customization](#sApawn-specific-workspace-types) section for more information.
 
 Edit the `JupyterHub.spawner_class` to update the spawner used by JupyterHub when launching user containers. For example, if you are changing the spawner from `DockerSpawner` to `KubeSpawner`:
 
@@ -290,10 +291,10 @@ c.JupyterHub.spawner_class = 'dockerspawner.IllumiDeskRoleDockerSpawner'
 After:
 
 ```python
-c.JupyterHub.spawner_class = 'kubespawner.IllumiDeskWorkSpaceDockerSpawner'
+c.JupyterHub.spawner_class = 'kubespawner.IllumiDeskRoleDockerSpawner'
 ```
 
-As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub. In most cases the spawners provide drop-in replacement of the provided `IllumiDeskRoleDockerSpawner` or `IllumiDeskWorkspaceDockerSpawner` classes, however, setting spawners other than `IllumiDeskRoleDockerSpawner` may break compatibility with the grading services.
+As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub. In most cases the spawners provide drop-in replacement of the provided `IllumiDeskRoleDockerSpawner` class. However, setting spawners other than `IllumiDeskRoleDockerSpawner` may break compatibility with the grading services.
 
 ### Proxies
 
@@ -455,7 +456,6 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_USER | `string` | Postgres database username | `jupyterhub` |
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
-| USER_WORKSPACE_TYPE | `string` | User's workspace type to run. Accepted values are one of: `notebook`, `rstudio`, `theia`, `vscode`. Unrecognized values default to `notebook`. | `notebook` |
 
 ### Environment Variables pertaining to setup-course service, located in `env.setup-course`
 

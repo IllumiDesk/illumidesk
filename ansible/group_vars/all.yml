@@ -18,11 +18,6 @@ docker_illumidesk_notebook_learner_image: "{{ docker_illumidesk_notebook_learner
 docker_illumidesk_notebook_grader_image: "{{ docker_illumidesk_notebook_grader_image_param | default('illumidesk/grader-notebook:latest') }}"
 docker_illumidesk_notebook_instructor_image: "{{ docker_illumidesk_notebook_instructor_image_param | default('illumidesk/instructor-notebook:latest') }}"
 
-# additional workspace images
-docker_illumidesk_rstudio_image: "{{ docker_illumidesk_rstudio_image_param | default('illumidesk/rstudio:latest') }}"
-docker_illumidesk_theia_image: "{{ docker_illumidesk_theia_image_param | default('illumidesk/theia:latest') }}"
-docker_illumidesk_vscode_image: "{{ docker_illumidesk_vscode_image_param | default('illumidesk/vscode:latest') }}"
-
 # setup-course image
 docker_setup_course_image: "{{ docker_setup_course_image_param | default('illumidesk/setup-course:latest') }}"
 

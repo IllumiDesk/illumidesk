@@ -11,7 +11,6 @@ from illumidesk.lti13.handlers import LTI13ConfigHandler
 from illumidesk.lti13.handlers import LTI13JWKSHandler
 
 from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
-from illumidesk.spawners.spawners import IllumiDeskWorkSpaceDockerSpawner  # noqa: F401
 
 c = get_config()
 
@@ -25,9 +24,8 @@ load_subconfig('/etc/jupyterhub/jupyterhub_config_base.py')
 ##########################################
 # LTI 1.3 authenticator class.
 c.JupyterHub.authenticator_class = LTI13Authenticator
-# Spawn containers with by role or workspace type
+# Spawn containers with by role
 c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
-# c.JupyterHub.spawner_class = IllumiDeskWorkSpaceDockerSpawner
 # created after installing app in lms
 c.LTI13Authenticator.client_id = os.environ.get('LTI13_CLIENT_ID')
 c.LTI13Authenticator.endpoint = os.environ.get('LTI13_ENDPOINT')
