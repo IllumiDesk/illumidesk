@@ -108,7 +108,7 @@ Click on the `Grader Console` tab and follow the steps available within the nbgr
 
 * **Authenticator**: The JupyterHub compatible authentication service. We recommend either using the `LTI11Authenticator` or `LTI13Authenticator` with your Learning Management System to take advantage of the latest features.
 
-* **Spawner**: Spawning service to manage user notebooks. This setup uses one class which inherit from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class: the `IllumiDeskRoleDockerSpawner` to set the user's docker image based on LTI role.
+* **Spawner**: Spawning service to manage user notebooks. This setup uses one class which inherits from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class: the `IllumiDeskRoleDockerSpawner` to set the user's docker image based on LTI role.
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
@@ -116,7 +116,7 @@ Click on the `Grader Console` tab and follow the steps available within the nbgr
 
 * **Network**: An external bridge network named `jupyter-network` is used by default. The grader service and the user notebooks are attached to this network.
 
-* **Workspaces**: User servers are set and launched based on either the user's LTI compatible role (student or instructor) or by specifing the `next` query param with a workspace type to use (Jupyter Classic, Jupyter Lab, THEIA IDE, RStudio, or VS Code).
+* **Workspaces**: User servers are set and launched based on either the user's LTI compatible role (student/learner group or instructor group) or by specifying the ?next=/user-redirect/<workspace_type> as a query parameter that identifies the workspace type by path, for example: next=/user-redirect/theia for the Theia IDE or next=/user-redirect/vscode for VS Code IDE.
 
 ## Customization
 
@@ -148,22 +148,32 @@ Then, rerun the `make deploy` copmmand to update your stack's settings.
 
 With the Postgres container enabled, users (both students and instructors) can connect to a shared Postgres database from within their Jupyter Notebooks by opening a connection with the standard `psycop2g` depency using the `postgres-labs` host name. IllumiDesk's [user guides provide additional examples](https://docs.illumidesk.com) on the commands and common use-cases available for this option.
 
-### Spawn Specific Workspace Types
+### Additional Workspace Types
 
-Additional workspace types include:
+Additional workspace types are supported by any workspace type that is supported by the underlying [jupyter-server-proxy] package. This stack has been tested with a variety of workspace types including:
 
-- THEIA IDE: `theia`
-- RStudio: `rstudio`
-- VS Code: `vscode`
+IDEs
 
+Theia
+RStudio
+VS Code
+Data Tools
 
-When you want to use a specific workspace type you can do it by using the [user redirect](https://jupyterhub.readthedocs.io/en/stable/reference/urls.html#user-redirect) functionality in jupyterhub combined with the query parameter `next`. For example, with LTI 1.1 the launch url would look like so:
+OpenRefine
+Visualization/Dashboard Servers
+
+Plotly Dash
+Streamlit
+Bokeh Server
+Jupyter Voila
+
+When you want to use a specific workspace type simply leverage the existing [user redirect](https://jupyterhub.readthedocs.io/en/stable/reference/urls.html#user-redirect) functionality available with JupyterHub combined with the query parameter next. For example, with LTI 1.1 the launch url would look like so:
 
 ```
-    <url>/lti/launch?next=/user-redirect/theia
+    https://my.example.com/hub/lti/launch?next=/user-redirect/theia
 ```
 
-Notice the `/user-redirect/theia` part. With this the user is redirected to their user workspace, instead of seeing the default `Launch` button in the application's home page. The path value should correspond with the **workspace types** above listed. Users do have the option to navigate back to the Jupyter Notebook interface (Classic or Lab) by appending the `/tree` or `/lab` paths after `.../user/<name>`.
+Similar to how users can toggle between /tree and /lab for Jupyter Classic and JupyterLab, respectively, the user may set other workspace types with recognized paths that point to specific workspace types. There is no restriction on what path to use, in so long as the jupyter-server-proxy implementation available with the end-user workspace [has that path defined as an entrypoint](https://jupyter-server-proxy.readthedocs.io/en/latest/server-process.html#server-process-options).
 
 Various LMS's also support adding custom key/values to include with the launch request. For example, the Canvas LMS has the `Custom Fields` text box and Open edX has the `Custom Parameters` text box to support additional key/values to include with the launch request.
 
