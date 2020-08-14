@@ -44,6 +44,7 @@ class Course:
         self.exchange_root = Path(os.environ.get('MNT_ROOT'), self.org, 'exchange')
         self.grader_name = f'grader-{course_id}'
         self.grader_root = Path(os.environ.get('MNT_ROOT'), org, 'home', self.grader_name,)
+        self.grader_shared_folder = Path(os.environ.get('MNT_ROOT'), org, 'shared', self.course_id)
         self.course_root = self.grader_root / course_id
         self.token = token_hex(32)
         self.client = docker.from_env()

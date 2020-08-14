@@ -137,6 +137,7 @@ mnt_root = os.environ.get('MNT_ROOT')
 # Mount volumes
 c.DockerSpawner.volumes = {
     f'{mnt_root}/{org_name}' + '/home/{raw_username}': notebook_dir,
+    f'{mnt_root}/{org_name}' + '/shared/': notebook_dir + '/shared',
     f'{mnt_root}/{org_name}/exchange': exchange_dir,
 }
 c.DockerSpawner.name_template = 'jupyter-{raw_username}'
