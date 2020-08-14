@@ -112,11 +112,14 @@ class Course:
         logger.debug('Creating exchange directory %s' % self.exchange_root)
         self.exchange_root.mkdir(parents=True, exist_ok=True)
         self.exchange_root.chmod(0o777)
-        self.course_root.mkdir(parents=True, exist_ok=True)
+        logger.debug('Creating shared directory %s' % self.grader_shared_folder)
+        self.grader_shared_folder.mkdir(parents=True, exist_ok=True)
+        shutil.chown(str(self.grader_shared_folder), user=self.uid, group=self.gid)
         logger.debug(
             'Creating grader directory and permissions with path %s to %s:%s ' % (self.grader_root, self.uid, self.gid)
         )
         shutil.chown(str(self.grader_root), user=self.uid, group=self.gid)
+        self.course_root.mkdir(parents=True, exist_ok=True)
         logger.debug(
             'Changing course directory permissions with path %s to %s:%s ' % (self.course_root, self.uid, self.gid)
         )
@@ -203,6 +206,7 @@ class Course:
             volumes={
                 str(self.grader_root): {'bind': f'/home/{self.grader_name}'},
                 str(self.exchange_root): {'bind': '/srv/nbgrader/exchange'},
+                str(self.grader_shared_folder): {'bind': f'/home/{self.grader_name}/shared'},
             },
             name=self.grader_name,
             user='root',
