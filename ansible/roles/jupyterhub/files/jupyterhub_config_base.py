@@ -136,10 +136,13 @@ notebook_dir = os.environ.get('DOCKER_NOTEBOOK_DIR')
 mnt_root = os.environ.get('MNT_ROOT')
 # Mount volumes
 c.DockerSpawner.volumes = {
-    f'{mnt_root}/{org_name}' + '/home/{raw_username}': notebook_dir,
-    f'{mnt_root}/{org_name}' + '/shared/': notebook_dir + '/shared',
+    f'{mnt_root}/{org_name}' + '/home/{raw_username}': notebook_dir,    
     f'{mnt_root}/{org_name}/exchange': exchange_dir,
 }
+shared_folder_enabled = os.environ.get('SHARED_FOLDER_ENABLED') or 'False'
+# add the shared folder if it was required
+if shared_folder_enabled.lower() in ('true', '1'):
+    c.DockerSpawner.volumes[f'{mnt_root}/{org_name}' + '/shared/'] = notebook_dir + '/shared'
 c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 ##########################################
 # END CUSTOM DOCKERSPAWNER
