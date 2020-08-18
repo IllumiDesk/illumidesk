@@ -63,4 +63,4 @@ lti13_token_url: "{{ lti13_token_url_param | default('https://illumidesk.instruc
 lti13_authorize_url: "{{ lti13_authorize_url_param | default('https://illumidesk.instructure.com/api/lti/authorize_redirect')}}"
 
 # shared drive
-shared_folder_enabled: "{{ shared_folder_enabled_param | default('true') }}"
+shared_folder_enabled: "{{ shared_folder_enabled_param | default('false') }}"

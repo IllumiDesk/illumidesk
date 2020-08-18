@@ -118,6 +118,8 @@ Click on the `Grader Console` tab and follow the steps available within the nbgr
 
 * **Workspaces**: User servers are set and launched based on either the user's LTI compatible role (student/learner group or instructor group) or by specifying the ?next=/user-redirect/<workspace_type> as a query parameter that identifies the workspace type by path, for example: next=/user-redirect/theia for the Theia IDE or next=/user-redirect/vscode for VS Code IDE.
 
+* **Shared drive**: An shared folder can be used to share files from the share grader service and the student notebooks.
+
 ## Customization
 
 You may customize your setup by customizing additional variables in the `hosts` file. For example, you can run the `make deploy` command to set your own organization name and top level domain when using this setup behind a reverse-proxy with TLS termination.
@@ -147,6 +149,12 @@ Then, rerun the `make deploy` copmmand to update your stack's settings.
 > **New in Version 0.5.0**: users that wish to provide their Learners with a shared Postgres container my do so by setting the `postgres_labs_enabled` to true.
 
 With the Postgres container enabled, users (both students and instructors) can connect to a shared Postgres database from within their Jupyter Notebooks by opening a connection with the standard `psycop2g` depency using the `postgres-labs` host name. IllumiDesk's [user guides provide additional examples](https://docs.illumidesk.com) on the commands and common use-cases available for this option.
+
+### Shared Folder
+
+Users that wish to use a shared folder between Instructors and Learners may do so by setting the `shared_folder_enabled` to true.
+
+With the Shared folder enabled, users with access to the grader service (instructors/TA) can create files directly in their `/shared` folder. Since each grader service is launched by each course so all the files created here must be reflected within the `/shared/<course_name>` in all the learner containers.
 
 ### Additional Workspace Types
 
@@ -456,6 +464,7 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_USER | `string` | Postgres database username | `jupyterhub` |
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
+| SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `False` |
 
 ### Environment Variables pertaining to setup-course service, located in `env.setup-course`
 
@@ -471,6 +480,7 @@ The services included with this setup rely on environment variables to work prop
 | MNT_ROOT | `string` | Notebook grader user id | `/mnt` |
 | NB_UID | `string` | Notebook grader user id | `10001` |
 | NB_GID | `string` | Notebook grader user id | `100` |
+| SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `False` |
 
 ---
 
