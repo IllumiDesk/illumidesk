@@ -3,8 +3,38 @@ import pytest
 import types
 
 from dockerspawner.dockerspawner import DockerSpawner
+from illumidesk.authenticators.authenticator import setup_course_hook
 
+from illumidesk.spawners.spawners import IllumiDeskBaseDockerSpawner
 from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
+
+
+def test_base_spawner_does_not_consider_shared_folder_with_instructor_role(setup_image_environ, mock_jhub_user):
+    """
+    Does the IllumiDeskBaseDockerSpawner class exclude the shared folder for instructors?
+    """
+    sut = IllumiDeskBaseDockerSpawner()
+    sut.environment['USER_ROLE'] = 'Instructor'
+    sut.user = mock_jhub_user()
+    volumes_to_mount = {
+        f'mnt_root/my-org/shared/': 'home/jovyan/shared'
+    }
+    binds = sut._volumes_to_binds(volumes=volumes_to_mount, binds={})
+    assert len(binds) == 0
+
+
+def test_base_spawner_returns_the_shared_folder_with_learner_role(setup_image_environ, mock_jhub_user):
+    """
+    Does the IllumiDeskBaseDockerSpawner class consider the shared folder for learners?
+    """
+    sut = IllumiDeskBaseDockerSpawner()
+    sut.environment['USER_ROLE'] = 'Learner'
+    sut.user = mock_jhub_user()
+    volumes_to_mount = {
+        f'mnt_root/my-org/shared/': 'home/jovyan/shared'
+    }
+    binds = sut._volumes_to_binds(volumes=volumes_to_mount, binds={})
+    assert len(binds) == 1
 
 
 def test_get_image_name_returns_correct_image_for_student_role(setup_image_environ, mock_jhub_user):
