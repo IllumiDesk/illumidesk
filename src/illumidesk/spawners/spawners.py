@@ -8,11 +8,18 @@ from illumidesk.authenticators.utils import user_is_an_instructor
 from illumidesk.spawners.hooks import custom_auth_state_hook
 from illumidesk.spawners.hooks import custom_pre_spawn_hook
 
+from traitlets.traitlets import Bool
+
 
 class IllumiDeskBaseDockerSpawner(DockerSpawner):
     """
     Extends the DockerSpawner by defining the common behavior for our Spwaners that work with LTI versions 1.1 and 1.3
     """
+    load_shared_folder_with_instructor = Bool(
+        True,
+        config=True,
+        help="Mount the shared folder with Instructor role (Used with shared_folder_enabled env-var).",
+    )
 
     def _get_image_name(self) -> str:
         raise NotImplementedError(
@@ -25,16 +32,17 @@ class IllumiDeskBaseDockerSpawner(DockerSpawner):
 
     def _volumes_to_binds(self, volumes, binds, mode="rw"):
         binds = super()._volumes_to_binds(volumes, binds, mode)
-        self.log.debug(f'binds loaded from volumes setting-> {binds}')
-        shared_vol_key = ''
-        for k, v in binds.items():
-            if '/shared' in v['bind']:
-                shared_vol_key = k
-                break
-        if shared_vol_key and user_is_an_instructor(self.environment['USER_ROLE']):
-            self.log.debug(f'Removing shared folder for instructor')    
-            del binds[shared_vol_key]
-        self.log.debug(f'binds without the shared folder: {binds}')
+        if self.load_shared_folder_with_instructor is False and user_is_an_instructor(self.environment['USER_ROLE']):
+            self.log.debug(f'binds loaded from volumes setting: {binds}')
+            shared_vol_key = ''
+            for k, v in binds.items():
+                if '/shared' in v['bind']:
+                    shared_vol_key = k
+                    break
+            if shared_vol_key:
+                self.log.debug(f'Removing shared folder for instructor')    
+                del binds[shared_vol_key]
+                self.log.debug(f'binds without the shared folder: {binds}')
         return binds
 
     def pre_spawn_hook(self, spawner) -> None:
