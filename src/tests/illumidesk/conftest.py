@@ -273,7 +273,6 @@ def setup_image_environ(monkeypatch):
     monkeypatch.setenv('DOCKER_STANDARD_IMAGE', 'standard_image')
     monkeypatch.setenv('DOCKER_LEARNER_IMAGE', 'learner_image')
     monkeypatch.setenv('DOCKER_INSTRUCTOR_IMAGE', 'instructor_image')
-    monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader_image')
 
 
 @pytest.fixture(scope='function')

@@ -427,7 +427,6 @@ The services included with this setup rely on environment variables to work prop
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
 | DOCKER_LEARNER_IMAGE | `string` | Docker image used by users with the Learner role. | `illumidesk/learner-notebook:latest` |
-| DOCKER_GRADER_IMAGE | `string` | Docker image used by users with the Grader role. | `illumidesk/grader-notebook:latest` |
 | DOCKER_INSTRUCTOR_IMAGE | `string` | Docker image used by users with the Instructor role. | `illumidesk/instructor-notebook:latest` |
 | DOCKER_STANDARD_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/base-notebook:latest` |
 | DOCKER_THEIA_IMAGE | `string` | Docker image used for the THEIA IDE | `illumidesk/theia:latest` |
@@ -462,7 +461,7 @@ The services included with this setup rely on environment variables to work prop
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
 | DOCKER_NETWORK_NAME | `string` | JupyterHub API token | `jupyter-network` |
-| GRADER_SERVICE_IMAGE | `string` | External facing API URL | `http://reverse-proxy:8000/hub/api` |
+| GRADER_SERVICE_IMAGE | `string` | Docker image used for the grader services  | `illumidesk/grader-notebook:latest` |
 | ILLUMIDESK_DIR | `string` | IllumiDesk working directory within remote user's home directory | `$HOME/illumidesk_deployment` |
 | JUPYTERHUB_API_TOKEN | `string` | API token to connect with the JupyterHub | `<random value>` |
 | JUPYTERHUB_API_URL | `string` | JupyterHub client id used with OAuth2 | `http://reverse-proxy:8000/hub/api` |

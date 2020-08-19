@@ -55,7 +55,5 @@ class IllumiDeskRoleDockerSpawner(IllumiDeskBaseDockerSpawner):
             docker_image = str(os.environ.get('DOCKER_LEARNER_IMAGE'))
         elif user_role == 'Instructor':
             docker_image = str(os.environ.get('DOCKER_INSTRUCTOR_IMAGE'))
-        elif user_role == 'Grader':
-            docker_image = str(os.environ.get('DOCKER_GRADER_IMAGE'))
         self.log.debug('Image based on user role set to %s' % docker_image)
         return docker_image
