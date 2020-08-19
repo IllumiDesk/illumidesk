@@ -114,9 +114,6 @@ class Course:
         logger.debug('Creating exchange directory %s' % self.exchange_root)
         self.exchange_root.mkdir(parents=True, exist_ok=True)
         self.exchange_root.chmod(0o777)
-        logger.debug('Creating shared directory %s' % self.grader_shared_folder)
-        self.grader_shared_folder.mkdir(parents=True, exist_ok=True)
-        shutil.chown(str(self.grader_shared_folder), user=self.uid, group=self.gid)
         logger.debug(
             'Creating grader directory and permissions with path %s to %s:%s ' % (self.grader_root, self.uid, self.gid)
         )
@@ -149,6 +146,10 @@ class Course:
             'Added shared grader course nbgrader config %s with permissions %s:%s'
             % (nbgrader_config, self.uid, self.gid)
         )
+        if self.is_shared_folder_enabled is True:
+            logger.debug('Creating shared directory %s' % self.grader_shared_folder)
+            self.grader_shared_folder.mkdir(parents=True, exist_ok=True)
+            shutil.chown(str(self.grader_shared_folder), user=self.uid, group=self.gid)
 
     async def add_jupyterhub_grader_group(self):
         """
