@@ -52,6 +52,9 @@ all:
       # /mnt/efs/fs1, to reduce the risk of overwriting content that may already exist in /mnt
       # mnt_root: /mnt/efs/fs1
 
+      # set to true to enable the shared drive option
+      shared_folder_enabled: true
+
       ### Genaral Options
       #-------------------
       # provide a string of that represents one admin user. Username should represent
