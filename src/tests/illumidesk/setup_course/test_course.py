@@ -142,6 +142,30 @@ def test_course_root_directory_is_created(setup_course_environ):
         assert course.course_root.exists()
 
 
+def test_course_shared_folder_is_not_created_if_env_var_was_not_set(setup_course_environ, monkeypatch):
+    """
+    Is the course directory created as part of setup?
+    """
+    monkeypatch.setenv('SHARED_FOLDER_ENABLED', '')
+    course = Course(org='org1', course_id='example', domain='example.com')
+    with patch('shutil.chown', autospec=True):
+        course.create_directories()
+        assert course.is_shared_folder_enabled is False
+        assert not course.grader_shared_folder.exists()
+
+
+def test_course_shared_folder_is_created_if_env_var_was_set(setup_course_environ, monkeypatch):
+    """
+    Is the course directory created as part of setup?
+    """
+    monkeypatch.setenv('SHARED_FOLDER_ENABLED', 'True')
+    course = Course(org='org1', course_id='example', domain='example.com')
+    with patch('shutil.chown', autospec=True):
+        course.create_directories()
+        assert course.is_shared_folder_enabled is True
+        assert course.grader_shared_folder.exists()
+
+
 def test_course_jupyter_config_path_is_created(setup_course_environ):
     """
     Is the jupyter config directory created as part of setup?
