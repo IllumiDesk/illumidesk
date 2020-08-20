@@ -13,7 +13,6 @@ from tornado.web import HTTPError
 from tornado.web import RequestHandler
 
 from traitlets import Unicode
-from traitlets import List
 
 from typing import Dict
 
@@ -36,45 +35,6 @@ from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-
-# sourced primarily from:
-# https://github.com/jupyterhub/oauthenticator/issues/136#issuecomment-568950338
-class IllumiDeskMultiAuthenticator(Authenticator):
-    authenticators = List(help="The subauthenticators to use", config=True)
-
-    def __init__(self, *arg, **kwargs):
-        super().__init__(*arg, **kwargs)
-        self._authenticators = []
-        for authenticator_klass, url_scope, configs in self.authenticators:
-            self._authenticators.append({'instance': authenticator_klass(**configs), 'url_scope': url_scope})
-
-    async def authenticate(self, handler, data):
-        """Using the url of the request to decide which authenticator
-        is responsible for this task.
-        """
-        return self._get_responsible_authenticator(handler).authenticate(handler, data)
-
-    def get_callback_url(self, handler):
-        return self._get_responsible_authenticator(handler).get_callback_url()
-
-    def _get_responsible_authenticator(self, handler):
-        responsible_authenticator = None
-        for authenticator in self._authenticators:
-            if handler.request.path.find(authenticator['url_scope']) != -1:
-                responsible_authenticator = authenticator
-                break
-        return responsible_authenticator['instance']
-
-    def get_handlers(self, app):
-        routes = []
-        for authenticator in self._authenticators:
-            handlers = authenticator['instance'].get_handlers(app)
-            handlers = list(map(lambda route: (f'{authenticator["url_scope"]}{route[0]}', route[1]), handlers))
-            for path, handler in handlers:
-                setattr(handler, 'authenticator', authenticator['instance'])
-            routes.extend(handlers)
-        return routes
 
 
 async def setup_course_hook(
