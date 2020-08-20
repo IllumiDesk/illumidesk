@@ -14,6 +14,7 @@ from nbgrader.api import Gradebook, MissingEntry
 
 from tornado.httpclient import AsyncHTTPClient
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
+from illumidesk.authenticators.utils import LTIUtils
 
 from illumidesk.lti13.auth import get_lms_access_token
 
@@ -173,7 +174,8 @@ class LTI13GradeSender(GradesBaseSender):
             raise GradesSenderMissingInfoError(f'No line-items were detected for this course: {self.course_id}')
         lineitem_matched = None
         for item in items:
-            if self.assignment_name.lower() == item['label'].lower():
+            item_label = item['label']
+            if self.assignment_name.lower() == item_label.lower() or self.assignment_name.lower() == LTIUtils().normalize_string(item_label):
                 lineitem_matched = item['id']  # the id is the full url
                 logger.debug(f'There is a lineitem matched with the assignment {self.assignment_name}. {item}')
                 break
