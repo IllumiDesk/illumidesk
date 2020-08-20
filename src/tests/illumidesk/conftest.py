@@ -38,7 +38,7 @@ def auth_state_dict():
             'course_id': 'intro101',
             'course_lineitems': 'my.platform.com/api/lti/courses/1/line_items',
             'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-            'user_role': 'Learner',            
+            'user_role': 'Learner',
         },
     }
     return authenticator_auth_state
@@ -414,18 +414,11 @@ def make_auth_state_dict() -> Dict[str, str]:
     """
 
     def _make_auth_state_dict(
-        username: str = 'foo',
-        course_id: str = 'intro101',
-        lms_user_id: str = 'abc123',
-        user_role: str = 'Learner'
+        username: str = 'foo', course_id: str = 'intro101', lms_user_id: str = 'abc123', user_role: str = 'Learner'
     ):
         return {
             'name': username,
-            'auth_state': {
-                'course_id': course_id,
-                'lms_user_id': lms_user_id,
-                'user_role': user_role,
-            },  # noqa: E231
+            'auth_state': {'course_id': course_id, 'lms_user_id': lms_user_id, 'user_role': user_role,},  # noqa: E231
         }
 
     return _make_auth_state_dict

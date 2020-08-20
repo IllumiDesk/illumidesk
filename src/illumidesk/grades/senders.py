@@ -175,7 +175,9 @@ class LTI13GradeSender(GradesBaseSender):
         lineitem_matched = None
         for item in items:
             item_label = item['label']
-            if self.assignment_name.lower() == item_label.lower() or self.assignment_name.lower() == LTIUtils().normalize_string(item_label):
+            if self.assignment_name.lower() == item_label.lower() or self.assignment_name.lower() == LTIUtils().normalize_string(
+                item_label
+            ):
                 lineitem_matched = item['id']  # the id is the full url
                 logger.debug(f'There is a lineitem matched with the assignment {self.assignment_name}. {item}')
                 break
