@@ -190,7 +190,7 @@ class Course:
         base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
         logger.debug('Grader container JUPYTERHUB_API_URL set to %s' % jupyterhub_api_url)
         logger.debug('Grader container JUPYTERHUB_API_TOKEN set to %s' % jupyterhub_api_token)
-        # set initial volumes dict 
+        # set initial volumes dict
         docker_volumes = {
             str(self.grader_root): {'bind': f'/home/{self.grader_name}'},
             str(self.exchange_root): {'bind': '/srv/nbgrader/exchange'},

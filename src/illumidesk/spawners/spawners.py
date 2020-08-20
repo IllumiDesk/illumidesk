@@ -15,6 +15,7 @@ class IllumiDeskBaseDockerSpawner(DockerSpawner):
     """
     Extends the DockerSpawner by defining the common behavior for our Spwaners that work with LTI versions 1.1 and 1.3
     """
+
     load_shared_folder_with_instructor = Bool(
         True,
         config=True,
@@ -40,7 +41,7 @@ class IllumiDeskBaseDockerSpawner(DockerSpawner):
                     shared_vol_key = k
                     break
             if shared_vol_key:
-                self.log.debug(f'Removing shared folder for instructor')    
+                self.log.debug('Removing shared folder for instructor')
                 del binds[shared_vol_key]
                 self.log.debug(f'binds without the shared folder: {binds}')
         return binds
