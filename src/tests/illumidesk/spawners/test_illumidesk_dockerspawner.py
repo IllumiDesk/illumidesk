@@ -1,5 +1,4 @@
 import os
-import pytest
 import types
 
 from dockerspawner.dockerspawner import DockerSpawner
