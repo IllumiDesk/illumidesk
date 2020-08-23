@@ -135,7 +135,7 @@ c.Authenticator.enable_auth_state = True
 ##########################################
 
 # Limit memory
-c.Spawner.mem_limit = '1G'
+c.Spawner.mem_limit = '2G'
 
 ##########################################
 # END GENERAL SPAWNER
