@@ -28,6 +28,7 @@ prepare:
 
 venv:
 	test -d $(VENV_NAME) || virtualenv -p python3 $(VENV_NAME)
+	${PYTHON} -m pip install --upgrade pip
 	${PYTHON} -m pip install -r requirements.txt
 
 deploy: prepare
