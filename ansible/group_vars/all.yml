@@ -64,3 +64,6 @@ lti13_authorize_url: "{{ lti13_authorize_url_param | default('https://illumidesk
 
 # shared drive
 shared_folder_enabled: "{{ shared_folder_enabled_param | default('true') }}"
+
+# spawner
+spawner_mem_limit: "{{ spawner_mem_limit_param | default('2G') }}"

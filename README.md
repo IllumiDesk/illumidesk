@@ -5,6 +5,8 @@
 
 # IllumiDesk
 
+:warning: Thanks to the amazing feedback we have gotten from the community, the IllumiDesk Team is currently re implementing many of the components listed in this document. For the most part these changes are and will be backwards compatible, however, please proceed with caution if you plan on using this setup in a production environment (not recommended) :warning:
+
 ## Overview
 
 [Jupyter Notebooks](https://jupyter.org) are a great **education tool** for a variety of subjects since it offers instructors and learners a unified document standard to combine markdown, code, and rich visualizations. With the proper setup, Jupyter Notebooks allow organizations to enhance their learning experiences.
@@ -283,6 +285,8 @@ When building the images the configuration files are copied to the image from th
 ### Spawners
 
 By default this setup includes the `IllumiDeskRoleDockerSpawner` class. However, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary, and based on the spawner class sets the docker image to spawn based on the `user_role` key with the spawner's `auth_state_hook`. The `pre_spawn_hook` to add user directories with the appropriate permissions, since users are not added to the operating system.
+
+**Note**: the user is redirected to their server by default with `JupyterHub.redirect_to_server = True`.
 
 #### IllumiDeskRoleDockerSpawner
 
