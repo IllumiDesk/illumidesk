@@ -158,20 +158,22 @@ With shared_folder_enabled set to true, users with access to the shared grader s
 
 Additional workspace types are supported by any workspace type that is supported by the underlying [jupyter-server-proxy] package. This stack has been tested with a variety of workspace types including:
 
-IDEs
+#### IDEs
 
-Theia
-RStudio
-VS Code
-Data Tools
+- Theia
+- RStudio
+- VS Code (code-server)
 
-OpenRefine
-Visualization/Dashboard Servers
+#### Data Tools
 
-Plotly Dash
-Streamlit
-Bokeh Server
-Jupyter Voila
+- OpenRefine
+
+#### Visualization/Dashboard Servers
+
+- Plotly Dash
+- Streamlit
+- Bokeh Server
+- Jupyter Voila
 
 When you want to use a specific workspace type simply leverage the existing [user redirect](https://jupyterhub.readthedocs.io/en/stable/reference/urls.html#user-redirect) functionality available with JupyterHub combined with the query parameter next. For example, with LTI 1.1 the launch url would look like so:
 
@@ -319,8 +321,8 @@ This setup uses JupyterHub's [configurable-http-proxy]((https://github.com/jupyt
 
 **Requirements**
 
-- The Jupyter Notebook image needs to have `JupyterHub` installed and this version of JupyterHub **must coincide with the version of JupyterHub that is spawing the Jupyter Notebook**. By default the `jupyter/docker-stacks` images have JupyterHub installed.
-- Use one of images provided by the [`jupyter/docker-stacks`](https://github.com/jupyter/docker-stacks) images as the base image.
+- The Jupyter Notebook image needs to have `JupyterHub` installed and this version of JupyterHub **must coincide with the version of JupyterHub that is spawing the Jupyter Notebook**. By default the `illumidesk/docker-stacks` images have JupyterHub installed.
+- Use one of images provided by the [`jupyter/docker-stacks`](https://github.com/jupyter/docker-stacks).
 - Make sure the image is on the host used by the spawner to launch the user's Jupyter Notebook.
 
 There are three notebook images:
@@ -462,6 +464,7 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
+| SPAWNER_MEM_LIMIT | `string` | Spawner memory limit | `2G` |
 
 ### Environment Variables pertaining to setup-course service, located in `env.setup-course`
 

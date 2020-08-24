@@ -135,7 +135,7 @@ c.Authenticator.enable_auth_state = True
 ##########################################
 
 # Limit memory
-c.Spawner.mem_limit = '2G'
+c.Spawner.mem_limit = os.environ.get('DOCKER_SPAWN_MEM_LIMIT') or '2G'
 
 ##########################################
 # END GENERAL SPAWNER
