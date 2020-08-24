@@ -11,7 +11,7 @@ c = get_config()
 # BEGIN JUPYTERHUB APPLICATION
 ##########################################
 
-# Set to debug for testing
+# Set to debug for teting
 c.JupyterHub.log_level = 'DEBUG'
 
 # Allows multiple single-server per user
@@ -100,13 +100,13 @@ c.TraefikTomlProxy.should_start = False
 c.TraefikProxy.traefik_api_url = os.environ.get('PROXY_API_URL') or 'http://reverse-proxy:8099'
 
 # traefik api endpoint login password
-c.TraefikTomlProxy.traefik_api_password = "admin"
+c.TraefikTomlProxy.traefik_api_password = 'admin'
 
 # traefik api endpoint login username
-c.TraefikTomlProxy.traefik_api_username = "api_admin"
+c.TraefikTomlProxy.traefik_api_username = 'api_admin'
 
 # traefik's dynamic configuration file
-c.TraefikTomlProxy.toml_dynamic_config_file = "/etc/traefik/rules.toml"
+c.TraefikTomlProxy.toml_dynamic_config_file = '/etc/traefik/rules.toml'
 
 ##########################################
 # END REVERSE PROXY
@@ -177,9 +177,9 @@ c.DockerSpawner.volumes = {
     f'{mnt_root}/{org_name}' + '/home/{raw_username}': notebook_dir,
     f'{mnt_root}/{org_name}/exchange': exchange_dir,
 }
-shared_folder_enabled = os.environ.get('SHARED_FOLDER_ENABLED') or 'False'
 
 # add the shared folder if it was required
+shared_folder_enabled = os.environ.get('SHARED_FOLDER_ENABLED') or 'False'
 if shared_folder_enabled.lower() in ('true', '1'):
     c.DockerSpawner.volumes[f'{mnt_root}/{org_name}' + '/shared/'] = notebook_dir + '/shared'
 c.DockerSpawner.name_template = 'jupyter-{raw_username}'
