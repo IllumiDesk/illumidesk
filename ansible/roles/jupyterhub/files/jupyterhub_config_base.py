@@ -139,7 +139,18 @@ c.DockerSpawner.volumes = {
     f'{mnt_root}/{org_name}' + '/home/{raw_username}': notebook_dir,
     f'{mnt_root}/{org_name}/exchange': exchange_dir,
 }
+shared_folder_enabled = os.environ.get('SHARED_FOLDER_ENABLED') or 'False'
+# add the shared folder if it was required
+if shared_folder_enabled.lower() in ('true', '1'):
+    c.DockerSpawner.volumes[f'{mnt_root}/{org_name}' + '/shared/'] = notebook_dir + '/shared'
 c.DockerSpawner.name_template = 'jupyter-{raw_username}'
+
+# start the container with root so we can update uid/gid using the docker-stacks hooks
+c.DockerSpawner.extra_create_kwargs = {'user': '0'}
+
+# these env vars are set within the docker image but add them here for good measure
+c.DockerSpawner.environment = {'NB_UID': '1000', 'NB_GID': '100', 'NB_USER': 'jovyan'}
+
 ##########################################
 # END CUSTOM DOCKERSPAWNER
 ##########################################

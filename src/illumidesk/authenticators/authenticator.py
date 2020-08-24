@@ -267,7 +267,7 @@ class LTI11Authenticator(LTIAuthenticator):
                 'auth_state': {
                     'course_id': course_id,
                     'lms_user_id': lms_user_id,
-                    'user_role': user_role
+                    'user_role': user_role,
                 },  # noqa: E231
             }
 

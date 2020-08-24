@@ -44,6 +44,9 @@ class Course:
         self.exchange_root = Path(os.environ.get('MNT_ROOT'), self.org, 'exchange')
         self.grader_name = f'grader-{course_id}'
         self.grader_root = Path(os.environ.get('MNT_ROOT'), org, 'home', self.grader_name,)
+        self.grader_shared_folder = Path(os.environ.get('MNT_ROOT'), org, 'shared', self.course_id)
+        shared_folder_env = os.environ.get('SHARED_FOLDER_ENABLED') or 'False'
+        self.is_shared_folder_enabled = True if shared_folder_env.lower() in ('true', '1') else False
         self.course_root = self.grader_root / course_id
         self.token = token_hex(32)
         self.client = docker.from_env()
@@ -111,11 +114,11 @@ class Course:
         logger.debug('Creating exchange directory %s' % self.exchange_root)
         self.exchange_root.mkdir(parents=True, exist_ok=True)
         self.exchange_root.chmod(0o777)
-        self.course_root.mkdir(parents=True, exist_ok=True)
         logger.debug(
             'Creating grader directory and permissions with path %s to %s:%s ' % (self.grader_root, self.uid, self.gid)
         )
         shutil.chown(str(self.grader_root), user=self.uid, group=self.gid)
+        self.course_root.mkdir(parents=True, exist_ok=True)
         logger.debug(
             'Changing course directory permissions with path %s to %s:%s ' % (self.course_root, self.uid, self.gid)
         )
@@ -143,6 +146,10 @@ class Course:
             'Added shared grader course nbgrader config %s with permissions %s:%s'
             % (nbgrader_config, self.uid, self.gid)
         )
+        if self.is_shared_folder_enabled is True:
+            logger.debug('Creating shared directory %s' % self.grader_shared_folder)
+            self.grader_shared_folder.mkdir(parents=True, exist_ok=True)
+            shutil.chown(str(self.grader_shared_folder), user=self.uid, group=self.gid)
 
     async def add_jupyterhub_grader_group(self):
         """
@@ -183,6 +190,13 @@ class Course:
         base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
         logger.debug('Grader container JUPYTERHUB_API_URL set to %s' % jupyterhub_api_url)
         logger.debug('Grader container JUPYTERHUB_API_TOKEN set to %s' % jupyterhub_api_token)
+        # set initial volumes dict
+        docker_volumes = {
+            str(self.grader_root): {'bind': f'/home/{self.grader_name}'},
+            str(self.exchange_root): {'bind': '/srv/nbgrader/exchange'},
+        }
+        if self.is_shared_folder_enabled:
+            docker_volumes[str(self.grader_shared_folder)] = {'bind': f'/home/{self.grader_name}/shared'}
         self.client.containers.run(
             detach=True,
             image=os.environ.get('GRADER_SERVICE_IMAGE'),
@@ -199,10 +213,7 @@ class Course:
                 f'NB_GID={self.gid}',
                 f'NB_USER={self.grader_name}',
             ],
-            volumes={
-                str(self.grader_root): {'bind': f'/home/{self.grader_name}'},
-                str(self.exchange_root): {'bind': '/srv/nbgrader/exchange'},
-            },
+            volumes=docker_volumes,
             name=self.grader_name,
             user='root',
             working_dir=f'/home/{self.grader_name}',
