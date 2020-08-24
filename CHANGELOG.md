@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.9.0 (2020-08-24)
+
+
+### Features
+
+* Automated assignment creation with LTI 1.3 ([#260](https://github.com/IllumiDesk/illumidesk/issues/260)) ([170dc92](https://github.com/IllumiDesk/illumidesk/commit/170dc923a864bebf4fb3a6bf0d2a56284fb7390e))
+* Automated assignment creation with LTI11 ([#265](https://github.com/IllumiDesk/illumidesk/issues/265)) ([beadb21](https://github.com/IllumiDesk/illumidesk/commit/beadb216f375c6a007d16471d14c7c53d91b12e4))
+* Create a shared folder for graders and students ([#281](https://github.com/IllumiDesk/illumidesk/issues/281)) ([c0d86a1](https://github.com/IllumiDesk/illumidesk/commit/c0d86a18ab2cbf086436cb7aefb6995fb3b3e354))
+* Fixes the use of next url with LTI 1.3 ([#244](https://github.com/IllumiDesk/illumidesk/issues/244)) ([2f90f8e](https://github.com/IllumiDesk/illumidesk/commit/2f90f8e4ac41eb6a2c41be0abf4e6bda04a57560))
+* Handle unique usernames with the Canvas LMS ([#268](https://github.com/IllumiDesk/illumidesk/issues/268)) ([7d26c74](https://github.com/IllumiDesk/illumidesk/commit/7d26c74fbf2502fe9fc8bac9073dbf0c5a02ca70))
+* Include users with TeachingAssistant role in the formgrade group ([#271](https://github.com/IllumiDesk/illumidesk/issues/271)) ([6b769be](https://github.com/IllumiDesk/illumidesk/commit/6b769be00f24e02c92ab327349223b0caf96ed76))
+* Update dockerspawner configuration settings ([#288](https://github.com/IllumiDesk/illumidesk/issues/288)) ([a8f4dac](https://github.com/IllumiDesk/illumidesk/commit/a8f4dacd6f6891373de1cf0fb213ce5385cb71de))
+
+### Bug Fixes
+
+* Add defaults to demo_* env vars for FirstUse  authenticator ([#143](https://github.com/IllumiDesk/illumidesk/issues/143)) ([e34395a](https://github.com/IllumiDesk/illumidesk/commit/e34395a143e2f16281b2fc5fd28d0e331a7c35ad))
+* Determine what authenticator is used to submit grades ([#251](https://github.com/IllumiDesk/illumidesk/issues/251)) ([ff952fc](https://github.com/IllumiDesk/illumidesk/commit/ff952fc0d05dc250ebbf6ea8b28fd8fb81090a35))
+* Java kernel installation with base image ([#190](https://github.com/IllumiDesk/illumidesk/issues/190)) ([61b064c](https://github.com/IllumiDesk/illumidesk/commit/61b064cf9655725108deb1331375adb86e2aaa3c))
+* Normalize line item strings before submitting grades with LTI 1.3 ([#287](https://github.com/IllumiDesk/illumidesk/issues/287)) ([7df5bc3](https://github.com/IllumiDesk/illumidesk/commit/7df5bc3c86711c9d7d8bd4dcb8d6e41969abbad1))
+* Source directory permissions when adding gradebook ([#270](https://github.com/IllumiDesk/illumidesk/issues/270)) ([579a02c](https://github.com/IllumiDesk/illumidesk/commit/579a02cd15883b76e74552cc0847bf7a64348497))
+* Update to resolve CVE-2020-8116 ([#258](https://github.com/IllumiDesk/illumidesk/issues/258)) ([539f4f5](https://github.com/IllumiDesk/illumidesk/commit/539f4f5e599e3beaf97d7c66a2f4b2f97249b2c1))
+
 ### 0.8.3 (2020-07-23)
 
 
@@ -15,9 +37,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 * Update required claims and username value when private ([#241](https://github.com/IllumiDesk/illumidesk/issues/241)) ([1c49ed6](https://github.com/IllumiDesk/illumidesk/commit/1c49ed66f71c6096b299473d06ede64bac145f79))
-* Update LTI configs with admin user env var ([#219](https://github.com/IllumiDesk/illumidesk/issues/219)) ([3c99d58](https://github.com/IllumiDesk/illumidesk/commit/3c99d5831b1dd194fdf49ac1c0398703a475e6d8))
 * Update nbgrader config template by adding a escape characters ([#230](https://github.com/IllumiDesk/illumidesk/issues/230)) ([57f5361](https://github.com/IllumiDesk/illumidesk/commit/57f53619ea8b6ea8dac09d19d9f0dbcf0f173e69))
-* Update required claims and username value when private ([#241](https://github.com/IllumiDesk/illumidesk/issues/241)) ([1c49ed6](https://github.com/IllumiDesk/illumidesk/commit/1c49ed66f71c6096b299473d06ede64bac145f79))
 
 ### 0.8.2 (2020-07-16)
 
