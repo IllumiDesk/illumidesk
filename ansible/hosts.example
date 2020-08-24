@@ -97,3 +97,7 @@ all:
       # lti13_endpoint: https://illumidesk.instructure.com/api/lti/security/jwks
       # lti13_token_url: https://illumidesk.instructure.com/login/oauth2/token
       # lti13_authorize_url: https://illumidesk.instructure.com/api/lti/authorize_redirect
+
+      ## Spawner
+      # uncomment and add your preferred memory limit settings for user workspaces
+      # spawner_mem_limit: 2G

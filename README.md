@@ -5,6 +5,8 @@
 
 # IllumiDesk
 
+:warning: Thanks to the amazing feedback we have gotten from the community, the IllumiDesk Team is currently re implementing many of the components listed in this document. For the most part these changes are and will be backwards compatible, however, please proceed with caution if you plan on using this setup in a production environment (not recommended) :warning:
+
 ## Overview
 
 [Jupyter Notebooks](https://jupyter.org) are a great **education tool** for a variety of subjects since it offers instructors and learners a unified document standard to combine markdown, code, and rich visualizations. With the proper setup, Jupyter Notebooks allow organizations to enhance their learning experiences.
@@ -158,20 +160,22 @@ With shared_folder_enabled set to true, users with access to the shared grader s
 
 Additional workspace types are supported by any workspace type that is supported by the underlying [jupyter-server-proxy] package. This stack has been tested with a variety of workspace types including:
 
-IDEs
+#### IDEs
 
-Theia
-RStudio
-VS Code
-Data Tools
+- Theia
+- RStudio
+- VS Code (code-server)
 
-OpenRefine
-Visualization/Dashboard Servers
+#### Data Tools
 
-Plotly Dash
-Streamlit
-Bokeh Server
-Jupyter Voila
+- OpenRefine
+
+#### Visualization/Dashboard Servers
+
+- Plotly Dash
+- Streamlit
+- Bokeh Server
+- Jupyter Voila
 
 When you want to use a specific workspace type simply leverage the existing [user redirect](https://jupyterhub.readthedocs.io/en/stable/reference/urls.html#user-redirect) functionality available with JupyterHub combined with the query parameter next. For example, with LTI 1.1 the launch url would look like so:
 
@@ -282,6 +286,8 @@ When building the images the configuration files are copied to the image from th
 
 By default this setup includes the `IllumiDeskRoleDockerSpawner` class. However, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary, and based on the spawner class sets the docker image to spawn based on the `user_role` key with the spawner's `auth_state_hook`. The `pre_spawn_hook` to add user directories with the appropriate permissions, since users are not added to the operating system.
 
+**Note**: the user is redirected to their server by default with `JupyterHub.redirect_to_server = True`.
+
 #### IllumiDeskRoleDockerSpawner
 
 The `IllumiDeskRoleDockerSpawner` interprets LTI-based roles to determine which container to launch based on the user's role. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
@@ -319,8 +325,8 @@ This setup uses JupyterHub's [configurable-http-proxy]((https://github.com/jupyt
 
 **Requirements**
 
-- The Jupyter Notebook image needs to have `JupyterHub` installed and this version of JupyterHub **must coincide with the version of JupyterHub that is spawing the Jupyter Notebook**. By default the `jupyter/docker-stacks` images have JupyterHub installed.
-- Use one of images provided by the [`jupyter/docker-stacks`](https://github.com/jupyter/docker-stacks) images as the base image.
+- The Jupyter Notebook image needs to have `JupyterHub` installed and this version of JupyterHub **must coincide with the version of JupyterHub that is spawing the Jupyter Notebook**. By default the `illumidesk/docker-stacks` images have JupyterHub installed.
+- Use one of images provided by the [`jupyter/docker-stacks`](https://github.com/jupyter/docker-stacks).
 - Make sure the image is on the host used by the spawner to launch the user's Jupyter Notebook.
 
 There are three notebook images:
@@ -462,6 +468,7 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
+| SPAWNER_MEM_LIMIT | `string` | Spawner memory limit | `2G` |
 
 ### Environment Variables pertaining to setup-course service, located in `env.setup-course`
 
