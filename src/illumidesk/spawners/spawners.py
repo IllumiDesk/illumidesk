@@ -1,8 +1,5 @@
-import os
-
 from dockerspawner import DockerSpawner
 
-from illumidesk.authenticators.utils import user_is_a_student
 from illumidesk.authenticators.utils import user_is_an_instructor
 
 from illumidesk.spawners.hooks import custom_auth_state_hook
@@ -22,17 +19,18 @@ class IllumiDeskBaseDockerSpawner(DockerSpawner):
         help="Mount the shared folder with Instructor role (Used with shared_folder_enabled env-var).",
     )
 
-    def _get_image_name(self) -> str:
-        raise NotImplementedError(
-            'It is necessary to implement the logic to indicate how to get the image name based on auth_state or environ in this child class'
-        )
+    def _volumes_to_bind(self, volumes, binds, mode="rw"):
+        """[summary]
 
-    def auth_state_hook(self, spawner: DockerSpawner, auth_state: dict) -> None:
-        # call our custom hook from here without issue related with 'invalid arguments number given'
-        custom_auth_state_hook(spawner, auth_state)
+        Args:
+            volumes ([type]): [description]
+            binds ([type]): [description]
+            mode (str, optional): [description]. Defaults to "rw".
 
-    def _volumes_to_binds(self, volumes, binds, mode="rw"):
-        binds = super()._volumes_to_binds(volumes, binds, mode)
+        Returns:
+            [type]: [description]
+        """
+        binds = self._volumes_to_bind(volumes, binds, mode)
         if self.load_shared_folder_with_instructor is False and user_is_an_instructor(self.environment['USER_ROLE']):
             self.log.debug(f'binds loaded from volumes setting: {binds}')
             shared_vol_key = ''
@@ -46,38 +44,30 @@ class IllumiDeskBaseDockerSpawner(DockerSpawner):
                 self.log.debug(f'binds without the shared folder: {binds}')
         return binds
 
+    def auth_state_hook(self, spawner: DockerSpawner, auth_state: dict) -> None:
+        """[summary]
+
+        Args:
+            spawner (DockerSpawner): [description]
+            auth_state (dict): [description]
+        """
+        # call our custom hook from here without issue related with 'invalid arguments number given'
+        custom_auth_state_hook(spawner, auth_state)
+
     def pre_spawn_hook(self, spawner) -> None:
+        """[summary]
+
+        Args:
+            spawner ([type]): [description]
+        """
         custom_pre_spawn_hook(spawner)
 
     def start(self) -> None:
+        """[summary]
+
+        Returns:
+            [type]: [description]
+        """
         self.image = self._get_image_name()
         self.log.debug('Starting with image: %s' % self.image)
         return super().start()
-
-
-class IllumiDeskRoleDockerSpawner(IllumiDeskBaseDockerSpawner):
-    """
-    Custom DockerSpawner which assigns a user notebook image
-    based on the user's role. This spawner requires:
-    1. That the `Authenticator.enable_auth_state = True`
-    2. That the user's `USER_ROLE` environment variable is set
-    """
-
-    def _get_image_name(self) -> str:
-        """
-        Given a user role in the environ, return the right image
-        Returns:
-            docker_image: docker image used to spawn container based on role
-        """
-        user_role = self.environment.get('USER_ROLE') or 'Learner'
-        self.log.debug('User %s has role: %s' % (self.user.name, user_role))
-
-        # default to standard image, otherwise assign image based on role
-        self.log.debug('User role used to set image: %s' % user_role)
-        docker_image = str(os.environ.get('DOCKER_STANDARD_IMAGE'))
-        if user_is_a_student(user_role):
-            docker_image = str(os.environ.get('DOCKER_LEARNER_IMAGE'))
-        elif user_role == 'Instructor':
-            docker_image = str(os.environ.get('DOCKER_INSTRUCTOR_IMAGE'))
-        self.log.debug('Image based on user role set to %s' % docker_image)
-        return docker_image

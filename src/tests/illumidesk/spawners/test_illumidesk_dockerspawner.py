@@ -17,7 +17,7 @@ def test_base_spawner_does_not_consider_shared_folder_with_instructor_role_when_
     sut.environment['USER_ROLE'] = 'Instructor'
     sut.user = mock_jhub_user()
     volumes_to_mount = {'mnt_root/my-org/shared/': 'home/jovyan/shared'}
-    binds = sut._volumes_to_binds(volumes=volumes_to_mount, binds={})
+    binds = sut._volumes_to_bind(volumes=volumes_to_mount, binds={})
     assert len(binds) == 0
 
 
@@ -31,7 +31,7 @@ def test_base_spawner_load_shared_folder_with_instructor_role_when_jhub_setting_
     sut.environment['USER_ROLE'] = 'Instructor'
     sut.user = mock_jhub_user()
     volumes_to_mount = {'mnt_root/my-org/shared/': 'home/jovyan/shared'}
-    binds = sut._volumes_to_binds(volumes=volumes_to_mount, binds={})
+    binds = sut._volumes_to_bind(volumes=volumes_to_mount, binds={})
     assert len(binds) == 1
 
 
@@ -45,12 +45,12 @@ def test_base_spawner_returns_the_shared_folder_with_learner_role_not_matter_the
     sut.environment['USER_ROLE'] = 'Learner'
     sut.user = mock_jhub_user()
     volumes_to_mount = {'mnt_root/my-org/shared/': 'home/jovyan/shared'}
-    binds = sut._volumes_to_binds(volumes=volumes_to_mount, binds={})
+    binds = sut._volumes_to_bind(volumes=volumes_to_mount, binds={})
     # First case (setting is not used)
     assert len(binds) == 1
     sut.load_shared_folder_with_instructor = False
     volumes_to_mount = {'mnt_root/my-org/shared/': 'home/jovyan/shared'}
-    binds = sut._volumes_to_binds(volumes=volumes_to_mount, binds={})
+    binds = sut._volumes_to_bind(volumes=volumes_to_mount, binds={})
     # First case (setting is used)
     assert len(binds) == 1
 

@@ -77,7 +77,7 @@ c.JupyterHub.redirect_to_server = False
 base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
 c.JupyterHub.base_url = base_url
 
-# Do not redirect user to his/her server (if running)
+# redirect users to their servers by default
 c.JupyterHub.redirect_to_server = True
 
 ##########################################
