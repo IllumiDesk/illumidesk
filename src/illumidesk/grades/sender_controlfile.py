@@ -29,6 +29,8 @@ class LTIGradesSenderControlFile:
         if not LTIGradesSenderControlFile.FILE_LOADED:
             logger.debug('The control file cache will be loaded from filesystem...')
             # try to read first time
+            # make sure the path exists
+            Path(self.config_path).mkdir(parents=True, exist_ok=True)
             self._loadFromFile()
 
     @property
