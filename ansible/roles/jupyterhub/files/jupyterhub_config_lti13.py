@@ -15,18 +15,20 @@ from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
 
 c = get_config()
 
-# FIRST load the base configuration file (with common settings)
-load_subconfig('/etc/jupyterhub/jupyterhub_config_base.py')
 
-# THEN override the settings that apply only with LT13 authentication type
+# load the base configuration file (with common settings)
+load_subconfig('/etc/jupyterhub/jupyterhub_config_base.py')  # noqa: F821
 
 ##########################################
 # BEGIN LTI 1.3 AUTHENTICATOR
 ##########################################
+
 # LTI 1.3 authenticator class.
 c.JupyterHub.authenticator_class = LTI13Authenticator
+
 # Spawn containers with by role
 c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
+
 # created after installing app in lms
 c.LTI13Authenticator.client_id = os.environ.get('LTI13_CLIENT_ID')
 c.LTI13Authenticator.endpoint = os.environ.get('LTI13_ENDPOINT')
@@ -43,6 +45,7 @@ c.JupyterHub.extra_handlers = [
     (r'/lti13/jwks$', LTI13JWKSHandler),
     (r'/lti13/file-selection$', FileSelectHandler),
 ]
+
 ##########################################
 # END LTI 1.3 AUTHENTICATOR
 ##########################################
@@ -53,6 +56,7 @@ c.JupyterHub.extra_handlers = [
 
 # Post auth hook to setup course
 c.Authenticator.post_auth_hook = setup_course_hook
+
 ##########################################
 # END GENERAL AUTHENTICATION
 ##########################################
@@ -60,11 +64,14 @@ c.Authenticator.post_auth_hook = setup_course_hook
 ##########################################
 # SETUP COURSE SERVICE
 ##########################################
+
 # Dynamic config to setup new courses
 extra_services = get_current_service_definitions()
+
 # load k/v's when starting jupyterhub
 c.JupyterHub.load_groups.update(extra_services['load_groups'])
 c.JupyterHub.services.extend(extra_services['services'])
+
 ##########################################
 # END SETUP COURSE SERVICE
 ##########################################

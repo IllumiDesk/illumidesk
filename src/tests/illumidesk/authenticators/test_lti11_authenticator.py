@@ -20,7 +20,8 @@ def gradesender_controlfile_mock():
         _loadFromFile=Mock(),
         register_data=Mock(return_value=None),
     ) as mock_controlfile:
-        yield mock_controlfile
+        with patch('pathlib.Path.mkdir'):
+            yield mock_controlfile
 
 
 @pytest.mark.asyncio
@@ -124,8 +125,9 @@ async def test_authenticator_uses_lti_utils_normalize_string(
 
 
 @pytest.mark.asyncio
+@patch('pathlib.Path.mkdir')
 async def test_authenticator_uses_lti_grades_sender_control_file_with_student_role(
-    tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
+    mock_mkdir, tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
 ):
     """
     Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
@@ -157,8 +159,9 @@ async def test_authenticator_uses_lti_grades_sender_control_file_with_student_ro
 
 
 @pytest.mark.asyncio
+@patch('pathlib.Path.mkdir')
 async def test_authenticator_uses_lti_grades_sender_control_file_with_learner_role(
-    tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
+    mock_mkdir, tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
 ):
     """
     Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
@@ -190,8 +193,9 @@ async def test_authenticator_uses_lti_grades_sender_control_file_with_learner_ro
 
 
 @pytest.mark.asyncio
+@patch('pathlib.Path.mkdir')
 async def test_authenticator_uses_lti_grades_sender_control_file_with_instructor_role(
-    tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
+    mock_mkdir, tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
 ):
     """
     Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the

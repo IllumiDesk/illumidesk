@@ -1,3 +1,4 @@
+import os
 import json
 import pytest
 
@@ -15,6 +16,17 @@ class TestLTIGradesSenderControlFile:
         Does the LTIGradesSenderControlFile class initializes a file with an empty dict when it does not exist?
         """
         sender_controlfile = LTIGradesSenderControlFile(tmp_path)
+        assert Path(sender_controlfile.config_fullname).stat().st_size > 0
+        with Path(sender_controlfile.config_fullname).open('r') as file:
+            assert json.load(file) == {}
+
+    def test_control_file_course_dir_is_created_if_not_exists(self, tmp_path):
+        """
+        Does the LTIGradesSenderControlFile class initializes a file with an empty dict when it does not exist?
+        """
+        course_dir = os.path.join(tmp_path, 'my-course')
+        sender_controlfile = LTIGradesSenderControlFile(course_dir)
+        assert Path(course_dir).exists()
         assert Path(sender_controlfile.config_fullname).stat().st_size > 0
         with Path(sender_controlfile.config_fullname).open('r') as file:
             assert json.load(file) == {}
