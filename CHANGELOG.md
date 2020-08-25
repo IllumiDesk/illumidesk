@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.9.1 (2020-08-25)
+
+
+### Bug Fixes
+
+* Ensure the course directory exists before adding LTI 1.1 control file ([#300](https://github.com/IllumiDesk/illumidesk/issues/300)) ([d90e89d](https://github.com/IllumiDesk/illumidesk/commit/d90e89d4c763bacdafd76c709f2f4f4ed3a1e7cf))
+
+
 ## 0.9.0 (2020-08-24)
 
 
