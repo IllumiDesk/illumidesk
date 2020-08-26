@@ -33,7 +33,10 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 c.JupyterHub.hub_connect_ip = 'jupyterhub'
 
 # Provide iframe support
-c.JupyterHub.tornado_settings = {"headers": {"Content-Security-Policy": "frame-ancestors 'self' *"}}
+c.JupyterHub.tornado_settings = {
+    "headers": {"Content-Security-Policy": "frame-ancestors 'self' *"},
+    "cookie_options": {"SameSite": "None", "Secure": True},
+}
 
 # Load data files
 c.JupyterHub.data_files_path = '/usr/local/share/jupyterhub/'
