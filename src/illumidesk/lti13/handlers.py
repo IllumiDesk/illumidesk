@@ -11,6 +11,8 @@ from jupyterhub.handlers import BaseHandler
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.lti13.auth import get_jwk
 
+from tornado import web
+
 
 class LTI13ConfigHandler(BaseHandler):
     """
@@ -124,45 +126,6 @@ class LTI13JWKSHandler(BaseHandler):
 
 
 class FileSelectHandler(BaseHandler):
-    async def get(self):
-        user = self.current_user
-        self.log.debug('Current user for file select handler is %s' % user.id)
-        # decoded = self.authenticator.decoded
-        course_id = 'intro101'
-        self.grader_name = f'grader-{course_id}'
-        self.grader_root = Path(os.environ.get('MNT_ROOT'), 'my-org', 'home', self.grader_name,)
-        self.course_root = self.grader_root / course_id
-        
-        files = []
-        for f in self._iterate_dir(self.course_root):
-            fpath = str(f.relative_to(self.course_root))
-            self.log.debug.debug('Getting files fpath %s' % fpath)
-            url = f'https://{self.request.host}/jupyterhub/user/{user.name}/notebooks/{fpath}'
-            self.log.debug.debug('URL to fetch files is %s' % url)
-            self.log.debug.debug('Content items from fetched files are %s' % f.name)
-            files.append({
-                'path': fpath,
-                'content_items': json.dumps({
-                    "@context": "http://purl.imsglobal.org/ctx/lti/v1/ContentItem",
-                    "@graph": [{
-                        "@type": "LtiLinkItem",
-                        "@id": url,
-                        "url": url,
-                        "title": f.name,
-                        "text": f.name,
-                        "mediaType": "application/vnd.ims.lti.v1.ltilink",
-                        "placementAdvice": {"presentationDocumentTarget": "frame"}
-                    }]
-                })
-            })
-        self.log.debug.debug('Rendering file-select.html template')
-        html = self.render_template(
-            'file-select.html',
-            files=files,
-            action_url='https://illumidesk.instructure.com/courses/161/assignments',
-        )
-        self.finish(html)
-
     def _iterate_dir(self, directory):
         for item in directory.iterdir():
             if item.name.startswith('.') or item.name.startswith('submissions'):
@@ -170,5 +133,49 @@ class FileSelectHandler(BaseHandler):
             if item.is_dir():
                 yield from self._iterate_dir(item)
             else:
-                self.log.debug.debug('Found item %s' % item)
+                self.log.debug('Found item %s' % item)
                 yield item
+
+    @web.authenticated
+    async def get(self):
+        user = self.current_user
+        self.log.debug('Current user for file select handler is %s' % user.name)
+        # decoded = self.authenticator.decoded
+        course_id = 'intro101'
+        self.grader_name = f'grader-{course_id}'
+        self.grader_root = Path('/home', self.grader_name,)
+        self.course_root = self.grader_root / course_id
+
+        files = []
+        for f in self._iterate_dir(self.course_root):
+            fpath = str(f.relative_to(self.course_root))
+            self.log.debug('Getting files fpath %s' % fpath)
+            url = f'https://{self.request.host}/jupyterhub/user/{user.name}/notebooks/{fpath}'
+            self.log.debug('URL to fetch files is %s' % url)
+            self.log.debug('Content items from fetched files are %s' % f.name)
+            files.append(
+                {
+                    'path': fpath,
+                    'content_items': json.dumps(
+                        {
+                            "@context": "http://purl.imsglobal.org/ctx/lti/v1/ContentItem",
+                            "@graph": [
+                                {
+                                    "@type": "LtiLinkItem",
+                                    "@id": url,
+                                    "url": url,
+                                    "title": f.name,
+                                    "text": f.name,
+                                    "mediaType": "application/vnd.ims.lti.v1.ltilink",
+                                    "placementAdvice": {"presentationDocumentTarget": "frame"},
+                                }
+                            ],
+                        }
+                    ),
+                }
+            )
+        self.log.debug('Rendering file-select.html template')
+        html = self.render_template(
+            'file_select.html', files=files, action_url='https://illumidesk.instructure.com/courses/161/assignments',
+        )
+        self.finish(html)
