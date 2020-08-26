@@ -190,6 +190,16 @@ class LTI13LaunchValidator(LoggingConfigurable):
 
         return jwt.decode(id_token, key=key_from_jwks, verify=False, audience=audience)
 
+    def is_deep_link_launch(self, jwt_decoded: Dict[str, Any],) -> bool:
+        """
+        Returns whether or not the current launch is a deep linking launch.
+
+        :return: bool  Returns true if the current launch is a deep linking launch.
+        """
+        return (
+            jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/message_type', None) == 'LtiDeepLinkingRequest'
+        )
+
     def validate_launch_request(self, jwt_decoded: Dict[str, Any],) -> bool:
         """
         Validates that a given LTI 1.3 launch request has the required required claims The
@@ -209,31 +219,34 @@ class LTI13LaunchValidator(LoggingConfigurable):
           HTTPError if a required claim is not included in the dictionary or if the message_type and/or
           version claims do not have the correct value.
         """
-        for claim, v in ILLUMIDESK_LTI13_REQUIRED_CLAIMS.items():
-            if claim not in jwt_decoded.keys():
-                raise HTTPError(400, 'Required claim %s not included in request' % claim)
-            if (
-                'https://purl.imsglobal.org/spec/lti/claim/message_type' in jwt_decoded.keys()
-                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/message_type')
-                != 'LtiResourceLinkRequest'
-            ):
-                raise HTTPError(400, 'Incorrect value %s for message type claim' % v)
-            if (
-                'https://purl.imsglobal.org/spec/lti/claim/version' in jwt_decoded.keys()
-                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/version') != '1.3.0'
-            ):
-                raise HTTPError(400, 'Incorrect value %s for version claim' % v)
-            if (
-                'https://purl.imsglobal.org/spec/lti/claim/resource_link' in jwt_decoded.keys()
-                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/resource_link').get('id') == ''
-            ):
-                raise HTTPError(400, 'Incorrect value %s for message type claim' % v)
-            if (
-                'https://purl.imsglobal.org/spec/lti/claim/context' in jwt_decoded.keys()
-                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/context').get('label') == ''
-            ):
-                raise HTTPError(400, 'Missing course context label %s for claim' % claim)
-        return True
+        if self.is_deep_link_launch(jwt_decoded):
+            return True
+        else:
+            for claim, v in ILLUMIDESK_LTI13_REQUIRED_CLAIMS.items():
+                if claim not in jwt_decoded.keys():
+                    raise HTTPError(400, 'Required claim %s not included in request' % claim)
+                if (
+                    'https://purl.imsglobal.org/spec/lti/claim/message_type' in jwt_decoded.keys()
+                    and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/message_type')
+                    != 'LtiResourceLinkRequest'
+                ):
+                    raise HTTPError(400, 'Incorrect value %s for message type claim' % v)
+                if (
+                    'https://purl.imsglobal.org/spec/lti/claim/version' in jwt_decoded.keys()
+                    and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/version') != '1.3.0'
+                ):
+                    raise HTTPError(400, 'Incorrect value %s for version claim' % v)
+                if (
+                    'https://purl.imsglobal.org/spec/lti/claim/resource_link' in jwt_decoded.keys()
+                    and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/resource_link').get('id') == ''
+                ):
+                    raise HTTPError(400, 'Incorrect value %s for message type claim' % v)
+                if (
+                    'https://purl.imsglobal.org/spec/lti/claim/context' in jwt_decoded.keys()
+                    and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/context').get('label') == ''
+                ):
+                    raise HTTPError(400, 'Missing course context label %s for claim' % claim)
+            return True
 
     def validate_login_request(self, args: Dict[str, Any]) -> bool:
         """
