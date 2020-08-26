@@ -5,7 +5,7 @@ import re
 
 from jupyterhub.handlers import BaseHandler
 
-from oauthenticator.oauth2 import _serialize_state
+from oauthenticator.oauth2 import STATE_COOKIE_NAME, _serialize_state
 from oauthenticator.oauth2 import guess_callback_uri
 from oauthenticator.oauth2 import OAuthLoginHandler
 from oauthenticator.oauth2 import OAuthCallbackHandler
@@ -121,6 +121,9 @@ class LTI13LoginHandler(OAuthLoginHandler):
         if self._state is None:
             self._state = _serialize_state({'state_id': uuid.uuid4().hex, 'next_url': next_url})
         return self._state
+
+    def set_state_cookie(self, state):
+        self.set_secure_cookie(STATE_COOKIE_NAME, state, expires_days=1, httponly=True, samesite=None, secure=True)
 
     def post(self):
         """
