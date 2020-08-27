@@ -374,6 +374,15 @@ class LTI13Authenticator(OAuthenticator):
                     user_role = 'Learner'
             self.log.debug('user_role is %s' % user_role)
 
+            launch_return_url = ''
+            if (
+                'https://purl.imsglobal.org/spec/lti/claim/launch_presentation' in jwt_decoded
+                and 'return_url' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/launch_presentation']
+            ):
+                launch_return_url = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/launch_presentation'][
+                    'return_url'
+                ]
+            # if there is a resource link request then process additional steps
             if not validator.is_deep_link_launch(jwt_decoded):
                 process_additional_steps_for_resource_launch(self.log, course_id, jwt_decoded)
 
@@ -389,6 +398,7 @@ class LTI13Authenticator(OAuthenticator):
                     'course_id': course_id,
                     'user_role': user_role,
                     'lms_user_id': lms_user_id,
+                    'launch_return_url': launch_return_url,
                 },  # noqa: E231
             }
 

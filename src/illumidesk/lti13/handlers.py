@@ -139,6 +139,7 @@ class FileSelectHandler(BaseHandler):
     @web.authenticated
     async def get(self):
         user = self.current_user
+        auth_state = await user.get_auth_state()
         self.log.debug('Current user for file select handler is %s' % user.name)
         # decoded = self.authenticator.decoded
         course_id = 'intro101'
@@ -150,7 +151,7 @@ class FileSelectHandler(BaseHandler):
         for f in self._iterate_dir(self.course_root):
             fpath = str(f.relative_to(self.course_root))
             self.log.debug('Getting files fpath %s' % fpath)
-            url = f'https://{self.request.host}/jupyterhub/user/{user.name}/notebooks/{fpath}'
+            url = f'https://{self.request.host}/user/{user.name}/notebooks/{fpath}'
             self.log.debug('URL to fetch files is %s' % url)
             self.log.debug('Content items from fetched files are %s' % f.name)
             files.append(
@@ -175,7 +176,5 @@ class FileSelectHandler(BaseHandler):
                 }
             )
         self.log.debug('Rendering file-select.html template')
-        html = self.render_template(
-            'file_select.html', files=files, action_url='https://illumidesk.instructure.com/courses/161/assignments',
-        )
+        html = self.render_template('file_select.html', files=files, action_url=auth_state['launch_return_url'],)
         self.finish(html)
