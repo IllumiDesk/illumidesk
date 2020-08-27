@@ -2,6 +2,7 @@ import os
 import sys
 
 from dockerspawner import DockerSpawner  # noqa: F401
+
 from illumidesk.apis.announcement_service import ANNOUNCEMENT_JHUB_SERVICE_DEFINITION
 
 

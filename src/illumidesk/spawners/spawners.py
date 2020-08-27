@@ -9,8 +9,8 @@ from traitlets.traitlets import Bool
 
 
 class IllumiDeskBaseDockerSpawner(DockerSpawner):
-    """
-    Extends the DockerSpawner by defining the common behavior for our Spwaners that work with LTI versions 1.1 and 1.3
+    """Extends the DockerSpawner by defining the common behavior for our Spwaners that work
+    with LTI versions 1.1 and 1.3
     """
 
     load_shared_folder_with_instructor = Bool(
@@ -19,8 +19,8 @@ class IllumiDeskBaseDockerSpawner(DockerSpawner):
         help="Mount the shared folder with Instructor role (Used with shared_folder_enabled env-var).",
     )
 
-    def _volumes_to_bind(self, volumes, binds, mode="rw"):
-        """[summary]
+    def _volumes_to_bind(self, volumes: dict, binds: dict, mode: str = "rw"):
+        """Binds volumes when spawning containers.
 
         Args:
             volumes ([type]): [description]
