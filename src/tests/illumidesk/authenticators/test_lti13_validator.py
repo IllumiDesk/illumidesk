@@ -117,6 +117,7 @@ def test_validate_empty_conext_label_claim_value(make_lti13_resource_link_reques
     """
     validator = LTI13LaunchValidator()
     jws = make_lti13_resource_link_request
+    print('jws', jws)
     jws['https://purl.imsglobal.org/spec/lti/claim/context']['label'] = ''
 
     with pytest.raises(HTTPError):
@@ -175,5 +176,28 @@ def test_validate_claim_values_with_privacy_enabled(make_lti13_resource_link_req
     """
     validator = LTI13LaunchValidator()
     jws = make_lti13_resource_link_request_privacy_enabled
+
+    assert validator.validate_launch_request(jws)
+
+
+def test_validate_deep_linking_request_is_valid_with_message_type_claim(make_lti13_resource_link_request):
+    """
+    Is the JWT valid with for LtiDeepLinkingRequest?
+    """
+    validator = LTI13LaunchValidator()
+    jws = make_lti13_resource_link_request
+    jws['https://purl.imsglobal.org/spec/lti/claim/message_type'] = 'LtiDeepLinkingRequest'
+
+    assert validator.validate_launch_request(jws)
+
+
+def test_validate_resource_ling_is_not_required_for_deep_linking_request(make_lti13_resource_link_request):
+    """
+    Is the JWT valid with for LtiDeepLinkingRequest?
+    """
+    validator = LTI13LaunchValidator()
+    jws = make_lti13_resource_link_request
+    jws['https://purl.imsglobal.org/spec/lti/claim/message_type'] = 'LtiDeepLinkingRequest'
+    del jws['https://purl.imsglobal.org/spec/lti/claim/resource_link']
 
     assert validator.validate_launch_request(jws)
