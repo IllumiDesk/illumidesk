@@ -133,19 +133,19 @@ class FileSelectHandler(BaseHandler):
         auth_state = await user.get_auth_state()
         self.log.debug('Current user for file select handler is %s' % user.name)
         # decoded = self.authenticator.decoded
-        course_id = auth_state['course_id']
-        self.grader_name = f'grader-{course_id}'
+        self.course_id = auth_state['course_id']
+        self.grader_name = f'grader-{self.course_id}'
         self.grader_root = Path('/home', self.grader_name,)
-        self.course_root = self.grader_root / course_id
+        self.course_root = self.grader_root / self.course_id
         self.course_shared_folder = Path('/shared', self.course_id)
 
         link_item_files = []
         notebooks = list(self.course_shared_folder.glob('**/*.ipynb'))
         notebooks.sort()
         for f in notebooks:
-            fpath = str(f.relative_to(self.course_root))
+            fpath = str(f.relative_to(self.course_shared_folder))
             self.log.debug('Getting files fpath %s' % fpath)
-            url = f'https://{self.request.host}/user/{user.name}/notebooks/{fpath}'
+            url = f'https://{self.request.host}/user/{user.name}/notebooks/shared/{fpath}'
             self.log.debug('URL to fetch files is %s' % url)
             self.log.debug('Content items from fetched files are %s' % f.name)
             link_item_files.append(
