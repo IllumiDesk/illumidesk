@@ -126,35 +126,29 @@ class LTI13JWKSHandler(BaseHandler):
 
 
 class FileSelectHandler(BaseHandler):
-    def _iterate_dir(self, directory):
-        for item in directory.iterdir():
-            if item.name.startswith('.') or item.name.startswith('submissions'):
-                continue
-            if item.is_dir():
-                yield from self._iterate_dir(item)
-            else:
-                self.log.debug('Found item %s' % item)
-                yield item
-
     @web.authenticated
     async def get(self):
+        """Return a sorted list of notebooks recursively found in shared path"""
         user = self.current_user
         auth_state = await user.get_auth_state()
         self.log.debug('Current user for file select handler is %s' % user.name)
         # decoded = self.authenticator.decoded
-        course_id = 'intro101'
+        course_id = auth_state['course_id']
         self.grader_name = f'grader-{course_id}'
         self.grader_root = Path('/home', self.grader_name,)
         self.course_root = self.grader_root / course_id
+        self.course_shared_folder = Path('/shared', self.course_id)
 
-        files = []
-        for f in self._iterate_dir(self.course_root):
+        link_item_files = []
+        notebooks = list(self.course_shared_folder.glob('**/*.ipynb'))
+        notebooks.sort()
+        for f in notebooks:
             fpath = str(f.relative_to(self.course_root))
             self.log.debug('Getting files fpath %s' % fpath)
             url = f'https://{self.request.host}/user/{user.name}/notebooks/{fpath}'
             self.log.debug('URL to fetch files is %s' % url)
             self.log.debug('Content items from fetched files are %s' % f.name)
-            files.append(
+            link_item_files.append(
                 {
                     'path': fpath,
                     'content_items': json.dumps(
@@ -176,5 +170,7 @@ class FileSelectHandler(BaseHandler):
                 }
             )
         self.log.debug('Rendering file-select.html template')
-        html = self.render_template('file_select.html', files=files, action_url=auth_state['launch_return_url'],)
+        html = self.render_template(
+            'file_select.html', files=link_item_files, action_url=auth_state['launch_return_url'],
+        )
         self.finish(html)
