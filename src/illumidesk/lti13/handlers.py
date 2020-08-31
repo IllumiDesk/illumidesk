@@ -138,14 +138,18 @@ class FileSelectHandler(BaseHandler):
         self.grader_root = Path('/home', self.grader_name,)
         self.course_root = self.grader_root / self.course_id
         self.course_shared_folder = Path('/shared', self.course_id)
-
+        a = ''
         link_item_files = []
         notebooks = list(self.course_shared_folder.glob('**/*.ipynb'))
         notebooks.sort()
         for f in notebooks:
             fpath = str(f.relative_to(self.course_shared_folder))
+            if fpath.startswith('.') or f.name.startswith('.'):
+                self.log.debug('Ignoring file %s' % fpath)
+                continue
+
             self.log.debug('Getting files fpath %s' % fpath)
-            url = f'https://{self.request.host}/user/{user.name}/notebooks/shared/{fpath}'
+            url = f'https://{self.request.host}/user/{user.name}/notebooks/shared/{self.course_id}/{fpath}'
             self.log.debug('URL to fetch files is %s' % url)
             self.log.debug('Content items from fetched files are %s' % f.name)
             link_item_files.append(
