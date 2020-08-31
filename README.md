@@ -254,6 +254,8 @@ Three `nbgrader_config.py` files should exist:
 * **Grader's home: `/home/grader-{course_id}/.jupyter/nbgrader_config.py`**: defines how `nbgrader` authenticates with a third party service. This setup uses the `JupyterHubAuthPlugin`, the log file's location, and the `course_id` the grader account manages.
 * **Grader's course: `/home/grader-{course_id}/{course_id}/nbgrader_config.py`**: configurations related to how the course files themselves are managed, such as solution delimeters, code stubs, etc.
 
+> **NOTE**: the grader's course confuguration has default values for `header.ipynb` and `footer.ipynb` template notebooks. These templates are added to the generated notebook, if present. These files should be located in the course's `source` sub-directory. The full paths for the header/footer templates are `/home/grader-{course_id}/{course_id}/source/header.ipynb` and `/home/grader-{course_id}/{course_id}/source/footer.ipynb`.
+
 **Instructor/Learner Account**
 
 * **Instructor/Learner settings `/etc/jupyter/nbgrader_config.py`**: defines how `nbgrader` authenticates with a third party service, such as `JupyterHub` using the `JupyterHubAuthPlugin`, the log file's location, etc. Instructor and learner accounts do **NOT** contain the `course_id` identifier in their nbgrader configuration files.
