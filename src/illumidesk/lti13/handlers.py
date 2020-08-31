@@ -20,7 +20,7 @@ class LTI13ConfigHandler(BaseHandler):
         """
         Gets the JSON config which is used by LTI platforms
         to install the external tool.
-        
+
         - The extensions key contains settings for specific vendors, such as canvas,
         moodle, edx, among others.
         - The tool uses public settings by default. Users that wish to install the tool with

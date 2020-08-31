@@ -371,7 +371,7 @@ def make_http_response() -> HTTPResponse:
             {"content-type": "application/json"}
         effective_url: final location of the resource after following any redirects
         body: dictionary that represents the StringIO (buffer) body
-        
+
         Returns:
         A tornado.client.HTTPResponse object
         """

@@ -30,7 +30,7 @@ class IllumiDeskDockerSpawner(DockerSpawner):
         Returns:
             Dict: returns collection that represents the volumes the container should mount (bind)
         """
-        binds = self._volumes_to_binds(volumes, binds, mode)
+        binds = super()._volumes_to_binds(volumes, binds, mode)
         if self.load_shared_folder_with_instructor is False and user_is_an_instructor(self.environment['USER_ROLE']):
             self.log.debug(f'binds loaded from volumes setting: {binds}')
             shared_vol_key = ''

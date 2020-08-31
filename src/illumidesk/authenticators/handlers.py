@@ -63,7 +63,7 @@ class LTI13LoginHandler(OAuthLoginHandler):
         References:
         https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
         http://www.imsglobal.org/spec/lti/v1p3/#additional-login-parameters-0
-        
+
         Args:
           client_id: used to identify the tool's installation with a platform
           redirect_uri: redirect url specified during tool installation (callback url)

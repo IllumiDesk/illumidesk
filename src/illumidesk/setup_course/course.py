@@ -30,7 +30,7 @@ class Course:
         grader_root: Grader's home path
         course_root: Course's root path
         token: JupyterHub API token used to authenticat requests with the Hub
-        
+
         uid: Grader's user id
         gid: Grader's group id
         is_new_setup: True indicates a new setup, False otherwise
@@ -75,7 +75,7 @@ class Course:
     async def setup(self):
         """
         Function to bootstrap new course setup
-        
+
         Returns:
             is_new_setup: boolean to indicate whether or not the this setup
             function executed the functions to set up a new course.
