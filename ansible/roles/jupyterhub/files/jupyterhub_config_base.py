@@ -4,7 +4,8 @@ import sys
 from dockerspawner import DockerSpawner  # noqa: F401
 
 from illumidesk.apis.announcement_service import ANNOUNCEMENT_JHUB_SERVICE_DEFINITION
-
+from illumidesk.spawners.hooks import custom_auth_state_hook
+from illumidesk.spawners.hooks import custom_pre_spawn_hook
 
 c = get_config()
 
@@ -190,6 +191,12 @@ c.DockerSpawner.extra_create_kwargs = {'user': '0'}
 
 # these env vars are set within the docker image but add them here for good measure
 c.DockerSpawner.environment = {'NB_UID': '1000', 'NB_GID': '100', 'NB_USER': 'jovyan'}
+
+# Get additional authentication data from the authenticator
+c.DockerSpawner.auth_state_hook = custom_auth_state_hook
+
+# The customized pre_spawn_hook creates user folders for non system users
+c.DockerSpawner.pre_spawn_hook = custom_pre_spawn_hook
 
 ##########################################
 # END CUSTOM DOCKERSPAWNER
