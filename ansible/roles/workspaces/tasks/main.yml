@@ -1,20 +1,10 @@
 ---
-- name: pull base illumidesk/base-notebook image
+- name: pull end-user notebook image
   docker_image:
-    name: "{{ docker_illumidesk_notebook_base_image }}"
+    name: "{{ docker_illumidesk_end_user_image }}"
     source: pull
 
-- name: pull base illumidesk/instructor-notebook image
+- name: pull grader notebook image
   docker_image:
-    name: "{{ docker_illumidesk_notebook_instructor_image }}"
-    source: pull
-
-- name: pull base illumidesk/learner-notebook image
-  docker_image:
-    name: "{{ docker_illumidesk_notebook_learner_image }}"
-    source: pull
-
-- name: pull base illumidesk/grader-notebook image
-  docker_image:
-    name: "{{ docker_illumidesk_notebook_grader_image }}"
+    name: "{{ docker_illumidesk_grader_image }}"
     source: pull

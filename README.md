@@ -110,7 +110,7 @@ Click on the `Grader Console` tab and follow the steps available within the nbgr
 
 * **Authenticator**: The JupyterHub compatible authentication service. We recommend either using the `LTI11Authenticator` or `LTI13Authenticator` with your Learning Management System to take advantage of the latest features.
 
-* **Spawner**: Spawning service to manage user notebooks. This setup uses one class which inherits from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class: the `IllumiDeskRoleDockerSpawner` to set the user's docker image based on LTI role.
+* **Spawner**: Spawning service to manage user notebooks. This setup uses one class which inherits from the [DockerSpawner](https://github.com/jupyterhub/dockerspawner) class: the `IllumiDeskDockerSpawner` to set the user's docker image based on LTI role.
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
@@ -254,6 +254,8 @@ Three `nbgrader_config.py` files should exist:
 * **Grader's home: `/home/grader-{course_id}/.jupyter/nbgrader_config.py`**: defines how `nbgrader` authenticates with a third party service. This setup uses the `JupyterHubAuthPlugin`, the log file's location, and the `course_id` the grader account manages.
 * **Grader's course: `/home/grader-{course_id}/{course_id}/nbgrader_config.py`**: configurations related to how the course files themselves are managed, such as solution delimeters, code stubs, etc.
 
+> **NOTE**: the grader's course confuguration has default values for `header.ipynb` and `footer.ipynb` template notebooks. These templates are added to the generated notebook, if present. These files should be located in the course's `source` sub-directory. The full paths for the header/footer templates are `/home/grader-{course_id}/{course_id}/source/header.ipynb` and `/home/grader-{course_id}/{course_id}/source/footer.ipynb`.
+
 **Instructor/Learner Account**
 
 * **Instructor/Learner settings `/etc/jupyter/nbgrader_config.py`**: defines how `nbgrader` authenticates with a third party service, such as `JupyterHub` using the `JupyterHubAuthPlugin`, the log file's location, etc. Instructor and learner accounts do **NOT** contain the `course_id` identifier in their nbgrader configuration files.
@@ -284,29 +286,29 @@ When building the images the configuration files are copied to the image from th
 
 ### Spawners
 
-By default this setup includes the `IllumiDeskRoleDockerSpawner` class. However, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary, and based on the spawner class sets the docker image to spawn based on the `user_role` key with the spawner's `auth_state_hook`. The `pre_spawn_hook` to add user directories with the appropriate permissions, since users are not added to the operating system.
+By default this setup includes the `IllumiDeskDockerSpawner` class. However, you should be able to use any container based spawner. This implementation utilizes the `auth_state_hook` to get the user's authentication dictionary, and based on the spawner class sets the docker image to spawn based on the `user_role` key with the spawner's `auth_state_hook`. The `pre_spawn_hook` to add user directories with the appropriate permissions, since users are not added to the operating system.
 
 **Note**: the user is redirected to their server by default with `JupyterHub.redirect_to_server = True`.
 
-#### IllumiDeskRoleDockerSpawner
+#### IllumiDeskDockerSpawner
 
-The `IllumiDeskRoleDockerSpawner` interprets LTI-based roles to determine which container to launch based on the user's role. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
+The `IllumiDeskDockerSpawner` interprets LTI-based roles to determine which container to launch based on the user's role. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
 
 Edit the `JupyterHub.spawner_class` to update the spawner used by JupyterHub when launching user containers. For example, if you are changing the spawner from `DockerSpawner` to `KubeSpawner`:
 
 Before:
 
 ```python
-c.JupyterHub.spawner_class = 'dockerspawner.IllumiDeskRoleDockerSpawner'
+c.JupyterHub.spawner_class = 'dockerspawner.IllumiDeskDockerSpawner'
 ```
 
 After:
 
 ```python
-c.JupyterHub.spawner_class = 'kubespawner.IllumiDeskRoleDockerSpawner'
+c.JupyterHub.spawner_class = 'kubespawner.KubeSpawner'
 ```
 
-As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub. In most cases the spawners provide drop-in replacement of the provided `IllumiDeskRoleDockerSpawner` class. However, setting spawners other than `IllumiDeskRoleDockerSpawner` may break compatibility with the grading services.
+As mentioned in the [authenticator](#authenticator) section, make sure you refer to the spawner's documentation to consider all settings before launching JupyterHub. In most cases the spawners provide drop-in replacement of the provided `IllumiDeskDockerSpawner` class. However, setting spawners other than `IllumiDeskDockerSpawner` may break compatibility with the grading services.
 
 ### Proxies
 
@@ -329,11 +331,7 @@ This setup uses JupyterHub's [configurable-http-proxy]((https://github.com/jupyt
 - Use one of images provided by the [`jupyter/docker-stacks`](https://github.com/jupyter/docker-stacks).
 - Make sure the image is on the host used by the spawner to launch the user's Jupyter Notebook.
 
-There are three notebook images:
-
-- [Student](roles/common/templates/Dockerfile.student.j2)
-- [Learner](roles/common/templates/Dockerfile.learner.j2)
-- [Grader](roles/common/templates/Dockerfile.grader.j2)
+Images are pulled from `DockerHub`, including the end-user base image. This base image comes pre installed with a script to enable Jupyter Notebook / Jupyter Lab extensions based on the user's LTI role.
 
 The nbgrader extensions are enabled within the images like so:
 
@@ -438,12 +436,8 @@ The services included with this setup rely on environment variables to work prop
 
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
-| DOCKER_LEARNER_IMAGE | `string` | Docker image used by users with the Learner role. | `illumidesk/learner-notebook:latest` |
-| DOCKER_INSTRUCTOR_IMAGE | `string` | Docker image used by users with the Instructor role. | `illumidesk/instructor-notebook:latest` |
-| DOCKER_STANDARD_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/base-notebook:latest` |
-| DOCKER_THEIA_IMAGE | `string` | Docker image used for the THEIA IDE | `illumidesk/theia:latest` |
-| DOCKER_RSTUDIO_IMAGE | `string` | Docker image used for RStudio | `illumidesk/rstudio:latest` |
-| DOCKER_VSCODE_IMAGE | `string` | Docker image used for VS Code | `illumidesk/vscode:latest` |
+| DOCKER_END_USER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/base-notebook:latest` |
+| DOCKER_GRADER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/base-notebook:latest` |
 | DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |
 | DOCKER_NOTEBOOK_DIR | `string` | Working directory for Jupyter Notebooks | `/home/jovyan` |
 | EXCHANGE_DIR | `string` | Exchange directory path  | `/srv/nbgrader/exchange` |
@@ -475,7 +469,7 @@ The services included with this setup rely on environment variables to work prop
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
 | DOCKER_NETWORK_NAME | `string` | JupyterHub API token | `jupyter-network` |
-| GRADER_SERVICE_IMAGE | `string` | Docker image used for the grader services  | `illumidesk/grader-notebook:latest` |
+| DOCKER_GRADER_IMAGE | `string` | Docker image used for the grader services  | `illumidesk/grader-notebook:latest` |
 | ILLUMIDESK_DIR | `string` | IllumiDesk working directory within remote user's home directory | `$HOME/illumidesk_deployment` |
 | JUPYTERHUB_API_TOKEN | `string` | API token to connect with the JupyterHub | `<random value>` |
 | JUPYTERHUB_API_URL | `string` | JupyterHub client id used with OAuth2 | `http://reverse-proxy:8000/hub/api` |

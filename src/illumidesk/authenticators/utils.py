@@ -60,7 +60,7 @@ class LTIUtils(LoggingConfigurable):
 
         Args:
           email: A valid email address
-        
+
         Returns:
           username: A username string
 

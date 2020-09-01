@@ -48,7 +48,7 @@ async def register_new_service(data: Dict[str, str]) -> str:
             'course_id': course_id,
             'domain': handler.request.host,
         })```
-    
+
     Returns: the response as json
 
     """

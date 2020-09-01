@@ -24,7 +24,7 @@ async def get_lms_access_token(token_endpoint: str, private_key_path: str, clien
         token_endpoint: The url that will be used to make the request
         private_key_path: specify where the pem is
         client_id: For LTI 1.3 the Client ID that was obtained with the tool setup
-    
+
     Returns:
         A json with the token value
     """

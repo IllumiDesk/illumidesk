@@ -4,7 +4,7 @@ from illumidesk.apis.setup_course_service import get_current_service_definitions
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
 from illumidesk.grades.handlers import SendGradesHandler
-from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
+from illumidesk.spawners.spawners import IllumiDeskDockerSpawner
 
 
 c = get_config()
@@ -19,8 +19,8 @@ load_subconfig('/etc/jupyterhub/jupyterhub_config_base.py')  # noqa: F821
 # LTI 1.1 authenticator class.
 c.JupyterHub.authenticator_class = LTI11Authenticator
 
-# Spawn containers with by role
-c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
+# Spawn end-user container and enable extensions by role
+c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
 
 ##########################################
 # END JUPYTERHUB APPLICATION

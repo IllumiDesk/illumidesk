@@ -17,4 +17,6 @@ c = get_config()
 
 
 c.CourseDirectory.course_id = '{course_id}'
+c.IncludeHeaderFooter.header = 'source/header.ipynb'
+c.IncludeHeaderFooter.footer = 'source/footer.ipynb'
 """

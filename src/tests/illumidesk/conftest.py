@@ -267,12 +267,9 @@ def grades_controlfile_reset_file_loaded():
 @pytest.fixture(scope='function')
 def setup_image_environ(monkeypatch):
     """
-    Set the enviroment variables used to identify images assigned by
-    role and/or workspace type.
+    Set the enviroment variables used to identify the end user image.
     """
-    monkeypatch.setenv('DOCKER_STANDARD_IMAGE', 'standard_image')
-    monkeypatch.setenv('DOCKER_LEARNER_IMAGE', 'learner_image')
-    monkeypatch.setenv('DOCKER_INSTRUCTOR_IMAGE', 'instructor_image')
+    monkeypatch.setenv('DOCKER_USER_IMAGE', 'standard_image')
 
 
 @pytest.fixture(scope='function')
@@ -374,7 +371,7 @@ def make_http_response() -> HTTPResponse:
             {"content-type": "application/json"}
         effective_url: final location of the resource after following any redirects
         body: dictionary that represents the StringIO (buffer) body
-        
+
         Returns:
         A tornado.client.HTTPResponse object
         """
