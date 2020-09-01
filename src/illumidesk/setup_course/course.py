@@ -152,6 +152,9 @@ class Course:
             self.create_shared_directory()
 
     def create_shared_directory(self):
+        """
+        Creates the shared folder and initialize the git repo
+        """
         git_init_commands = '''
         git init;
         git config --local user.name "illumidesk-grader";
