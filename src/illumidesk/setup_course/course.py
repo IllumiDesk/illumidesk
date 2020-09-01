@@ -1,10 +1,12 @@
+import docker
+import logging
 import os
 import shutil
+import subprocess
 import sys
-import logging
+
 from pathlib import Path
 from secrets import token_hex
-import docker
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 
@@ -147,9 +149,30 @@ class Course:
             % (nbgrader_config, self.uid, self.gid)
         )
         if self.is_shared_folder_enabled is True:
-            logger.debug('Creating shared directory %s' % self.grader_shared_folder)
-            self.grader_shared_folder.mkdir(parents=True, exist_ok=True)
-            shutil.chown(str(self.grader_shared_folder), user=self.uid, group=self.gid)
+            self.create_shared_directory()
+
+    def create_shared_directory(self):
+        """
+        Creates the shared folder and initialize the git repo
+        """
+        git_init_commands = '''
+        git init;
+        git config --local user.name "illumidesk-grader";
+        git config --local user.email "grader@illumidesk.local";
+        echo '.ipynb_checkpoints/' >> .gitignore;
+        git add .;
+        git commit -m "Initial commit";
+        '''
+        logger.debug('Creating shared directory %s' % self.grader_shared_folder)
+        self.grader_shared_folder.mkdir(parents=True, exist_ok=True)
+        shutil.chown(str(self.grader_shared_folder), user=self.uid, group=self.gid)
+        # initiate git repo
+        try:
+            # run git init
+            logger.info(f'Initializing git repo in shared directory: {self.grader_shared_folder}')
+            subprocess.check_output(git_init_commands, cwd=f'{self.grader_shared_folder}', shell=True)
+        except Exception as er:
+            logger.debug(f'Error initializing the git repo:{er}')
 
     async def add_jupyterhub_grader_group(self):
         """

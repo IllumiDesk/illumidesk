@@ -144,7 +144,7 @@ def test_course_root_directory_is_created(setup_course_environ):
 
 def test_course_shared_folder_is_not_created_if_env_var_was_not_set(setup_course_environ, monkeypatch):
     """
-    Is the course directory created as part of setup?
+    shared directory is not created when env var is set to false?
     """
     monkeypatch.setenv('SHARED_FOLDER_ENABLED', '')
     course = Course(org='org1', course_id='example', domain='example.com')
@@ -156,7 +156,7 @@ def test_course_shared_folder_is_not_created_if_env_var_was_not_set(setup_course
 
 def test_course_shared_folder_is_created_if_env_var_was_set(setup_course_environ, monkeypatch):
     """
-    Is the course directory created as part of setup?
+    Is the shared course directory created as part of setup?
     """
     monkeypatch.setenv('SHARED_FOLDER_ENABLED', 'True')
     course = Course(org='org1', course_id='example', domain='example.com')
@@ -164,6 +164,28 @@ def test_course_shared_folder_is_created_if_env_var_was_set(setup_course_environ
         course.create_directories()
         assert course.is_shared_folder_enabled is True
         assert course.grader_shared_folder.exists()
+
+
+def test_course_shared_folder_is_initialized_as_git_repo(setup_course_environ, monkeypatch):
+    """
+    Is the shared directory initialized with git?
+    """
+    monkeypatch.setenv('SHARED_FOLDER_ENABLED', 'True')
+    course = Course(org='org1', course_id='example', domain='example.com')
+    with patch('shutil.chown', autospec=True):
+        course.create_directories()
+        assert course.grader_shared_folder.joinpath('.git').exists()
+
+
+def test_course_shared_folder_contains_gitignore_file(setup_course_environ, monkeypatch):
+    """
+    does the shared directory contain gitignore file?
+    """
+    monkeypatch.setenv('SHARED_FOLDER_ENABLED', 'True')
+    course = Course(org='org1', course_id='example', domain='example.com')
+    with patch('shutil.chown', autospec=True):
+        course.create_directories()
+        assert course.grader_shared_folder.joinpath('.gitignore').exists()
 
 
 def test_course_jupyter_config_path_is_created(setup_course_environ):
