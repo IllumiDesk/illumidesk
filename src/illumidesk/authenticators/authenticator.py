@@ -21,7 +21,6 @@ from illumidesk.apis.announcement_service import AnnouncementService
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.setup_course_service import make_rolling_update
 from illumidesk.apis.setup_course_service import register_new_service
-
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
@@ -388,7 +387,22 @@ class LTI13Authenticator(OAuthenticator):
                 course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
             nbgrader_service = NbGraderServiceHelper(course_id)
             nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
-            if assignment_name and user_is_a_student(user_role):
+
+            # TODO: simplify conditionals by updating constants to check for student/learner values
+            if (
+                assignment_name
+                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/roles']
+                == 'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner'
+            ):
+                # resource_link_title_normalize = lti_utils.normalize_string(resource_link_title)
+                self.log.debug('Creating a new assignment with the name %s' % assignment_name)
+                nbgrader_service.create_assignment_in_nbgrader(assignment_name)
+
+            elif (
+                assignment_name
+                and jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/roles']
+                == 'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student'
+            ):
                 # resource_link_title_normalize = lti_utils.normalize_string(resource_link_title)
                 self.log.debug('Creating a new assignment with the name %s' % assignment_name)
                 nbgrader_service.create_assignment_in_nbgrader(assignment_name)

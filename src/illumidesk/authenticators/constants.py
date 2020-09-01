@@ -317,6 +317,11 @@ LTI13_ROLES = {
 }
 
 # the list of roles that recognize a user as a Student
-DEFAULT_ROLE_NAMES_FOR_STUDENT = ['student', 'learner']
+DEFAULT_ROLE_NAMES_FOR_STUDENT = [
+    'student',
+    'learner',
+    'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner',
+    'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student',
+]
 # the list of roles that recognize a user as an Instructor
 DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR = ['instructor', 'urn:lti:role:ims/lis/teachingassistant']

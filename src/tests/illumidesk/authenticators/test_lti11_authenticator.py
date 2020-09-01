@@ -229,12 +229,11 @@ async def test_authenticator_uses_lti_grades_sender_control_file_with_instructor
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
-async def test_authenticator_calls_create_assignment_method_with_user_role_is_student(
+async def test_lti11authenticator_calls_create_assignment_method_with_user_role_is_student(
     lti11_validator, make_lti11_success_authentication_request_args, mock_nbhelper, gradesender_controlfile_mock
 ):
     """
-    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Student
-    or Learner?
+    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Student role?
     """
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
@@ -251,12 +250,11 @@ async def test_authenticator_calls_create_assignment_method_with_user_role_is_st
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
-async def test_authenticator_calls_create_assignment_method_with_user_role_is_learner(
+async def test_lti11authenticator_calls_create_assignment_method_with_user_role_is_learner(
     lti11_validator, make_lti11_success_authentication_request_args, mock_nbhelper, gradesender_controlfile_mock
 ):
     """
-    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Student
-    or Learner?
+    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Learner role?
     """
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()
@@ -273,12 +271,11 @@ async def test_authenticator_calls_create_assignment_method_with_user_role_is_le
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
-async def test_authenticator_calls_create_assignment_method_with_user_role_is_instructor(
+async def test_lti11authenticator_calls_create_assignment_method_with_user_role_is_instructor(
     lti11_validator, make_lti11_success_authentication_request_args, mock_nbhelper, gradesender_controlfile_mock
 ):
     """
-    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Student
-    or Learner?
+    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Instructor role?
     """
     with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
         authenticator = LTI11Authenticator()

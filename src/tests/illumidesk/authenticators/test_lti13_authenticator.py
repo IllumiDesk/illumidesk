@@ -7,6 +7,7 @@ from unittest.mock import patch
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import LTIUtils
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 
 
 @pytest.mark.asyncio
@@ -231,6 +232,70 @@ async def test_authenticator_returns_username_in_auth_state_with_privacy_enabled
             result = await authenticator.authenticate(request_handler, None)
 
             assert result['name'] == '4'
+
+
+@pytest.mark.asyncio
+async def test_lti13authenticator_calls_create_assignment_method_with_user_role_is_student(
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
+):
+    """
+    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Student role?
+    """
+    authenticator = LTI13Authenticator()
+    request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
+    make_lti13_resource_link_request[
+        'https://purl.imsglobal.org/spec/lti/claim/roles'
+    ] = 'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student'
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
+        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
+            result = await authenticator.authenticate(request_handler, None)
+            with patch.object(NbGraderServiceHelper, 'create_assignment_in_nbgrader') as mock_create_assignment:
+                assert mock_create_assignment.called
+
+
+@pytest.mark.asyncio
+async def test_lti13authenticator_calls_create_assignment_method_with_user_role_is_learner(
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
+):
+    """
+    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Learner role?
+    """
+    authenticator = LTI13Authenticator()
+    request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
+    make_lti13_resource_link_request['https://purl.imsglobal.org/spec/lti/claim/roles'] = [
+        'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Learner'
+    ]
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
+        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
+            result = await authenticator.authenticate(request_handler, None)
+            with patch.object(NbGraderServiceHelper, 'create_assignment_in_nbgrader') as mock_create_assignment:
+                assert mock_create_assignment.called
+
+
+@pytest.mark.asyncio
+async def test_lti13authenticator_calls_create_assignment_method_with_user_role_is_instructor(
+    make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
+):
+    """
+    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Instructor role?
+    """
+    authenticator = LTI13Authenticator()
+    request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
+    make_lti13_resource_link_request[
+        'https://purl.imsglobal.org/spec/lti/claim/roles'
+    ] = 'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor'
+
+    with patch.object(
+        RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(make_lti13_resource_link_request)
+    ):
+        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
+            result = await authenticator.authenticate(request_handler, None)
+            with patch.object(NbGraderServiceHelper, 'create_assignment_in_nbgrader') as mock_create_assignment:
+                assert not mock_create_assignment.called
 
 
 @pytest.mark.asyncio
