@@ -11,6 +11,7 @@ from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTIUtils
 from illumidesk.grades.senders import LTIGradesSenderControlFile
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 
 
 @pytest.fixture(scope='function')
@@ -224,6 +225,72 @@ async def test_authenticator_uses_lti_grades_sender_control_file_with_instructor
 
                 _ = await authenticator.authenticate(handler, None)
                 assert mock_register_data.called
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
+async def test_authenticator_calls_create_assignment_method_with_user_role_is_student(
+    lti11_validator, make_lti11_success_authentication_request_args, mock_nbhelper, gradesender_controlfile_mock
+):
+    """
+    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Student
+    or Learner?
+    """
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = make_lti11_success_authentication_request_args('canvas', 'Student')
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        with patch.object(NbGraderServiceHelper, 'create_assignment_in_nbgrader') as mock_create_assignment:
+            result = await authenticator.authenticate(handler, None)
+            assert mock_create_assignment.called
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
+async def test_authenticator_calls_create_assignment_method_with_user_role_is_learner(
+    lti11_validator, make_lti11_success_authentication_request_args, mock_nbhelper, gradesender_controlfile_mock
+):
+    """
+    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Student
+    or Learner?
+    """
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = make_lti11_success_authentication_request_args('canvas', 'Learner')
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        with patch.object(NbGraderServiceHelper, 'create_assignment_in_nbgrader') as mock_create_assignment:
+            result = await authenticator.authenticate(handler, None)
+            assert mock_create_assignment.called
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.validator.LTI11LaunchValidator')
+async def test_authenticator_calls_create_assignment_method_with_user_role_is_instructor(
+    lti11_validator, make_lti11_success_authentication_request_args, mock_nbhelper, gradesender_controlfile_mock
+):
+    """
+    Does the authenticator call the create_assignment_in_nbgrader method with the user has the Student
+    or Learner?
+    """
+    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = make_lti11_success_authentication_request_args('canvas', 'Instructor')
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(arguments=args, headers={}, items=[],),
+        )
+        with patch.object(NbGraderServiceHelper, 'create_assignment_in_nbgrader') as mock_create_assignment:
+            result = await authenticator.authenticate(handler, None)
+            assert not mock_create_assignment.called
 
 
 @pytest.mark.asyncio
