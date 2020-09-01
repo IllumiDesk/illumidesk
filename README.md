@@ -436,7 +436,8 @@ The services included with this setup rely on environment variables to work prop
 
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
-| DOCKER_USER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/base-notebook:latest` |
+| DOCKER_END_USER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/base-notebook:latest` |
+| DOCKER_GRADER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/base-notebook:latest` |
 | DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |
 | DOCKER_NOTEBOOK_DIR | `string` | Working directory for Jupyter Notebooks | `/home/jovyan` |
 | EXCHANGE_DIR | `string` | Exchange directory path  | `/srv/nbgrader/exchange` |
@@ -468,7 +469,7 @@ The services included with this setup rely on environment variables to work prop
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
 | DOCKER_NETWORK_NAME | `string` | JupyterHub API token | `jupyter-network` |
-| GRADER_SERVICE_IMAGE | `string` | Docker image used for the grader services  | `illumidesk/grader-notebook:latest` |
+| DOCKER_GRADER_IMAGE | `string` | Docker image used for the grader services  | `illumidesk/grader-notebook:latest` |
 | ILLUMIDESK_DIR | `string` | IllumiDesk working directory within remote user's home directory | `$HOME/illumidesk_deployment` |
 | JUPYTERHUB_API_TOKEN | `string` | API token to connect with the JupyterHub | `<random value>` |
 | JUPYTERHUB_API_URL | `string` | JupyterHub client id used with OAuth2 | `http://reverse-proxy:8000/hub/api` |
