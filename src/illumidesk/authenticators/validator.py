@@ -238,10 +238,10 @@ class LTI13LaunchValidator(LoggingConfigurable):
     def validate_login_request(self, args: Dict[str, Any]) -> bool:
         """
         Validates step 1 of authentication request.
-        
+
         Args:
           args: dictionary that represents keys/values sent in authentication request
-        
+
         Returns:
           True if the validation is ok, false otherwise
         """

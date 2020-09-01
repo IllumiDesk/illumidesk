@@ -80,7 +80,7 @@ def update_jupyterhub_config(course: Course):
     We can add groups and users with the REST API, but not services. Therefore
     add new services to the JupyterHub.services section within the jupyterhub
     configuration file (jupyterhub_config.py).
-    
+
     """
     jupyterhub_config_json = Path(JSON_FILE_PATH)
     # Lock file to manage jupyterhub_config.py

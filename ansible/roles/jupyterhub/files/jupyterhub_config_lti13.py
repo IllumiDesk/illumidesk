@@ -10,7 +10,7 @@ from illumidesk.grades.handlers import SendGradesHandler
 from illumidesk.lti13.handlers import LTI13ConfigHandler
 from illumidesk.lti13.handlers import LTI13JWKSHandler
 
-from illumidesk.spawners.spawners import IllumiDeskRoleDockerSpawner
+from illumidesk.spawners.spawners import IllumiDeskDockerSpawner
 
 c = get_config()
 
@@ -26,7 +26,7 @@ load_subconfig('/etc/jupyterhub/jupyterhub_config_base.py')  # noqa: F821
 c.JupyterHub.authenticator_class = LTI13Authenticator
 
 # Spawn containers with by role
-c.JupyterHub.spawner_class = IllumiDeskRoleDockerSpawner
+c.JupyterHub.spawner_class = IllumiDeskDockerSpawner
 
 # created after installing app in lms
 c.LTI13Authenticator.client_id = os.environ.get('LTI13_CLIENT_ID')

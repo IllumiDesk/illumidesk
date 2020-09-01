@@ -12,11 +12,11 @@ docker_jhub_base_image: "{{ docker_jhub_base_image_param | default('jupyterhub/j
 # built jupyterhub image
 docker_illumidesk_jhub_image: "{{ docker_illumidesk_jhub_image_param | default('illumidesk/jupyterhub:latest') }}"
 
-# illumidesk notebooks base and custom images
-docker_illumidesk_notebook_base_image: "{{ docker_illumidesk_notebook_base_image_param | default('illumidesk/base-notebook:latest') }}"
-docker_illumidesk_notebook_learner_image: "{{ docker_illumidesk_notebook_learner_image_param | default('illumidesk/learner-notebook:latest') }}"
+# illumidesk notebooks base image
+docker_illumidesk_notebook_user_image: "{{ docker_illumidesk_notebook_base_image_param | default('illumidesk/full-notebook:latest') }}"
+
+# illumidesk grader notebook image
 docker_illumidesk_notebook_grader_image: "{{ docker_illumidesk_notebook_grader_image_param | default('illumidesk/grader-notebook:latest') }}"
-docker_illumidesk_notebook_instructor_image: "{{ docker_illumidesk_notebook_instructor_image_param | default('illumidesk/instructor-notebook:latest') }}"
 
 # setup-course image
 docker_setup_course_image: "{{ docker_setup_course_image_param | default('illumidesk/setup-course:latest') }}"

@@ -101,7 +101,7 @@ class JupyterHubAPI(LoggingConfigurable):
 
         Args:
           users: a user list
-        
+
         Returns:
           Response from the endpoint
         """
@@ -116,7 +116,7 @@ class JupyterHubAPI(LoggingConfigurable):
 
         Args:
           username: the user's username to create
-        
+
         Returns:
           Response from the endpoint
         """
