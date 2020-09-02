@@ -15,7 +15,7 @@ c = get_config()
 
 {% if pilot_environment is sameas true %}
 # Announcement page for Pilot environments
-JupyterHub.template_vars = {'announcement': '{{ pilot_announcement_text }}'}
+c.JupyterHub.template_vars = {'announcement': '{{ pilot_announcement_text }}'}
 {% endif %}
 
 # Set to debug for teting
