@@ -269,7 +269,7 @@ def setup_image_environ(monkeypatch):
     """
     Set the enviroment variables used to identify the end user image.
     """
-    monkeypatch.setenv('DOCKER_USER_IMAGE', 'standard_image')
+    monkeypatch.setenv('DOCKER_END_USER_IMAGE', 'standard_image')
 
 
 @pytest.fixture(scope='function')
@@ -280,6 +280,7 @@ def setup_course_environ(monkeypatch, tmp_path, jupyterhub_api_environ):
     monkeypatch.setenv('MNT_ROOT', str(tmp_path))
     monkeypatch.setenv('NB_UID', '10001')
     monkeypatch.setenv('NB_GID', '100')
+    monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader-image')
 
 
 @pytest.fixture(scope='function')
