@@ -7,7 +7,7 @@ org_name: "{{ org_name_param | default('my') }}"
 
 ## Docker
 # base jupyterhub image
-docker_jhub_base_image: "{{ docker_jhub_base_image_param | default('jupyterhub/jupyterhub:1.2') }}"
+docker_jhub_base_image: "{{ docker_jhub_base_image_param | default('illumidesk/jupyterhub:py3.8') }}"
 
 # built jupyterhub image
 docker_illumidesk_jhub_image: "{{ docker_illumidesk_jhub_image_param | default('illumidesk/jupyterhub:latest') }}"
