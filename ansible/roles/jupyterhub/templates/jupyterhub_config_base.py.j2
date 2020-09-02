@@ -16,6 +16,19 @@ c = get_config()
 {% if pilot_environment is sameas true %}
 # Announcement page for Pilot environments
 c.JupyterHub.template_vars = {'announcement': '{{ pilot_announcement_text }}'}
+
+# Limit the number of active end user servers
+c.JupyterHub.active_server_limit = 20
+
+# Limit the number of concurrent servers that are spawned
+c.JupyterHub.concurrent_spawn_limit = 5
+
+# redirect users to their servers by default
+c.JupyterHub.redirect_to_server = False
+{% else %}
+
+# redirect users to the home page by default
+c.JupyterHub.redirect_to_server = True
 {% endif %}
 
 # Set to debug for teting
@@ -83,14 +96,6 @@ c.JupyterHub.redirect_to_server = False
 # JupyterHub's base url
 base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
 c.JupyterHub.base_url = base_url
-
-{% if pilot_environment is sameas true %}
-# redirect users to their servers by default
-c.JupyterHub.redirect_to_server = True
-{% else %}
-# redirect users to the home page by default
-c.JupyterHub.redirect_to_server = False
-{% endif %}
 
 ##########################################
 # END JUPYTERHUB APPLICATION
