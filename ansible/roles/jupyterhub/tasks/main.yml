@@ -63,11 +63,6 @@
   debug:
     msg: "authentication_type?: {{ authentication_type }}"
 
-- name: copy the base of jupyterhub configuration file with common settings
-  copy:
-   src: jupyterhub_config_base.py
-   dest: "{{ working_dir }}/jupyterhub_config_base.py"
-
 - name: copy the custom jupyterhub configuration file with lti v1.1 settings
   copy:
     src: jupyterhub_config_lti11.py
@@ -116,7 +111,7 @@
     dest: "{{ working_dir }}/env.jhub"
 
 - name: create the base of jupyterhub configuration file with common settings
-  copy:
+  template:
     src: jupyterhub_config_base.py.j2
     dest: "{{ working_dir }}/jupyterhub_config_base.py"
 

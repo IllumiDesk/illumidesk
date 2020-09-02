@@ -26,7 +26,7 @@ all:
       #-------------------
 
       # uncomment and set to false to remove announcements designated for Pilot environments
-      # pilot_environment_param: true
+      # pilot_environment: true
 
       # uncomment and update Pilot environment announcement text, defaults to text below
       # pilot_announcement_text: "WARNING: This is a demo environment. Contact hello@illumidesk.com if you would like access to the Production system. Thanks!"
