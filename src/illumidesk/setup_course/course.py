@@ -222,7 +222,7 @@ class Course:
             docker_volumes[str(self.grader_shared_folder)] = {'bind': f'/home/{self.grader_name}/shared'}
         self.client.containers.run(
             detach=True,
-            image=os.environ.get('GRADER_SERVICE_IMAGE'),
+            image=os.environ.get('DOCKER_GRADER_IMAGE') or 'illumidesk/grader-notebook:latest',
             command=['start-notebook.sh', f'--group=formgrade-{self.course_id}'],
             environment=[
                 f'JUPYTERHUB_SERVICE_NAME={self.course_id}',
