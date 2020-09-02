@@ -142,6 +142,9 @@ c.Authenticator.enable_auth_state = True
 # Limit memory
 c.Spawner.mem_limit = os.environ.get('DOCKER_SPAWN_MEM_LIMIT') or '2G'
 
+# End user image
+c.Spawner.image = os.environ.get('DOCKER_END_USER_IMAGE') or 'illumidesk/full-notebook:latest'
+
 ##########################################
 # END GENERAL SPAWNER
 ##########################################
