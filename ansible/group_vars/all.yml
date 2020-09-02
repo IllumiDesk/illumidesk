@@ -1,4 +1,10 @@
 ---
+# Set as pilot environment to enable announcements on all pages stating as such
+pilot_environment: "{{ pilot_environment_param | default('true')}}"
+
+# Set as pilot environment to enable announcements on all pages stating as such
+pilot_announcement_text: "{{ pilot_environment_text_param | default('WARNING: This is a demo environment. Contact hello@illumidesk.com if you would like access to the Production system. Thanks!')}}"
+
 # Ansible working directory on remote host
 working_dir: "{{ ansible_env.PWD }}/illumidesk_deployment"
 
