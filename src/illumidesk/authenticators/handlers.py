@@ -5,7 +5,8 @@ import re
 
 from jupyterhub.handlers import BaseHandler
 
-from oauthenticator.oauth2 import STATE_COOKIE_NAME, _serialize_state
+from oauthenticator.oauth2 import STATE_COOKIE_NAME
+from oauthenticator.oauth2 import _serialize_state
 from oauthenticator.oauth2 import guess_callback_uri
 from oauthenticator.oauth2 import OAuthLoginHandler
 from oauthenticator.oauth2 import OAuthCallbackHandler
@@ -126,6 +127,10 @@ class LTI13LoginHandler(OAuthLoginHandler):
         return self._state
 
     def set_state_cookie(self, state):
+        """
+        Overrides the base method to send the 'samesite' and 'secure' arguments and avoid the issues related with the use of iframes.
+        It depends of python 3.8
+        """
         self.set_secure_cookie(STATE_COOKIE_NAME, state, expires_days=1, httponly=True, samesite=None, secure=True)
 
     def post(self):

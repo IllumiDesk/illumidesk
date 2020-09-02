@@ -233,7 +233,7 @@ class LTI13LaunchValidator(LoggingConfigurable):
             )
 
             for claim, v in required_claims_by_message_type.items():
-                if claim not in jwt_decoded.keys():
+                if claim not in jwt_decoded:
                     raise HTTPError(400, 'Required claim %s not included in request' % claim)
             if not is_deep_linking:
                 # custom validations with resource launch
@@ -249,7 +249,7 @@ class LTI13LaunchValidator(LoggingConfigurable):
     def _validate_global_required_keys(self, jwt_decoded: Dict[str, Any],) -> bool:
         # does all the required keys exist?
         for claim, v in LTI13_GENERAL_REQUIRED_CLAIMS.items():
-            if claim not in jwt_decoded.keys():
+            if claim not in jwt_decoded:
                 raise HTTPError(400, 'Required claim %s not included in request' % claim)
         # some fixed values
         lti_version = jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/version')
@@ -290,7 +290,7 @@ class LTI13LaunchValidator(LoggingConfigurable):
           True if the validation is ok, false otherwise
         """
         for param in LTI13_LOGIN_REQUEST_ARGS:
-            if param not in args.keys():
+            if param not in args:
                 raise HTTPError(400, 'Required LTI 1.3 arg %s not included in request' % param)
             if not args.get(param):
                 raise HTTPError(400, 'Required LTI 1.3 arg %s does not have a value' % param)
