@@ -13,6 +13,9 @@ from illumidesk.lti13.auth import get_jwk
 
 from tornado import web
 
+from urllib.parse import urlencode
+from urllib.parse import quote
+
 
 class LTI13ConfigHandler(BaseHandler):
     """
@@ -144,14 +147,25 @@ class FileSelectHandler(BaseHandler):
         notebooks.sort()
         for f in notebooks:
             fpath = str(f.relative_to(self.course_shared_folder))
+            self.log.debug('Getting files fpath %s' % fpath)
+
             if fpath.startswith('.') or f.name.startswith('.'):
                 self.log.debug('Ignoring file %s' % fpath)
                 continue
+            # generate the assignment link that uses gitpuller
+            user_redirect_path = quote('/user-redirect/git-pull', safe='')
+            assignment_link_path = f'?next={user_redirect_path}'
+            urlpath_workspace = f'tree/{self.course_id}/{fpath}'
+            self.log.debug(f'urlpath_workspace:{urlpath_workspace}')
+            query_params_for_git = [
+                ('repo', f'/home/jovyan/shared/{self.course_id}'),
+                ('branch', 'master'),
+                ('urlpath', urlpath_workspace),
+            ]
+            encoded_query_params_without_safe_chars = quote(urlencode(query_params_for_git), safe='')
 
-            self.log.debug('Getting files fpath %s' % fpath)
-            url = f'https://{self.request.host}/user/{user.name}/notebooks/shared/{self.course_id}/{fpath}'
+            url = f'https://{self.request.host}/{assignment_link_path}?{encoded_query_params_without_safe_chars}'
             self.log.debug('URL to fetch files is %s' % url)
-            self.log.debug('Content items from fetched files are %s' % f.name)
             link_item_files.append(
                 {
                     'path': fpath,
