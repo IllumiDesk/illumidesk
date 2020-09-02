@@ -84,8 +84,13 @@ c.JupyterHub.redirect_to_server = False
 base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
 c.JupyterHub.base_url = base_url
 
+{% if pilot_environment is sameas true %}
 # redirect users to their servers by default
 c.JupyterHub.redirect_to_server = True
+{% else %}
+# redirect users to the home page by default
+c.JupyterHub.redirect_to_server = False
+{% endif %}
 
 ##########################################
 # END JUPYTERHUB APPLICATION
