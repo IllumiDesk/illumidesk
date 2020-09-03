@@ -63,11 +63,6 @@
   debug:
     msg: "authentication_type?: {{ authentication_type }}"
 
-- name: copy the base of jupyterhub configuration file with common settings
-  copy:
-   src: jupyterhub_config_base.py
-   dest: "{{ working_dir }}/jupyterhub_config_base.py"
-
 - name: copy the custom jupyterhub configuration file with lti v1.1 settings
   copy:
     src: jupyterhub_config_lti11.py
@@ -110,15 +105,15 @@
     path: "{{working_dir}}/keys/rsa_private.pem"
     mode: '0644'
 
-- name: create base jupyterhub dockerfile from template
-  template:
-    src: Dockerfile.jhub.j2
-    dest: "{{ working_dir }}/Dockerfile.jhub"
-
 - name: create the jupyterhub env var file from template
   template:
     src: env.jhub.j2
     dest: "{{ working_dir }}/env.jhub"
+
+- name: create the base of jupyterhub configuration file with common settings
+  template:
+    src: jupyterhub_config_base.py.j2
+    dest: "{{ working_dir }}/jupyterhub_config_base.py"
 
 - name: create base jupyterhub dockerfile from template
   template:
