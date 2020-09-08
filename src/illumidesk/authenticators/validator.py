@@ -17,10 +17,13 @@ from traitlets.config import LoggingConfigurable
 from typing import Any
 from typing import Dict
 
-from .constants import ILLUMIDESK_LTI13_REQUIRED_CLAIMS
+from .constants import ILLUMIDESK_LTI13_DEEP_LINKING_REQUIRED_CLAIMS, LTI13_GENERAL_REQUIRED_CLAIMS
+from .constants import ILLUMIDESK_LTI13_RESOURCE_LINK_REQUIRED_CLAIMS
 from .constants import LTI11_LAUNCH_PARAMS_REQUIRED
 from .constants import LTI11_OAUTH_ARGS
 from .constants import LTI13_LOGIN_REQUEST_ARGS
+from .constants import LTI13_RESOURCE_LINK_REQUIRED_CLAIMS
+from .constants import LTI13_DEEP_LINKING_REQUIRED_CLAIMS
 
 
 class LTI11LaunchValidator(LoggingConfigurable):
@@ -190,6 +193,16 @@ class LTI13LaunchValidator(LoggingConfigurable):
 
         return jwt.decode(id_token, key=key_from_jwks, verify=False, audience=audience)
 
+    def is_deep_link_launch(self, jwt_decoded: Dict[str, Any],) -> bool:
+        """
+        Returns whether or not the current launch is a deep linking launch.
+
+        :return: bool  Returns true if the current launch is a deep linking launch.
+        """
+        return (
+            jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/message_type', None) == 'LtiDeepLinkingRequest'
+        )
+
     def validate_launch_request(self, jwt_decoded: Dict[str, Any],) -> bool:
         """
         Validates that a given LTI 1.3 launch request has the required required claims The
@@ -209,30 +222,61 @@ class LTI13LaunchValidator(LoggingConfigurable):
           HTTPError if a required claim is not included in the dictionary or if the message_type and/or
           version claims do not have the correct value.
         """
-        for claim, v in ILLUMIDESK_LTI13_REQUIRED_CLAIMS.items():
-            if claim not in jwt_decoded.keys():
+        # first validate global required keys
+        if self._validate_global_required_keys(jwt_decoded):
+            # get the message type for additional validations
+            is_deep_linking = self.is_deep_link_launch(jwt_decoded)
+            required_claims_by_message_type = (
+                ILLUMIDESK_LTI13_DEEP_LINKING_REQUIRED_CLAIMS
+                if is_deep_linking
+                else ILLUMIDESK_LTI13_RESOURCE_LINK_REQUIRED_CLAIMS
+            )
+
+            for claim, v in required_claims_by_message_type.items():
+                if claim not in jwt_decoded:
+                    raise HTTPError(400, 'Required claim %s not included in request' % claim)
+            if not is_deep_linking:
+                # custom validations with resource launch
+                if jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/resource_link').get('id') == '':
+                    raise HTTPError(
+                        400,
+                        'Incorrect value %s for id in resource_link claim'
+                        % jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/resource_link').get('id'),
+                    )
+
+        return True
+
+    def _validate_global_required_keys(self, jwt_decoded: Dict[str, Any],) -> bool:
+        # does all the required keys exist?
+        for claim, v in LTI13_GENERAL_REQUIRED_CLAIMS.items():
+            if claim not in jwt_decoded:
                 raise HTTPError(400, 'Required claim %s not included in request' % claim)
-            if (
-                'https://purl.imsglobal.org/spec/lti/claim/message_type' in jwt_decoded.keys()
-                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/message_type')
-                != 'LtiResourceLinkRequest'
-            ):
-                raise HTTPError(400, 'Incorrect value %s for message type claim' % v)
-            if (
-                'https://purl.imsglobal.org/spec/lti/claim/version' in jwt_decoded.keys()
-                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/version') != '1.3.0'
-            ):
-                raise HTTPError(400, 'Incorrect value %s for version claim' % v)
-            if (
-                'https://purl.imsglobal.org/spec/lti/claim/resource_link' in jwt_decoded.keys()
-                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/resource_link').get('id') == ''
-            ):
-                raise HTTPError(400, 'Incorrect value %s for message type claim' % v)
-            if (
-                'https://purl.imsglobal.org/spec/lti/claim/context' in jwt_decoded.keys()
-                and jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/context').get('label') == ''
-            ):
-                raise HTTPError(400, 'Missing course context label %s for claim' % claim)
+        # some fixed values
+        lti_version = jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/version')
+        if lti_version != '1.3.0':
+            raise HTTPError(400, 'Incorrect value %s for version claim' % lti_version)
+
+        # validate context label
+        context_claim = jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/context', None)
+        context_label = (
+            jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/context').get('label')
+            if context_claim
+            else None
+        )
+        if context_label == '':
+            raise HTTPError(
+                400, 'Missing course context label for claim https://purl.imsglobal.org/spec/lti/claim/context'
+            )
+        # validate message type value
+        message_type = jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/message_type', None)
+        if (
+            message_type
+            != LTI13_RESOURCE_LINK_REQUIRED_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/message_type']
+            and message_type
+            != LTI13_DEEP_LINKING_REQUIRED_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/message_type']
+        ):
+            raise HTTPError(400, 'Incorrect value %s for version claim' % message_type)
+
         return True
 
     def validate_login_request(self, args: Dict[str, Any]) -> bool:
@@ -246,7 +290,7 @@ class LTI13LaunchValidator(LoggingConfigurable):
           True if the validation is ok, false otherwise
         """
         for param in LTI13_LOGIN_REQUEST_ARGS:
-            if param not in args.keys():
+            if param not in args:
                 raise HTTPError(400, 'Required LTI 1.3 arg %s not included in request' % param)
             if not args.get(param):
                 raise HTTPError(400, 'Required LTI 1.3 arg %s does not have a value' % param)

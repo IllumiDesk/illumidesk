@@ -7,6 +7,7 @@ from illumidesk.authenticators.handlers import LTI13LoginHandler
 
 from illumidesk.grades.handlers import SendGradesHandler
 
+from illumidesk.lti13.handlers import FileSelectHandler
 from illumidesk.lti13.handlers import LTI13ConfigHandler
 from illumidesk.lti13.handlers import LTI13JWKSHandler
 
@@ -42,6 +43,7 @@ c.JupyterHub.extra_handlers = [
     (r'/lti/launch$', LTI13LoginHandler),
     (r'/lti13/config$', LTI13ConfigHandler),
     (r'/lti13/jwks$', LTI13JWKSHandler),
+    (r'/lti13/file-selection$', FileSelectHandler),
 ]
 
 ##########################################

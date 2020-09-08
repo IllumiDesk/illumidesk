@@ -90,22 +90,30 @@ LTI13_AUTH_REQUEST_ARGS = [
     'state',
 ]
 
-# Required message claims
-# http://www.imsglobal.org/spec/lti/v1p3/#required-message-claims
-LTI13_REQUIRED_CLAIMS = {
-    'https://purl.imsglobal.org/spec/lti/claim/message_type': 'LtiResourceLinkRequest',
+LTI13_GENERAL_REQUIRED_CLAIMS = {
     'https://purl.imsglobal.org/spec/lti/claim/version': '1.3.0',
     'https://purl.imsglobal.org/spec/lti/claim/deployment_id': '',
     'https://purl.imsglobal.org/spec/lti/claim/target_link_uri': '',
-    'https://purl.imsglobal.org/spec/lti/claim/resource_link': {'id': '',},  # noqa: E231
     'https://purl.imsglobal.org/spec/lti/claim/roles': '',
+}
+
+# Required message claims
+# http://www.imsglobal.org/spec/lti/v1p3/#required-message-claims
+LTI13_RESOURCE_LINK_REQUIRED_CLAIMS = {
+    'https://purl.imsglobal.org/spec/lti/claim/message_type': 'LtiResourceLinkRequest',
+    'https://purl.imsglobal.org/spec/lti/claim/resource_link': {'id': '',},  # noqa: E231
+    **LTI13_GENERAL_REQUIRED_CLAIMS,
+}
+
+LTI13_DEEP_LINKING_REQUIRED_CLAIMS = {
+    'https://purl.imsglobal.org/spec/lti/claim/message_type': 'LtiDeepLinkingRequest',
+    **LTI13_GENERAL_REQUIRED_CLAIMS,
 }
 
 # Optional message claims
 # We don't need the role_scope_mentor claim and some platforms don't send this claim by default.
 # http://www.imsglobal.org/spec/lti/v1p3/#optional-message-claims
-LTI13_OPTIONAL_CLAIMS = {
-    'https://purl.imsglobal.org/spec/lti/claim/resource_link': {'description': '', 'title': '',},  # noqa: E231
+LTI13_GENERAL_OPTIONAL_CLAIMS = {
     'https://purl.imsglobal.org/spec/lti/claim/context': {
         'id': '',
         'label': '',
@@ -144,6 +152,11 @@ LTI13_OPTIONAL_CLAIMS = {
     },
 }
 
+LTI13_RESOURCE_LINK_OPTIONAL_CLAIMS = {
+    **LTI13_GENERAL_OPTIONAL_CLAIMS,
+    'https://purl.imsglobal.org/spec/lti/claim/resource_link': {'description': '', 'title': '',},  # noqa: E231
+}
+
 
 LTI13_LIS_CLAIMS = {
     'https://purl.imsglobal.org/spec/lti/claim/lis': {
@@ -155,15 +168,22 @@ LTI13_LIS_CLAIMS = {
     },
 }
 
+# Required claims for ResourceLinkRequest
 # For this setup to work properly, some optional claims are required.
-ILLUMIDESK_LTI13_REQUIRED_CLAIMS = {**LTI13_REQUIRED_CLAIMS, **LTI13_OPTIONAL_CLAIMS}
-ILLUMIDESK_LTI13_RESOURCE_LINKS = {
-    **LTI13_REQUIRED_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/resource_link'],
-    **LTI13_OPTIONAL_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/resource_link'],
+ILLUMIDESK_LTI13_RESOURCE_LINK_REQUIRED_CLAIMS = {
+    **LTI13_RESOURCE_LINK_REQUIRED_CLAIMS,
+    **LTI13_RESOURCE_LINK_OPTIONAL_CLAIMS,
 }
-ILLUMIDESK_LTI13_REQUIRED_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/resource_link'].update(
+ILLUMIDESK_LTI13_RESOURCE_LINKS = {
+    **LTI13_RESOURCE_LINK_REQUIRED_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/resource_link'],
+    **LTI13_RESOURCE_LINK_OPTIONAL_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/resource_link'],
+}
+ILLUMIDESK_LTI13_RESOURCE_LINK_REQUIRED_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/resource_link'].update(
     ILLUMIDESK_LTI13_RESOURCE_LINKS
 )
+
+# Required claims for DeepLinkingRequest
+ILLUMIDESK_LTI13_DEEP_LINKING_REQUIRED_CLAIMS = {**LTI13_DEEP_LINKING_REQUIRED_CLAIMS, **LTI13_GENERAL_OPTIONAL_CLAIMS}
 
 LTI13_ROLE_VOCABULARIES = {
     'SYSTEM_ROLES': {

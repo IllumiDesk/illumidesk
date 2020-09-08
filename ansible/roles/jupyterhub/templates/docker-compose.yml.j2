@@ -11,6 +11,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - {{mnt_root}}/{{org_name}}/home:/home
+      - {{mnt_root}}/{{org_name}}/shared:/shared
       - data:/data
       - ./reverse-proxy:/etc/traefik
       - ./keys:/secrets/keys
