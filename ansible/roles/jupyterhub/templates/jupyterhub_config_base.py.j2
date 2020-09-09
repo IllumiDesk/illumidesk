@@ -160,6 +160,10 @@ c.Spawner.mem_limit = os.environ.get('DOCKER_SPAWN_MEM_LIMIT') or '2G'
 # End user image
 c.Spawner.image = os.environ.get('DOCKER_END_USER_IMAGE') or 'illumidesk/full-notebook:latest'
 
+# Limit the container's use of CPU
+cpu_limit = os.environ.get('SPAWNER_CPU_LIMIT') or 0.5
+c.DockerSpawner.cpu_limit = float(cpu_limit)
+
 ##########################################
 # END GENERAL SPAWNER
 ##########################################
