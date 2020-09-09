@@ -128,6 +128,13 @@ You may customize your setup by customizing additional variables in the `hosts` 
 
 > **NOTE**: You may add any of the variables listed in `ansible/group_vars/all.yml` within your `hosts` file before running the `make deploy` command.
 
+## General JupyterHub Settings
+
+Most settings located in the JupyterHub configuration file (`jupyterhub_config.py`) have a set of opinionated defaults that can be changed by updating the configuration file itself. However there are two configuration options available that can be changed with the `hosts` file:
+
+- `admin_user`: the username that has access to the `Admin` section of the JupyterHub home page. This allows users to view running servers, stop/start the user servers, among other tasks.
+- `shutdown_on_logout`: when `True` (default), the user's server is shut down when tht user logs out of their session.
+
 ### LTI 1.3 Authenticator
 
 > **New in Version 0.6.0**: this setup supports user authentication with the [LTI 1.3 Core Specification](http://www.imsglobal.org/spec/lti/v1p3/) as of version 0.6.0. LTI 1.3 is built on top of OAuth2 and OIDC and therefore provides additional security features when compared to [LTI 1.1](https://www.imsglobal.org/specs/ltiv1p1).
@@ -445,6 +452,7 @@ The services included with this setup rely on environment variables to work prop
 | JUPYTERHUB_CRYPT_KEY | `string` | Cyptographic key used to encrypt cookies. | `<random_value>` |
 | JUPYTERHUB_API_TOKEN | `string` | API token used to authenticate grader service with JupyterHub. | `<random_value>` |
 | JUPYTERHUB_API_URL | `string` | Internal API URL corresponding to JupyterHub. | `http://jupyterhub:8081` |
+| JUPYTERHUB_SHUTDOWN_ON_LOGOUT | `string` |  Shut down the user's server when logging out | `True` |
 | LTI_CONSUMER_KEY | `string` | LTI 1.1 consumer key | `ild_test_consumer_key` |
 | LTI_SHARED_SECRET | `string` | LTI 1.1 shared secret | `ild_test_shared_secret` |
 | LTI13_AUTHORIZE_URL | `string` | LTI 1.3 authorization URL, such as `https://my.platform.domain/api/lti/authorize_redirect` | `''` |
