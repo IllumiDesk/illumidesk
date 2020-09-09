@@ -14,6 +14,7 @@ from tornado.web import RequestHandler
 
 from traitlets import Unicode
 
+from typing import Any
 from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
@@ -364,36 +365,29 @@ class LTI13Authenticator(OAuthenticator):
             if username == '':
                 raise HTTPError('Unable to set the username')
 
-            user_role = ''
+            # set role to learner role (by default) if instructor or learner/student roles aren't
+            # sent with the request
+            user_role = 'Learner'
             for role in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/roles']:
                 if role.find('Instructor') >= 1:
                     user_role = 'Instructor'
                 elif role.find('Learner') >= 1 or role.find('Student') >= 1:
                     user_role = 'Learner'
-            # set role to learner role if instructor or learner/student roles aren't
-            # sent with the request
-            if user_role == '':
-                user_role = 'Learner'
             self.log.debug('user_role is %s' % user_role)
 
-            lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
-            # Values for send-grades functionality
-            resource_link = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/resource_link']
-            resource_link_title = resource_link['title'] or ''
-            course_lineitems = ''
+            launch_return_url = ''
             if (
-                'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_decoded
-                and 'lineitems' in jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']
+                'https://purl.imsglobal.org/spec/lti/claim/launch_presentation' in jwt_decoded
+                and 'return_url' in jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/launch_presentation']
             ):
-                course_lineitems = jwt_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
-            nbgrader_service = NbGraderServiceHelper(course_id)
-            nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
-            if resource_link_title:
-                # resource_link_title_normalize = lti_utils.normalize_string(resource_link_title)
-                self.log.debug(
-                    'Creating a new assignment from the Authentication flow with title %s' % resource_link_title
-                )
-                nbgrader_service.create_assignment_in_nbgrader(resource_link_title)
+                launch_return_url = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/launch_presentation'][
+                    'return_url'
+                ]
+            # if there is a resource link request then process additional steps
+            if not validator.is_deep_link_launch(jwt_decoded):
+                process_additional_steps_for_resource_launch(self.log, course_id, jwt_decoded)
+
+            lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
 
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)
@@ -405,5 +399,29 @@ class LTI13Authenticator(OAuthenticator):
                     'course_id': course_id,
                     'user_role': user_role,
                     'lms_user_id': lms_user_id,
+                    'launch_return_url': launch_return_url,
                 },  # noqa: E231
             }
+
+
+def process_additional_steps_for_resource_launch(
+    logger: Any, course_id: str, jwt_body_decoded: Dict[str, Any],
+) -> None:
+    """
+    Executes additional processes with the claims that come only with LtiResourceLinkRequest
+    """
+    # Values for send-grades functionality
+    resource_link = jwt_body_decoded['https://purl.imsglobal.org/spec/lti/claim/resource_link']
+    resource_link_title = resource_link['title'] or ''
+    course_lineitems = ''
+    if (
+        'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint' in jwt_body_decoded
+        and 'lineitems' in jwt_body_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']
+    ):
+        course_lineitems = jwt_body_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
+    nbgrader_service = NbGraderServiceHelper(course_id)
+    nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
+    if resource_link_title:
+        # resource_link_title_normalize = lti_utils.normalize_string(resource_link_title)
+        logger.debug('Creating a new assignment from the Authentication flow with title %s' % resource_link_title)
+        nbgrader_service.create_assignment_in_nbgrader(resource_link_title)

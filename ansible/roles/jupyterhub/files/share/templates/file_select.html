@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Select file</title>
+  <link rel="stylesheet" href="{{ static_url("css/style.min.css") }}" type="text/css"/>
+  <script src="{{static_url("components/jquery/dist/jquery.min.js") }}" type="text/javascript" charset="utf-8"></script>
+  <script src="{{static_url("components/bootstrap/dist/js/bootstrap.min.js") }}" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+    <div class="row">
+        <div class="text-center">
+            Please select a file:
+        </div>
+    </div>
+    <div class="row">
+        <form action="{{ action_url }}" method="post" id="fileSelectionForm" role="form">
+            <input type="hidden" name="lti_message_type" value="ContentItemSelection" />
+            <ul class="list-group">
+                {% for file in files %}
+                <li class="list-group-item">
+                    <label>
+                        <input type="radio" name="content_items" id="url" value="{{ file.content_items|escape }}" />
+                        {{ file.path }}
+                    </label>
+                </li>
+                {% endfor %}
+            </ul>
+            <input type="submit" value="Accept" class="btn btn-jupyter form-control">
+        </form>
+    </div>  
+</body>
+</html>

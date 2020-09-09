@@ -5,6 +5,7 @@ import re
 
 from jupyterhub.handlers import BaseHandler
 
+from oauthenticator.oauth2 import STATE_COOKIE_NAME
 from oauthenticator.oauth2 import _serialize_state
 from oauthenticator.oauth2 import guess_callback_uri
 from oauthenticator.oauth2 import OAuthLoginHandler
@@ -103,12 +104,15 @@ class LTI13LoginHandler(OAuthLoginHandler):
         if not next_url:
             # try with the target_link_uri arg
             target_link = self.get_argument('target_link_uri', '')
-            self.log.debug(f'Trying to get the next-url from target_link_uri: {target_link}')
-            next_search = re.search('next=(.*)', target_link, re.IGNORECASE)
-            if next_search:
-                next_url = next_search.group(1)
-                # decode the some characters obtained with the link builder
-                next_url = unquote(next_url)
+            if 'next' in target_link:
+                self.log.debug(f'Trying to get the next-url from target_link_uri: {target_link}')
+                next_search = re.search('next=(.*)', target_link, re.IGNORECASE)
+                if next_search:
+                    next_url = next_search.group(1)
+                    # decode the some characters obtained with the link builder
+                    next_url = unquote(next_url)
+            elif not target_link.endswith('/hub'):
+                next_url = target_link
         if next_url:
             # avoid browsers treating \ as /
             next_url = next_url.replace('\\', quote('\\'))
@@ -121,6 +125,13 @@ class LTI13LoginHandler(OAuthLoginHandler):
         if self._state is None:
             self._state = _serialize_state({'state_id': uuid.uuid4().hex, 'next_url': next_url})
         return self._state
+
+    def set_state_cookie(self, state):
+        """
+        Overrides the base method to send the 'samesite' and 'secure' arguments and avoid the issues related with the use of iframes.
+        It depends of python 3.8
+        """
+        self.set_secure_cookie(STATE_COOKIE_NAME, state, expires_days=1, httponly=True, samesite=None, secure=True)
 
     def post(self):
         """
@@ -167,6 +178,7 @@ class LTI13CallbackHandler(OAuthCallbackHandler):
         """
         self.check_state()
         user = await self.login_user()
+        self.log.debug(f'user logged in: {user}')
         if user is None:
             raise HTTPError(403, 'User missing or null')
         self.redirect(self.get_next_url(user))
