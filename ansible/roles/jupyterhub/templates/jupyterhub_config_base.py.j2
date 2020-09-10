@@ -167,6 +167,10 @@ c.Spawner.mem_limit = os.environ.get('DOCKER_SPAWN_MEM_LIMIT') or '2G'
 # End user image
 c.Spawner.image = os.environ.get('DOCKER_END_USER_IMAGE') or 'illumidesk/full-notebook:latest'
 
+# Limit the container's use of CPU
+cpu_limit = os.environ.get('SPAWNER_CPU_LIMIT') or 0.5
+c.DockerSpawner.cpu_limit = float(cpu_limit)
+
 ##########################################
 # END GENERAL SPAWNER
 ##########################################
@@ -215,7 +219,8 @@ if shared_folder_enabled.lower() in ('true', '1'):
 c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 
 # start the container with root so we can update uid/gid using the docker-stacks hooks
-c.DockerSpawner.extra_create_kwargs = {'user': '0'}
+c.DockerSpawner.extra_create_kwargs.update({ 'user': 'root'})
+
 
 # these env vars are set within the docker image but add them here for good measure
 c.DockerSpawner.environment = {'NB_UID': '1000', 'NB_GID': '100', 'NB_USER': 'jovyan'}

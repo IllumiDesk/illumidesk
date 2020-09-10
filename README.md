@@ -297,6 +297,13 @@ By default this setup includes the `IllumiDeskDockerSpawner` class. However, you
 
 **Note**: the user is redirected to their server by default with `JupyterHub.redirect_to_server = True`.
 
+#### General Spawner Settings
+
+Most settings located in the JupyterHub configuration file (`jupyterhub_config.py`) have a set of opinionated defaults that can be changed by updating the configuration file itself. However there are two configuration options available that can be changed with the `hosts` file:
+
+- `mem_limit`: [limit the amount of memory](https://jupyterhub.readthedocs.io/en/stable/reference/spawners.html#memory-limits-guarantees) (RAM) available for end-user containers. For example, entering `2G` will limit the user to two (2) gigabytes of RAM.
+- `cpu_limit`: [limit access](https://jupyterhub.readthedocs.io/en/stable/reference/spawners.html#cpu-limits-guarantees) to available virtual CPUs. For example, entering `0.5` will limit the user to 50% of one of the available virtual CPUs in the system.
+
 #### IllumiDeskDockerSpawner
 
 The `IllumiDeskDockerSpawner` interprets LTI-based roles to determine which container to launch based on the user's role. If used with `nbgrader`, this class provides users with a container prepared for students to fetch and submit assignment and instructors with access the shared grader service for each course.
@@ -471,6 +478,7 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
 | SPAWNER_MEM_LIMIT | `string` | Spawner memory limit | `2G` |
+| SPAWNER_CPU_LIMIT | `string` | Spawner cpu limit | `0.5` |
 
 ### Environment Variables pertaining to setup-course service, located in `env.setup-course`
 

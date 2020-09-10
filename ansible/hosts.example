@@ -113,3 +113,6 @@ all:
       ## Spawner
       # uncomment and add your preferred memory limit settings for user workspaces
       # spawner_mem_limit: 2G
+
+      # uncomment and add your preferred cpu limit settings for user workspaces
+      # spawner_cpu_limit: 0.5
