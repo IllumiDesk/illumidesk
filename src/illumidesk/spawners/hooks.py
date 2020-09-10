@@ -8,9 +8,9 @@ from illumidesk.authenticators.utils import user_is_an_instructor
 
 def custom_auth_state_hook(spawner: Spawner, auth_state: dict) -> None:
     """
-    Customized hook to assign USER_ROLE environment variable to LTI user role.
-    The USER_ROLE environment variable is used to select the notebook image based
-    on the user's role.
+    Customized hook to:
+    - set environment variables, for example the USER_ROLE from LTI user role.
+    - obtain the course_id from auth_state to add the shared folder in the volumes list dynamically
     """
     if not auth_state:
         raise ValueError('auth_state not enabled.')
