@@ -102,6 +102,28 @@ async def test_authenticator_returns_course_id_in_auth_state_with_valid_resource
 
 
 @pytest.mark.asyncio
+async def test_authenticator_returns_auth_state_with_course_id_normalized(
+    auth_state_dict,
+    make_lti13_resource_link_request,
+    build_lti13_jwt_id_token,
+    make_mock_request_handler,
+    mock_nbhelper,
+):
+    """
+    Do we get a valid course_id when receiving a valid resource link request?
+    """
+    authenticator = LTI13Authenticator()
+    request_handler = make_mock_request_handler(RequestHandler, authenticator=authenticator)
+    # change the context label to uppercase
+    link_request = make_lti13_resource_link_request
+    link_request['https://purl.imsglobal.org/spec/lti/claim/context']['label'] = 'CourseID-WITH_LARGE NAME'
+    with patch.object(RequestHandler, 'get_argument', return_value=build_lti13_jwt_id_token(link_request)):
+        with patch.object(LTI13LaunchValidator, 'validate_launch_request', return_value=True):
+            result = await authenticator.authenticate(request_handler, None)
+            assert result['auth_state']['course_id'] == 'courseid-with_largen'
+
+
+@pytest.mark.asyncio
 async def test_authenticator_returns_auth_state_name_from_lti13_email_claim(
     make_lti13_resource_link_request, build_lti13_jwt_id_token, make_mock_request_handler, mock_nbhelper
 ):
