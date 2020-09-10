@@ -73,3 +73,4 @@ shared_folder_enabled: "{{ shared_folder_enabled_param | default('true') }}"
 
 # spawner
 spawner_mem_limit: "{{ spawner_mem_limit_param | default('2G') }}"
+spawner_cpu_limit: "{{ spawner_cpu_limit_param | default('0.5') }}"

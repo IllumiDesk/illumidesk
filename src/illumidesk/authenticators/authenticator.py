@@ -338,6 +338,7 @@ class LTI13Authenticator(OAuthenticator):
 
         if validator.validate_launch_request(jwt_decoded):
             course_id = jwt_decoded['https://purl.imsglobal.org/spec/lti/claim/context']['label']
+            course_id = lti_utils.normalize_string(course_id)
             self.log.debug('Normalized course label is %s' % course_id)
             username = ''
             if 'email' in jwt_decoded and jwt_decoded['email']:
