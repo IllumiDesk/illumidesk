@@ -1,6 +1,8 @@
 import os
 import sys
 
+from distutils.util import strtobool
+
 from dockerspawner import DockerSpawner  # noqa: F401
 
 from illumidesk.apis.announcement_service import ANNOUNCEMENT_JHUB_SERVICE_DEFINITION
@@ -99,6 +101,11 @@ c.JupyterHub.redirect_to_server = False
 # JupyterHub's base url
 base_url = os.environ.get('JUPYTERHUB_BASE_URL') or ''
 c.JupyterHub.base_url = base_url
+
+# Shutdown servers on logout
+# convert string to boolean if the value comes from the env var
+shutdown_on_logout = os.environ.get('JUPYTERHUB_SHUTDOWN_ON_LOGOUT') or 'True'
+c.JupyterHub.shutdown_on_logout = bool(strtobool(shutdown_on_logout))
 
 ##########################################
 # END JUPYTERHUB APPLICATION
