@@ -10,5 +10,5 @@ pytest-cov==2.10.1
 pytest-html==2.1.1
 pytest-metadata==1.10.0
 pytest-mock==3.3.1
-quart==0.13.0
+quart==0.13.1
 requests==2.24.0
