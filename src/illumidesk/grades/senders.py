@@ -3,6 +3,7 @@ import json
 import logging
 import time
 import os
+import re
 
 from datetime import datetime
 
@@ -164,16 +165,50 @@ class LTI13GradeSender(GradesBaseSender):
         nbgrader_service = NbGraderServiceHelper(course_id)
         course = nbgrader_service.get_course()
         self.course = course
+        self.all_lineitems = []
+
+    def _find_next_url(self, link_header: str) -> str:
+        """
+        Extract the url value from link header value
+        """
+        # split the paths
+        next_url = [n for n in link_header.split(',') if 'next' in n]
+        if next_url:
+            # get only one
+            next_url = next_url[0]
+            print('There are more lineitems in:', next_url)
+            link_regex = re.compile(
+                "((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)", re.DOTALL
+            )  # noqa W605
+            links = re.findall(link_regex, next_url)
+            if links:
+                return links[0][0]
+
+    async def _get_lineitems_from_url(self, url: str) -> None:
+        """
+        Fetch the lineitems from specific url and add them to general list
+        """
+        items = []
+        if not url:
+            return
+        client = AsyncHTTPClient()
+        resp = await client.fetch(url, method='GET', headers=self.headers)
+        items = json.loads(resp.body)
+        if items:
+            self.all_lineitems.extend(items)
+            headers = resp.headers
+            # check if there is more items/pages
+            if 'Link' in headers and 'next' in headers['Link']:
+                next_url = self._find_next_url(headers['link'])
+                await self._get_lineitems_from_url(next_url)
 
     async def _get_line_item_info_by_assignment_name(self) -> str:
-        client = AsyncHTTPClient()
-        resp = await client.fetch(self.course.lms_lineitems_endpoint, headers=self.headers)
-        items = json.loads(resp.body)
-        logger.debug(f'LineItems retrieved: {items}')
-        if not items or isinstance(items, list) is False:
+        self._get_lineitems_from_url(self.course.lms_lineitems_endpoint)
+        if not self.all_lineitems:
             raise GradesSenderMissingInfoError(f'No line-items were detected for this course: {self.course_id}')
+        logger.debug(f'LineItems retrieved: {self.all_lineitems}')
         lineitem_matched = None
-        for item in items:
+        for item in self.all_lineitems:
             item_label = item['label']
             if self.assignment_name.lower() == item_label.lower() or self.assignment_name.lower() == LTIUtils().normalize_string(
                 item_label
@@ -184,6 +219,7 @@ class LTI13GradeSender(GradesBaseSender):
         if lineitem_matched is None:
             raise GradesSenderMissingInfoError(f'No lineitem matched with the assignment name: {self.assignment_name}')
 
+        client = AsyncHTTPClient()
         resp = await client.fetch(lineitem_matched, headers=self.headers)
         lineitem_info = json.loads(resp.body)
         logger.debug(f'Fetched lineitem info from lms {lineitem_info}')
