@@ -178,7 +178,7 @@ class LTI13GradeSender(GradesBaseSender):
             next_url = next_url[0]
             print('There are more lineitems in:', next_url)
             link_regex = re.compile(
-                "((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)", re.DOTALL
+                r"((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)", re.DOTALL
             )  # noqa W605
             links = re.findall(link_regex, next_url)
             if links:
@@ -203,7 +203,7 @@ class LTI13GradeSender(GradesBaseSender):
                 await self._get_lineitems_from_url(next_url)
 
     async def _get_line_item_info_by_assignment_name(self) -> str:
-        self._get_lineitems_from_url(self.course.lms_lineitems_endpoint)
+        await self._get_lineitems_from_url(self.course.lms_lineitems_endpoint)
         if not self.all_lineitems:
             raise GradesSenderMissingInfoError(f'No line-items were detected for this course: {self.course_id}')
         logger.debug(f'LineItems retrieved: {self.all_lineitems}')
