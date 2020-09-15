@@ -68,6 +68,11 @@ all:
       # the normalized username once logged into the system.
       # admin_user: foo
 
+      # uncomment and change the value to False if you would like to leave the user's server
+      # (container) in the running state after the user logs out of their session. This also applies
+      # to when the cookie-based session expires (14 days by default).
+      # shutdown_on_logout = True
+
       ## Authentication settings
       #-------------------
 

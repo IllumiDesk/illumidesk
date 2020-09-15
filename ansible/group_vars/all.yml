@@ -35,6 +35,9 @@ docker_setup_course_dockerfile: "{{ docker_setup_course_dockerfile_param | defau
 # Admin users
 admin_user: "{{ admin_user_param | default('admin') }}"
 
+# Shutdown on logout
+shutdown_on_logout: "{{ shutdown_on_logout_param | default('True') }}"
+
 # Base URL. Add the / character before the value, for example /acme.
 base_url: "{{ base_url_param | default('') }}"
 
