@@ -2,6 +2,8 @@ import pytest
 
 from unittest.mock import patch
 
+from tornado.httputil import HTTPHeaders
+
 from illumidesk.grades.senders import LTIGradeSender
 from illumidesk.grades.senders import LTI13GradeSender
 from illumidesk.grades.exceptions import GradesSenderCriticalError
@@ -98,10 +100,70 @@ class TestLTI13GradesSender:
         sut = LTI13GradeSender('course-id', 'lab')
 
         access_token_result = {'token_type': '', 'access_token': ''}
-        with patch('illumidesk.grades.senders.get_lms_access_token', return_value=access_token_result) as mock_method:
+        with patch('illumidesk.grades.senders.get_lms_access_token', return_value=access_token_result):
 
             with patch.object(
                 LTI13GradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [{'score': 10}])
             ):
                 with pytest.raises(GradesSenderMissingInfoError):
                     await sut.send_grades()
+
+    @pytest.mark.asyncio
+    async def test_get_lineitems_from_url_method_does_fetch_lineitems_from_url(
+        self, lti_config_environ, mock_nbhelper, make_http_response, make_mock_request_handler
+    ):
+        local_handler = make_mock_request_handler(RequestHandler)
+        sut = LTI13GradeSender('course-id', 'lab')
+        lineitems_url = 'https://example.canvas.com/api/lti/courses/111/line_items'
+        with patch.object(
+            AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)
+        ) as mock_client:
+            await sut._get_lineitems_from_url(lineitems_url)
+            assert mock_client.called
+            mock_client.assert_called_with(lineitems_url, method='GET', headers={})
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "http_async_httpclient_with_simple_response",
+        [[{"id": "value", "scoreMaximum": 0.0, "label": "label", "resourceLinkId": "abc"}]],
+        indirect=True,
+    )
+    async def test_get_lineitems_from_url_method_sets_all_lineitems_property(
+        self, lti_config_environ, mock_nbhelper, http_async_httpclient_with_simple_response
+    ):
+        sut = LTI13GradeSender('course-id', 'lab')
+
+        await sut._get_lineitems_from_url('https://example.canvas.com/api/lti/courses/111/line_items')
+        assert len(sut.all_lineitems) == 1
+
+    @pytest.mark.asyncio
+    async def test_get_lineitems_from_url_method_calls_itself_recursively(
+        self, lti_config_environ, mock_nbhelper, make_http_response, make_mock_request_handler
+    ):
+        local_handler = make_mock_request_handler(RequestHandler)
+        sut = LTI13GradeSender('course-id', 'lab')
+
+        lineitems_body_result = {
+            'body': [{"id": "value", "scoreMaximum": 0.0, "label": "label", "resourceLinkId": "abc"}]
+        }
+        lineitems_body_result['headers'] = HTTPHeaders(
+            {
+                'content-type': 'application/vnd.ims.lis.v2.lineitemcontainer+json',
+                'link': '<https://learning.flatironschool.com/api/lti/courses/691/line_items?page=2&per_page=10>; rel="next"',
+            }
+        )
+
+        with patch.object(
+            AsyncHTTPClient,
+            'fetch',
+            side_effect=[
+                make_http_response(handler=local_handler.request, **lineitems_body_result),
+                make_http_response(handler=local_handler.request, body=lineitems_body_result['body']),
+            ],
+        ) as mock_fetch:
+            # initial call then the method will detect the Link header to get the next items
+            await sut._get_lineitems_from_url('https://example.canvas.com/api/lti/courses/111/line_items')
+            # assert the lineitems number
+            assert len(sut.all_lineitems) == 2
+            # assert the number of calls
+            assert mock_fetch.call_count == 2

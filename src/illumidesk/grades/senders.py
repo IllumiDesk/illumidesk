@@ -166,6 +166,7 @@ class LTI13GradeSender(GradesBaseSender):
         course = nbgrader_service.get_course()
         self.course = course
         self.all_lineitems = []
+        self.headers = {}
 
     def _find_next_url(self, link_header: str) -> str:
         """
