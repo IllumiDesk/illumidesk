@@ -212,10 +212,6 @@ c.DockerSpawner.volumes = {
     f'{mnt_root}/{org_name}/exchange': exchange_dir,
 }
 
-# add the shared folder if it was required
-shared_folder_enabled = os.environ.get('SHARED_FOLDER_ENABLED') or 'False'
-if shared_folder_enabled.lower() in ('true', '1'):
-    c.DockerSpawner.volumes[f'{mnt_root}/{org_name}' + '/shared/'] = notebook_dir + '/shared'
 c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 
 # start the container with root so we can update uid/gid using the docker-stacks hooks
