@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 0.10.0 (2020-09-17)
+
+
+### Features
+
+* Add announcement for pilot environments ([#317](https://github.com/IllumiDesk/illumidesk/issues/317)) ([3c1a9d2](https://github.com/IllumiDesk/illumidesk/commit/3c1a9d264499d9a6340f4438ba98227a03b26b1e))
+* Add grader header and footer templates ([#305](https://github.com/IllumiDesk/illumidesk/issues/305)) ([f2be08a](https://github.com/IllumiDesk/illumidesk/commit/f2be08abbbd29871c63c5273e0eb1dd5fb34564c))
+* Add option to shutdown server upon logout ([#322](https://github.com/IllumiDesk/illumidesk/issues/322)) ([f751c67](https://github.com/IllumiDesk/illumidesk/commit/f751c6757d6589711327e2f01516cece33e8b1a4))
+* DeepLinking request support to allow file selection ([#308](https://github.com/IllumiDesk/illumidesk/issues/308)) ([828b008](https://github.com/IllumiDesk/illumidesk/commit/828b0086bb3420f6d2ecde0c21d3d27dec0f25c7))
+
+
+### Bug Fixes
+
+* Fetch all lineitems using the pagination ([#328](https://github.com/IllumiDesk/illumidesk/issues/326)) ([6626af4](https://github.com/IllumiDesk/illumidesk/commit/6626af458997d239e4ea788dc960ab45d8cb34d2))
+* Set the course id in auth_state with the normalized value ([#326](https://github.com/IllumiDesk/illumidesk/issues/326)) ([858e0f3](https://github.com/IllumiDesk/illumidesk/commit/858e0f3be1130d03ecdfd2f7a9a89922138a04f0))
+
+
 ### 0.9.1 (2020-08-25)
 
 
