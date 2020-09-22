@@ -59,16 +59,22 @@ def app():
 
 @pytest.fixture(scope='function')
 def mock_nbhelper():
-    with patch.multiple(
-        'illumidesk.apis.nbgrader_service.NbGraderServiceHelper',
-        __init__=lambda x, y: None,
-        update_course=Mock(return_value=None),
-        create_assignment_in_nbgrader=Mock(return_value=None),
-        get_course=Mock(
-            return_value=Course(id='123', lms_lineitems_endpoint='canvas.docker.com/api/lti/courses/1/line_items')
-        ),
-    ) as mock_nb:
-        yield mock_nb
+    with patch('shutil.chown'):
+        with patch('pathlib.Path.mkdir'):
+            with patch('illumidesk.apis.nbgrader_service.Gradebook'):
+                with patch.multiple(
+                    'illumidesk.apis.nbgrader_service.NbGraderServiceHelper',
+                    # __init__=lambda x, y: None,
+                    update_course=Mock(return_value=None),
+                    add_user_to_nbgrader_gradebook=Mock(return_value=None),
+                    create_assignment_in_nbgrader=Mock(return_value=None),
+                    get_course=Mock(
+                        return_value=Course(
+                            id='123', lms_lineitems_endpoint='canvas.docker.com/api/lti/courses/1/line_items'
+                        )
+                    ),
+                ) as mock_nb:
+                    yield mock_nb
 
 
 @pytest.fixture(scope='function')

@@ -67,11 +67,12 @@ async def setup_course_hook(
         raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
     # normalize the name and course_id strings in authentication dictionary
     course_id = lti_utils.normalize_string(authentication['auth_state']['course_id'])
+    nb_service = NbGraderServiceHelper(course_id)
     username = lti_utils.normalize_string(authentication['name'])
     lms_user_id = authentication['auth_state']['lms_user_id']
     user_role = authentication['auth_state']['user_role']
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
-    await jupyterhub_api.add_user_to_nbgrader_gradebook(course_id, username, lms_user_id)
+    nb_service.add_user_to_nbgrader_gradebook(username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
     if user_is_a_student(user_role):
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook

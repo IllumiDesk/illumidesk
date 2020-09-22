@@ -39,6 +39,28 @@ class NbGraderServiceHelper:
             )
             shutil.chown(str(self.gradebook_path), user=self.uid, group=self.gid)
 
+    def add_user_to_nbgrader_gradebook(self, username: str, lms_user_id: str) -> None:
+        """
+        Adds a user to the nbgrader gradebook database for the course.
+
+        Args:
+            username: The user's username
+            lms_user_id: The user's id on the LMS
+        Raises:
+            InvalidEntry: when there was an error adding the user to the database
+        """
+        if not username:
+            raise ValueError('username missing')
+        if not lms_user_id:
+            raise ValueError('lms_user_id missing')
+
+        with Gradebook(f'sqlite:///{self.gradebook_path}', course_id=self.course_id) as gb:
+            try:
+                gb.update_or_create_student(username, lms_user_id=lms_user_id)
+                self.log.debug('Added user %s with lms_user_id %s to gradebook' % (username, lms_user_id))
+            except InvalidEntry as e:
+                self.log.debug('Error during adding student to gradebook: %s' % e)
+
     def update_course(self, **kwargs) -> None:
         with Gradebook(f'sqlite:///{self.gradebook_path}', course_id=self.course_id) as gb:
             gb.update_course(self.course_id, **kwargs)

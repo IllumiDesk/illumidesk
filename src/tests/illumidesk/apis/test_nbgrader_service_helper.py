@@ -101,3 +101,19 @@ def test_create_assignment_in_nbgrader_method_fixes_assignment_directory_permiss
         sut.create_assignment_in_nbgrader('lab-abc')
         assignment_dir = os.path.abspath(Path(sut.course_dir, 'source', 'lab-abc'))
         mock_chown.assert_any_call(assignment_dir, user=10001, group=100)
+
+
+@patch('shutil.chown')
+@patch('pathlib.Path.mkdir')
+@patch('illumidesk.apis.nbgrader_service.Gradebook')
+def test_add_user_to_nbgrader_gradebook_raises_error_when_empty(mock_gradebook, mock_path_mkdir, mock_chown):
+    """
+    Does add_user_to_nbgrader_gradebook method accept an empty username, or lms user id?
+    """
+    with pytest.raises(ValueError):
+        sut = NbGraderServiceHelper('abc')
+        sut.add_user_to_nbgrader_gradebook(username='', lms_user_id='abc123')
+
+    with pytest.raises(ValueError):
+        sut = NbGraderServiceHelper('abc')
+        sut.add_user_to_nbgrader_gradebook(username='user1', lms_user_id='')
