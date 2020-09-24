@@ -14,7 +14,7 @@ from pathlib import Path
 from nbgrader.api import Gradebook, MissingEntry
 
 from tornado.httpclient import AsyncHTTPClient
-from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
+from illumidesk.apis.nbgrader_service import NbGraderServicePostgresHelper
 from illumidesk.authenticators.utils import LTIUtils
 
 from illumidesk.lti13.auth import get_lms_access_token
@@ -162,7 +162,7 @@ class LTI13GradeSender(GradesBaseSender):
         self.lms_token_url = os.environ['LTI13_TOKEN_URL']
         self.lms_client_id = os.environ['LTI13_CLIENT_ID']
         # retrieve the course entity from nbgrader-gradebook
-        nbgrader_service = NbGraderServiceHelper(course_id)
+        nbgrader_service = NbGraderServicePostgresHelper(course_id)
         course = nbgrader_service.get_course()
         self.course = course
         self.all_lineitems = []
