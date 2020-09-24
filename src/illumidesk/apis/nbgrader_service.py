@@ -106,12 +106,11 @@ class NbGraderServicePostgresHelper(NbGraderServiceBaseHelper):
         super(NbGraderServicePostgresHelper, self).__init__(course_id)
         self.org_name = os.environ.get('ORGANIZATION_NAME') or 'my-org'
 
-        # get DATABASE_URL FROM ENV-VARS
-        self.db_user = os.environ.get('POSTGRES_USER')
-        self.db_password = os.environ.get('POSTGRES_PASSWORD')
-        self.db_host = os.environ.get('POSTGRES_HOST')
-        # normalize org_name to be used as db_name
-        self.db_name = 'nb_' + self.org_name.lower().replace('-', '_').replace(' ', '_')
+        # get NBGRADER DATABASE_URL FROM ENV-VARS
+        self.db_host = os.environ.get('POSTGRES_NB_HOST')
+        self.db_user = os.environ.get('POSTGRES_NB_USER')
+        self.db_password = os.environ.get('POSTGRES_NB_PASSWORD')
+        self.db_name = os.environ.get('POSTGRES_NB_DB')
 
         self.db_url = PG_DB_FORMAT.format(
             user=self.db_user, password=self.db_password, host=self.db_host, db=self.db_name
