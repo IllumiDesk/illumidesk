@@ -77,3 +77,9 @@ shared_folder_enabled: "{{ shared_folder_enabled_param | default('true') }}"
 # spawner
 spawner_mem_limit: "{{ spawner_mem_limit_param | default('2G') }}"
 spawner_cpu_limit: "{{ spawner_cpu_limit_param | default('0.5') }}"
+
+# Postgres settings for NBgrader
+postgres_nb_host: "{{ postgres_nb_host_param | default('localhost') }}"
+postgres_nb_user: "{{ postgres_nb_user_param | default('postgres') }}"
+postgres_nb_password: "{{ postgres_nb_password_param | default('postgres') }}"
+postgres_nb_dbname: "{{ postgres_nb_dbname_param | default('nb_' + org_name) | lower | replace('-', '_') }}"
