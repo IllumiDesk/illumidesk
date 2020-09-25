@@ -6,6 +6,7 @@ import pytest
 from unittest.mock import patch
 
 from docker.errors import NotFound
+from illumidesk.apis.nbgrader_service import NbGraderServicePostgresHelper
 
 from illumidesk.setup_course.course import Course
 from illumidesk.setup_course.constants import NBGRADER_HOME_CONFIG_TEMPLATE
@@ -218,7 +219,9 @@ def test_nbgrader_home_config_path_is_created_with_template(setup_course_environ
         with course.nbgrader_home_config_path.open('r') as nbgrader_template:
             content = nbgrader_template.read()
             assert content == NBGRADER_HOME_CONFIG_TEMPLATE.format(
-                grader_name=course.grader_name, course_id=course.course_id
+                grader_name=course.grader_name,
+                course_id=course.course_id,
+                db_url=NbGraderServicePostgresHelper(course.course_id).db_url,
             )
 
 

@@ -133,9 +133,13 @@ class Course:
         logger.debug('Change course jupyter config permissions to %s:%s' % (self.uid, self.gid))
 
         logger.debug('Grader home nbgrader_config.py path %s' % self.nbgrader_home_config_path)
-        nbgrader_config = NBGRADER_HOME_CONFIG_TEMPLATE.format(grader_name=self.grader_name, course_id=self.course_id)
-        # append the db_url setting
-        nbgrader_config += f"\nc.CourseDirectory.db_url = '{NbGraderServicePostgresHelper(self.course_id).db_url}'\n"
+        # format the config file with current settings/values and append the db_url setting
+        nbgrader_config = NBGRADER_HOME_CONFIG_TEMPLATE.format(
+            grader_name=self.grader_name,
+            course_id=self.course_id,
+            db_url=NbGraderServicePostgresHelper(self.course_id).db_url,
+        )
+
         self.nbgrader_home_config_path.write_text(nbgrader_config)
         shutil.chown(str(self.nbgrader_home_config_path), user=self.uid, group=self.gid)
         logger.debug(
