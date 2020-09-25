@@ -19,7 +19,7 @@ docker_jhub_base_image: "{{ docker_jhub_base_image_param | default('illumidesk/j
 docker_illumidesk_jhub_image: "{{ docker_illumidesk_jhub_image_param | default('illumidesk/jupyterhub:latest') }}"
 
 # illumidesk notebooks base image
-docker_illumidesk_end_user_image: "{{ docker_illumidesk_end_user_image_param | default('illumidesk/full-notebook:latest') }}"
+docker_illumidesk_end_user_image: "{{ docker_illumidesk_end_user_image_param | default('illumidesk/illumidesk-notebook:latest') }}"
 
 # illumidesk grader notebook image
 docker_illumidesk_grader_image: "{{ docker_illumidesk_grader_image_param | default('illumidesk/grader-notebook:latest') }}"

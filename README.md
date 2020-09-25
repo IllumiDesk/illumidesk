@@ -450,8 +450,8 @@ The services included with this setup rely on environment variables to work prop
 
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
-| DOCKER_END_USER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/base-notebook:latest` |
-| DOCKER_GRADER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/base-notebook:latest` |
+| DOCKER_END_USER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/illumidesk-notebook:latest` |
+| DOCKER_GRADER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/grader-notebook:latest` |
 | DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |
 | DOCKER_NOTEBOOK_DIR | `string` | Working directory for Jupyter Notebooks | `/home/jovyan` |
 | EXCHANGE_DIR | `string` | Exchange directory path  | `/srv/nbgrader/exchange` |
