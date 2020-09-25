@@ -114,7 +114,7 @@ Click on the `Grader Console` tab and follow the steps available within the nbgr
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
-* **Databases**: This setup relies on a standard `postgres` database running in its own container for the JupyterHub application and another separate and optional Postgres database for lab environments (useful to connect from user notebooks).
+* **Databases**: This setup relies on a standard `postgres` database running in its own container for the JupyterHub application, another separate and optional Postgres database for lab environments (useful to connect from user notebooks) and the last one `postgres` database for the Nbgrader application to manage the courses, students and assignments with a better performance.
 
 * **Network**: An external bridge network named `jupyter-network` is used by default. The grader service and the user notebooks are attached to this network.
 
@@ -479,6 +479,10 @@ The services included with this setup rely on environment variables to work prop
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
 | SPAWNER_MEM_LIMIT | `string` | Spawner memory limit | `2G` |
 | SPAWNER_CPU_LIMIT | `string` | Spawner cpu limit | `0.5` |
+| POSTGRES_NB_HOST | `string` | Postgres host for Nbgrader |  |
+| POSTGRES_NB_USER | `string` | Postgres username for Nbgrader |  |
+| POSTGRES_NB_PASSWORD | `string` | Postgres password for Nbgrader |  |
+| POSTGRES_NB_DB | `string` | Postgres database name for nbgrader|  |
 
 ### Environment Variables pertaining to setup-course service, located in `env.setup-course`
 
@@ -495,6 +499,10 @@ The services included with this setup rely on environment variables to work prop
 | NB_UID | `string` | Notebook grader user id | `10001` |
 | NB_GID | `string` | Notebook grader user id | `100` |
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
+| POSTGRES_NB_HOST | `string` | Postgres host for Nbgrader |  |
+| POSTGRES_NB_USER | `string` | Postgres username for Nbgrader |  |
+| POSTGRES_NB_PASSWORD | `string` | Postgres password for Nbgrader |  |
+| POSTGRES_NB_DB | `string` | Postgres database name for nbgrader|  |
 
 ---
 
