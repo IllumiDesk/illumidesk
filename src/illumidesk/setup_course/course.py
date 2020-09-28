@@ -120,6 +120,7 @@ class Course:
         logger.debug(
             'Creating grader directory and permissions with path %s to %s:%s ' % (self.grader_root, self.uid, self.gid)
         )
+        self.grader_root.mkdir(parents=True, exist_ok=True)
         shutil.chown(str(self.grader_root), user=self.uid, group=self.gid)
         self.course_root.mkdir(parents=True, exist_ok=True)
         logger.debug(
