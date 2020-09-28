@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.announcement_service import AnnouncementService
-from illumidesk.apis.nbgrader_service import NbGraderServicePostgresHelper
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator
@@ -157,7 +157,7 @@ async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_
 
     with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
         with patch.object(
-            NbGraderServicePostgresHelper, 'add_user_to_nbgrader_gradebook', return_value=None
+            NbGraderServiceHelper, 'add_user_to_nbgrader_gradebook', return_value=None
         ) as mock_add_user_to_nbgrader_gradebook:
             with patch.object(
                 AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)

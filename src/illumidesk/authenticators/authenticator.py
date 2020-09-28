@@ -19,7 +19,7 @@ from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.announcement_service import AnnouncementService
-from illumidesk.apis.nbgrader_service import NbGraderServicePostgresHelper
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.setup_course_service import make_rolling_update
 from illumidesk.apis.setup_course_service import register_new_service
 
@@ -67,7 +67,7 @@ async def setup_course_hook(
         raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
     # normalize the name and course_id strings in authentication dictionary
     course_id = lti_utils.normalize_string(authentication['auth_state']['course_id'])
-    nb_service = NbGraderServicePostgresHelper(course_id)
+    nb_service = NbGraderServiceHelper(course_id)
     username = lti_utils.normalize_string(authentication['name'])
     lms_user_id = authentication['auth_state']['lms_user_id']
     user_role = authentication['auth_state']['user_role']
@@ -255,7 +255,7 @@ class LTI11Authenticator(LTIAuthenticator):
                 control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
             # Assignment creation
             if assignment_name:
-                nbgrader_service = NbGraderServicePostgresHelper(course_id)
+                nbgrader_service = NbGraderServiceHelper(course_id)
                 self.log.debug(
                     'Creating a new assignment from the Authentication flow with title %s' % assignment_name
                 )
@@ -421,7 +421,7 @@ def process_additional_steps_for_resource_launch(
         and 'lineitems' in jwt_body_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']
     ):
         course_lineitems = jwt_body_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
-    nbgrader_service = NbGraderServicePostgresHelper(course_id)
+    nbgrader_service = NbGraderServiceHelper(course_id)
     nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
     if resource_link_title:
         # resource_link_title_normalize = lti_utils.normalize_string(resource_link_title)
