@@ -1,29 +1,20 @@
-from datetime import datetime
 import json
 import logging
-import time
 import os
-from pathlib import Path
 import re
-
+import time
 from datetime import datetime
 
 from lti.outcome_request import OutcomeRequest
-
 from nbgrader.api import Gradebook, MissingEntry
-
 from tornado.httpclient import AsyncHTTPClient
 
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.lti13.auth import get_lms_access_token
 
-from .exceptions import GradesSenderCriticalError
-from .exceptions import AssignmentWithoutGradesError
-from .exceptions import GradesSenderMissingInfoError
-
+from .exceptions import AssignmentWithoutGradesError, GradesSenderCriticalError, GradesSenderMissingInfoError
 from .sender_controlfile import LTIGradesSenderControlFile
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -64,11 +55,6 @@ class GradesBaseSender:
 
     def _retrieve_grades_from_db(self):
         """Gets grades from the database"""
-        # raise an error if the database does not exist
-        if not db_url.exists():
-            logger.error(f'Unable to fetch grades from: {db_url}.')
-            raise GradesSenderCriticalError
-
         out = []
         max_score = 0
         # Create the connection to the gradebook database
@@ -168,6 +154,7 @@ class LTI13GradeSender(GradesBaseSender):
         course_id: It's the course label obtained from lti claims
         assignment_name: the asignment name used on the nbgrader console
     """
+
     def __init__(self, course_id: str, assignment_name: str):
         super(LTI13GradeSender, self).__init__(course_id, assignment_name)
 
@@ -190,7 +177,7 @@ class LTI13GradeSender(GradesBaseSender):
         if next_url:
             # get only one
             next_url = next_url[0]
-            logger.debug('There are more lineitems in:', next_url)
+            logger.debug(f'There are more lineitems in: {next_url}')
             link_regex = re.compile(
                 r"((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)", re.DOTALL
             )  # noqa W605

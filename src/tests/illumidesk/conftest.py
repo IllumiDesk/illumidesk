@@ -63,7 +63,7 @@ def mock_nbhelper():
         with patch('pathlib.Path.mkdir'):
             with patch('illumidesk.apis.nbgrader_service.Gradebook'):
                 with patch.multiple(
-                    'illumidesk.apis.nbgrader_service.NbGraderServiceBaseHelper',
+                    'illumidesk.apis.nbgrader_service.NbGraderServiceHelper',
                     # __init__=lambda x, y: None,
                     update_course=Mock(return_value=None),
                     add_user_to_nbgrader_gradebook=Mock(return_value=None),

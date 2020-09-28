@@ -5,11 +5,7 @@ import pytest
 
 from unittest.mock import patch
 
-from illumidesk.apis.nbgrader_service import NbGraderServiceBaseHelper
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
-from illumidesk.apis.nbgrader_service import NbGraderServiceSQLiteHelper
-
-from illumidesk.apis.nbgrader_service import PG_DB_FORMAT
 
 
 class TestNbGraderServiceBaseHelper:
@@ -18,14 +14,14 @@ class TestNbGraderServiceBaseHelper:
         Setup method to initialize objects/properties used for the tests
         """
         self.course_id = 'PS- ONE'
-        self.sut = NbGraderServiceBaseHelper(self.course_id)
+        self.sut = NbGraderServiceHelper(self.course_id)
 
     def test_course_id_required_otherwise_raises_an_error(self):
         """
         Does the initializer accept empty or none value for course_id?
         """
         with pytest.raises(ValueError):
-            NbGraderServiceBaseHelper('')
+            NbGraderServiceHelper('')
 
     def test_course_id_is_normalized_in_the_constructor(self):
         """
@@ -94,6 +90,7 @@ class TestNbGraderServiceHelper:
         monkeypatch.setenv('POSTGRES_NBGRADER_USER', 'test_user')
         monkeypatch.setenv('POSTGRES_NBGRADER_PASSWORD', 'test_pwd')
         monkeypatch.setenv('POSTGRES_NBGRADER_DB', 'test_db')
+        monkeypatch.setenv('POSTGRES_NBGRADER_PORT', '5432')
 
         sut = NbGraderServiceHelper('Course1')
-        assert sut.db_url == PG_DB_FORMAT.format(user='test_user', password='test_pwd', host='test_host', db='test_db')
+        assert sut.db_url == 'postgresql://test_user:test_pwd@test_host:5432/test_db'
