@@ -90,7 +90,7 @@ postgres_nbgrader_dbname: "{{ postgres_nbgrader_dbname_param | default('nbgrader
 
 # Postgres settings for JupyterHub
 postgres_jupyterhub_host: "{{ postgres_jupyterhub_host_param | default('jupyterhub-db') }}"
-postgres_jupyterhub_user: "{{ postgres_jupyterhub_user_param | default('postgres') }}"
-postgres_jupyterhub_password: "{{ postgres_jupyterhub_password_param | default('postgres') }}"
+postgres_jupyterhub_user: "{{ postgres_jupyterhub_user_param | default('illumidesk') }}"
+postgres_jupyterhub_password: "{{ postgres_jupyterhub_password_param | default('illumidesk') }}"
 postgres_jupyterhub_port: "{{ postgres_jupyterhub_port_param | default('5432') }}"
-postgres_jupyterhub_dbname: "{{ postgres_jupyterhub_dbname_param | default('jupyterhub') }}"
+postgres_jupyterhub_dbname: "{{ postgres_jupyterhub_dbname_param | default('illumidesk') }}"
