@@ -114,7 +114,7 @@ Click on the `Grader Console` tab and follow the steps available within the nbgr
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
-* **Databases**: This setup relies on a standard `postgres` database running in its own container for the JupyterHub application, another separate and optional Postgres database for lab environments (useful to connect from user notebooks) and the last one `postgres` database for the Nbgrader application to manage the courses, students and assignments with a better performance.
+* **Databases**: This setup replaces the default SQLite databases with standard Postgres databases running in their own containers. (You may use Postgres DB's running in other locations by updating connections strings and configuration values). The databases are used for the JupyterHub application, the Postgres laboratory environments that need access to database(s) for labs, assignments, etc., and a database for the Nbgrader application.
 
 * **Network**: An external bridge network named `jupyter-network` is used by default. The grader service and the user notebooks are attached to this network.
 
