@@ -86,12 +86,11 @@ postgres_nbgrader_host: "{{ postgres_nbgrader_host_param | default('postgres-nbg
 postgres_nbgrader_user: "{{ postgres_nbgrader_user_param | default('postgres') }}"
 postgres_nbgrader_password: "{{ postgres_nbgrader_password_param | default('postgres') }}"
 postgres_nbgrader_port: "{{ postgres_nbgrader_port_param | default('5432') }}"
-#postgres_nbgrader_dbname: "{{ postgres_nbgrader_dbname_param | default('nb_' + org_name) | lower | replace('-', '_') }}"
 postgres_nbgrader_dbname: "{{ postgres_nbgrader_dbname_param | default('nbgrader') }}"
 
 # Postgres settings for JupyterHub
-postgres_jupyterhub_host: "{{ postgres_jupyterhub_host_param | default('postgres-nbgrader') }}"
+postgres_jupyterhub_host: "{{ postgres_jupyterhub_host_param | default('jupyterhub-db') }}"
 postgres_jupyterhub_user: "{{ postgres_jupyterhub_user_param | default('postgres') }}"
 postgres_jupyterhub_password: "{{ postgres_jupyterhub_password_param | default('postgres') }}"
 postgres_jupyterhub_port: "{{ postgres_jupyterhub_port_param | default('5432') }}"
-postgres_jupyterhub_dbname: "{{ postgres_jupyterhub_dbname_param | default('nbgrader') }}"
+postgres_jupyterhub_dbname: "{{ postgres_jupyterhub_dbname_param | default('jupyterhub') }}"

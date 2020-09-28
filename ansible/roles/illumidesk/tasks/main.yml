@@ -21,16 +21,3 @@
     src: lti11-cartridge.xml.j2
     dest: "{{ working_dir }}/lti11-cartridge.xml"
   when: authentication_type == "lti11"
-
-- name: install psycopg2
-  apt:
-    name: python3-psycopg2
-
-# - name: ensure the nbgrader database is created for current organization name
-#   community.general.postgresql_db:
-#     encoding: UTF-8
-#     state: present
-#     name: "{{ postgres_nbgrader_dbname }}" # required. name of the database to add or remove
-#     login_user: "{{ postgres_nbgrader_user }}"
-#     login_password: "{{ postgres_nbgrader_password }}"
-#     login_host: "{{ postgres_nbgrader_host }}"
