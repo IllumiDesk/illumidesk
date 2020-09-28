@@ -133,6 +133,16 @@ def test_course_exchange_root_directory_is_created(setup_course_environ):
         assert course.exchange_root.exists()
 
 
+def test_course_grader_root_directory_is_created(setup_course_environ):
+    """
+    Is the exchange directory created as part of setup?
+    """
+    course = Course(org='org1', course_id='example', domain='example.com')
+    with patch('shutil.chown', autospec=True):
+        course.create_directories()
+        assert course.grader_root.exists()
+
+
 def test_course_root_directory_is_created(setup_course_environ):
     """
     Is the course directory created as part of setup?
