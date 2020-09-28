@@ -6,7 +6,7 @@ import pytest
 from unittest.mock import patch
 
 from illumidesk.apis.nbgrader_service import NbGraderServiceBaseHelper
-from illumidesk.apis.nbgrader_service import NbGraderServicePostgresHelper
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.nbgrader_service import NbGraderServiceSQLiteHelper
 
 from illumidesk.apis.nbgrader_service import PG_DB_FORMAT
@@ -88,48 +88,12 @@ class TestNbGraderServiceBaseHelper:
             self.sut.add_user_to_nbgrader_gradebook(username='user1', lms_user_id='')
 
 
-class TestNbGraderServicePostgresHelper:
+class TestNbGraderServiceHelper:
     def test_init_method_uses_env_vars_to_get_db_url(self, monkeypatch):
-        monkeypatch.setenv('POSTGRES_NB_HOST', 'test_host')
-        monkeypatch.setenv('POSTGRES_NB_USER', 'test_user')
-        monkeypatch.setenv('POSTGRES_NB_PASSWORD', 'test_pwd')
-        monkeypatch.setenv('POSTGRES_NB_DB', 'test_db')
+        monkeypatch.setenv('POSTGRES_NBGRADER_HOST', 'test_host')
+        monkeypatch.setenv('POSTGRES_NBGRADER_USER', 'test_user')
+        monkeypatch.setenv('POSTGRES_NBGRADER_PASSWORD', 'test_pwd')
+        monkeypatch.setenv('POSTGRES_NBGRADER_DB', 'test_db')
 
-        sut = NbGraderServicePostgresHelper('Course1')
+        sut = NbGraderServiceHelper('Course1')
         assert sut.db_url == PG_DB_FORMAT.format(user='test_user', password='test_pwd', host='test_host', db='test_db')
-
-
-class TestNbGraderServiceSQLiteHelper:
-    """
-    Unit tests for sqlite
-    """
-
-    @patch('shutil.chown')
-    @patch('pathlib.Path.mkdir')
-    @patch('illumidesk.apis.nbgrader_service.Gradebook')
-    def setup_method(self, method, mock_gradebook, mock_path_mkdir, mock_chown):
-        self.course_id = 'new-course'
-        self.mock_chown = mock_chown
-        self.mock_path_mkdir = mock_path_mkdir
-        self.sut = NbGraderServiceSQLiteHelper(self.course_id)
-
-    def test_graderbook_is_formed_correctly(self):
-        """
-        Does the class use a file as gradebook?
-        """
-        assert str(self.sut.gradebook_path) == f'/home/grader-{self.course_id}/{self.course_id}/gradebook.db'
-
-    def test_chown_is_called_to_fix_permissions(self):
-        """
-        Does the chown util is used?
-        """
-        assert self.mock_chown.called
-
-    def test_new_instance_calls_chown_method_for_gradebook_path(self):
-        self.mock_chown.assert_called_once_with(str(self.sut.gradebook_path), user=10001, group=100)
-
-    def test_mkdir_is_called_with_grader_home_path(self):
-        """
-        Does the mkdir util is called to create the gradebook path?
-        """
-        assert self.mock_path_mkdir.called

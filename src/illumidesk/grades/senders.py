@@ -3,22 +3,19 @@ import json
 import logging
 import time
 import os
+from pathlib import Path
 import re
 
 from datetime import datetime
 
 from lti.outcome_request import OutcomeRequest
 
-from pathlib import Path
-
 from nbgrader.api import Gradebook, MissingEntry
 
 from tornado.httpclient import AsyncHTTPClient
-from illumidesk.apis.nbgrader_service import NbGraderServicePostgresHelper
+
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.authenticators.utils import LTIUtils
-
-from illumidesk.lti13.auth import get_lms_access_token
-
 from illumidesk.lti13.auth import get_lms_access_token
 
 from .exceptions import GradesSenderCriticalError
@@ -34,7 +31,8 @@ logger.setLevel(logging.DEBUG)
 
 class GradesBaseSender:
     """
-    This class helps to send student grades from nbgrader database.
+    This class helps to send student grades from nbgrader database. Classes that inherit from this class must implement
+    the send_grades() method.
 
     Args:
         course_id (str): Course id or name used in nbgrader
@@ -44,6 +42,14 @@ class GradesBaseSender:
     def __init__(self, course_id: str, assignment_name: str):
         self.course_id = course_id
         self.assignment_name = assignment_name
+
+        # get nbgrader connection string from env vars
+        self.db_host = os.environ.get('POSTGRES_NBGRADER_HOST')
+        self.db_password = os.environ.get('POSTGRES_NBGRADER_PASSWORD')
+        self.db_port = os.environ.get('POSTGRES_NBGRADER_PORT')
+        self.db_name = os.environ.get('POSTGRES_NBGRADER_DB')
+        self.db_user = os.environ.get('POSTGRES_NBGRADER_USER')
+        self.db_url = f'postgresql://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}'
 
     async def send_grades(self):
         raise NotImplementedError()
@@ -57,16 +63,16 @@ class GradesBaseSender:
         return f'/home/{self.grader_name}/{self.course_id}'
 
     def _retrieve_grades_from_db(self):
-        db_url = Path(self.gradebook_dir, 'gradebook.db')
+        """Gets grades from the database"""
         # raise an error if the database does not exist
         if not db_url.exists():
-            logger.error(f'Gradebook database file does not exist at: {db_url}.')
+            logger.error(f'Unable to fetch grades from: {db_url}.')
             raise GradesSenderCriticalError
 
         out = []
         max_score = 0
         # Create the connection to the gradebook database
-        with Gradebook(f'sqlite:///{db_url}', course_id=self.course_id) as gb:
+        with Gradebook(self.db_url, course_id=self.course_id) as gb:
             try:
                 # retrieve the assignment record
                 assignment_row = gb.find_assignment(self.assignment_name)
@@ -74,7 +80,7 @@ class GradesBaseSender:
                 submissions = gb.assignment_submissions(self.assignment_name)
                 logger.info(f'Found {len(submissions)} submissions for assignment: {self.assignment_name}')
             except MissingEntry as e:
-                logger.info('Assignment or Submission is missing in database: %s' % e)
+                logger.error('Assignment not found in database: %s' % e)
                 raise GradesSenderMissingInfoError
 
             for submission in submissions:
@@ -82,7 +88,7 @@ class GradesBaseSender:
                 student = gb.find_student(submission.student_id)
                 out.append({'score': submission.score, 'lms_user_id': student.lms_user_id})
         logger.info(f'Grades found: {out}')
-        logger.info('max_score for this assignment %s' % max_score)
+        logger.info('Maximum score for this assignment %s' % max_score)
         return max_score, out
 
 
@@ -95,6 +101,12 @@ class LTIGradeSender(GradesBaseSender):
         return '{:.0f}'.format(time.time())
 
     async def send_grades(self) -> None:
+        """Sends grades to the tool consumer (LMS).
+        
+        A json control file is used to maintain the relationship between the assignment (resource) registered
+        in the database and the tool conumer's (LMS) assignment records. The grades are sent to the endpoint registered
+        with the ``lis_outcome_service_url`` and uses the ``lis_result_sourcedid`` as the assignment's unique identifier.
+        """
         max_score, nbgrader_grades = self._retrieve_grades_from_db()
         if not nbgrader_grades:
             raise AssignmentWithoutGradesError
@@ -141,28 +153,29 @@ class LTIGradeSender(GradesBaseSender):
                 if outcome_result.is_success():
                     logger.info('Your score was submitted. Great job!')
                 else:
-                    logger.error('An error occurred while saving your score. Please try again.')
+                    logger.error('An error occurred while sending your score to the LMS. Please try again.')
                     raise GradesSenderCriticalError
 
 
 class LTI13GradeSender(GradesBaseSender):
-    def __init__(self, course_id: str, assignment_name: str):
-        """
-        Creates a new class to help us to send grades saved in the nbgrader gradebook (sqlite) back to the LMS
+    """
+    Creates a new class to help us to send grades saved in the nbgrader gradebook (sqlite) back to the LMS
 
-        For simplify the submission we're using the lineitem_id (that is a url) obtained in authentication flow and it indicates us where send the scores
-        So the assignment item in the database should contains the 'lms_lineitem_id' with something like /api/lti/courses/:course_id/line_items/:line_item_id
-        Args:
-            course_id: It's the course label obtained from lti claims
-            assignment_name: the asignment name used on the nbgrader console
-        """
+    For simplify the submission we're using the lineitem_id (that is a url) obtained in authentication flow and it indicates us where send the scores
+    So the assignment item in the database should contains the 'lms_lineitem_id' with something like /api/lti/courses/:course_id/line_items/:line_item_id
+    
+    Attrs:
+        course_id: It's the course label obtained from lti claims
+        assignment_name: the asignment name used on the nbgrader console
+    """
+    def __init__(self, course_id: str, assignment_name: str):
         super(LTI13GradeSender, self).__init__(course_id, assignment_name)
 
         self.private_key_path = os.environ.get('LTI13_PRIVATE_KEY')
-        self.lms_token_url = os.environ['LTI13_TOKEN_URL']
-        self.lms_client_id = os.environ['LTI13_CLIENT_ID']
+        self.lms_token_url = os.environ.get('LTI13_TOKEN_URL')
+        self.lms_client_id = os.environ.get('LTI13_CLIENT_ID')
         # retrieve the course entity from nbgrader-gradebook
-        nbgrader_service = NbGraderServicePostgresHelper(course_id)
+        nbgrader_service = NbGraderServiceHelper(course_id)
         course = nbgrader_service.get_course()
         self.course = course
         self.all_lineitems = []
@@ -177,7 +190,7 @@ class LTI13GradeSender(GradesBaseSender):
         if next_url:
             # get only one
             next_url = next_url[0]
-            print('There are more lineitems in:', next_url)
+            logger.debug('There are more lineitems in:', next_url)
             link_regex = re.compile(
                 r"((https?):((//)|(\\\\))+([\w\d:#@%/;$()~_?\+-=\\\.&](#!)?)*)", re.DOTALL
             )  # noqa W605

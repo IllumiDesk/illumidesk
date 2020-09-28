@@ -119,8 +119,10 @@ all:
 
       ## NBGrader Database settings
       #-------------------
-      postgres_nb_user: illumidesk
-      postgres_nb_password: illumidesk.
-      postgres_nb_host: illumidesk-nbgrader-dev.c6brxuc4b5sv.us-west-2.rds.amazonaws.com
-      # the database name is not required because is calculated with the org_name (above used) to avoid name conflicts but it can be set
-      # postgres_nb_dbname: nb_<org_name>
+      # Uncomment and change the values below as needed. The values below reflect the defaults as
+      # commented in the docs.
+      # postgres_nbgrader_dbname: nbgrader
+      # postgres_nbgrader_host: postgres-nbgrader
+      # postgres_nbgrader_port: nbgrader
+      # postgres_nbgrader_user: nbgrader
+      # postgres_nbgrader_password: nbgrader

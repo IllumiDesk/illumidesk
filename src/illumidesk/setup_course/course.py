@@ -9,7 +9,7 @@ from pathlib import Path
 from secrets import token_hex
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
-from illumidesk.apis.nbgrader_service import NbGraderServicePostgresHelper
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 
 from .constants import NBGRADER_COURSE_CONFIG_TEMPLATE
 from .constants import NBGRADER_HOME_CONFIG_TEMPLATE
@@ -137,7 +137,7 @@ class Course:
         nbgrader_config = NBGRADER_HOME_CONFIG_TEMPLATE.format(
             grader_name=self.grader_name,
             course_id=self.course_id,
-            db_url=NbGraderServicePostgresHelper(self.course_id).db_url,
+            db_url=NbGraderServiceHelper(self.course_id).db_url,
         )
 
         self.nbgrader_home_config_path.write_text(nbgrader_config)

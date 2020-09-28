@@ -476,13 +476,14 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_USER | `string` | Postgres database username | `jupyterhub` |
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
+| POSTGRES_NBGRADER_DB | `string` | Postgres database name for nbgrader| `nbgrader` |
+| POSTGRES_NBGRADER_HOST | `string` | Postgres host for Nbgrader | `nbgrader-db`  |
+| POSTGRES_NBGRADER_PASSWORD | `string` | Postgres password for Nbgrader | `nbgrader` |
+| POSTGRES_NBGRADER_PORT | `string` | Postgres port for Nbgrader | `5432` |
+| POSTGRES_NBGRADER_USER | `string` | Postgres username for Nbgrader | `nbgrader` |
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
 | SPAWNER_MEM_LIMIT | `string` | Spawner memory limit | `2G` |
 | SPAWNER_CPU_LIMIT | `string` | Spawner cpu limit | `0.5` |
-| POSTGRES_NB_HOST | `string` | Postgres host for Nbgrader |  |
-| POSTGRES_NB_USER | `string` | Postgres username for Nbgrader |  |
-| POSTGRES_NB_PASSWORD | `string` | Postgres password for Nbgrader |  |
-| POSTGRES_NB_DB | `string` | Postgres database name for nbgrader|  |
 
 ### Environment Variables pertaining to setup-course service, located in `env.setup-course`
 
@@ -498,11 +499,12 @@ The services included with this setup rely on environment variables to work prop
 | MNT_ROOT | `string` | Notebook grader user id | `/mnt` |
 | NB_UID | `string` | Notebook grader user id | `10001` |
 | NB_GID | `string` | Notebook grader user id | `100` |
+| POSTGRES_NBGRADER_DB | `string` | Postgres database name for nbgrader| `nbgrader` |
+| POSTGRES_NBGRADER_HOST | `string` | Postgres host for Nbgrader | `postgres-nbgrader`  |
+| POSTGRES_NBGRADER_PASSWORD | `string` | Postgres password for Nbgrader | `nbgrader` |
+| POSTGRES_NBGRADER_PORT | `string` | Postgres port for Nbgrader | `5432` |
+| POSTGRES_NBGRADER_USER | `string` | Postgres username for Nbgrader | `nbgrader` |
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
-| POSTGRES_NB_HOST | `string` | Postgres host for Nbgrader |  |
-| POSTGRES_NB_USER | `string` | Postgres username for Nbgrader |  |
-| POSTGRES_NB_PASSWORD | `string` | Postgres password for Nbgrader |  |
-| POSTGRES_NB_DB | `string` | Postgres database name for nbgrader|  |
 
 ---
 
