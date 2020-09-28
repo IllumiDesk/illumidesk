@@ -477,7 +477,7 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
 | POSTGRES_NBGRADER_DB | `string` | Postgres database name for nbgrader| `nbgrader` |
-| POSTGRES_NBGRADER_HOST | `string` | Postgres host for Nbgrader | `nbgrader-db`  |
+| POSTGRES_NBGRADER_HOST | `string` | Postgres host for Nbgrader | `postgres-nbgrader`  |
 | POSTGRES_NBGRADER_PASSWORD | `string` | Postgres password for Nbgrader | `nbgrader` |
 | POSTGRES_NBGRADER_PORT | `string` | Postgres port for Nbgrader | `5432` |
 | POSTGRES_NBGRADER_USER | `string` | Postgres username for Nbgrader | `nbgrader` |
