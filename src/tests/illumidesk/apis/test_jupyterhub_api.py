@@ -133,18 +133,6 @@ async def test_add_group_member_raises_error_when_empty(jupyterhub_api_environ):
 
 
 @pytest.mark.asyncio
-async def test_add_user_to_nbgrader_gradebook_raises_error_when_empty(jupyterhub_api_environ):
-    """
-    Does add_user_to_nbgrader_gradebook method accept an empty course id, username, or lms user id?
-    """
-    with pytest.raises(ValueError):
-        await JupyterHubAPI().add_user_to_nbgrader_gradebook(course_id='', username='foo', lms_user_id='abc123')
-
-    with pytest.raises(ValueError):
-        await JupyterHubAPI().add_user_to_nbgrader_gradebook(course_id='abc', username='', lms_user_id='abc123')
-
-
-@pytest.mark.asyncio
 async def test_add_student_to_jupyterhub_group_raises_error_when_empty(jupyterhub_api_environ):
     """
     Does add_student_to_jupyterhub_group method accept an empty course id or student name?

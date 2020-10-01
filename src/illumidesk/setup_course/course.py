@@ -9,6 +9,7 @@ from pathlib import Path
 from secrets import token_hex
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 
 from .constants import NBGRADER_COURSE_CONFIG_TEMPLATE
 from .constants import NBGRADER_HOME_CONFIG_TEMPLATE
@@ -119,6 +120,7 @@ class Course:
         logger.debug(
             'Creating grader directory and permissions with path %s to %s:%s ' % (self.grader_root, self.uid, self.gid)
         )
+        self.grader_root.mkdir(parents=True, exist_ok=True)
         shutil.chown(str(self.grader_root), user=self.uid, group=self.gid)
         self.course_root.mkdir(parents=True, exist_ok=True)
         logger.debug(
@@ -132,7 +134,13 @@ class Course:
         logger.debug('Change course jupyter config permissions to %s:%s' % (self.uid, self.gid))
 
         logger.debug('Grader home nbgrader_config.py path %s' % self.nbgrader_home_config_path)
-        nbgrader_config = NBGRADER_HOME_CONFIG_TEMPLATE.format(grader_name=self.grader_name, course_id=self.course_id)
+        # format the config file with current settings/values and append the db_url setting
+        nbgrader_config = NBGRADER_HOME_CONFIG_TEMPLATE.format(
+            grader_name=self.grader_name,
+            course_id=self.course_id,
+            db_url=NbGraderServiceHelper(self.course_id).db_url,
+        )
+
         self.nbgrader_home_config_path.write_text(nbgrader_config)
         shutil.chown(str(self.nbgrader_home_config_path), user=self.uid, group=self.gid)
         logger.debug(

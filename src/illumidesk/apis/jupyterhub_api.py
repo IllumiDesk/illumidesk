@@ -1,11 +1,6 @@
 import json
 import os
 
-from nbgrader.api import Gradebook
-from nbgrader.api import InvalidEntry
-
-from pathlib import Path
-
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpclient import HTTPClientError
 from tornado.httpclient import HTTPResponse  # noqa: F401
@@ -145,39 +140,6 @@ class JupyterHubAPI(LoggingConfigurable):
         return await self._request(
             f'groups/{group_name}/users', body=json.dumps({'users': [f'{username}']}), method='POST',
         )
-
-    async def add_user_to_nbgrader_gradebook(
-        self, course_id: str, username: str, lms_user_id: str
-    ) -> Awaitable['HTTPResponse']:
-        """
-        Adds a user to the nbgrader gradebook database for the course.
-
-        Args:
-            course_id: The normalized string which represents the course label.
-            username: The user's username
-        Raises:
-            InvalidEntry: when there was an error adding the user to the database
-        """
-        if not course_id:
-            raise ValueError('course_id missing')
-        if not username:
-            raise ValueError('username missing')
-        if not lms_user_id:
-            raise ValueError('lms_user_id missing')
-        grader_name = f'grader-{course_id}'
-        db_url = Path('/home', grader_name, course_id, 'gradebook.db')
-        db_url.parent.mkdir(exist_ok=True, parents=True)
-        self.log.debug('Database url path is %s' % db_url)
-        if not db_url.exists():
-            self.log.debug('Gradebook database file does not exist')
-            return
-        gradebook = Gradebook(f'sqlite:///{db_url}', course_id=course_id)
-        try:
-            gradebook.update_or_create_student(username, lms_user_id=lms_user_id)
-            self.log.debug('Added user %s with lms_user_id %s to gradebook' % (username, lms_user_id))
-        except InvalidEntry as e:
-            self.log.debug('Error during adding student to gradebook: %s' % e)
-        gradebook.close()
 
     async def add_student_to_jupyterhub_group(self, course_id: str, student: str) -> Awaitable['HTTPResponse']:
         """

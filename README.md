@@ -114,7 +114,7 @@ Click on the `Grader Console` tab and follow the steps available within the nbgr
 
 * **Data Directories**: This repo uses `docker-compose` to start all services and data volumes for JupyterHub, notebook directories, databases, and the `nbgrader exchange` directory using mounts from the host's file system.
 
-* **Databases**: This setup relies on a standard `postgres` database running in its own container for the JupyterHub application and another separate and optional Postgres database for lab environments (useful to connect from user notebooks).
+* **Databases**: This setup replaces the default SQLite databases with standard Postgres databases running in their own containers. (You may use Postgres DB's running in other locations by updating connections strings and configuration values). The databases are used for the JupyterHub application, the Postgres laboratory environments that need access to database(s) for labs, assignments, etc., and a database for the Nbgrader application.
 
 * **Network**: An external bridge network named `jupyter-network` is used by default. The grader service and the user notebooks are attached to this network.
 
@@ -476,6 +476,11 @@ The services included with this setup rely on environment variables to work prop
 | POSTGRES_USER | `string` | Postgres database username | `jupyterhub` |
 | POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
 | POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
+| POSTGRES_NBGRADER_DB | `string` | Postgres database name for nbgrader| `nbgrader` |
+| POSTGRES_NBGRADER_HOST | `string` | Postgres host for Nbgrader | `postgres-nbgrader`  |
+| POSTGRES_NBGRADER_PASSWORD | `string` | Postgres password for Nbgrader | `nbgrader` |
+| POSTGRES_NBGRADER_PORT | `string` | Postgres port for Nbgrader | `5432` |
+| POSTGRES_NBGRADER_USER | `string` | Postgres username for Nbgrader | `nbgrader` |
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
 | SPAWNER_MEM_LIMIT | `string` | Spawner memory limit | `2G` |
 | SPAWNER_CPU_LIMIT | `string` | Spawner cpu limit | `0.5` |
@@ -494,6 +499,11 @@ The services included with this setup rely on environment variables to work prop
 | MNT_ROOT | `string` | Notebook grader user id | `/mnt` |
 | NB_UID | `string` | Notebook grader user id | `10001` |
 | NB_GID | `string` | Notebook grader user id | `100` |
+| POSTGRES_NBGRADER_DB | `string` | Postgres database name for nbgrader| `nbgrader` |
+| POSTGRES_NBGRADER_HOST | `string` | Postgres host for Nbgrader | `postgres-nbgrader`  |
+| POSTGRES_NBGRADER_PASSWORD | `string` | Postgres password for Nbgrader | `nbgrader` |
+| POSTGRES_NBGRADER_PORT | `string` | Postgres port for Nbgrader | `5432` |
+| POSTGRES_NBGRADER_USER | `string` | Postgres username for Nbgrader | `nbgrader` |
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
 
 ---

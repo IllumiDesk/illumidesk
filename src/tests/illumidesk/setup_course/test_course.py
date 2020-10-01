@@ -6,6 +6,7 @@ import pytest
 from unittest.mock import patch
 
 from docker.errors import NotFound
+from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 
 from illumidesk.setup_course.course import Course
 from illumidesk.setup_course.constants import NBGRADER_HOME_CONFIG_TEMPLATE
@@ -132,6 +133,16 @@ def test_course_exchange_root_directory_is_created(setup_course_environ):
         assert course.exchange_root.exists()
 
 
+def test_course_grader_root_directory_is_created(setup_course_environ):
+    """
+    Is the exchange directory created as part of setup?
+    """
+    course = Course(org='org1', course_id='example', domain='example.com')
+    with patch('shutil.chown', autospec=True):
+        course.create_directories()
+        assert course.grader_root.exists()
+
+
 def test_course_root_directory_is_created(setup_course_environ):
     """
     Is the course directory created as part of setup?
@@ -218,7 +229,9 @@ def test_nbgrader_home_config_path_is_created_with_template(setup_course_environ
         with course.nbgrader_home_config_path.open('r') as nbgrader_template:
             content = nbgrader_template.read()
             assert content == NBGRADER_HOME_CONFIG_TEMPLATE.format(
-                grader_name=course.grader_name, course_id=course.course_id
+                grader_name=course.grader_name,
+                course_id=course.course_id,
+                db_url=NbGraderServiceHelper(course.course_id).db_url,
             )
 
 

@@ -9,6 +9,7 @@ c.ClearSolutions.code_stub = {{
     "javascript": "// your code here\\nthrow new Error();",
     "julia": "# your code here\\nthrow(ErrorException())"
 }}
+c.CourseDirectory.db_url = '{db_url}'
 """
 
 

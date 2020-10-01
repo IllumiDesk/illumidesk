@@ -27,6 +27,9 @@ docker_illumidesk_grader_image: "{{ docker_illumidesk_grader_image_param | defau
 # setup-course image
 docker_setup_course_image: "{{ docker_setup_course_image_param | default('illumidesk/setup-course:latest') }}"
 
+# postgres image
+docker_postgres_image: "{{ docker_postgres_image_param | default('postgres:11.6-alpine') }}"
+
 # dockerfiles
 docker_jupyterhub_dockerfile: "{{ docker_jupyterhub_dockerfile_param | default('Dockerfile.jhub') }}"
 docker_setup_course_dockerfile: "{{ docker_setup_course_dockerfile_param | default('Dockerfile.setup-course') }}"
@@ -77,3 +80,17 @@ shared_folder_enabled: "{{ shared_folder_enabled_param | default('true') }}"
 # spawner
 spawner_mem_limit: "{{ spawner_mem_limit_param | default('2G') }}"
 spawner_cpu_limit: "{{ spawner_cpu_limit_param | default('0.5') }}"
+
+# Postgres settings for NBgrader
+postgres_nbgrader_host: "{{ postgres_nbgrader_host_param | default('postgres-nbgrader') }}"
+postgres_nbgrader_user: "{{ postgres_nbgrader_user_param | default('postgres') }}"
+postgres_nbgrader_password: "{{ postgres_nbgrader_password_param | default('postgres') }}"
+postgres_nbgrader_port: "{{ postgres_nbgrader_port_param | default('5432') }}"
+postgres_nbgrader_dbname: "{{ postgres_nbgrader_dbname_param | default('nbgrader') }}"
+
+# Postgres settings for JupyterHub
+postgres_jupyterhub_host: "{{ postgres_jupyterhub_host_param | default('jupyterhub-db') }}"
+postgres_jupyterhub_user: "{{ postgres_jupyterhub_user_param | default('illumidesk') }}"
+postgres_jupyterhub_password: "{{ postgres_jupyterhub_password_param | default('illumidesk') }}"
+postgres_jupyterhub_port: "{{ postgres_jupyterhub_port_param | default('5432') }}"
+postgres_jupyterhub_dbname: "{{ postgres_jupyterhub_dbname_param | default('illumidesk') }}"
