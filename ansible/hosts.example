@@ -116,3 +116,13 @@ all:
 
       # uncomment and add your preferred cpu limit settings for user workspaces
       # spawner_cpu_limit: 0.5
+
+      ## NBGrader Database settings
+      #-------------------
+      # Uncomment and change the values below as needed. The values below reflect the defaults as
+      # commented in the docs.
+      # postgres_nbgrader_dbname: nbgrader
+      # postgres_nbgrader_host: postgres-nbgrader
+      # postgres_nbgrader_port: nbgrader
+      # postgres_nbgrader_user: nbgrader
+      # postgres_nbgrader_password: nbgrader

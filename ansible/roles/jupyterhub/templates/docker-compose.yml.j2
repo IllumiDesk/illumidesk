@@ -23,7 +23,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.jhub_router.service=jupyterhub"
   jupyterhub-db:
-    image: postgres:11.6-alpine
+    image: {{docker_postgres_image}}
     container_name: jupyterhub-db
     restart: always
     env_file:
@@ -53,9 +53,19 @@ services:
       - {{mnt_root}}:{{mnt_root}}
       - data:/srv/jupyterhub
       - {{ working_dir }}:{{ working_dir }}
+  {{postgres_nbgrader_host}}:
+    image: {{docker_postgres_image}}
+    container_name: {{postgres_nbgrader_host}}
+    restart: always
+    environment:
+      - POSTGRES_DB={{postgres_nbgrader_dbname}}
+      - POSTGRES_USER={{postgres_nbgrader_user}}
+      - POSTGRES_PASSWORD={{postgres_nbgrader_password}}
+    volumes:
+      - db-nbgrader:/var/lib/postgresql/data
 {% if postgres_labs_enabled is sameas true %}
   postgres-labs:
-    image: postgres:11.6-alpine
+    image: {{docker_postgres_image}}
     container_name: postgres-labs
     restart: always
     environment:
@@ -76,6 +86,9 @@ volumes:
   db-labs:
     external:
       name: db-labs-data
+  db-nbgrader:
+    external:
+      name: db-nbgrader-data
   
 networks:
   default:

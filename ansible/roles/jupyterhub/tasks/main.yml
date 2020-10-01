@@ -7,6 +7,10 @@
   docker_volume:
     name: db-labs-data
 
+- name: create external postgres data volume for nbgrader
+  docker_volume:
+    name: db-nbgrader-data
+
 - name: create external jupyterhub and setup-course data volume
   docker_volume:
     name: jupyterhub-data

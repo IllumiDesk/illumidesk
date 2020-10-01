@@ -6,7 +6,6 @@ from tornado.httputil import HTTPHeaders
 
 from illumidesk.grades.senders import LTIGradeSender
 from illumidesk.grades.senders import LTI13GradeSender
-from illumidesk.grades.exceptions import GradesSenderCriticalError
 from illumidesk.grades.exceptions import AssignmentWithoutGradesError
 from illumidesk.grades.exceptions import GradesSenderMissingInfoError
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
@@ -16,15 +15,6 @@ from tornado.web import RequestHandler
 
 
 class TestLTI11GradesSender:
-    @pytest.mark.asyncio
-    async def test_grades_sender_raises_a_critical_error_when_gradebook_does_not_exist(self, tmp_path):
-        """
-        Does the sender raises an error when the gradebook db is not found?
-        """
-        sender_controlfile = LTIGradeSender('course1', 'problem1')
-        with pytest.raises(GradesSenderCriticalError):
-            await sender_controlfile.send_grades()
-
     @pytest.mark.asyncio
     async def test_grades_sender_raises_an_error_if_there_are_no_grades(self, tmp_path):
         """
