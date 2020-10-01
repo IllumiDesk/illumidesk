@@ -4,6 +4,12 @@
   changed_when: False
 - setup: # noqa 502
 
+- name: add universe repository for focal
+  apt_repository: 
+    repo: deb http://archive.ubuntu.com/ubuntu focal universe
+    state: present
+  when: ansible_distribution_release == 'focal'
+
 - name: install aptitude package with apt
   apt:
     name: aptitude
