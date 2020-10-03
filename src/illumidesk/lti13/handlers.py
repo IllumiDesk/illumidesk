@@ -81,7 +81,7 @@ class LTI13ConfigHandler(BaseHandler):
                             },
                             {
                                 'placement': 'assignment_selection',
-                                'message_type': 'LtiDeepLinkingRequest',
+                                'message_type': 'LtiResourceLinkRequest',
                                 'target_link_uri': target_link_url,
                             },
                         ],
