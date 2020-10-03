@@ -53,6 +53,7 @@ services:
       - {{mnt_root}}:{{mnt_root}}
       - data:/srv/jupyterhub
       - {{ working_dir }}:{{ working_dir }}
+{% if 'rds.amazonaws.com' not in postgres_nbgrader_host%}
   {{postgres_nbgrader_host}}:
     image: {{docker_postgres_image}}
     container_name: {{postgres_nbgrader_host}}
@@ -63,6 +64,7 @@ services:
       - POSTGRES_PASSWORD={{postgres_nbgrader_password}}
     volumes:
       - db-nbgrader:/var/lib/postgresql/data
+{% endif %}
 {% if postgres_labs_enabled is sameas true %}
   postgres-labs:
     image: {{docker_postgres_image}}
