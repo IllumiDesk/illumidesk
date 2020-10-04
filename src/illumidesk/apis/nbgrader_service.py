@@ -1,24 +1,49 @@
 import logging
 from pathlib import Path
+import psycopg2
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import os
 import shutil
+
+from illumidesk.authenticators.utils import LTIUtils
 
 from nbgrader.api import Assignment
 from nbgrader.api import Course
 from nbgrader.api import Gradebook
 from nbgrader.api import InvalidEntry
 
-from illumidesk.authenticators.utils import LTIUtils
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+nbgrader_db_host = os.environ.get('POSTGRES_NBGRADER_HOST')
+nbgrader_db_port = os.environ.get('POSTGRES_NBGRADER_PORT') or 5432
+nbgrader_db_password = os.environ.get('POSTGRES_NBGRADER_PASSWORD')
+nbgrader_db_user = os.environ.get('POSTGRES_NBGRADER_USER')
+
+org_name = os.environ.get('ORGANIZATION_NAME') or 'my-org'
+
+if not org_name:
+    raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
+
+
+def nbgrader_format_db_url(course_id: str) -> str:
+    """
+    Returns the nbgrader database url with the format: <org_name>_<course-id>
+    """
+    course_id = LTIUtils().normalize_string(course_id)
+    database_name = f'{org_name}_{course_id}'
+    return (
+        f'postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{database_name}'
+    )
+
 
 class NbGraderServiceHelper:
     """
+    Helper class to use the nbgrader database and gradebook
     """
-    def __init__(self, course_id: str):
+
+    def __init__(self, course_id: str, check_database_exists: bool = False):
         if not course_id:
             raise ValueError('course_id missing')
 
@@ -26,15 +51,23 @@ class NbGraderServiceHelper:
         self.course_dir = f'/home/grader-{self.course_id}/{self.course_id}'
         self.uid = int(os.environ.get('NB_UID') or '10001')
         self.gid = int(os.environ.get('NB_GID') or '100')
-        self.org_name = os.environ.get('ORGANIZATION_NAME') or 'my-org'
 
-        # get nbgrader connection string from env vars
-        self.db_host = os.environ.get('POSTGRES_NBGRADER_HOST')
-        self.db_password = os.environ.get('POSTGRES_NBGRADER_PASSWORD')
-        self.db_port = os.environ.get('POSTGRES_NBGRADER_PORT')
-        self.db_name = os.environ.get('POSTGRES_NBGRADER_DB')
-        self.db_user = os.environ.get('POSTGRES_NBGRADER_USER')
-        self.db_url = f'postgresql://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}'
+        self.db_url = nbgrader_format_db_url(course_id)
+        self.database_name = f'{org_name}_{self.course_id}'
+        if check_database_exists:
+            self.create_database_if_not_exists()
+
+    def create_database_if_not_exists(self) -> None:
+        with psycopg2.connect(
+            f'user={nbgrader_db_user} password={nbgrader_db_password} host={nbgrader_db_host}'
+        ) as conn:
+            conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(f'CREATE DATABASE "{self.database_name}";')
+            except psycopg2.errors.DuplicateDatabase:
+                logger.info(f'Database {self.database_name} exists')
+                pass
 
     def add_user_to_nbgrader_gradebook(self, username: str, lms_user_id: str) -> None:
         """

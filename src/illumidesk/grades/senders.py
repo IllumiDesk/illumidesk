@@ -35,12 +35,7 @@ class GradesBaseSender:
         self.assignment_name = assignment_name
 
         # get nbgrader connection string from env vars
-        self.db_host = os.environ.get('POSTGRES_NBGRADER_HOST')
-        self.db_password = os.environ.get('POSTGRES_NBGRADER_PASSWORD')
-        self.db_port = os.environ.get('POSTGRES_NBGRADER_PORT')
-        self.db_name = os.environ.get('POSTGRES_NBGRADER_DB')
-        self.db_user = os.environ.get('POSTGRES_NBGRADER_USER')
-        self.db_url = f'postgresql://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}'
+        self.nbgrader_helper = NbGraderServiceHelper(course_id)
 
     async def send_grades(self):
         raise NotImplementedError()
@@ -58,7 +53,7 @@ class GradesBaseSender:
         out = []
         max_score = 0
         # Create the connection to the gradebook database
-        with Gradebook(self.db_url, course_id=self.course_id) as gb:
+        with Gradebook(self.nbgrader_helper.db_url, course_id=self.course_id) as gb:
             try:
                 # retrieve the assignment record
                 assignment_row = gb.find_assignment(self.assignment_name)
@@ -162,8 +157,7 @@ class LTI13GradeSender(GradesBaseSender):
         self.lms_token_url = os.environ.get('LTI13_TOKEN_URL')
         self.lms_client_id = os.environ.get('LTI13_CLIENT_ID')
         # retrieve the course entity from nbgrader-gradebook
-        nbgrader_service = NbGraderServiceHelper(course_id)
-        course = nbgrader_service.get_course()
+        course = self.nbgrader_helper.get_course()
         self.course = course
         self.all_lineitems = []
         self.headers = {}

@@ -255,7 +255,7 @@ class LTI11Authenticator(LTIAuthenticator):
                 control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
             # Assignment creation
             if assignment_name:
-                nbgrader_service = NbGraderServiceHelper(course_id)
+                nbgrader_service = NbGraderServiceHelper(course_id, True)
                 self.log.debug(
                     'Creating a new assignment from the Authentication flow with title %s' % assignment_name
                 )
@@ -421,7 +421,7 @@ def process_additional_steps_for_resource_launch(
         and 'lineitems' in jwt_body_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']
     ):
         course_lineitems = jwt_body_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
-    nbgrader_service = NbGraderServiceHelper(course_id)
+    nbgrader_service = NbGraderServiceHelper(course_id, True)
     nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
     if resource_link_title:
         # resource_link_title_normalize = lti_utils.normalize_string(resource_link_title)

@@ -6,6 +6,7 @@ import pytest
 from unittest.mock import patch
 
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
+from illumidesk.apis.nbgrader_service import nbgrader_format_db_url
 
 
 class TestNbGraderServiceBaseHelper:
@@ -85,12 +86,10 @@ class TestNbGraderServiceBaseHelper:
 
 
 class TestNbGraderServiceHelper:
-    def test_init_method_uses_env_vars_to_get_db_url(self, monkeypatch):
-        monkeypatch.setenv('POSTGRES_NBGRADER_HOST', 'test_host')
-        monkeypatch.setenv('POSTGRES_NBGRADER_USER', 'test_user')
-        monkeypatch.setenv('POSTGRES_NBGRADER_PASSWORD', 'test_pwd')
-        monkeypatch.setenv('POSTGRES_NBGRADER_DB', 'test_db')
-        monkeypatch.setenv('POSTGRES_NBGRADER_PORT', '5432')
+    def test_nbgrader_format_db_url_method_uses_env_vars_to_get_db_url(self, monkeypatch):
+        monkeypatch.setattr('illumidesk.apis.nbgrader_service.nbgrader_db_host', 'test_host')
+        monkeypatch.setattr('illumidesk.apis.nbgrader_service.nbgrader_db_password', 'test_pwd')
+        monkeypatch.setattr('illumidesk.apis.nbgrader_service.nbgrader_db_user', 'test_user')
+        monkeypatch.setattr('illumidesk.apis.nbgrader_service.org_name', 'org-dummy')
 
-        sut = NbGraderServiceHelper('Course1')
-        assert sut.db_url == 'postgresql://test_user:test_pwd@test_host:5432/test_db'
+        assert nbgrader_format_db_url('Course 1') == 'postgresql://test_user:test_pwd@test_host:5432/org-dummy_course1'
