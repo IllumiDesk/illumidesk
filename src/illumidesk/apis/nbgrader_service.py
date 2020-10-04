@@ -23,6 +23,9 @@ nbgrader_db_user = os.environ.get('POSTGRES_NBGRADER_USER')
 
 org_name = os.environ.get('ORGANIZATION_NAME') or 'my-org'
 
+if not org_name:
+    raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
+
 
 def nbgrader_format_db_url(course_id: str) -> str:
     """
@@ -48,7 +51,6 @@ class NbGraderServiceHelper:
         self.course_dir = f'/home/grader-{self.course_id}/{self.course_id}'
         self.uid = int(os.environ.get('NB_UID') or '10001')
         self.gid = int(os.environ.get('NB_GID') or '100')
-        self.org_name = os.environ.get('ORGANIZATION_NAME') or 'my-org'
 
         self.db_url = nbgrader_format_db_url(course_id)
         self.database_name = f'{org_name}_{self.course_id}'
