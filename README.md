@@ -446,40 +446,57 @@ The examples provided in this repo assume that users are **not** local system us
 
 The services included with this setup rely on environment variables to work properly. You can override them by either setting the ansible veriable when running the playbook or my manually modifying the environment variables on the `env.*` host files after the playbook has run.
 
+
+
+### Environment Variables for all services `env.common`
+
+| Variable  |  Type | Description | Default Value |
+|---|---|---|---|
+| DOCKER_NETWORK_NAME | `string` | Docker image used by users without an assigned role. | `illumidesk/illumidesk-notebook:latest` |
+| ILLUMIDESK_DIR | `string` | IllumiDesk directory with source files. | `$HOME/illumidesk_deployment` |
+| JUPYTERHUB_API_TOKEN | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |
+| JUPYTERHUB_API_URL | `string` | Internal API URL corresponding to JupyterHub. | `http://jupyterhub:8081` |
+| JUPYTERHUB_BASE_URL | `string` | Working directory for Jupyter Notebooks | `/home/jovyan` |
+| JUPYTERHUB_CONFIG_PATH | `string` | Notebook grader user | `/srv/jupyterhub` |
+| EXCHANGE_DIR | `string` | Exchange directory path  | `/srv/nbgrader/exchange` |
+| MNT_ROOT | `string` | Host directory root | `/mnt` |
+| NB_NON_GRADER_UID | `string` | Host user directory UID | `1000` |
+| NB_GID | `string` | Host user directory GID | `100` |
+| ORGANIZATION_NAME | `string` | Organization name. | `my-edu` |
+| PGDATA | `string` | Postgres data file path | `/var/lib/postgresql/data` |
+| POSTGRES_NBGRADER_DB | `string` | Postgres database name | `nbgrader` |
+| POSTGRES_NBGRADER_HOST | `string` | Postgres host for Nbgrader | `nbgrader-db`  |
+| POSTGRES_NBGRADER_PASSWORD | `string` | Postgres password for Nbgrader | `nbgrader` |
+| POSTGRES_NBGRADER_PORT | `string` | Postgres port for Nbgrader | `5432` |
+| POSTGRES_NBGRADER_USER | `string` | Postgres username for Nbgrader | `nbgrader` |
+| SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
+
 ### Environment Variables pertaining to JupyterHub, located in `env.jhub`
 
 | Variable  |  Type | Description | Default Value |
 |---|---|---|---|
 | DOCKER_END_USER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/illumidesk-notebook:latest` |
-| DOCKER_GRADER_IMAGE | `string` | Docker image used by users without an assigned role. | `illumidesk/grader-notebook:latest` |
-| DOCKER_NETWORK_NAME | `string` | Docker network name for docker-compose and dockerspawner | `jupyter-network` |
 | DOCKER_NOTEBOOK_DIR | `string` | Working directory for Jupyter Notebooks | `/home/jovyan` |
-| EXCHANGE_DIR | `string` | Exchange directory path  | `/srv/nbgrader/exchange` |
 | JUPYTERHUB_ADMIN_USER | `string` | JupyterHub admin user  | `admin` |
 | JUPYTERHUB_CRYPT_KEY | `string` | Cyptographic key used to encrypt cookies. | `<random_value>` |
-| JUPYTERHUB_API_TOKEN | `string` | API token used to authenticate grader service with JupyterHub. | `<random_value>` |
 | JUPYTERHUB_API_URL | `string` | Internal API URL corresponding to JupyterHub. | `http://jupyterhub:8081` |
 | JUPYTERHUB_SHUTDOWN_ON_LOGOUT | `string` |  Shut down the user's server when logging out | `True` |
-| LTI_CONSUMER_KEY | `string` | LTI 1.1 consumer key | `ild_test_consumer_key` |
-| LTI_SHARED_SECRET | `string` | LTI 1.1 shared secret | `ild_test_shared_secret` |
+| LTI11_CONSUMER_KEY | `string` | LTI 1.1 consumer key | `ild_test_consumer_key` |
+| LTI11_SHARED_SECRET | `string` | LTI 1.1 shared secret | `ild_test_shared_secret` |
 | LTI13_AUTHORIZE_URL | `string` | LTI 1.3 authorization URL, such as `https://my.platform.domain/api/lti/authorize_redirect` | `''` |
 | LTI13_CLIENT_ID | `string` | LTI 1.3 client id used to identify the tool's installation within the platform, such as `125900000000000071` | `''` |
 | LTI13_ENDPOINT | `string` | LTI 1.3 platform endpoint, such as `https://my.platform.domain/api/lti/security/jwks` | `''` |
 | LTI13_PRIVATE_KEY | `string` | Private key used with LTI 1.3 to create public JSON Web Keys (JWK) | `/secrets/keys/rsa_private.pem` |
 | LTI13_TOKEN_URL | `string` | LTI 1.3 token URL surfaced by the platform, such as `https://my.platform.domain/login/oauth2/token` | `''` |
-| MNT_HOME_DIR_UID | `string` | Host user directory UID | `1000` |
-| MNT_HOME_DIR_GID | `string` | Host user directory GID | `100` |
+| NB_NON_GRADER_UID | `string` | Host user directory UID | `1000` |
+| NB_GID | `string` | Host user directory GID | `100` |
 | MNT_ROOT | `string` | Host directory root | `/mnt` |
-| ORGANIZATION_NAME | `string` | Organization name. | `my-edu` |
-| PGDATA | `string` | Postgres data file path | `/var/lib/postgresql/data` |
-| POSTGRES_DB | `string` | Postgres database name | `jupyterhub` |
-| POSTGRES_USER | `string` | Postgres database username | `jupyterhub` |
-| POSTGRES_PASSWORD | `string` | Postgres database password | `jupyterhub` |
-| POSTGRES_HOST | `string` | Postgres host | `jupyterhub-db` |
-| POSTGRES_NBGRADER_HOST | `string` | Postgres host for Nbgrader | `postgres-nbgrader`  |
-| POSTGRES_NBGRADER_PASSWORD | `string` | Postgres password for Nbgrader | `nbgrader` |
-| POSTGRES_NBGRADER_PORT | `string` | Postgres port for Nbgrader | `5432` |
-| POSTGRES_NBGRADER_USER | `string` | Postgres username for Nbgrader | `nbgrader` |
+| ORGANIZATION_NAME | `string` | Organization name. | `my-org` |
+| POSTGRES_JUPYTERHUB_DB | `string` | Postgres database name | `illumidesk` |
+| POSTGRES_JUPYTERHUB_HOST | `string` | Postgres host | `jupyterhub-db` |
+| POSTGRES_JUPYTERHUB_PASSWORD | `string` | Postgres database password | `illumidesk` |
+| POSTGRES_JUPYTERHUB_PORT | `string` | Postgres database port | `5432` |
+| POSTGRES_JUPYTERHUB_USER | `string` | Postgres database username | `illumidesk` |
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
 | SPAWNER_MEM_LIMIT | `string` | Spawner memory limit | `2G` |
 | SPAWNER_CPU_LIMIT | `string` | Spawner cpu limit | `0.5` |
@@ -490,18 +507,11 @@ The services included with this setup rely on environment variables to work prop
 |---|---|---|---|
 | DOCKER_NETWORK_NAME | `string` | JupyterHub API token | `jupyter-network` |
 | DOCKER_GRADER_IMAGE | `string` | Docker image used for the grader services  | `illumidesk/grader-notebook:latest` |
-| ILLUMIDESK_DIR | `string` | IllumiDesk working directory within remote user's home directory | `$HOME/illumidesk_deployment` |
-| JUPYTERHUB_API_TOKEN | `string` | API token to connect with the JupyterHub | `<random value>` |
 | JUPYTERHUB_API_URL | `string` | JupyterHub client id used with OAuth2 | `http://reverse-proxy:8000/hub/api` |
-| JUPYTERHUB_CONFIG_PATH | `string` | Notebook grader user | `/srv/jupyterhub` |
 | JUPYTERHUB_SERVICE_NAME | `string` | Notebook grader user id | `jupyterhub` |
 | MNT_ROOT | `string` | Notebook grader user id | `/mnt` |
-| NB_UID | `string` | Notebook grader user id | `10001` |
+| NB_GRADER_UID | `string` | Notebook grader user id | `10001` |
 | NB_GID | `string` | Notebook grader user id | `100` |
-| POSTGRES_NBGRADER_HOST | `string` | Postgres host for Nbgrader | `postgres-nbgrader`  |
-| POSTGRES_NBGRADER_PASSWORD | `string` | Postgres password for Nbgrader | `nbgrader` |
-| POSTGRES_NBGRADER_PORT | `string` | Postgres port for Nbgrader | `5432` |
-| POSTGRES_NBGRADER_USER | `string` | Postgres username for Nbgrader | `nbgrader` |
 | SHARED_FOLDER_ENABLED | `string` | Specifies the use of shared folder (between grader and student notebooks)  | `True` |
 
 ---

@@ -29,7 +29,7 @@ services:
     env_file:
       - env.jhub
     volumes:
-      - db:/var/lib/postgresql/data
+      - db:{{pg_data}}
   reverse-proxy:
     image: traefik:v1.7-alpine
     container_name: reverse-proxy
@@ -59,11 +59,11 @@ services:
     container_name: {{postgres_nbgrader_host}}
     restart: always
     environment:
-      - POSTGRES_DB={{postgres_nbgrader_dbname}}
-      - POSTGRES_USER={{postgres_nbgrader_user}}
-      - POSTGRES_PASSWORD={{postgres_nbgrader_password}}
+      - POSTGRES_NBGRADER_DB={{postgres_nbgrader_dbname}}
+      - POSTGRES_NBGRADER_USER={{postgres_nbgrader_user}}
+      - POSTGRES_NBGRADER_PASSWORD={{postgres_nbgrader_password}}
     volumes:
-      - db-nbgrader:/var/lib/postgresql/data
+      - db-nbgrader:{{pg_data}}
 {% endif %}
 {% if postgres_labs_enabled is sameas true %}
   postgres-labs:
@@ -75,7 +75,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - db-labs:/var/lib/postgresql/data
+      - db-labs:{{pg_data}}
 {% endif %}
 
 volumes:

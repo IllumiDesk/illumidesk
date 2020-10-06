@@ -30,6 +30,7 @@ MANIFEST
 pip-wheel-metadata
 *pycache*
 secrets
+.secrets
 share/jupyterhub/static/components
 share/jupyterhub/static/css/style.min.css
 share/jupyterhub/static/css/style.min.css.map
