@@ -16,6 +16,7 @@ services:
       - ./reverse-proxy:/etc/traefik
       - ./keys:/secrets/keys
     env_file:
+      - env.common
       - env.jhub
     command: >
       jupyterhub -f /etc/jupyterhub/jupyterhub_config.py --debug
@@ -47,6 +48,7 @@ services:
     container_name: setup-course
     command: hypercorn --bind 0.0.0.0:8000 --workers 1 illumidesk.setup_course.app:app
     env_file:
+      - env.common
       - env.setup_course
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
@@ -58,22 +60,20 @@ services:
     image: {{docker_postgres_image}}
     container_name: {{postgres_nbgrader_host}}
     restart: always
-    environment:
-      - POSTGRES_NBGRADER_DB={{postgres_nbgrader_dbname}}
-      - POSTGRES_NBGRADER_USER={{postgres_nbgrader_user}}
-      - POSTGRES_NBGRADER_PASSWORD={{postgres_nbgrader_password}}
+    env_file:
+      - env.common
     volumes:
       - db-nbgrader:{{pg_data}}
 {% endif %}
 {% if postgres_labs_enabled is sameas true %}
-  postgres-labs:
+  {{postgres_labs_host}}:
     image: {{docker_postgres_image}}
-    container_name: postgres-labs
+    container_name: {{postgres_labs_host}}
     restart: always
     environment:
-      - POSTGRES_DB=labs
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_LABS_DB={{postgres_labs_db}}
+      - POSTGRES_LABS_USER={{postgres_labs_user}}
+      - POSTGRES_LABS_PASSWORD={{postgres_labs_password}}
     volumes:
       - db-labs:{{pg_data}}
 {% endif %}

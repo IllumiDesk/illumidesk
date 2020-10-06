@@ -84,6 +84,13 @@ spawner_cpu_limit: "{{ spawner_cpu_limit_param | default('0.5') }}"
 # postgres data directory
 pg_data: "{{ pg_data_param | default('/var/lib/postgresql/data') }}"
 
+# Postgres labs
+postgres_labs_host: "{{ postgres_labs_host_param | default('labs-db') }}"
+postgres_labs_user: "{{ postgres_labs_user_param | default('postgres') }}"
+postgres_labs_password: "{{ postgres_labs_password_param | default('postgres') }}"
+postgres_labs_port: "{{ postgres_labs_port_param | default('5432') }}"
+postgres_labs_dbname: "{{ postgres_labs_dbname_param | default('postgres') }}"
+
 # Postgres settings for NBgrader
 postgres_nbgrader_host: "{{ postgres_nbgrader_host_param | default('nbgrader-db') }}"
 postgres_nbgrader_user: "{{ postgres_nbgrader_user_param | default('nbgrader') }}"
