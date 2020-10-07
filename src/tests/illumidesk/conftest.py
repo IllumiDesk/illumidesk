@@ -53,7 +53,11 @@ def app():
         def post(self):
             self.write("test")
 
-    application = Application([(r'/', TestHandler),])  # noqa: E231
+    application = Application(
+        [
+            (r'/', TestHandler),
+        ]
+    )  # noqa: E231
     return application
 
 
@@ -334,13 +338,23 @@ def make_mock_request_handler() -> RequestHandler:
     ) -> RequestHandler:
         """Instantiate a Handler in a mock application"""
         application = Application(
-            hub=Mock(base_url='/hub/', server=Mock(base_url='/hub/'),),
+            hub=Mock(
+                base_url='/hub/',
+                server=Mock(base_url='/hub/'),
+            ),
             cookie_secret=os.urandom(32),
             db=Mock(rollback=Mock(return_value=None)),
             **settings,
         )
-        request = HTTPServerRequest(method=method, uri=uri, connection=Mock(),)
-        handler = RequestHandler(application=application, request=request,)
+        request = HTTPServerRequest(
+            method=method,
+            uri=uri,
+            connection=Mock(),
+        )
+        handler = RequestHandler(
+            application=application,
+            request=request,
+        )
         handler._transforms = []
         return handler
 
@@ -422,7 +436,11 @@ def make_auth_state_dict() -> Dict[str, str]:
     ):
         return {
             'name': username,
-            'auth_state': {'course_id': course_id, 'lms_user_id': lms_user_id, 'user_role': user_role,},  # noqa: E231
+            'auth_state': {
+                'course_id': course_id,
+                'lms_user_id': lms_user_id,
+                'user_role': user_role,
+            },  # noqa: E231
         }
 
     return _make_auth_state_dict
@@ -431,7 +449,8 @@ def make_auth_state_dict() -> Dict[str, str]:
 @pytest.fixture(scope='function')
 def make_lti11_basic_launch_request_args() -> Dict[str, str]:
     def _make_lti11_basic_launch_args(
-        oauth_consumer_key: str = 'my_consumer_key', oauth_consumer_secret: str = 'my_shared_secret',
+        oauth_consumer_key: str = 'my_consumer_key',
+        oauth_consumer_secret: str = 'my_shared_secret',
     ):
         oauth_timestamp = str(int(time.time()))
         oauth_nonce = secrets.token_urlsafe(32)
@@ -605,7 +624,9 @@ def make_lti13_resource_link_request() -> Dict[str, str]:
         },
         'https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice': {
             'context_memberships_url': 'https://illumidesk.instructure.com/api/lti/courses/147/names_and_roles',
-            'service_versions': ['2.0',],  # noqa: E231
+            'service_versions': [
+                '2.0',
+            ],  # noqa: E231
             'validation_context': None,
             'errors': {'errors': {}},
         },  # noqa: E231

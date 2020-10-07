@@ -54,6 +54,8 @@ def custom_pre_spawn_hook(spawner: Spawner) -> None:
         spawner.log.debug(f'Creating workdir {user_path} for the user {username}')
         os.mkdir(user_path)
         shutil.chown(
-            user_path, user=int(os.environ.get('NB_GRADER_UID')), group=int(os.environ.get('NB_GID')),
+            user_path,
+            user=int(os.environ.get('NB_GRADER_UID')),
+            group=int(os.environ.get('NB_GID')),
         )
         os.chmod(user_path, 0o755)

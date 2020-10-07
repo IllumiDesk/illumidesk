@@ -64,7 +64,12 @@ def test_grader_root_path_is_valid(setup_course_environ):
     """
     course = Course(org='org1', course_id='example', domain='example.com')
     assert course.grader_root is not None
-    assert course.grader_root == Path(os.environ.get('MNT_ROOT'), course.org, 'home', course.grader_name,)
+    assert course.grader_root == Path(
+        os.environ.get('MNT_ROOT'),
+        course.org,
+        'home',
+        course.grader_name,
+    )
 
 
 def test_course_path_is_a_grader_root_subfolder(setup_course_environ):

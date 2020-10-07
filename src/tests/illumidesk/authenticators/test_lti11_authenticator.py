@@ -37,7 +37,11 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=make_lti11_success_authentication_request_args('canvas'), headers={}, items=[],),
+            request=Mock(
+                arguments=make_lti11_success_authentication_request_args('canvas'),
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -64,7 +68,11 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=make_lti11_success_authentication_request_args('moodle'), headers={}, items=[],),
+            request=Mock(
+                arguments=make_lti11_success_authentication_request_args('moodle'),
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -89,7 +97,10 @@ async def test_authenticator_uses_lti11validator(
 
         authenticator = LTI11Authenticator()
         handler = Mock(spec=RequestHandler)
-        request = HTTPServerRequest(method='POST', connection=Mock(),)
+        request = HTTPServerRequest(
+            method='POST',
+            connection=Mock(),
+        )
         handler.request = request
 
         handler.request.arguments = make_lti11_success_authentication_request_args('lmsvendor')
@@ -112,7 +123,10 @@ async def test_authenticator_uses_lti_utils_normalize_string(
         with patch.object(LTIUtils, 'normalize_string', return_value='foobar') as mock_normalize_string:
             authenticator = LTI11Authenticator()
             handler = Mock(spec=RequestHandler)
-            request = HTTPServerRequest(method='POST', connection=Mock(),)
+            request = HTTPServerRequest(
+                method='POST',
+                connection=Mock(),
+            )
             handler.request = request
 
             handler.request.arguments = make_lti11_success_authentication_request_args('lmsvendor')
@@ -145,7 +159,10 @@ async def test_authenticator_uses_lti_grades_sender_control_file_with_student_ro
                 mock_loadFromFileMethod.side_effect = _change_flag
                 authenticator = LTI11Authenticator()
                 handler = Mock(spec=RequestHandler)
-                request = HTTPServerRequest(method='POST', connection=Mock(),)
+                request = HTTPServerRequest(
+                    method='POST',
+                    connection=Mock(),
+                )
                 handler.request = request
                 handler.request.arguments = make_lti11_success_authentication_request_args(
                     lms_vendor='edx', role='Student'
@@ -179,7 +196,10 @@ async def test_authenticator_uses_lti_grades_sender_control_file_with_learner_ro
                 mock_loadFromFileMethod.side_effect = _change_flag
                 authenticator = LTI11Authenticator()
                 handler = Mock(spec=RequestHandler)
-                request = HTTPServerRequest(method='POST', connection=Mock(),)
+                request = HTTPServerRequest(
+                    method='POST',
+                    connection=Mock(),
+                )
                 handler.request = request
                 handler.request.arguments = make_lti11_success_authentication_request_args(
                     lms_vendor='canvas', role='Learner'
@@ -213,7 +233,10 @@ async def test_authenticator_uses_lti_grades_sender_control_file_with_instructor
                 mock_loadFromFileMethod.side_effect = _change_flag
                 authenticator = LTI11Authenticator()
                 handler = Mock(spec=RequestHandler)
-                request = HTTPServerRequest(method='POST', connection=Mock(),)
+                request = HTTPServerRequest(
+                    method='POST',
+                    connection=Mock(),
+                )
                 handler.request = request
                 handler.request.arguments = make_lti11_success_authentication_request_args(
                     lms_vendor='canvas', role='Instructor'
@@ -270,7 +293,11 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -299,7 +326,11 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -328,7 +359,11 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -357,7 +392,11 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -390,7 +429,11 @@ async def test_authenticator_returns_correct_username_when_using_email_as_userna
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -423,7 +466,11 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -456,7 +503,11 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -489,7 +540,11 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -522,7 +577,11 @@ async def test_authenticator_returns_username_from_user_id_with_another_lms(
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
@@ -557,7 +616,11 @@ async def test_authenticator_returns_login_id_plus_user_id_as_username_with_canv
         handler = Mock(
             spec=RequestHandler,
             get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
-            request=Mock(arguments=args, headers={}, items=[],),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
         )
         result = await authenticator.authenticate(handler, None)
         expected = {

@@ -53,5 +53,7 @@ setup(
         'filelock==3.0.12',
         'lti==0.9.5',
     ],  # noqa: E231
-    package_data={'': ['*.html'],},  # noqa: E231
+    package_data={
+        '': ['*.html'],
+    },  # noqa: E231
 )

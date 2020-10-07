@@ -407,7 +407,9 @@ class LTI13Authenticator(OAuthenticator):
 
 
 def process_additional_steps_for_resource_launch(
-    logger: Any, course_id: str, jwt_body_decoded: Dict[str, Any],
+    logger: Any,
+    course_id: str,
+    jwt_body_decoded: Dict[str, Any],
 ) -> None:
     """
     Executes additional processes with the claims that come only with LtiResourceLinkRequest

@@ -46,7 +46,12 @@ class Course:
 
         self.exchange_root = Path(os.environ.get('MNT_ROOT'), self.org, 'exchange')
         self.grader_name = f'grader-{course_id}'
-        self.grader_root = Path(os.environ.get('MNT_ROOT'), org, 'home', self.grader_name,)
+        self.grader_root = Path(
+            os.environ.get('MNT_ROOT'),
+            org,
+            'home',
+            self.grader_name,
+        )
         self.grader_shared_folder = Path(os.environ.get('MNT_ROOT'), org, 'shared', self.course_id)
         shared_folder_env = os.environ.get('SHARED_FOLDER_ENABLED') or 'False'
         self.is_shared_folder_enabled = True if shared_folder_env.lower() in ('true', '1') else False
