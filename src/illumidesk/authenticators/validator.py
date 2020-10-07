@@ -50,7 +50,12 @@ class LTI11LaunchValidator(LoggingConfigurable):
     def __init__(self, consumers):
         self.consumers = consumers
 
-    def validate_launch_request(self, launch_url: str, headers: Dict[str, Any], args: Dict[str, Any],) -> bool:
+    def validate_launch_request(
+        self,
+        launch_url: str,
+        headers: Dict[str, Any],
+        args: Dict[str, Any],
+    ) -> bool:
         """
         Validate a given LTI 1.1 launch request. The arguments' k/v's are either
         required, recommended, or optional. The required/recommended/optional
@@ -193,7 +198,10 @@ class LTI13LaunchValidator(LoggingConfigurable):
 
         return jwt.decode(id_token, key=key_from_jwks, verify=False, audience=audience)
 
-    def is_deep_link_launch(self, jwt_decoded: Dict[str, Any],) -> bool:
+    def is_deep_link_launch(
+        self,
+        jwt_decoded: Dict[str, Any],
+    ) -> bool:
         """
         Returns whether or not the current launch is a deep linking launch.
 
@@ -203,7 +211,10 @@ class LTI13LaunchValidator(LoggingConfigurable):
             jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/message_type', None) == 'LtiDeepLinkingRequest'
         )
 
-    def validate_launch_request(self, jwt_decoded: Dict[str, Any],) -> bool:
+    def validate_launch_request(
+        self,
+        jwt_decoded: Dict[str, Any],
+    ) -> bool:
         """
         Validates that a given LTI 1.3 launch request has the required required claims The
         required claims combine the required claims according to the LTI 1.3 standard and the
@@ -246,7 +257,10 @@ class LTI13LaunchValidator(LoggingConfigurable):
 
         return True
 
-    def _validate_global_required_keys(self, jwt_decoded: Dict[str, Any],) -> bool:
+    def _validate_global_required_keys(
+        self,
+        jwt_decoded: Dict[str, Any],
+    ) -> bool:
         # does all the required keys exist?
         for claim, v in LTI13_GENERAL_REQUIRED_CLAIMS.items():
             if claim not in jwt_decoded:

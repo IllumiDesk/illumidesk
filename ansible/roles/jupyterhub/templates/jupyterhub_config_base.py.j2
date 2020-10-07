@@ -217,9 +217,10 @@ c.DockerSpawner.name_template = 'jupyter-{raw_username}'
 # start the container with root so we can update uid/gid using the docker-stacks hooks
 c.DockerSpawner.extra_create_kwargs.update({ 'user': 'root'})
 
-
 # these env vars are set within the docker image but add them here for good measure
-c.DockerSpawner.environment = {'NB_UID': '1000', 'NB_GID': '100', 'NB_USER': 'jovyan'}
+nb_non_grader_uid = os.environ.get('NB_NON_GRADER_UID') or '1000'
+nb_gid = os.environ.get('NB_GSID') or '100'
+c.DockerSpawner.environment = {'NB_UID': nb_non_grader_uid, 'NB_GID': nb_gid, 'NB_USER': 'jovyan'}
 
 # Get additional authentication data from the authenticator
 c.DockerSpawner.auth_state_hook = custom_auth_state_hook

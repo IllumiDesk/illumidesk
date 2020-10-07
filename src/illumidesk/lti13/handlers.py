@@ -90,7 +90,10 @@ class LTI13ConfigHandler(BaseHandler):
                 }
             ],
             'description': 'IllumiDesk Learning Tools Interoperability (LTI) v1.3 tool.',
-            'custom_fields': {'email': '$Person.email.primary', 'lms_user_id': '$User.id',},  # noqa: E231
+            'custom_fields': {
+                'email': '$Person.email.primary',
+                'lms_user_id': '$User.id',
+            },  # noqa: E231
             'public_jwk_url': f'{target_link_url}hub/lti13/jwks',
             'target_link_uri': target_link_url,
             'oidc_initiation_url': f'{target_link_url}hub/oauth_login',
@@ -138,7 +141,10 @@ class FileSelectHandler(BaseHandler):
         # decoded = self.authenticator.decoded
         self.course_id = auth_state['course_id']
         self.grader_name = f'grader-{self.course_id}'
-        self.grader_root = Path('/home', self.grader_name,)
+        self.grader_root = Path(
+            '/home',
+            self.grader_name,
+        )
         self.course_root = self.grader_root / self.course_id
         self.course_shared_folder = Path('/shared', self.course_id)
         a = ''
@@ -189,6 +195,8 @@ class FileSelectHandler(BaseHandler):
             )
         self.log.debug('Rendering file-select.html template')
         html = self.render_template(
-            'file_select.html', files=link_item_files, action_url=auth_state['launch_return_url'],
+            'file_select.html',
+            files=link_item_files,
+            action_url=auth_state['launch_return_url'],
         )
         self.finish(html)
