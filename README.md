@@ -66,19 +66,19 @@ Refer to the [customization](#customization) section if you would like to use LT
 
 4. Run the deployment script (the script will prompt you for certain values):
 
-    ```bash
-    make deploy
-    ```
+```bash
+make deploy
+```
 
 Use the `ARGS="-v"` option to deploy the stack with verbosity enabled. For example:
 
-    ```bash
-    make deploy ARGS="-v"
-    ```
+```bash
+make deploy ARGS="-v"
+```
 
 Set `ARGS` to `-vv` to enable more verbosity or `-vvv` for super duper verbosity.
 
-5. Once the ansible playbook has finished running the stack should be available at:
+1. Once the ansible playbook has finished running the stack should be available at:
 
     `http://<target_ipv4>:8000/`
 
@@ -187,7 +187,7 @@ Additional workspace types are supported by any workspace type that is supported
 When you want to use a specific workspace type simply leverage the existing [user redirect](https://jupyterhub.readthedocs.io/en/stable/reference/urls.html#user-redirect) functionality available with JupyterHub combined with the query parameter next. For example, with LTI 1.1 the launch url would look like so:
 
 ```
-    https://my.example.com/hub/lti/launch?next=/user-redirect/theia
+https://my.example.com/hub/lti/launch?next=/user-redirect/theia
 ```
 
 Similar to how users can toggle between /tree and /lab for Jupyter Classic and JupyterLab, respectively, the user may set other workspace types with recognized paths that point to specific workspace types. There is no restriction on what path to use, in so long as the jupyter-server-proxy implementation available with the end-user workspace [has that path defined as an entrypoint](https://jupyter-server-proxy.readthedocs.io/en/latest/server-process.html#server-process-options).
@@ -198,16 +198,16 @@ These query parameters do not conflict with the `git clone/merge` feature when l
 
 **Open edX**:
 
-    ```
-    ["next=/user-redirect/theia", "another_custom_param=abc"]
-    ```
+```
+["next=/user-redirect/theia", "another_custom_param=abc"]
+```
     
 **Canvas LMS**:
 
-    ```
-    next=/user-redirect/vscode
-    another_custom_param=abc
-    ```
+```
+next=/user-redirect/vscode
+another_custom_param=abc
+```
 
 ### Defining Launch Requests to Clone / Merge Git-based Repos
 
