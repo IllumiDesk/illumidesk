@@ -15,4 +15,4 @@ repos:
     hooks:
       - id: pip-compile
         files: ^requirements\.(in|txt)$
-        args: [--generate-hashes, src/]
+        args: [--generate-hashes]
