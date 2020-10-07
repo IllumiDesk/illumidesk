@@ -18,7 +18,7 @@ class TestLTI11GradesSender:
     @pytest.mark.asyncio
     async def test_grades_sender_raises_an_error_if_there_are_no_grades(self, tmp_path):
         """
-        Does the sender raises an error when there are no grades?
+        Does the sender raise an error when there are no grades?
         """
         sender_controlfile = LTIGradeSender('course1', 'problem1')
         # create a mock for our method that searches grades from gradebook.db
@@ -42,13 +42,13 @@ class TestLTI11GradesSender:
 
 
 class TestLTI13GradesSender:
-    def test_sender_sets_lineitems_url_with_the_value_in_auth_state_dict(self, lti_config_environ, mock_nbhelper):
+    def test_sender_sets_lineitems_url_with_the_value_in_auth_state_dict(self, lti13_config_environ, mock_nbhelper):
         sut = LTI13GradeSender('course-id', 'lab')
         assert sut.course.lms_lineitems_endpoint == 'canvas.docker.com/api/lti/courses/1/line_items'
 
     @pytest.mark.asyncio
-    async def test_sender_raises_AssignmentWithoutGradesError_if_there_are_not_grades(
-        self, lti_config_environ, mock_nbhelper
+    async def test_sender_raises_AssignmentWithoutGradesError_if_there_are_no_grades(
+        self, lti13_config_environ, mock_nbhelper
     ):
         sut = LTI13GradeSender('course-id', 'lab')
         with patch.object(LTI13GradeSender, '_retrieve_grades_from_db', return_value=(lambda: 10, [])):
@@ -56,8 +56,8 @@ class TestLTI13GradesSender:
                 await sut.send_grades()
 
     @pytest.mark.asyncio
-    async def test_sender_calls__set_access_token_header_before_to_send_grades(
-        self, lti_config_environ, make_http_response, make_mock_request_handler, mock_nbhelper
+    async def test_sender_calls_set_access_token_header_before_to_send_grades(
+        self, lti13_config_environ, make_http_response, make_mock_request_handler, mock_nbhelper
     ):
         sut = LTI13GradeSender('course-id', 'lab')
         local_handler = make_mock_request_handler(RequestHandler)
@@ -85,7 +85,7 @@ class TestLTI13GradesSender:
     @pytest.mark.asyncio
     @pytest.mark.parametrize("http_async_httpclient_with_simple_response", [[]], indirect=True)
     async def test_sender_raises_an_error_if_no_line_items_were_found(
-        self, lti_config_environ, http_async_httpclient_with_simple_response, mock_nbhelper
+        self, lti13_config_environ, http_async_httpclient_with_simple_response, mock_nbhelper
     ):
         sut = LTI13GradeSender('course-id', 'lab')
 
@@ -100,7 +100,7 @@ class TestLTI13GradesSender:
 
     @pytest.mark.asyncio
     async def test_get_lineitems_from_url_method_does_fetch_lineitems_from_url(
-        self, lti_config_environ, mock_nbhelper, make_http_response, make_mock_request_handler
+        self, lti13_config_environ, mock_nbhelper, make_http_response, make_mock_request_handler
     ):
         local_handler = make_mock_request_handler(RequestHandler)
         sut = LTI13GradeSender('course-id', 'lab')
@@ -119,7 +119,7 @@ class TestLTI13GradesSender:
         indirect=True,
     )
     async def test_get_lineitems_from_url_method_sets_all_lineitems_property(
-        self, lti_config_environ, mock_nbhelper, http_async_httpclient_with_simple_response
+        self, lti13_config_environ, mock_nbhelper, http_async_httpclient_with_simple_response
     ):
         sut = LTI13GradeSender('course-id', 'lab')
 
@@ -128,7 +128,7 @@ class TestLTI13GradesSender:
 
     @pytest.mark.asyncio
     async def test_get_lineitems_from_url_method_calls_itself_recursively(
-        self, lti_config_environ, mock_nbhelper, make_http_response, make_mock_request_handler
+        self, lti13_config_environ, mock_nbhelper, make_http_response, make_mock_request_handler
     ):
         local_handler = make_mock_request_handler(RequestHandler)
         sut = LTI13GradeSender('course-id', 'lab')

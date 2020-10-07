@@ -10,7 +10,7 @@ from illumidesk.lti13.handlers import LTI13ConfigHandler
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
-async def test_get_method_calls_write_method(mock_write, lti_config_environ, make_mock_request_handler):
+async def test_get_method_calls_write_method(mock_write, lti13_config_environ, make_mock_request_handler):
     """
     Is the write method used in get method?
     """
@@ -23,7 +23,7 @@ async def test_get_method_calls_write_method(mock_write, lti_config_environ, mak
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
-async def test_get_calls_write_method_with_a_json(mock_write, lti_config_environ, make_mock_request_handler):
+async def test_get_calls_write_method_with_a_json(mock_write, lti13_config_environ, make_mock_request_handler):
     """
     Does the write base method is invoked with a string?
     """
@@ -41,7 +41,7 @@ async def test_get_calls_write_method_with_a_json(mock_write, lti_config_environ
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
-async def test_get_method_writes_a_json_with_required_keys(mock_write, lti_config_environ, make_mock_request_handler):
+async def test_get_method_writes_a_json_with_required_keys(mock_write, lti13_config_environ, make_mock_request_handler):
     """
     Does the get method write a json (jwks) with essential fields?
     """
@@ -69,7 +69,7 @@ async def test_get_method_writes_a_json_with_required_keys(mock_write, lti_confi
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
 async def test_get_method_writes_our_company_name_in_the_title_field(
-    mock_write, lti_config_environ, make_mock_request_handler
+    mock_write, lti13_config_environ, make_mock_request_handler
 ):
     """
     Does the get method write 'Illumidesk' value as the title in the json?
@@ -88,7 +88,7 @@ async def test_get_method_writes_our_company_name_in_the_title_field(
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
 async def test_get_method_writes_email_field_within_custom_fields(
-    mock_write, lti_config_environ, make_mock_request_handler
+    mock_write, lti13_config_environ, make_mock_request_handler
 ):
     """
     Does the get method write 'email' field as a custom_fields?
@@ -108,7 +108,7 @@ async def test_get_method_writes_email_field_within_custom_fields(
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
 async def test_get_method_writes_email_custom_field_within_each_course_navigation_placement(
-    mock_write, lti_config_environ, make_mock_request_handler
+    mock_write, lti13_config_environ, make_mock_request_handler
 ):
     """
     Does the get method write 'email' field in custom_fields within each course_navigation placement setting?
@@ -141,7 +141,7 @@ async def test_get_method_writes_email_custom_field_within_each_course_navigatio
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
 async def test_get_method_writes_lms_user_id_field_within_custom_fields(
-    mock_write, lti_config_environ, make_mock_request_handler
+    mock_write, lti13_config_environ, make_mock_request_handler
 ):
     """
     Does the get method write 'lms_user_id' field within custom_fields and use the $User.id property?
@@ -161,7 +161,7 @@ async def test_get_method_writes_lms_user_id_field_within_custom_fields(
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
 async def test_get_method_writes_lms_user_id_custom_field_within_each_course_navigation_placement(
-    mock_write, lti_config_environ, make_mock_request_handler
+    mock_write, lti13_config_environ, make_mock_request_handler
 ):
     """
     Does the get method write 'lms_user_id' field in custom_fields within each course_navigation placement setting?

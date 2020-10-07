@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 @pytest.mark.asyncio
 async def test_get_method_raises_permission_error_if_pem_file_is_protected(
-    lti_config_environ, make_mock_request_handler
+    lti13_config_environ, make_mock_request_handler
 ):
     """
     Is a permission error raised if the private key is protected after calling the
@@ -40,7 +40,7 @@ async def test_get_method_raises_an_error_without_lti13_private_key(make_mock_re
 
 
 @patch('tornado.web.RequestHandler.write')
-def test_get_method_calls_write_method_with_a_dict(mock_write_method, lti_config_environ, make_mock_request_handler):
+def test_get_method_calls_write_method_with_a_dict(mock_write_method, lti13_config_environ, make_mock_request_handler):
     """
     Does the write method is called with a dict?
     """
@@ -55,7 +55,7 @@ def test_get_method_calls_write_method_with_a_dict(mock_write_method, lti_config
     assert type(write_args[0]) == dict
 
 
-def test_get_method_set_content_type_as_json(lti_config_environ, make_mock_request_handler):
+def test_get_method_set_content_type_as_json(lti13_config_environ, make_mock_request_handler):
     """
     Does the write method is set the content-type header as application/json?
     """

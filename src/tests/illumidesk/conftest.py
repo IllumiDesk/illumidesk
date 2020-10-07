@@ -93,13 +93,24 @@ def jupyterhub_api_environ(monkeypatch):
 
 
 @pytest.fixture(scope='function')
-def lti_config_environ(monkeypatch, pem_file):
+def lti11_config_environ(monkeypatch, pem_file):
+    """
+    Set the enviroment variables used in Course class
+    """
+    monkeypatch.setenv('LTI_CONSUMER_KEY', 'ild_test_consumer_key')
+    monkeypatch.setenv('LTI_SHARED_SECRET', 'ild_test_shared_secret')
+
+
+@pytest.fixture(scope='function')
+def lti13_config_environ(monkeypatch, pem_file):
     """
     Set the enviroment variables used in Course class
     """
     monkeypatch.setenv('LTI13_PRIVATE_KEY', pem_file)
     monkeypatch.setenv('LTI13_TOKEN_URL', 'https://my.platform.domain/login/oauth2/token')
-    monkeypatch.setenv('LTI13_CLIENT_ID', '000000000000001')
+    monkeypatch.setenv('LTI13_ENDPOINT', 'https://my.platform.domain/api/lti/security/jwks')
+    monkeypatch.setenv('LTI13_CLIENT_ID', 'https://my.platform.domain/login/oauth2/token')
+    monkeypatch.setenv('LTI13_AUTHORIZE_URL', 'https://my.platform.domain/api/lti/authorize_redirect')
 
 
 @pytest.fixture(scope='function')
@@ -276,11 +287,23 @@ def grades_controlfile_reset_file_loaded():
 
 
 @pytest.fixture(scope='function')
+def setup_jupyterhub_environment(monkeypatch):
+    """
+    Set the enviroment variables used to identify the end user image.
+    """
+    monkeypatch.setenv('DOCKER_NETWORK_NAME', 'jupyter-network')
+    JUPYTERHUB_CRYPT_KEY
+    JUPYTERHUB_SHUTDOWN_ON_LOGOUT
+
+
+@pytest.fixture(scope='function')
 def setup_image_environ(monkeypatch):
     """
     Set the enviroment variables used to identify the end user image.
     """
     monkeypatch.setenv('DOCKER_END_USER_IMAGE', 'standard_image')
+    monkeypatch.setenv('SPAWNER_CPU_LIMIT', '2G')
+    monkeypatch.setenv('SPAWNER_MEM_LIMIT', '1.0')
 
 
 @pytest.fixture(scope='function')
