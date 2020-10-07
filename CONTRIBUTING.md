@@ -42,7 +42,8 @@ $ python3 -m pytest
 ```
 If tests fail, don't hesitate to ask for help.
 
-9.  Add and commit the changed files using `git add` and `git commit -m "my commit message here"`. You may notice that some commands run right after running `git commit ...`.
+9.  Add and commit the changed files using `git add` and `git commit -m "my commit message here"`. You may notice that some commands run right after running `git commit ...`. These commands are run with the `pre-commit` hooks defined in the `.pre-commit-config.yaml` configuration file.
+
 10. Push the changes to your fork using:
 
 ```
@@ -69,6 +70,8 @@ Linters and formatters are set up with pre-commit-hooks. If you aren't used to p
 The CI/CD pipeline will check coding style but will not error out. There may be situations where minor coding style errors are less important that in important merges to the `main` branch. However, these are considered on a case-by-case basis.
 
 ## Commit Messages, Changelog, and Releases
+
+This project includes `pre-commit` hooks configured to run `black`, `flake8`, and `pip-compile` before running and completing the `git commit ...` command. If these tools do not run when running the `git add ...` and `git commit ...` commands, make sure you install the pre-commit hooks with `pre-commit install`.
 
 ### For Contributors
 
