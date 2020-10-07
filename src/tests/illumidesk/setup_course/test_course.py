@@ -64,7 +64,12 @@ def test_grader_root_path_is_valid(setup_course_environ):
     """
     course = Course(org='org1', course_id='example', domain='example.com')
     assert course.grader_root is not None
-    assert course.grader_root == Path(os.environ.get('MNT_ROOT'), course.org, 'home', course.grader_name,)
+    assert course.grader_root == Path(
+        os.environ.get('MNT_ROOT'),
+        course.org,
+        'home',
+        course.grader_name,
+    )
 
 
 def test_course_path_is_a_grader_root_subfolder(setup_course_environ):
@@ -107,6 +112,15 @@ def test_a_course_contains_service_config_with_correct_values(setup_course_envir
     assert service_config['url'] == f'http://{course.grader_name}:8888'
     assert service_config['admin'] is True
     assert service_config['api_token'] == course.token
+
+
+def test_grader_user_role(setup_course_environ):
+    """
+    Is the grader's user_role set to Grader?
+    """
+    course = Course(org='org1', course_id='example', domain='example.com')
+    assert course.user_role is not None
+    assert course.user_role == 'Grader'
 
 
 @patch('docker.DockerClient.containers')

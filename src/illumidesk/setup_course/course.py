@@ -26,36 +26,40 @@ class Course:
     Attributes:
         org: Organization name used in the account's sub-domain
         course_id: The normalized course id. Must not contain more than
-        30 characters or have special characters.
+          30 characters or have special characters.
+        course_root: Course's root path
         domain: Domain name from tool consumer that launched the request
         exchange_root: Path for exchange folder
+        gid: Grader's group id
         grader_name: Grader's account name
         grader_root: Grader's home path
-        course_root: Course's root path
-        token: JupyterHub API token used to authenticat requests with the Hub
-
-        uid: Grader's user id
-        gid: Grader's group id
         is_new_setup: True indicates a new setup, False otherwise
+        token: JupyterHub API token used to authenticat requests with the Hub
+        uid: Grader's user id
+        user_role: the user role set in the grader's share notebook
     """
 
     def __init__(self, org: str, course_id: str, domain: str):
         self.org = org
         self.course_id = course_id
         self.domain = domain
-
         self.exchange_root = Path(os.environ.get('MNT_ROOT'), self.org, 'exchange')
         self.grader_name = f'grader-{course_id}'
-        self.grader_root = Path(os.environ.get('MNT_ROOT'), org, 'home', self.grader_name,)
+        self.grader_root = Path(
+            os.environ.get('MNT_ROOT'),
+            org,
+            'home',
+            self.grader_name,
+        )
         self.grader_shared_folder = Path(os.environ.get('MNT_ROOT'), org, 'shared', self.course_id)
         shared_folder_env = os.environ.get('SHARED_FOLDER_ENABLED') or 'False'
         self.is_shared_folder_enabled = True if shared_folder_env.lower() in ('true', '1') else False
         self.course_root = self.grader_root / course_id
         self.token = token_hex(32)
         self.client = docker.from_env()
-
         self.uid = int(os.environ.get('NB_UID'))
         self.gid = int(os.environ.get('NB_GID'))
+        self.user_role = 'Grader'
         self._is_new_setup = False
         self.jupyterhub_api = JupyterHubAPI()
 
@@ -243,6 +247,7 @@ class Course:
                 f'NB_UID={self.uid}',
                 f'NB_GID={self.gid}',
                 f'NB_USER={self.grader_name}',
+                f'USER_ROLE={self.user_role}',
             ],
             volumes=docker_volumes,
             name=self.grader_name,
