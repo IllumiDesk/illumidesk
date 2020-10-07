@@ -9,3 +9,10 @@ repos:
     rev: 3.7.9
     hooks:
       - id: flake8
+  
+  - repo: https://github.com/jazzband/pip-tools
+    rev: 5.3.1
+    hooks:
+      - id: pip-compile
+        files: ^requirements\.(in|txt)$
+        args: [--generate-hashes, src/]
