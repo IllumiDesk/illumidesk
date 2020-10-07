@@ -29,6 +29,7 @@ jupyterhub.sqlite
 MANIFEST
 pip-wheel-metadata
 *pycache*
+.secrets
 secrets
 .secrets
 share/jupyterhub/static/components

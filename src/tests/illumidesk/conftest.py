@@ -292,6 +292,7 @@ def setup_course_environ(monkeypatch, tmp_path, jupyterhub_api_environ):
     monkeypatch.setenv('NB_GRADER_UID', '10001')
     monkeypatch.setenv('NB_GID', '100')
     monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader-image')
+    monkeypatch.setenv('USER_ROLE', 'Grader')
 
 
 @pytest.fixture(scope='function')

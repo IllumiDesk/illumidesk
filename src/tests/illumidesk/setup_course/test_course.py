@@ -114,6 +114,15 @@ def test_a_course_contains_service_config_with_correct_values(setup_course_envir
     assert service_config['api_token'] == course.token
 
 
+def test_grader_user_role(setup_course_environ):
+    """
+    Is the grader's user_role set to Grader?
+    """
+    course = Course(org='org1', course_id='example', domain='example.com')
+    assert course.user_role is not None
+    assert course.user_role == 'Grader'
+
+
 @patch('docker.DockerClient.containers')
 def test_should_setup_method_returns_true_if_container_does_not_exist(mock_docker, setup_course_environ):
     """
