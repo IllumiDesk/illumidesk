@@ -59,7 +59,7 @@ class Course:
         self.token = token_hex(32)
         self.client = docker.from_env()
 
-        self.uid = int(os.environ.get('NB_UID'))
+        self.uid = int(os.environ.get('NB_GRADER_UID'))
         self.gid = int(os.environ.get('NB_GID'))
         self._is_new_setup = False
         self.jupyterhub_api = JupyterHubAPI()
@@ -245,7 +245,7 @@ class Course:
                 f'JUPYTERHUB_SERVICE_PREFIX={base_url}/services/{self.course_id}',
                 f'JUPYTERHUB_CLIENT_ID=service-{self.course_id}',
                 f'JUPYTERHUB_USER={self.grader_name}',
-                f'NB_UID={self.uid}',
+                f'NB_GRADER_UID={self.uid}',
                 f'NB_GID={self.gid}',
                 f'NB_USER={self.grader_name}',
             ],
