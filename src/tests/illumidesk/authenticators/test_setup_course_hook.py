@@ -271,7 +271,9 @@ async def test_setup_course_hook_does_not_call_add_instructor_to_jupyterhub_grou
             JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
         ) as mock_add_instructor_to_jupyterhub_group:
             with patch.object(
-                AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request),
+                AsyncHTTPClient,
+                'fetch',
+                return_value=make_http_response(handler=local_handler.request),
             ):
                 await setup_course_hook(local_authenticator, local_handler, local_authentication)
                 assert not mock_add_instructor_to_jupyterhub_group.called
@@ -310,7 +312,11 @@ async def test_setup_course_hook_initialize_data_dict(
 
 @pytest.mark.asyncio()
 async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
-    setup_course_hook_environ, make_auth_state_dict, make_http_response, make_mock_request_handler, mock_nbhelper,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
+    mock_nbhelper,
 ):
     """
     Is the annuncement service called in new setup?
@@ -322,7 +328,12 @@ async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
     response_args = {'handler': local_handler.request, 'body': {'is_new_setup': True}}
     with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
         with patch.object(
-            AsyncHTTPClient, 'fetch', side_effect=[make_http_response(**response_args), None,],  # noqa: E231
+            AsyncHTTPClient,
+            'fetch',
+            side_effect=[
+                make_http_response(**response_args),
+                None,
+            ],  # noqa: E231
         ):
             AnnouncementService.add_announcement = AsyncMock(return_value=None)
 
@@ -349,7 +360,12 @@ async def test_is_new_course_initiates_rolling_update(
     response_args = {'handler': local_handler.request, 'body': {'is_new_setup': True}}
     with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
         with patch.object(
-            AsyncHTTPClient, 'fetch', side_effect=[make_http_response(**response_args), None,],  # noqa: E231
+            AsyncHTTPClient,
+            'fetch',
+            side_effect=[
+                make_http_response(**response_args),
+                None,
+            ],  # noqa: E231
         ) as mock_client:
             AnnouncementService.add_announcement = AsyncMock(return_value=None)
 

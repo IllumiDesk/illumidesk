@@ -101,7 +101,9 @@ LTI13_GENERAL_REQUIRED_CLAIMS = {
 # http://www.imsglobal.org/spec/lti/v1p3/#required-message-claims
 LTI13_RESOURCE_LINK_REQUIRED_CLAIMS = {
     'https://purl.imsglobal.org/spec/lti/claim/message_type': 'LtiResourceLinkRequest',
-    'https://purl.imsglobal.org/spec/lti/claim/resource_link': {'id': '',},  # noqa: E231
+    'https://purl.imsglobal.org/spec/lti/claim/resource_link': {
+        'id': '',
+    },  # noqa: E231
     **LTI13_GENERAL_REQUIRED_CLAIMS,
 }
 
@@ -154,7 +156,10 @@ LTI13_GENERAL_OPTIONAL_CLAIMS = {
 
 LTI13_RESOURCE_LINK_OPTIONAL_CLAIMS = {
     **LTI13_GENERAL_OPTIONAL_CLAIMS,
-    'https://purl.imsglobal.org/spec/lti/claim/resource_link': {'description': '', 'title': '',},  # noqa: E231
+    'https://purl.imsglobal.org/spec/lti/claim/resource_link': {
+        'description': '',
+        'title': '',
+    },  # noqa: E231
 }
 
 
