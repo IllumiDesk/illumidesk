@@ -39,6 +39,12 @@
     <script src="{{static_url("components/jquery/dist/jquery.min.js") }}" type="text/javascript" charset="utf-8"></script>
     <script src="{{static_url("components/bootstrap/dist/js/bootstrap.min.js") }}" type="text/javascript" charset="utf-8"></script>
     {% endblock %}
+    <style type="text/css">
+      .dropdown-item {
+        max-height:250px;
+        overflow:auto;
+      }
+    </style>
     <script>
       require.config({
           {% if version_hash %}
