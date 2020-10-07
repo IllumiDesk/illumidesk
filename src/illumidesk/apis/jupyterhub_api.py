@@ -138,7 +138,9 @@ class JupyterHubAPI(LoggingConfigurable):
         self.log.debug(f'Adding user to group with path groups/{group_name}/users')
         self.log.debug('Adding user %s to group %s' % (json.dumps({'users': username}), group_name))
         return await self._request(
-            f'groups/{group_name}/users', body=json.dumps({'users': [f'{username}']}), method='POST',
+            f'groups/{group_name}/users',
+            body=json.dumps({'users': [f'{username}']}),
+            method='POST',
         )
 
     async def add_student_to_jupyterhub_group(self, course_id: str, student: str) -> Awaitable['HTTPResponse']:

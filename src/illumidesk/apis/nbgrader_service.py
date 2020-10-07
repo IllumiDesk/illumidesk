@@ -49,7 +49,7 @@ class NbGraderServiceHelper:
 
         self.course_id = LTIUtils().normalize_string(course_id)
         self.course_dir = f'/home/grader-{self.course_id}/{self.course_id}'
-        self.uid = int(os.environ.get('NB_UID') or '10001')
+        self.uid = int(os.environ.get('NB_GRADER_UID') or '10001')
         self.gid = int(os.environ.get('NB_GID') or '100')
 
         self.db_url = nbgrader_format_db_url(course_id)

@@ -83,7 +83,7 @@ class LTIGradeSender(GradesBaseSender):
 
     async def send_grades(self) -> None:
         """Sends grades to the tool consumer (LMS).
-        
+
         A json control file is used to maintain the relationship between the assignment (resource) registered
         in the database and the tool conumer's (LMS) assignment records. The grades are sent to the endpoint registered
         with the ``lis_outcome_service_url`` and uses the ``lis_result_sourcedid`` as the assignment's unique identifier.
@@ -144,7 +144,7 @@ class LTI13GradeSender(GradesBaseSender):
 
     For simplify the submission we're using the lineitem_id (that is a url) obtained in authentication flow and it indicates us where send the scores
     So the assignment item in the database should contains the 'lms_lineitem_id' with something like /api/lti/courses/:course_id/line_items/:line_item_id
-    
+
     Attrs:
         course_id: It's the course label obtained from lti claims
         assignment_name: the asignment name used on the nbgrader console
@@ -205,8 +205,9 @@ class LTI13GradeSender(GradesBaseSender):
         lineitem_matched = None
         for item in self.all_lineitems:
             item_label = item['label']
-            if self.assignment_name.lower() == item_label.lower() or self.assignment_name.lower() == LTIUtils().normalize_string(
-                item_label
+            if (
+                self.assignment_name.lower() == item_label.lower()
+                or self.assignment_name.lower() == LTIUtils().normalize_string(item_label)
             ):
                 lineitem_matched = item['id']  # the id is the full url
                 logger.debug(f'There is a lineitem matched with the assignment {self.assignment_name}. {item}')

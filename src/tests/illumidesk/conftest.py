@@ -289,7 +289,7 @@ def setup_course_environ(monkeypatch, tmp_path, jupyterhub_api_environ):
     Set the environment variables used in Course class`
     """
     monkeypatch.setenv('MNT_ROOT', str(tmp_path))
-    monkeypatch.setenv('NB_UID', '10001')
+    monkeypatch.setenv('NB_GRADER_UID', '10001')
     monkeypatch.setenv('NB_GID', '100')
     monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader-image')
     monkeypatch.setenv('USER_ROLE', 'Grader')

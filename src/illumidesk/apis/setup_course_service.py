@@ -55,7 +55,10 @@ async def register_new_service(data: Dict[str, str]) -> str:
     client = AsyncHTTPClient()
 
     response = await client.fetch(
-        SERVICE_BASE_URL, headers=SERVICE_COMMON_HEADERS, body=json.dumps(data), method='POST',
+        SERVICE_BASE_URL,
+        headers=SERVICE_COMMON_HEADERS,
+        body=json.dumps(data),
+        method='POST',
     )
     if not response.body:
         raise json.JSONDecodeError('The setup course response body is empty', '', 0)
