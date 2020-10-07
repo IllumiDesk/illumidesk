@@ -100,7 +100,9 @@ If you would like to setup a quickstart course, [you may do so using the standar
 nbgrader quickstart <course_name> --force
 ```
 
-Click on the `Grader Console` tab and follow the steps available within the nbgrader docs to generate and release assignments for your learners.
+Click on the `Grader Console` tab and follow the [steps available within the IllumiDesk docs](https://docs.illumidesk.com) to generate and release assignments for your learners.
+
+> **NOTE**: It is important to note that by default the grader's configuration file, which is located in the `/home/grader-{course_id}/{course_id}` path defines the use of the `header.ipnyb` and `footer.ipynb` template files located within the course's source directory. If you receive an error when generating the assignment, then add `header.ipynb` and `footer.ipynb` (with or without content is fine, as long as the file is a Jupyter Notebook (ipynb) compatible format) files to within the `/home/grader-{course_id}/{course_id}/src` path.
 
 ## Components
 
