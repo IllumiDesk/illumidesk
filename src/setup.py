@@ -39,10 +39,10 @@ setup(
         'dockerspawner==0.11.1',
         'filelock==3.0.12',
         'josepy==1.3.0',
-        'jupyterhub>=1.1.0',
-        'jupyterhub-ltiauthenticator>=0.4.0',
+        'jupyterhub==1.1.0',
+        'jupyterhub-ltiauthenticator==0.4.0',
         'jwcrypto==0.7',
-        'nbgrader@git+https://github.com/IllumiDesk/nbgrader#egg=nbgrader-0.6.4',
+        'nbgrader@git+https://github.com/IllumiDesk/nbgrader#egg=nbgrader-0.64.2',
         'oauthenticator==0.11.0',
         'pem==20.1.0',
         'psycopg2-binary==2.8.6',
@@ -53,5 +53,7 @@ setup(
         'filelock==3.0.12',
         'lti==0.9.5',
     ],  # noqa: E231
-    package_data={'': ['*.html'],},  # noqa: E231
+    package_data={
+        '': ['*.html'],
+    },  # noqa: E231
 )
