@@ -68,7 +68,7 @@ prompt-toolkit==3.0.7     # via ipython, jupyter-console
 psycopg2-binary==2.8.6    # via illumidesk (setup.py)
 ptyprocess==0.6.0         # via pexpect, terminado
 pycparser==2.20           # via cffi
-pycryptodome==3.9.7       # via illumidesk (setup.py)
+pycryptodome==3.9.8       # via illumidesk (setup.py)
 pycryptodomex==3.9.8      # via pyjwkest
 pygments==2.7.1           # via ipython, jupyter-console, jupyterlab-pygments, nbconvert, qtconsole
 pyjwkest==1.4.2           # via illumidesk (setup.py)
