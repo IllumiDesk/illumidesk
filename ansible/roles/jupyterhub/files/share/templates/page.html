@@ -39,6 +39,7 @@
     <script src="{{static_url("components/jquery/dist/jquery.min.js") }}" type="text/javascript" charset="utf-8"></script>
     <script src="{{static_url("components/bootstrap/dist/js/bootstrap.min.js") }}" type="text/javascript" charset="utf-8"></script>
     {% endblock %}
+
     <script>
       require.config({
           {% if version_hash %}
@@ -123,7 +124,7 @@
             {% if services %}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Grader Notebooks<span class="caret"></span></a>
-              <ul class="dropdown-menu">
+              <ul class="dropdown-menu" style="max-height:250px; overflow:auto;">
               {% for service in services if service.name != 'announcement'%}
                 <li><a class="dropdown-item" href="{{service.prefix}}">{{service.name}}</a></li>
               {% endfor %}
