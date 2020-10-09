@@ -35,7 +35,7 @@ Refer to the [customization](#customization) section for more advanced setup opt
 
 On remote host:
 
-- Tested with Ubuntu 18.04
+- Tested with Ubuntu 20.04
 
 ### Prepare your setup
 
