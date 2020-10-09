@@ -83,7 +83,7 @@ python-json-logger==2.0.0  # via jupyter-telemetry
 pyzmq==19.0.2             # via jupyter-client, notebook, qtconsole
 qtconsole==4.7.7          # via jupyter
 qtpy==1.9.0               # via qtconsole
-rapidfuzz==0.12.2         # via nbgrader
+rapidfuzz==0.12.3         # via nbgrader
 requests-oauthlib==1.3.0  # via lti
 requests==2.24.0          # via docker, jupyterhub, nbgrader, pyjwkest, requests-oauthlib
 ruamel.yaml.clib==0.2.2   # via ruamel.yaml
