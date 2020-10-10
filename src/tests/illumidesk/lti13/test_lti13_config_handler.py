@@ -41,7 +41,9 @@ async def test_get_calls_write_method_with_a_json(mock_write, lti13_config_envir
 
 @pytest.mark.asyncio
 @patch('tornado.web.RequestHandler.write')
-async def test_get_method_writes_a_json_with_required_keys(mock_write, lti13_config_environ, make_mock_request_handler):
+async def test_get_method_writes_a_json_with_required_keys(
+    mock_write, lti13_config_environ, make_mock_request_handler
+):
     """
     Does the get method write a json (jwks) with essential fields?
     """
