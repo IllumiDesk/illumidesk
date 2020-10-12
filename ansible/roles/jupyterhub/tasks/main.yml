@@ -109,6 +109,11 @@
     path: "{{working_dir}}/keys/rsa_private.pem"
     mode: '0644'
 
+- name: create the common env var file from template
+  template:
+    src: env.common.j2
+    dest: "{{ working_dir }}/env.common"
+
 - name: create the jupyterhub env var file from template
   template:
     src: env.jhub.j2

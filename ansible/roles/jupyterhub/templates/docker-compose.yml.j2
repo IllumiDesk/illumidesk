@@ -27,8 +27,9 @@ services:
     image: {{docker_postgres_image}}
     container_name: jupyterhub-db
     restart: always
-    env_file:
-      - env.jhub
+    environment:
+      - POSTGRES_USER={{postgres_jupyterhub_user}}
+      - POSTGRES_PASSWORD={{postgres_jupyterhub_password}}
     volumes:
       - db:{{pg_data}}
   reverse-proxy:
@@ -60,8 +61,9 @@ services:
     image: {{docker_postgres_image}}
     container_name: {{postgres_nbgrader_host}}
     restart: always
-    env_file:
-      - env.common
+    environment:
+      - POSTGRES_USER={{postgres_nbgrader_user}}
+      - POSTGRES_PASSWORD={{postgres_nbgrader_password}}
     volumes:
       - db-nbgrader:{{pg_data}}
 {% endif %}
@@ -71,9 +73,8 @@ services:
     container_name: {{postgres_labs_host}}
     restart: always
     environment:
-      - POSTGRES_LABS_DB={{postgres_labs_db}}
-      - POSTGRES_LABS_USER={{postgres_labs_user}}
-      - POSTGRES_LABS_PASSWORD={{postgres_labs_password}}
+      - POSTGRES_USER={{postgres_labs_user}}
+      - POSTGRES_PASSWORD={{postgres_labs_password}}
     volumes:
       - db-labs:{{pg_data}}
 {% endif %}
