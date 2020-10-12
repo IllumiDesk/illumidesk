@@ -13,7 +13,7 @@ certifi==2020.6.20        # via requests
 cfgv==3.2.0               # via pre-commit
 chardet==3.0.4            # via requests
 click==7.1.2              # via black, pip-tools, quart
-codecov==2.1.9            # via -r dev-requirements.in
+codecov==2.1.10           # via -r dev-requirements.in
 coverage==5.3             # via -r dev-requirements.in, codecov, pytest-cov
 distlib==0.3.1            # via virtualenv
 filelock==3.0.12          # via virtualenv
