@@ -88,11 +88,12 @@ c.JupyterHub.services = [
 ]
 
 # JupyterHub postgres settings
-c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}/{db}'.format(
-    user=os.environ.get('POSTGRES_USER'),
-    password=os.environ.get('POSTGRES_PASSWORD'),
-    host=os.environ.get('POSTGRES_HOST'),
-    db=os.environ.get('POSTGRES_DB'),
+c.JupyterHub.db_url = 'postgresql://{user}:{password}@{host}:{port}/{db}'.format(
+    user=os.environ.get('POSTGRES_JUPYTERHUB_USER'),
+    password=os.environ.get('POSTGRES_JUPYTERHUB_PASSWORD'),
+    host=os.environ.get('POSTGRES_JUPYTERHUB_HOST'),
+    port=os.environ.get('POSTGRES_JUPYTERHUB_PORT'),
+    db=os.environ.get('POSTGRES_JUPYTERHUB_DB'),
 )
 
 # Do not redirect user to his/her server (if running)
