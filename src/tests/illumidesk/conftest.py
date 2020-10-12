@@ -287,13 +287,32 @@ def grades_controlfile_reset_file_loaded():
 
 
 @pytest.fixture(scope='function')
-def setup_jupyterhub_environment(monkeypatch):
+def setup_jupyterhub_db(monkeypatch):
     """
     Set the enviroment variables used to identify the end user image.
     """
-    monkeypatch.setenv('DOCKER_NETWORK_NAME', 'jupyter-network')
-    JUPYTERHUB_CRYPT_KEY
-    JUPYTERHUB_SHUTDOWN_ON_LOGOUT
+    monkeypatch.setenv('POSTGRES_JUPYTERHUB_DB', 'jupyterhub')
+    monkeypatch.setenv('POSTGRES_JUPYTERHUB_HOST', 'jupyterhub-db')
+    monkeypatch.setenv('POSTGRES_JUPYTERHUB_PORT', '5432')
+    monkeypatch.setenv('POSTGRES_JUPYTERHUB_USER', 'foobar')
+    monkeypatch.setenv('POSTGRES_JUPYTERHUB_PASSWORD', 'abc123')
+
+
+@pytest.fixture(scope='function')
+def setup_jupyterhub_config_base(monkeypatch):
+    """
+    Set the enviroment variables used to identify the end user image.
+    """
+    monkeypatch.setenv('JUPYTERHUB_BASE_URL', '/')
+    monkeypatch.setenv('JUPYTERHUB_SHUTDOWN_ON_LOGOUT', 'True')
+    monkeypatch.setenv('JUPYTERHUB_ADMIN_USER', 'admin0')
+    monkeypatch.setenv('SPAWNER_CPU_LIMIT', '0.5')
+    monkeypatch.setenv('SPAWNER_MEM_LIMIT', '2G')
+    monkeypatch.setenv('DOCKER_SPAWN_CMD', 'single_user_test.sh')
+    monkeypatch.setenv('DOCKER_NETWORK_NAME', 'test-network')
+    monkeypatch.setenv('EXCHANGE_DIR', '/path/to/exchange')
+    monkeypatch.setenv('DOCKER_NOTEBOOK_DIR', '/home/saturn')
+    monkeypatch.setenv('NB_NON_GRADER_UID', '1000')
 
 
 @pytest.fixture(scope='function')
