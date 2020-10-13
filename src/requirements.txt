@@ -79,7 +79,7 @@ pyparsing==2.4.7          # via packaging
 pyrsistent==0.17.3        # via jsonschema
 python-dateutil==2.8.1    # via alembic, jupyter-client, jupyterhub, nbgrader
 python-editor==1.0.4      # via alembic
-python-json-logger==2.0.0  # via jupyter-telemetry
+python-json-logger==2.0.1  # via jupyter-telemetry
 pyzmq==19.0.2             # via jupyter-client, notebook, qtconsole
 qtconsole==4.7.7          # via jupyter
 qtpy==1.9.0               # via qtconsole
