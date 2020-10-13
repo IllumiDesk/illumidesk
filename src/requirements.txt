@@ -64,7 +64,7 @@ pem==20.1.0               # via illumidesk (setup.py)
 pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
 prometheus-client==0.8.0  # via jupyterhub, notebook
-prompt-toolkit==3.0.7     # via ipython, jupyter-console
+prompt-toolkit==3.0.8     # via ipython, jupyter-console
 psycopg2-binary==2.8.6    # via illumidesk (setup.py)
 ptyprocess==0.6.0         # via pexpect, terminado
 pycparser==2.20           # via cffi
