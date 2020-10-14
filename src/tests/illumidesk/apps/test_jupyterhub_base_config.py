@@ -1,6 +1,4 @@
-
 import os
-import pytest
 
 from distutils.util import strtobool
 
@@ -36,7 +34,7 @@ def test_jupyterhub_base_config(setup_jupyterhub_db, setup_jupyterhub_config_bas
     assert c.DockerSpawner.network_name == 'test-network'
 
     assert c.JupyterHub.db_url == 'postgresql://foobar:abc123@jupyterhub-db:5432/jupyterhub'
-    assert c.JupyterHub.shutdown_on_logout == True
+    assert c.JupyterHub.shutdown_on_logout == True  # noqa: E712
 
     assert c.Spawner.cpu_limit == 0.5
     assert c.Spawner.mem_limit == '2G'
