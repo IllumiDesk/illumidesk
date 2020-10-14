@@ -64,8 +64,8 @@ postgres_labs_enabled: "{{ postgres_labs_enabled_param | default('false') }}"
 authentication_type: "{{ authentication_type_param | default('lti11') }}"
 
 # LTI 1.1 credentials
-lti11_consumer_key: "{{ lti11_consumer_key_result }}"
-lti11_shared_secret: "{{ lti11_shared_secret_result }}"
+lti11_consumer_key: "{{ lti11_consumer_key_result | default('ild_test_consumer_key')}}"
+lti11_shared_secret: "{{ lti11_shared_secret_result | default('ild_test_shared_secret')}}"
 
 # LTI 1.3 config
 lti13_client_id: "{{ lti13_client_id_param | default('')}}"
