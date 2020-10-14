@@ -5,7 +5,7 @@ from dockerspawner.dockerspawner import DockerSpawner
 
 def test_dockerspawner_uses_raw_username_in_format_volume_name():
     """
-    Does the dockerspawner uses correctly the username?
+    Does the correctly use the username?
     """
     d = DockerSpawner()
     # notice we're not using variable for username,

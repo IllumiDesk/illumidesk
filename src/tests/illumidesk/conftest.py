@@ -349,6 +349,15 @@ def setup_course_hook_environ(monkeypatch, jupyterhub_api_environ):
 
 
 @pytest.fixture(scope='function')
+def pre_spawn_hook_environ(monkeypatch, jupyterhub_api_environ):
+    """
+    Set the environment variables used in the setup_course_hook function
+    """
+    monkeypatch.setenv('NB_GID', '100')
+    monkeypatch.setenv('NB_NON_GRADER_UID', '1000')
+
+
+@pytest.fixture(scope='function')
 def setup_utils_environ(monkeypatch, tmp_path):
     """
     Set the enviroment variables used in SetupUtils class
