@@ -96,7 +96,7 @@ postgres_nbgrader_host: "{{ postgres_nbgrader_host_param | default('nbgrader-db'
 postgres_nbgrader_user: "{{ postgres_nbgrader_user_param | default('nbgrader') }}"
 postgres_nbgrader_password: "{{ postgres_nbgrader_password_param | default('nbgrader') }}"
 postgres_nbgrader_port: "{{ postgres_nbgrader_port_param | default('5432') }}"
-postgres_nbgrader_dbname: "{{ postgres_nbgrader_dbname_param | default('nbgrader') }}"
+postgres_nbgrader_dbname: "{{ postgres_nbgrader_dbname_param | default('postgress') }}"
 
 # Postgres settings for JupyterHub
 postgres_jupyterhub_host: "{{ postgres_jupyterhub_host_param | default('jupyterhub-db') }}"
