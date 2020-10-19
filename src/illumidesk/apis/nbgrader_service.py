@@ -1,8 +1,6 @@
 import logging
-from pathlib import Path
-import psycopg2
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import os
+from pathlib import Path
 import shutil
 
 from illumidesk.authenticators.utils import LTIUtils
@@ -12,9 +10,13 @@ from nbgrader.api import Course
 from nbgrader.api import Gradebook
 from nbgrader.api import InvalidEntry
 
+from sqlalchemy_utils import database_exists
+from sqlalchemy_utils import create_database
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
 
 nbgrader_db_host = os.environ.get('POSTGRES_NBGRADER_HOST')
 nbgrader_db_port = os.environ.get('POSTGRES_NBGRADER_PORT') or 5432
@@ -30,6 +32,9 @@ if not org_name:
 def nbgrader_format_db_url(course_id: str) -> str:
     """
     Returns the nbgrader database url with the format: <org_name>_<course-id>
+
+    Args:
+      course_id: the course id (usually associated with the course label) from which the launch was initiated.
     """
     course_id = LTIUtils().normalize_string(course_id)
     database_name = f'{org_name}_{course_id}'
@@ -41,6 +46,14 @@ def nbgrader_format_db_url(course_id: str) -> str:
 class NbGraderServiceHelper:
     """
     Helper class to use the nbgrader database and gradebook
+
+    Attrs:
+      course_id: the course id (equivalent to the course name)
+      course_dir: the course directory located in the grader home directory
+      uid: the user id that owns the grader home directory
+      gid: the group id that owns the grader home directory
+      db_url: the database string connection uri
+      database_name: the database name
     """
 
     def __init__(self, course_id: str, check_database_exists: bool = False):
@@ -58,16 +71,12 @@ class NbGraderServiceHelper:
             self.create_database_if_not_exists()
 
     def create_database_if_not_exists(self) -> None:
-        with psycopg2.connect(
-            f'user={nbgrader_db_user} password={nbgrader_db_password} host={nbgrader_db_host}'
-        ) as conn:
-            conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-            try:
-                with conn.cursor() as cur:
-                    cur.execute(f'CREATE DATABASE "{self.database_name}";')
-            except psycopg2.errors.DuplicateDatabase:
-                logger.info(f'Database {self.database_name} exists')
-                pass
+        """Creates a new database if it doesn't exist"""
+        conn_uri = nbgrader_format_db_url(self.course_id)
+
+        if not database_exists(conn_uri):
+            logger.debug("db not exist, create database")
+            create_database(conn_uri)
 
     def add_user_to_nbgrader_gradebook(self, username: str, lms_user_id: str) -> None:
         """
