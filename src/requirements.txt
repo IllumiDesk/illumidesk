@@ -43,7 +43,7 @@ jupyterhub==1.1.0         # via dockerspawner, illumidesk (setup.py), jupyterhub
 jupyterlab-pygments==0.1.2  # via nbconvert
 jwcrypto==0.8             # via illumidesk (setup.py)
 lti==0.9.5                # via illumidesk (setup.py)
-lxml==4.5.2               # via lti
+lxml==4.6.1               # via lti
 mako==1.1.3               # via alembic
 markupsafe==1.1.1         # via jinja2, mako
 mistune==0.8.4            # via nbconvert
