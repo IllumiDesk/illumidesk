@@ -58,7 +58,7 @@ oauthenticator==0.11.0    # via illumidesk (setup.py)
 oauthlib==3.1.0           # via jupyterhub, jupyterhub-ltiauthenticator, lti, requests-oauthlib
 packaging==20.4           # via bleach
 pamela==1.0.0             # via jupyterhub
-pandocfilters==1.4.2      # via nbconvert
+pandocfilters==1.4.3      # via nbconvert
 parso==0.8.0              # via jedi
 pem==20.1.0               # via illumidesk (setup.py)
 pexpect==4.8.0            # via ipython
