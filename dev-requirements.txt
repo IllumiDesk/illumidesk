@@ -57,7 +57,7 @@ six==1.15.0               # via -c requirements.txt, packaging, pip-tools, virtu
 toml==0.10.1              # via black, hypercorn, pre-commit, pytest, quart
 typed-ast==1.4.1          # via black
 typing-extensions==3.7.4.3  # via black
-urllib3==1.25.10          # via requests
+urllib3==1.25.11          # via requests
 virtualenv==20.0.33       # via pre-commit
 werkzeug==1.0.1           # via quart
 wsproto==0.15.0           # via hypercorn
