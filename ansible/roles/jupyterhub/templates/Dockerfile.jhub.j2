@@ -45,11 +45,12 @@ COPY share/templates/. /usr/local/share/jupyterhub/templates/.
 COPY jupyterhub_config.py /etc/jupyterhub/jupyterhub_config.py
 COPY jupyterhub_config_base.py /etc/jupyterhub/jupyterhub_config_base.py
 
-WORKDIR /srv/jupyterhub
+WORKDIR /etc/jupyterhub-services
 
 # Get announcement from jupyterhub examples folder
 RUN wget https://raw.githubusercontent.com/jupyterhub/jupyterhub/d126baa443ad7d893be2ff4a70afe9ef5b8a4a1a/examples/service-announcement/announcement.py
 
+WORKDIR /srv/jupyterhub
 # Copy postgres util script and update permissions
 COPY wait-for-postgres.sh /srv/jupyterhub/wait-for-postgres.sh
 RUN chmod +x /srv/jupyterhub/wait-for-postgres.sh
