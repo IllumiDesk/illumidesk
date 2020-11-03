@@ -39,7 +39,7 @@ setup(
         'dockerspawner==0.11.1',
         'filelock==3.0.12',
         'josepy==1.4.0',
-        'jupyterhub==1.1.0',
+        'jupyterhub==1.2.1',
         'jupyterhub-ltiauthenticator==0.4.0',
         'jwcrypto==0.8',
         'lti==0.9.5',
