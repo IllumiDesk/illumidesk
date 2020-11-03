@@ -27,7 +27,7 @@ httplib2==0.18.1          # via oauth2, pylti
 idna==2.10                # via requests
 ipykernel==5.3.4          # via ipywidgets, jupyter, jupyter-console, notebook, qtconsole
 ipython-genutils==0.2.0   # via nbformat, notebook, qtconsole, traitlets
-ipython==7.18.1           # via ipykernel, ipywidgets, jupyter-console
+ipython==7.19.0           # via ipykernel, ipywidgets, jupyter-console
 ipywidgets==7.5.1         # via jupyter
 jedi==0.17.2              # via ipython
 jinja2==2.11.2            # via jupyterhub, nbconvert, notebook
