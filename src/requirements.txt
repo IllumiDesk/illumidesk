@@ -39,7 +39,7 @@ jupyter-core==4.6.3       # via jupyter-client, nbconvert, nbformat, nbgrader, n
 jupyter-telemetry==0.1.0  # via jupyterhub
 jupyter==1.0.0            # via nbgrader
 jupyterhub-ltiauthenticator==0.4.0  # via illumidesk (setup.py)
-jupyterhub==1.2.0         # via dockerspawner, illumidesk (setup.py), jupyterhub-ltiauthenticator, oauthenticator
+jupyterhub==1.2.1         # via dockerspawner, illumidesk (setup.py), jupyterhub-ltiauthenticator, oauthenticator
 jupyterlab-pygments==0.1.2  # via nbconvert
 jwcrypto==0.8             # via illumidesk (setup.py)
 lti==0.9.5                # via illumidesk (setup.py)
