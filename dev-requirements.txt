@@ -48,7 +48,7 @@ pytest-cov==2.10.1        # via -r dev-requirements.in
 pytest-html==2.1.1        # via -r dev-requirements.in
 pytest-metadata==1.10.0   # via -r dev-requirements.in, pytest-html
 pytest-mock==3.3.1        # via -r dev-requirements.in
-pytest==6.1.1             # via -r dev-requirements.in, pytest-asyncio, pytest-cov, pytest-html, pytest-metadata, pytest-mock
+pytest==6.1.2             # via -r dev-requirements.in, pytest-asyncio, pytest-cov, pytest-html, pytest-metadata, pytest-mock
 pyyaml==5.3.1             # via -c requirements.txt, pre-commit
 quart==0.13.1             # via -r dev-requirements.in
 regex==2020.9.27          # via black
