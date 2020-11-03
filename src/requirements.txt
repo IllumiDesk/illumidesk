@@ -69,7 +69,7 @@ psycopg2-binary==2.8.6    # via illumidesk (setup.py)
 ptyprocess==0.6.0         # via pexpect, terminado
 pycparser==2.20           # via cffi
 pycryptodome==3.9.8       # via illumidesk (setup.py)
-pycryptodomex==3.9.8      # via pyjwkest
+pycryptodomex==3.9.9      # via pyjwkest
 pygments==2.7.2           # via ipython, jupyter-console, jupyterlab-pygments, nbconvert, qtconsole
 pyjwkest==1.4.2           # via illumidesk (setup.py)
 pyjwt==1.7.1              # via illumidesk (setup.py)
