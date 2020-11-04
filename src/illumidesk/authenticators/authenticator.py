@@ -20,7 +20,6 @@ from typing import Dict
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.announcement_service import AnnouncementService
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
-from illumidesk.apis.setup_course_service import make_rolling_update
 from illumidesk.apis.setup_course_service import register_new_service
 
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
@@ -80,20 +79,16 @@ async def setup_course_hook(
     elif user_is_an_instructor(user_role):
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
-    data = {
-        'org': org,
-        'course_id': course_id,
-        'domain': handler.request.host,
-    }
-    setup_response = await register_new_service(data)
+    # launch the new (?) grader-notebook as a service
+    setup_response = await register_new_service(org_name=org, course_id=course_id)
 
     # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
-    if 'is_new_setup' in setup_response and setup_response['is_new_setup'] is True:
+    if setup_response is True:
         # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
         await AnnouncementService.add_announcement('A new service was detected, please reload this page...')
 
         logger.debug('The current jupyterhub instance will be updated by setup-course service...')
-        make_rolling_update()
+        # make_rolling_update()
 
     return authentication
 
@@ -407,9 +402,7 @@ class LTI13Authenticator(OAuthenticator):
 
 
 def process_additional_steps_for_resource_launch(
-    logger: Any,
-    course_id: str,
-    jwt_body_decoded: Dict[str, Any],
+    logger: Any, course_id: str, jwt_body_decoded: Dict[str, Any],
 ) -> None:
     """
     Executes additional processes with the claims that come only with LtiResourceLinkRequest
@@ -423,9 +416,9 @@ def process_additional_steps_for_resource_launch(
         and 'lineitems' in jwt_body_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']
     ):
         course_lineitems = jwt_body_decoded['https://purl.imsglobal.org/spec/lti-ags/claim/endpoint']['lineitems']
-    nbgrader_service = NbGraderServiceHelper(course_id, True)
-    nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
+    # nbgrader_service = NbGraderServiceHelper(course_id, True)
+    # nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
     if resource_link_title:
         # resource_link_title_normalize = lti_utils.normalize_string(resource_link_title)
         logger.debug('Creating a new assignment from the Authentication flow with title %s' % resource_link_title)
-        nbgrader_service.create_assignment_in_nbgrader(resource_link_title)
+        # nbgrader_service.create_assignment_in_nbgrader(resource_link_title)
