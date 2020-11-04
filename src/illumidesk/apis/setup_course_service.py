@@ -1,16 +1,15 @@
-import json
 import logging
 import os
 
 from tornado.httpclient import AsyncHTTPClient
-
-from typing import Dict
+from tornado.httpclient import HTTPError
 
 import requests
+from traitlets.traitlets import Bool
 
 
 # course setup service name
-INTENAL_SERVICE_NAME = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'setup-course'
+INTENAL_SERVICE_NAME = os.environ.get('DOCKER_SETUP_COURSE_SERVICE_NAME') or 'grader-setup-service'
 # course setup service port
 SERVICE_PORT = os.environ.get('DOCKER_SETUP_COURSE_PORT') or '8000'
 
@@ -36,35 +35,30 @@ def get_current_service_definitions() -> str:
     return config
 
 
-async def register_new_service(data: Dict[str, str]) -> str:
+async def register_new_service(org_name: str, course_id: str) -> Bool:
     """
     Helps to register (asynchronously) new course definition through the setup-course service
     Args:
-        data: a dict with the org, course_id (label) and the domain.
-
-    Example:
-    ```await SetupCourseService.register_new_service(data = {
-            'org': org,
-            'course_id': course_id,
-            'domain': handler.request.host,
-        })```
-
-    Returns: the response as json
+        org: organization name
+        course_id: the course name detected in the request args
+    Returns: True when a new deployment was launched (k8s) otherwise False
 
     """
     client = AsyncHTTPClient()
-
-    response = await client.fetch(
-        SERVICE_BASE_URL,
-        headers=SERVICE_COMMON_HEADERS,
-        body=json.dumps(data),
-        method='POST',
-    )
-    if not response.body:
-        raise json.JSONDecodeError('The setup course response body is empty', '', 0)
-    resp_json = json.loads(response.body)
-    logger.debug(f'Setup-Course service response: {resp_json}')
-    return resp_json
+    try:
+        response = await client.fetch(
+            f'{SERVICE_BASE_URL}/services/{org_name}/{course_id}',
+            headers=SERVICE_COMMON_HEADERS,
+            body='',
+            method='POST',
+        )
+        logger.debug(f'Grader-setup service response: {response.body}')
+        return True
+    except HTTPError as e:
+        # HTTPError is raised for non-200 responses
+        # the response can be found in e.response.
+        logger.error(f'Grader-setup service returned an error: {e.response}')
+        return False
 
 
 def make_rolling_update() -> None:
