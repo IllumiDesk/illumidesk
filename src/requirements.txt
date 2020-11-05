@@ -7,7 +7,7 @@
 alembic==1.4.3            # via jupyterhub, nbgrader
 argon2-cffi==20.1.0       # via notebook
 async-generator==1.10     # via jupyterhub, nbclient
-attrs==20.2.0             # via jsonschema
+attrs==20.3.0             # via jsonschema
 backcall==0.2.0           # via ipython
 bleach==3.2.1             # via nbconvert
 certifi==2020.6.20        # via requests
