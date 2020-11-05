@@ -31,7 +31,7 @@ ipython==7.19.0           # via ipykernel, ipywidgets, jupyter-console
 ipywidgets==7.5.1         # via jupyter
 jedi==0.17.2              # via ipython
 jinja2==2.11.2            # via jupyterhub, nbconvert, notebook
-josepy==1.4.0             # via illumidesk (setup.py)
+josepy==1.5.0             # via illumidesk (setup.py)
 jsonschema==3.2.0         # via jupyter-telemetry, nbformat, nbgrader
 jupyter-client==6.1.7     # via ipykernel, jupyter-console, nbclient, nbgrader, notebook, qtconsole
 jupyter-console==6.2.0    # via jupyter
@@ -54,7 +54,7 @@ git+https://github.com/IllumiDesk/nbgrader#egg=nbgrader-0.64.2  # via illumidesk
 nest-asyncio==1.4.2       # via nbclient
 notebook==6.1.4           # via jupyter, nbgrader, widgetsnbextension
 oauth2==1.9.0.post1       # via pylti
-oauthenticator==0.11.0    # via illumidesk (setup.py)
+oauthenticator==0.12.0    # via illumidesk (setup.py)
 oauthlib==3.1.0           # via jupyterhub, jupyterhub-ltiauthenticator, lti, requests-oauthlib
 packaging==20.4           # via bleach
 pamela==1.0.0             # via jupyterhub
