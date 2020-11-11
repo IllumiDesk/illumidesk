@@ -10,7 +10,7 @@ async-generator==1.10     # via jupyterhub, nbclient
 attrs==20.3.0             # via jsonschema
 backcall==0.2.0           # via ipython
 bleach==3.2.1             # via nbconvert
-certifi==2020.6.20        # via requests
+certifi==2020.11.8        # via requests
 certipy==0.1.3            # via jupyterhub
 cffi==1.14.3              # via argon2-cffi, cryptography
 chardet==3.0.4            # via requests
