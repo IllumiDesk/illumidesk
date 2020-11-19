@@ -35,7 +35,7 @@ josepy==1.5.0             # via illumidesk (setup.py)
 jsonschema==3.2.0         # via jupyter-telemetry, nbformat, nbgrader
 jupyter-client==6.1.7     # via ipykernel, jupyter-console, nbclient, nbgrader, notebook, qtconsole
 jupyter-console==6.2.0    # via jupyter
-jupyter-core==4.6.3       # via jupyter-client, nbconvert, nbformat, nbgrader, notebook, qtconsole
+jupyter-core==4.7.0       # via jupyter-client, nbconvert, nbformat, nbgrader, notebook, qtconsole
 jupyter-telemetry==0.1.0  # via jupyterhub
 jupyter==1.0.0            # via nbgrader
 jupyterhub-ltiauthenticator==0.4.0  # via illumidesk (setup.py)
