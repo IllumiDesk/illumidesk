@@ -54,7 +54,7 @@ git+https://github.com/IllumiDesk/nbgrader#egg=nbgrader-0.64.2  # via illumidesk
 nest-asyncio==1.4.3       # via nbclient
 notebook==6.1.5           # via jupyter, nbgrader, widgetsnbextension
 oauth2==1.9.0.post1       # via pylti
-oauthenticator==0.12.0    # via illumidesk (setup.py)
+oauthenticator==0.12.1    # via illumidesk (setup.py)
 oauthlib==3.1.0           # via jupyterhub, jupyterhub-ltiauthenticator, lti, requests-oauthlib
 packaging==20.4           # via bleach
 pamela==1.0.0             # via jupyterhub
