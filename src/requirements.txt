@@ -17,7 +17,7 @@ chardet==3.0.4            # via requests
 cryptography==3.2.1       # via josepy, jwcrypto, pyopenssl
 decorator==4.4.2          # via ipython
 defusedxml==0.6.0         # via nbconvert
-docker==4.3.1             # via dockerspawner
+docker==4.4.0             # via dockerspawner
 dockerspawner==0.11.1     # via illumidesk (setup.py)
 entrypoints==0.3          # via jupyterhub, nbconvert
 escapism==1.0.1           # via dockerspawner
