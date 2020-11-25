@@ -81,7 +81,7 @@ python-dateutil==2.8.1    # via alembic, jupyter-client, jupyterhub, nbgrader
 python-editor==1.0.4      # via alembic
 python-json-logger==2.0.0  # via jupyter-telemetry
 pyzmq==20.0.0             # via jupyter-client, notebook, qtconsole
-qtconsole==5.0.0          # via jupyter
+qtconsole==5.0.1          # via jupyter
 qtpy==1.9.0               # via qtconsole
 rapidfuzz==0.13.3         # via nbgrader
 requests-oauthlib==1.3.0  # via lti
