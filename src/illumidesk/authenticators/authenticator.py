@@ -161,7 +161,7 @@ class LTI11Authenticator(LTIAuthenticator):
             # runs as a docker container we need to normalize the string so we can use it
             # as a container name.
             if 'context_label' in args and args['context_label']:
-                course_id = args['context_label']
+                course_id = lti_utils.normalize_string(args['context_label'])
                 self.log.debug('Course context_label normalized to: %s' % course_id)
             else:
                 raise HTTPError(400, 'Course label not included in the LTI request')
