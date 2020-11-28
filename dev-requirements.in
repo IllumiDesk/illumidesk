@@ -4,12 +4,12 @@ codecov==2.1.9
 coverage==5.3
 flake8==3.8.4
 mock==4.0.2
-pip-tools==5.3.1
-pre-commit==2.8.2
+pip-tools==5.4.0
+pre-commit==2.9.2
 pytest==6.1.2
 pytest-asyncio==0.14.0
 pytest-cov==2.10.1
-pytest-html==2.1.1
+pytest-html==3.0.0
 pytest-metadata==1.10.0
 pytest-mock==3.3.1
 quart==0.13.1

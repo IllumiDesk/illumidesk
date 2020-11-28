@@ -4,11 +4,11 @@
 #
 #    pip-compile --generate-hashes
 #
-ansible-base==2.10.2 \
-    --hash=sha256:c79fe108e13b286bad21734208624aaef9dabb49bb4211b13bc96d88829e22ab \
+ansible-base==2.10.3 \
+    --hash=sha256:35a208726b10fecbcf00c263ae4572b48f505b5796fb77a85c3e9c1036ea5e4f \
     # via ansible
-ansible==2.10.0 \
-    --hash=sha256:3aadd662ac3f04e46054c99cfe533a92ba33d97982f19e49f01dbe137f31d346 \
+ansible==2.10.3 \
+    --hash=sha256:eb1d08b9b98a60e90e7123a12f40770780f29f9d73168da55d449106a9f4d348 \
     # via -r requirements.in
 cffi==1.14.3 \
     --hash=sha256:005f2bfe11b6745d726dbb07ace4d53f057de66e336ff92d61b8c7e9c8f4777d \
