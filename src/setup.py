@@ -44,7 +44,7 @@ setup(
         'jwcrypto==0.8',
         'lti==0.9.5',
         'nbgrader@git+https://github.com/IllumiDesk/nbgrader#egg=nbgrader-0.64.2',
-        'oauthenticator==0.11.0',
+        'oauthenticator==0.12.2',
         'pem==20.1.0',
         'psycopg2-binary==2.8.6',
         'PyJWT==1.7.1',
