@@ -74,7 +74,7 @@ pygments==2.7.2           # via ipython, jupyter-console, jupyterlab-pygments, n
 pyjwkest==1.4.2           # via illumidesk (setup.py)
 pyjwt==1.7.1              # via illumidesk (setup.py)
 pylti==0.7.0              # via illumidesk (setup.py)
-pyopenssl==20.0.0         # via certipy, josepy
+pyopenssl==19.1.0         # via certipy, josepy
 pyparsing==2.4.7          # via packaging
 pyrsistent==0.17.3        # via jsonschema
 python-dateutil==2.8.1    # via alembic, jupyter-client, jupyterhub, nbgrader
