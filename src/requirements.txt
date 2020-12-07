@@ -38,7 +38,7 @@ jupyter-console==6.2.0    # via jupyter
 jupyter-core==4.7.0       # via jupyter-client, nbconvert, nbformat, nbgrader, notebook, qtconsole
 jupyter-telemetry==0.1.0  # via jupyterhub
 jupyter==1.0.0            # via nbgrader
-jupyterhub-ltiauthenticator==0.4.0  # via illumidesk (setup.py)
+jupyterhub-ltiauthenticator==1.0.0  # via illumidesk (setup.py)
 jupyterhub==1.2.1         # via dockerspawner, illumidesk (setup.py), jupyterhub-ltiauthenticator, oauthenticator
 jupyterlab-pygments==0.1.2  # via nbconvert
 jwcrypto==0.8             # via illumidesk (setup.py)
