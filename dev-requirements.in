@@ -9,7 +9,7 @@ pre-commit==2.9.2
 pytest==6.1.2
 pytest-asyncio==0.14.0
 pytest-cov==2.10.1
-pytest-html==3.0.0
+pytest-html==3.1.1
 pytest-metadata==1.10.0
 pytest-mock==3.3.1
 quart==0.13.1
