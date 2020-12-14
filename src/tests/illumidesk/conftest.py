@@ -539,7 +539,7 @@ def make_lti11_basic_launch_request_args() -> Dict[str, str]:
 @pytest.fixture(scope='function')
 def make_lti11_success_authentication_request_args():
     def _make_lti11_success_authentication_request_args(
-        lms_vendor: str = 'canvas', role: str = 'Instructor'
+        lms_vendor: str = 'canvas', role: str = 'Instructor',
     ) -> Dict[str, str]:
         """
         Return a valid request arguments make from LMS to our tool (when authentication steps were success)
