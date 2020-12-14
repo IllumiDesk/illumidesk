@@ -1,5 +1,0 @@
----
-- name: launch with docker-compose # noqa 301
-  command: docker-compose up -d
-  args:
-    chdir: "{{ working_dir }}"

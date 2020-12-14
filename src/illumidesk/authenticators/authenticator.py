@@ -20,8 +20,8 @@ from typing import Dict
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.announcement_service import AnnouncementService
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
-from illumidesk.apis.setup_course_service import make_rolling_update
 from illumidesk.apis.setup_course_service import register_new_service
+from illumidesk.apis.setup_course_service import create_assignment_source_dir
 
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
@@ -36,6 +36,11 @@ from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+
+ORG_NAME = os.environ.get('ORGANIZATION_NAME')
+if not ORG_NAME:
+    raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
 
 
 async def setup_course_hook(
@@ -62,9 +67,6 @@ async def setup_course_hook(
     lti_utils = LTIUtils()
     jupyterhub_api = JupyterHubAPI()
 
-    org = os.environ.get('ORGANIZATION_NAME')
-    if not org:
-        raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
     # normalize the name and course_id strings in authentication dictionary
     course_id = lti_utils.normalize_string(authentication['auth_state']['course_id'])
     nb_service = NbGraderServiceHelper(course_id)
@@ -80,20 +82,14 @@ async def setup_course_hook(
     elif user_is_an_instructor(user_role):
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
-    data = {
-        'org': org,
-        'course_id': course_id,
-        'domain': handler.request.host,
-    }
-    setup_response = await register_new_service(data)
+    # launch the new (?) grader-notebook as a service
+    setup_response = await register_new_service(org_name=ORG_NAME, course_id=course_id)
 
     # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
-    if 'is_new_setup' in setup_response and setup_response['is_new_setup'] is True:
+    if setup_response is True:
         # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
         await AnnouncementService.add_announcement('A new service was detected, please reload this page...')
-
         logger.debug('The current jupyterhub instance will be updated by setup-course service...')
-        make_rolling_update()
 
     return authentication
 
@@ -161,7 +157,7 @@ class LTI11Authenticator(LTIAuthenticator):
             # runs as a docker container we need to normalize the string so we can use it
             # as a container name.
             if 'context_label' in args and args['context_label']:
-                course_id = lti_utils.normalize_string(args['context_label'])
+                course_id = args['context_label']
                 self.log.debug('Course context_label normalized to: %s' % course_id)
             else:
                 raise HTTPError(400, 'Course label not included in the LTI request')
@@ -387,7 +383,7 @@ class LTI13Authenticator(OAuthenticator):
                 ]
             # if there is a resource link request then process additional steps
             if not validator.is_deep_link_launch(jwt_decoded):
-                process_additional_steps_for_resource_launch(self.log, course_id, jwt_decoded)
+                await process_resource_link(self.log, course_id, jwt_decoded)
 
             lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
 
@@ -406,10 +402,8 @@ class LTI13Authenticator(OAuthenticator):
             }
 
 
-def process_additional_steps_for_resource_launch(
-    logger: Any,
-    course_id: str,
-    jwt_body_decoded: Dict[str, Any],
+async def process_resource_link(
+    logger: Any, course_id: str, jwt_body_decoded: Dict[str, Any],
 ) -> None:
     """
     Executes additional processes with the claims that come only with LtiResourceLinkRequest
@@ -426,6 +420,9 @@ def process_additional_steps_for_resource_launch(
     nbgrader_service = NbGraderServiceHelper(course_id, True)
     nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
     if resource_link_title:
-        # resource_link_title_normalize = lti_utils.normalize_string(resource_link_title)
-        logger.debug('Creating a new assignment from the Authentication flow with title %s' % resource_link_title)
-        nbgrader_service.create_assignment_in_nbgrader(resource_link_title)
+        assignment_name = LTIUtils().normalize_string(resource_link_title)
+        logger.debug('Creating a new assignment from the Authentication flow with title %s' % assignment_name)
+        # register the new assignment in nbgrader database
+        nbgrader_service.register_assignment(assignment_name)
+        # create the assignment source directory by calling the grader-setup service
+        await create_assignment_source_dir(ORG_NAME, course_id, assignment_name)

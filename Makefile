@@ -49,3 +49,13 @@ test: dev
 clean:
 	find . -name '*.pyc' -exec rm -f {} +
 	rm -rf $(VENV_NAME) *.eggs *.egg-info dist build docs/_build .cache
+
+build-jhub:
+	rm illumidesk.zip || true
+	find ./src/ -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete -o -type f -name .DS_Store -delete
+	zip -r compose/jupyterhub/illumidesk.zip src/
+	docker build -t illumidesk/jupyterhub:k8s ./docker/jupyterhub
+
+push-jhub:
+	docker login
+	docker push illumidesk/jupyterhub:k8s-beta

@@ -139,33 +139,6 @@ async def test_authenticator_uses_lti_utils_normalize_string(
 
 
 @pytest.mark.asyncio
-async def test_authenticator_uses_lti_utils_normalize_string_for_context_label(
-    make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
-):
-    """
-    Ensure that we call the normalize string method with the LTI11Authenticator when the course id is
-    obtained from the context_label argument.
-    """
-    with patch.object(LTI11LaunchValidator, 'validate_launch_request', return_value=True):
-        with patch.object(LTIUtils, 'normalize_string', return_value='foobar') as mock_normalize_string:
-            authenticator = LTI11Authenticator()
-            handler = Mock(spec=RequestHandler)
-            request = HTTPServerRequest(
-                method='POST',
-                connection=Mock(),
-            )
-            handler.request = request
-
-            handler.request.arguments = make_lti11_success_authentication_request_args('context_label')
-            handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args(
-                'context_label'
-            )[x][0].decode()
-
-            _ = await authenticator.authenticate(handler, None)
-            assert mock_normalize_string.called
-
-
-@pytest.mark.asyncio
 @patch('pathlib.Path.mkdir')
 async def test_authenticator_uses_lti_grades_sender_control_file_with_student_role(
     mock_mkdir, tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
