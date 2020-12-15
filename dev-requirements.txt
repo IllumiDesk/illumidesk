@@ -30,7 +30,7 @@ itsdangerous==1.1.0       # via quart
 jinja2==2.11.2            # via -c requirements.txt, quart
 markupsafe==1.1.1         # via -c requirements.txt, jinja2
 mccabe==0.6.1             # via flake8
-mock==4.0.2               # via -r dev-requirements.in
+mock==4.0.3               # via -r dev-requirements.in
 mypy-extensions==0.4.3    # via black
 nodeenv==1.5.0            # via pre-commit
 packaging==20.4           # via -c requirements.txt, pytest
