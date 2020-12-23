@@ -72,7 +72,7 @@ pycryptodome==3.9.9       # via illumidesk (setup.py)
 pycryptodomex==3.9.9      # via pyjwkest
 pygments==2.7.2           # via ipython, jupyter-console, jupyterlab-pygments, nbconvert, qtconsole
 pyjwkest==1.4.2           # via illumidesk (setup.py)
-pyjwt==1.7.1              # via illumidesk (setup.py)
+pyjwt==2.0.0              # via illumidesk (setup.py)
 pylti==0.7.0              # via illumidesk (setup.py)
 pyopenssl==20.0.0         # via certipy, josepy
 pyparsing==2.4.7          # via packaging
