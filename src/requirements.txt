@@ -24,7 +24,7 @@ escapism==1.0.1           # via dockerspawner
 filelock==3.0.12          # via illumidesk (setup.py)
 future==0.18.2            # via pyjwkest
 httplib2==0.18.1          # via oauth2, pylti
-idna==2.10                # via requests
+idna==3.1                # via requests
 ipykernel==5.3.4          # via ipywidgets, jupyter, jupyter-console, notebook, qtconsole
 ipython-genutils==0.2.0   # via nbformat, notebook, qtconsole, traitlets
 ipython==7.19.0           # via ipykernel, ipywidgets, jupyter-console
