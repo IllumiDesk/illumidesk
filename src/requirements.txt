@@ -66,7 +66,7 @@ pickleshare==0.7.5        # via ipython
 prometheus-client==0.9.0  # via jupyterhub, notebook
 prompt-toolkit==3.0.7     # via ipython, jupyter-console
 psycopg2-binary==2.8.6    # via illumidesk (setup.py)
-ptyprocess==0.6.0         # via pexpect, terminado
+ptyprocess==0.7.0         # via pexpect, terminado
 pycparser==2.20           # via cffi
 pycryptodome==3.9.9       # via illumidesk (setup.py)
 pycryptodomex==3.9.9      # via pyjwkest
