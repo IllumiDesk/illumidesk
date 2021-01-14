@@ -52,7 +52,7 @@ nbconvert==6.0.7          # via jupyter, nbgrader, notebook
 nbformat==5.0.8           # via ipywidgets, nbclient, nbconvert, nbgrader, notebook
 git+https://github.com/IllumiDesk/nbgrader#egg=nbgrader-0.64.2  # via illumidesk (setup.py)
 nest-asyncio==1.4.3       # via nbclient
-notebook==6.1.5           # via jupyter, nbgrader, widgetsnbextension
+notebook==6.2.0           # via jupyter, nbgrader, widgetsnbextension
 oauth2==1.9.0.post1       # via pylti
 oauthenticator==0.12.1    # via illumidesk (setup.py)
 oauthlib==3.1.0           # via jupyterhub, jupyterhub-ltiauthenticator, lti, requests-oauthlib
