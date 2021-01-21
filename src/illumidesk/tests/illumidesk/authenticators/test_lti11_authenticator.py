@@ -449,6 +449,76 @@ async def test_authenticator_returns_correct_username_when_using_email_as_userna
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_correct_course_id_when_using_context_label_given_as_course_name(
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
+):
+    """
+    Do we get a valid course name when the request includes a context_label?
+    """
+    with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = make_lti11_success_authentication_request_args('d2l', 'Instructor')
+        args['lis_person_contact_email_primary'] = [b'foo@example.com']
+        args['context_label'] = [b'intro101']
+        args['context_title'] = [b'']
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'foo',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_correct_course_id_when_using_context_title_given_as_course_name(
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
+):
+    """
+    Do we get a valid course name when the request includes a context_title?
+    """
+    with patch.object(lti11_validator, 'validate_launch_request', return_value=True):
+        authenticator = LTI11Authenticator()
+        args = make_lti11_success_authentication_request_args('d2l', 'Instructor')
+        args['lis_person_contact_email_primary'] = [b'foo@example.com']
+        args['context_label'] = [b'']
+        args['context_title'] = [b'intro101']
+        handler = Mock(
+            spec=RequestHandler,
+            get_secure_cookie=Mock(return_value=json.dumps(['key', 'secret'])),
+            request=Mock(
+                arguments=args,
+                headers={},
+                items=[],
+            ),
+        )
+        result = await authenticator.authenticate(handler, None)
+        expected = {
+            'name': 'foo',
+            'auth_state': {
+                'course_id': 'intro101',
+                'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
+                'user_role': 'Instructor',
+            },
+        }
+        assert result == expected
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_correct_username_when_using_lis_person_name_given_as_username(
     lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
