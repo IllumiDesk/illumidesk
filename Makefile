@@ -29,33 +29,18 @@ prepare:
 venv:
 	test -d $(VENV_NAME) || virtualenv -p python3 $(VENV_NAME)
 	${PYTHON} -m pip install --upgrade pip
-	${PYTHON} -m pip install -r requirements.txt
-
-deploy: prepare
-	${VENV_BIN}/ansible-playbook -i ansible/hosts \
-      ansible/provisioning.yml $(ARGS)
+	${PYTHON} -m pip install -r dev-requirements.txt
 
 dev: venv
-	${PYTHON} -m pip install -r dev-requirements.txt
-	${PYTHON} -m pip install -e src/.
+	${PYTHON} -m pip install -e src/illumidesk/.
 
 lint: venv
 	${VENV_BIN}/flake8 src
 	${VENV_BIN}/black .
 
 test: dev
-	${PYTHON} -m pytest -vv src/tests
+	${PYTHON} -m pytest -vv src/illumidesk/tests
 
 clean:
 	find . -name '*.pyc' -exec rm -f {} +
 	rm -rf $(VENV_NAME) *.eggs *.egg-info dist build docs/_build .cache
-
-build-jhub:
-	rm illumidesk.zip || true
-	find ./src/ -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete -o -type f -name .DS_Store -delete
-	zip -r compose/jupyterhub/illumidesk.zip src/
-	docker build -t illumidesk/jupyterhub:k8s ./docker/jupyterhub
-
-push-jhub:
-	docker login
-	docker push illumidesk/jupyterhub:k8s-beta

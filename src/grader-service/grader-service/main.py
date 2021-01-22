@@ -60,7 +60,7 @@ def launch(org_name: str, course_id: str):
                 name=course_id,
                 course_id=course_id,
                 url=f'http://{launcher.grader_name}:8888',
-                api_token=launcher.grader_token
+                api_token=launcher.grader_token,
             )
             db.session.add(new_service)
             db.session.commit()
@@ -83,7 +83,7 @@ def services():
     Returns:
       JSON: a list of service dictionaries with the name and url and the groups associated
       to the grader service.
- 
+
     example:
     ```
     {
@@ -97,13 +97,15 @@ def services():
     services_resp = []
     groups_resp = {}
     for s in services:
-        services_resp.append({
-            'name': s.name,
-            'url': s.url,
-            'oauth_no_confirm': s.oauth_no_confirm,
-            'admin': s.admin,
-            'api_token': s.api_token
-        })
+        services_resp.append(
+            {
+                'name': s.name,
+                'url': s.url,
+                'oauth_no_confirm': s.oauth_no_confirm,
+                'admin': s.admin,
+                'api_token': s.api_token,
+            }
+        )
         # add the jhub user group
         groups_resp.update({f'formgrade-{s.course_id}': [f'grader-{s.course_id}']})
     return jsonify(services=services_resp, groups=groups_resp)
@@ -130,7 +132,7 @@ def services_deletion(org_name: str, course_id: str):
         return jsonify(success=True)
     except Exception as e:
         return jsonify(success=False, error=str(e)), 500
-    
+
 
 @app.route("/courses/<org_name>/<course_id>/<assignment_name>", methods=['POST'])
 def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str):
@@ -152,7 +154,7 @@ def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str)
     logger.info('Fixing folder permissions for %s' % assignment_dir)
     shutil.chown(str(Path(assignment_dir).parent), user=NB_UID, group=NB_GID)
     shutil.chown(str(assignment_dir), user=NB_UID, group=NB_GID)
-    
+
     return jsonify(success=True)
 
 
