@@ -159,8 +159,11 @@ class LTI11Authenticator(LTIAuthenticator):
             if 'context_label' in args and args['context_label']:
                 course_id = args['context_label']
                 self.log.debug('Course context_label normalized to: %s' % course_id)
+            elif 'context_title' in args and args['context_title']:
+                course_id = args['context_title']
+                self.log.debug('Course context_title normalized to: %s' % course_id)
             else:
-                raise HTTPError(400, 'Course label not included in the LTI request')
+                raise HTTPError(400, 'course_label or course_title not included in the LTI request')
 
             # Get the user's role, assign to Learner role by default. Roles are sent as institution
             # roles, where the roles' value is <handle>,<full URN>.

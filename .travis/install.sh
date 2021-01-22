@@ -14,7 +14,7 @@ install_python_requirements () {
 
 install_illumidesk_package () {
   echo "Install illumidesk package ..."
-  python3 -m pip install -r src/requirements.txt
+  python3 -m pip install -r src/illumidesk/requirements.txt
 }
 
 main() {
