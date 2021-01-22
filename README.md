@@ -6,6 +6,7 @@
 # IllumiDesk
 
 This monorepo is used to maintain IllumiDesk's authenticators, spawners, and microservices. This setup assumes that all services are running with Kubernetes.
+Please refer to our [help guides](https://help.illumidesk.com) for more information.
 
 ## Overview
 

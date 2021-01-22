@@ -406,7 +406,9 @@ class LTI13Authenticator(OAuthenticator):
 
 
 async def process_resource_link(
-    logger: Any, course_id: str, jwt_body_decoded: Dict[str, Any],
+    logger: Any,
+    course_id: str,
+    jwt_body_decoded: Dict[str, Any],
 ) -> None:
     """
     Executes additional processes with the claims that come only with LtiResourceLinkRequest
