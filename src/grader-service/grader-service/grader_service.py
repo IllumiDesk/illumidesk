@@ -56,7 +56,7 @@ class GraderServiceLauncher:
     def __init__(self, org_name: str, course_id: str):
         """
         Helper class to launch grader notebooks within the kubernetes cluster
-        
+
         Args:
           org_name: the organization name
           course_id: the course id
@@ -87,34 +87,29 @@ class GraderServiceLauncher:
         self.exchange_dir = Path(EXCHANGE_MNT_ROOT, self.org_name, 'exchange')
 
     def grader_deployment_exists(self) -> bool:
-        """Check if there is a deployment for the grader service name
-        """
+        """Check if there is a deployment for the grader service name"""
         # Filter deployments by the current namespace and a specific name (metadata collection)
         deployment_list = self.apps_v1.list_namespaced_deployment(
-            namespace=NAMESPACE,
-            field_selector=f'metadata.name={self.grader_name}'
+            namespace=NAMESPACE, field_selector=f'metadata.name={self.grader_name}'
         )
         if deployment_list and deployment_list.items:
             return True
-        
+
         return False
-    
+
     def grader_service_exists(self) -> bool:
-        """Check if the grader service exists
-        """
+        """Check if the grader service exists"""
         # Filter deployments by the current namespace and a specific name (metadata collection)
         service_list = self.coreV1Api.list_namespaced_service(
-            namespace=NAMESPACE,
-            field_selector=f'metadata.name={self.grader_name}'
+            namespace=NAMESPACE, field_selector=f'metadata.name={self.grader_name}'
         )
         if service_list and service_list.items:
             return True
-        
+
         return False
 
     def create_grader_deployment(self):
-        """Deploy the grader service
-        """
+        """Deploy the grader service"""
         # first create the home directories for grader/course
         try:
             self._create_exchange_directory()
@@ -124,7 +119,7 @@ class GraderServiceLauncher:
             msg = 'An error occurred trying to create directories and files for nbgrader.'
             logger.error(f'{msg}{e}')
             raise Exception(msg)
-            
+
         # Create grader deployement
         deployment = self._create_deployment_object()
         api_response = self.apps_v1.create_namespaced_deployment(body=deployment, namespace=NAMESPACE)
@@ -134,8 +129,7 @@ class GraderServiceLauncher:
         self.coreV1Api.create_namespaced_service(namespace=NAMESPACE, body=service)
 
     def _create_exchange_directory(self):
-        """Creates the exchange directory in the file system and sets permissions.
-        """
+        """Creates the exchange directory in the file system and sets permissions."""
         logger.info(f'Creating exchange directory {self.exchange_dir}')
         self.exchange_dir.mkdir(parents=True, exist_ok=True)
         self.exchange_dir.chmod(0o777)
@@ -147,15 +141,13 @@ class GraderServiceLauncher:
         - grader_root: /<org-name>/home/grader-<course-id>
         - course_root: /<org-name>/home/grader-<course-id>/<course-id>
         """
-        logger.debug(
-            f'Create course directory "{self.course_dir}" with special permissions {NB_UID}:{NB_GID}'
-        )
+        logger.debug(f'Create course directory "{self.course_dir}" with special permissions {NB_UID}:{NB_GID}')
         self.course_dir.mkdir(parents=True, exist_ok=True)
         # change the course directory owner
         shutil.chown(str(self.course_dir), user=NB_UID, group=NB_GID)
         # change the grader-home directory owner
         shutil.chown(str(self.course_dir.parent), user=NB_UID, group=NB_GID)
-    
+
     def _create_nbgrader_files(self):
         """Creates nbgrader configuration files used in the grader's home directory and the
         course directory located within the grader's home directory.
@@ -166,21 +158,21 @@ class GraderServiceLauncher:
         shutil.chown(str(jupyter_dir), user=NB_UID, group=NB_GID)
         # Write the nbgrader_config.py file at grader home directory
         grader_nbconfig_path = jupyter_dir.joinpath('nbgrader_config.py')
-        logger.info(f'Writing the nbgrader_config.py file at jupyter directory (within the grader home): {grader_nbconfig_path}')
+        logger.info(
+            f'Writing the nbgrader_config.py file at jupyter directory (within the grader home): {grader_nbconfig_path}'
+        )
         # write the file
         grader_home_nbconfig_content = NBGRADER_HOME_CONFIG_TEMPLATE.format(
             grader_name=self.grader_name,
             course_id=self.course_id,
-            db_url=f'postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}'
+            db_url=f'postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}',
         )
         grader_nbconfig_path.write_text(grader_home_nbconfig_content)
         # Write the nbgrader_config.py file at grader home directory
         course_nbconfig_path = self.course_dir.joinpath('nbgrader_config.py')
         logger.info(f'Writing the nbgrader_config.py file at course home directory: {course_nbconfig_path}')
         # write the second file
-        course_home_nbconfig_content = NBGRADER_COURSE_CONFIG_TEMPLATE.format(
-            course_id=self.course_id
-        )
+        course_home_nbconfig_content = NBGRADER_COURSE_CONFIG_TEMPLATE.format(course_id=self.course_id)
         course_nbconfig_path.write_text(course_home_nbconfig_content)
 
     def _create_service_object(self):
@@ -195,8 +187,8 @@ class GraderServiceLauncher:
             spec=client.V1ServiceSpec(
                 type='ClusterIP',
                 ports=[client.V1ServicePort(port=8888, target_port=8888, protocol='TCP')],
-                selector={'component': self.grader_name}
-            )
+                selector={'component': self.grader_name},
+            ),
         )
         return service
 
@@ -237,39 +229,32 @@ class GraderServiceLauncher:
             ],
             volume_mounts=[
                 client.V1VolumeMount(
-                    mount_path=f'/home/{self.grader_name}',
-                    name=GRADER_PVC,
-                    sub_path=sub_path_grader_home
+                    mount_path=f'/home/{self.grader_name}', name=GRADER_PVC, sub_path=sub_path_grader_home
                 ),
                 client.V1VolumeMount(
-                    mount_path='/srv/nbgrader/exchange',
-                    name=GRADER_EXCHANGE_SHARED_PVC,
-                    sub_path=sub_path_exchange
-                )
-            ]
+                    mount_path='/srv/nbgrader/exchange', name=GRADER_EXCHANGE_SHARED_PVC, sub_path=sub_path_exchange
+                ),
+            ],
         )
         # Create and configurate a spec section
         template = client.V1PodTemplateSpec(
-            metadata=client.V1ObjectMeta(
-                labels={
-                    'component': self.grader_name,
-                    'app': 'illumidesk'}
-            ),
+            metadata=client.V1ObjectMeta(labels={'component': self.grader_name, 'app': 'illumidesk'}),
             spec=client.V1PodSpec(
                 containers=[container],
                 security_context=client.V1PodSecurityContext(run_as_user=0),
                 volumes=[
                     client.V1Volume(
                         name=GRADER_PVC,
-                        persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(claim_name=GRADER_PVC)
+                        persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(claim_name=GRADER_PVC),
                     ),
                     client.V1Volume(
                         name=GRADER_EXCHANGE_SHARED_PVC,
-                        persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(claim_name=GRADER_EXCHANGE_SHARED_PVC)
+                        persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
+                            claim_name=GRADER_EXCHANGE_SHARED_PVC
+                        ),
                     ),
-                    
-                ]
-            )
+                ],
+            ),
         )
         # Create the specification of deployment
         spec = client.V1DeploymentSpec(
@@ -283,8 +268,7 @@ class GraderServiceLauncher:
         return deployment
 
     def delete_grader_deployment(self):
-        """Deletes the grader deployment
-        """
+        """Deletes the grader deployment"""
         # first delete the service
         if self.grader_service_exists():
             self.coreV1Api.delete_namespaced_service(name=self.grader_name, namespace=NAMESPACE)
@@ -293,12 +277,8 @@ class GraderServiceLauncher:
             self.apps_v1.delete_namespaced_deployment(name=self.grader_name, namespace=NAMESPACE)
 
     def update_jhub_deployment(self):
-        """Executes a patch in the jhub deployment. With this the jhub will be replaced with a new pod
-        """
-        jhub_deployments = self.apps_v1.list_namespaced_deployment(
-            namespace=NAMESPACE,
-            label_selector='component=hub'
-        )
+        """Executes a patch in the jhub deployment. With this the jhub will be replaced with a new pod"""
+        jhub_deployments = self.apps_v1.list_namespaced_deployment(namespace=NAMESPACE, label_selector='component=hub')
         if jhub_deployments.items:
             # add new label with the current datetime (only used to the replacement occurs)
             for deployment in jhub_deployments.items:
@@ -311,8 +291,6 @@ class GraderServiceLauncher:
                 # update the deployment object
                 deployment.spec.template.metatada = current_metadata
                 api_response = self.apps_v1.patch_namespaced_deployment(
-                    name='hub',
-                    namespace=NAMESPACE,
-                    body=deployment
+                    name='hub', namespace=NAMESPACE, body=deployment
                 )
                 logger.info(f'Jhub patch response:{api_response}')

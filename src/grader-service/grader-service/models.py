@@ -28,6 +28,7 @@ class GraderService(db.Model):
     Returns:
         The grader Service object's name and url properties
     """
+
     __tablename__ = 'grader_services'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60), unique=True, nullable=False)
