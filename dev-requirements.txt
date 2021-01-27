@@ -29,7 +29,7 @@ click==7.1.2
     #   pip-tools
 codecov==2.1.9
     # via -r dev-requirements.in
-coverage==5.3
+coverage==5.4
     # via
     #   -r dev-requirements.in
     #   codecov
