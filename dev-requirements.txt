@@ -100,7 +100,7 @@ pyparsing==2.4.7
     # via packaging
 pytest-asyncio==0.14.0
     # via -r dev-requirements.in
-pytest-cov==2.10.1
+pytest-cov==2.11.1
     # via -r dev-requirements.in
 pytest-html==3.0.0
     # via -r dev-requirements.in
