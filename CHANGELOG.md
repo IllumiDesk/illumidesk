@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.1.0 (2021-02-16)
+
+### Refactor
+
+
+* Remove announcement service ([#515](https://github.com/IllumiDesk/illumidesk/issues/515)) ([69fdbe28](https://github.com/IllumiDesk/illumidesk/commit/69fdbe28e461497e0c8653a5955d18c4c84e4e5a))
+
+
 ## 1.0.0 (2021-02-16)
 
 ### ⚠ BREAKING CHANGES
@@ -10,10 +18,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-* Add announcement for pilot environments ([#317](https://github.com/IllumiDesk/illumidesk/issues/317)) ([3c1a9d2](https://github.com/IllumiDesk/illumidesk/commit/3c1a9d264499d9a6340f4438ba98227a03b26b1e))
+* Migrate to Kubernetes ([#486](https://github.com/IllumiDesk/illumidesk/issues/486)) ([1df42f8](https://github.com/IllumiDesk/illumidesk/commit/1df42f8d63ba63897e66f66e72b9006aad6f4231))
 * Add default values for the LTI 1.1 authenticator ([#369](https://github.com/IllumiDesk/illumidesk/issues/369)) ([5d1be80](https://github.com/IllumiDesk/illumidesk/commit/5d1be80d27340797848d56e62a1c2fb90b58b3f2))
-* Add grader header and footer templates ([#305](https://github.com/IllumiDesk/illumidesk/issues/305)) ([f2be08a](https://github.com/IllumiDesk/illumidesk/commit/f2be08abbbd29871c63c5273e0eb1dd5fb34564c))
-* Add option to shutdown server upon logout ([#322](https://github.com/IllumiDesk/illumidesk/issues/322)) ([f751c67](https://github.com/IllumiDesk/illumidesk/commit/f751c6757d6589711327e2f01516cece33e8b1a4))
 * Fetch course name from context_title if context_label value is empty ([#497](https://github.com/IllumiDesk/illumidesk/issues/497)) ([174a35e](https://github.com/IllumiDesk/illumidesk/commit/174a35e94180b3aec158b1838d6fe1ee6ade691a))
 * Improve the grader notebooks dropdown ([#358](https://github.com/IllumiDesk/illumidesk/issues/358)) ([898c159](https://github.com/IllumiDesk/illumidesk/commit/898c15980f75d2ee15042339a5f0765b4840189d))
 * Use postgres with nbgrader ([#339](https://github.com/IllumiDesk/illumidesk/issues/339)) ([d45780b](https://github.com/IllumiDesk/illumidesk/commit/d45780b91f224996a471c9b3b52cbb2874a5925f))
