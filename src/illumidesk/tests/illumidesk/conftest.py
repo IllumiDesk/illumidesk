@@ -342,7 +342,6 @@ def setup_course_hook_environ(monkeypatch, jupyterhub_api_environ):
     """
     Set the environment variables used in the setup_course_hook function
     """
-    monkeypatch.setenv('ANNOUNCEMENT_SERVICE_PORT', '8889')
     monkeypatch.setenv('SETUP_COURSE_SERVICE_NAME', 'grader-setup-service')
     monkeypatch.setenv('SETUP_COURSE_PORT', '8000')
     monkeypatch.setenv('ORGANIZATION_NAME', 'test-org')
