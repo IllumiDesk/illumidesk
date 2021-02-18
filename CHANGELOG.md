@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.1.1 (2021-02-16)
+
+## Dependencies
+
+* Remove announcement service ([#517](https://github.com/IllumiDesk/illumidesk/issues/517)) ([f1268c4](https://github.com/IllumiDesk/illumidesk/commit/f1268c4f97b8e368628660894b5ba3d375adb54f))
+
 ## 1.1.0 (2021-02-16)
 
 ### Refactor
