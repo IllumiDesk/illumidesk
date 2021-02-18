@@ -11,7 +11,6 @@ from unittest.mock import AsyncMock
 from unittest.mock import patch
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
-from illumidesk.apis.announcement_service import AnnouncementService
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 
 
@@ -239,34 +238,3 @@ async def test_setup_course_hook_initialize_data_dict(
             assert expected_data['course_id'] == result['auth_state']['course_id']
             assert expected_data['org'] == os.environ.get('ORGANIZATION_NAME')
             assert expected_data['domain'] == local_handler.request.host
-
-
-@pytest.mark.asyncio()
-async def test_setup_course_hook_calls_announcement_service_when_is_new_setup(
-    setup_course_hook_environ,
-    make_auth_state_dict,
-    make_http_response,
-    make_mock_request_handler,
-    mock_nbhelper,
-):
-    """
-    Is the annuncement service called in new setup?
-    """
-    local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
-    local_authentication = make_auth_state_dict()
-
-    response_args = {'handler': local_handler.request, 'body': {'is_new_setup': True}}
-    with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
-        with patch.object(
-            AsyncHTTPClient,
-            'fetch',
-            side_effect=[
-                make_http_response(**response_args),
-                None,
-            ],  # noqa: E231
-        ):
-            AnnouncementService.add_announcement = AsyncMock(return_value=None)
-
-            await setup_course_hook(local_authenticator, local_handler, local_authentication)
-            assert AnnouncementService.add_announcement.called
