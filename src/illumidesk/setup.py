@@ -38,7 +38,7 @@ setup(
     install_requires=[
         'filelock==3.0.12',
         'josepy==1.4.0',
-        'jupyterhub==1.1.0',
+        'jupyterhub==1.3.0',
         'jupyterhub-kubespawner==0.14.1',
         'jupyterhub-ltiauthenticator==1.0.0',
         'jwcrypto==0.8',

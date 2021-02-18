@@ -18,7 +18,6 @@ from typing import Any
 from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
-from illumidesk.apis.announcement_service import AnnouncementService
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.setup_course_service import register_new_service
 from illumidesk.apis.setup_course_service import create_assignment_source_dir
@@ -84,12 +83,6 @@ async def setup_course_hook(
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
     # launch the new (?) grader-notebook as a service
     setup_response = await register_new_service(org_name=ORG_NAME, course_id=course_id)
-
-    # In case of new courses launched then execute a rolling update with jhub to reload our configuration file
-    if setup_response is True:
-        # notify the user the browser needs to be reload (when traefik redirects to a new jhub)
-        await AnnouncementService.add_announcement('A new service was detected, please reload this page...')
-        logger.debug('The current jupyterhub instance will be updated by grader setup service...')
 
     return authentication
 
