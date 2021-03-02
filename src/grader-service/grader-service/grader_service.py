@@ -289,7 +289,7 @@ class GraderServiceLauncher:
                 current_labels.update({'restarted_at': datetime.now().strftime('%m_%d_%Y_%H_%M_%S')})
                 current_metadata.labels = current_labels
                 # update the deployment object
-                deployment.spec.template.metatada = current_metadata
+                deployment.spec.template.metadata = current_metadata
                 api_response = self.apps_v1.patch_namespaced_deployment(
                     name='hub', namespace=NAMESPACE, body=deployment
                 )
