@@ -20,6 +20,7 @@ from typing import Dict
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.setup_course_service import register_new_service
+from illumidesk.apis.setup_course_service import register_control_file
 from illumidesk.apis.setup_course_service import create_assignment_source_dir
 
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
@@ -67,11 +68,14 @@ async def setup_course_hook(
     jupyterhub_api = JupyterHubAPI()
 
     # normalize the name and course_id strings in authentication dictionary
+    assignment_name = lti_utils.normalize_string(authentication['auth_state']['assignment_name'])
     course_id = lti_utils.normalize_string(authentication['auth_state']['course_id'])
     nb_service = NbGraderServiceHelper(course_id)
     username = lti_utils.normalize_string(authentication['name'])
     lms_user_id = authentication['auth_state']['lms_user_id']
     user_role = authentication['auth_state']['user_role']
+    lis_outcome_service_url = authentication['auth_state']['lis_outcome_service_url']
+    lis_result_sourcedid = authentication['auth_state']['lis_result_sourcedid']
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
     nb_service.add_user_to_nbgrader_gradebook(username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
@@ -83,6 +87,20 @@ async def setup_course_hook(
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
     # launch the new (?) grader-notebook as a service
     setup_response = await register_new_service(org_name=ORG_NAME, course_id=course_id)
+
+    # launch the new (?) grader-notebook as a service
+    if lis_outcome_service_url and lis_result_sourcedid:
+        control_file_response = await register_control_file(
+            lis_outcome_service_url=lis_outcome_service_url,
+            lis_result_sourcedid=lis_result_sourcedid,
+            assignment_name=assignment_name,
+            course_id=course_id,
+            lms_user_id=lms_user_id)
+
+    # add the grader control file for lti 1.1
+    #'lis_outcome_service_url': lis_outcome_service_url,
+    #'lis_result_sourcedid': lis_result_sourcedid,
+
 
     return authentication
 
@@ -241,10 +259,7 @@ class LTI11Authenticator(LTIAuthenticator):
                 lis_outcome_service_url = args['lis_outcome_service_url']
             if 'lis_result_sourcedid' in args and args['lis_result_sourcedid']:
                 lis_result_sourcedid = args['lis_result_sourcedid']
-            # only if both values exist we can register them to submit grades later
-            if lis_outcome_service_url and lis_result_sourcedid:
-                control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
-                control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
+
             # Assignment creation
             if assignment_name:
                 nbgrader_service = NbGraderServiceHelper(course_id, True)
@@ -259,9 +274,12 @@ class LTI11Authenticator(LTIAuthenticator):
             return {
                 'name': username_normalized,
                 'auth_state': {
+                    'assignment_name': assignment_name,
                     'course_id': course_id,
                     'lms_user_id': lms_user_id,
                     'user_role': user_role,
+                    'lis_outcome_service_url': lis_outcome_service_url,
+                    'lis_result_sourcedid': lis_result_sourcedid,
                 },  # noqa: E231
             }
 
