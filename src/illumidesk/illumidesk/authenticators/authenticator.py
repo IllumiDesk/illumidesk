@@ -31,8 +31,6 @@ from illumidesk.authenticators.utils import user_is_a_student
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 
-from illumidesk.grades.senders import LTIGradesSenderControlFile
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -68,14 +66,23 @@ async def setup_course_hook(
     jupyterhub_api = JupyterHubAPI()
 
     # normalize the name and course_id strings in authentication dictionary
-    assignment_name = lti_utils.normalize_string(authentication['auth_state']['assignment_name'])
     course_id = lti_utils.normalize_string(authentication['auth_state']['course_id'])
     nb_service = NbGraderServiceHelper(course_id)
     username = lti_utils.normalize_string(authentication['name'])
     lms_user_id = authentication['auth_state']['lms_user_id']
     user_role = authentication['auth_state']['user_role']
-    lis_outcome_service_url = authentication['auth_state']['lis_outcome_service_url']
-    lis_result_sourcedid = authentication['auth_state']['lis_result_sourcedid']
+
+    # lti 1.1 specific items
+    lis_outcome_service_url =''
+    lis_result_sourcedid = ''
+    assignment_name =''
+    if 'lis_outcome_service_url' in authentication['auth_state']['lis_outcome_service_url']:
+        lis_outcome_service_url = authentication['auth_state']['lis_outcome_service_url']
+    if 'lis_result_sourcedid' in authentication['auth_state']['lis_outcome_service_url']:
+        lis_result_sourcedid = authentication['auth_state']['lis_outcome_service_url']
+    if 'assignment_name' in authentication['auth_state']['assignment_name']:
+        assignment_name = lti_utils.normalize_string(authentication['auth_state']['assignment_name'])
+
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
     nb_service.add_user_to_nbgrader_gradebook(username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
@@ -88,7 +95,7 @@ async def setup_course_hook(
     # launch the new (?) grader-notebook as a service
     setup_response = await register_new_service(org_name=ORG_NAME, course_id=course_id)
 
-    # launch the new (?) grader-notebook as a service
+    # add or update the lti 1.1 grader control file
     if lis_outcome_service_url and lis_result_sourcedid:
         control_file_response = await register_control_file(
             lis_outcome_service_url=lis_outcome_service_url,
@@ -96,11 +103,6 @@ async def setup_course_hook(
             assignment_name=assignment_name,
             course_id=course_id,
             lms_user_id=lms_user_id)
-
-    # add the grader control file for lti 1.1
-    #'lis_outcome_service_url': lis_outcome_service_url,
-    #'lis_result_sourcedid': lis_result_sourcedid,
-
 
     return authentication
 

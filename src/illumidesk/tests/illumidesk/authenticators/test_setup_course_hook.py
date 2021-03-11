@@ -238,3 +238,18 @@ async def test_setup_course_hook_initialize_data_dict(
             assert expected_data['course_id'] == result['auth_state']['course_id']
             assert expected_data['org'] == os.environ.get('ORGANIZATION_NAME')
             assert expected_data['domain'] == local_handler.request.host
+
+
+@pytest.mark.asyncio()
+async def test_setup_course_hook_sets_lti11_kvs(
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
+    mock_nbhelper,
+):
+    """
+    Ensure the setup course hook calls the register control file function if applicable.
+    """
+    pass

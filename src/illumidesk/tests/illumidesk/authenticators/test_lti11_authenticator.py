@@ -667,6 +667,17 @@ async def test_authenticator_returns_username_from_user_id_with_another_lms(
 
 @pytest.mark.asyncio
 @patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
+async def test_authenticator_returns_username_from_user_id_with_another_lms(
+    lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
+):
+    """
+    Ensure the lti 1.1 args for the control file are returned with the auth dict
+    """
+    pass
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.authenticators.authenticator.LTI11LaunchValidator')
 async def test_authenticator_returns_login_id_plus_user_id_as_username_with_canvas(
     lti11_validator, make_lti11_success_authentication_request_args, gradesender_controlfile_mock, mock_nbhelper
 ):
