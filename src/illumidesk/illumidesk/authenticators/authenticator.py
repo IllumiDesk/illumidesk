@@ -89,20 +89,20 @@ async def setup_course_hook(
     if user_is_a_student(user_role):
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
         await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+        # add or update the lti 1.1 grader control file
+        if lis_outcome_service_url and lis_result_sourcedid:
+            _ = await register_control_file(
+                lis_outcome_service_url=lis_outcome_service_url,
+                lis_result_sourcedid=lis_result_sourcedid,
+                assignment_name=assignment_name,
+                course_id=course_id,
+                lms_user_id=lms_user_id)
     elif user_is_an_instructor(user_role):
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
-    # launch the new (?) grader-notebook as a service
-    setup_response = await register_new_service(org_name=ORG_NAME, course_id=course_id)
 
-    # add or update the lti 1.1 grader control file
-    if lis_outcome_service_url and lis_result_sourcedid:
-        control_file_response = await register_control_file(
-            lis_outcome_service_url=lis_outcome_service_url,
-            lis_result_sourcedid=lis_result_sourcedid,
-            assignment_name=assignment_name,
-            course_id=course_id,
-            lms_user_id=lms_user_id)
+    # launch the new grader-notebook as a service
+    _ = await register_new_service(org_name=ORG_NAME, course_id=course_id)
 
     return authentication
 
@@ -399,7 +399,7 @@ class LTI13Authenticator(OAuthenticator):
                 ]
             # if there is a resource link request then process additional steps
             if not validator.is_deep_link_launch(jwt_decoded):
-                await process_resource_link(self.log, course_id, jwt_decoded)
+                await process_resource_link_lti_13(self.log, course_id, jwt_decoded)
 
             lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
 
@@ -418,7 +418,7 @@ class LTI13Authenticator(OAuthenticator):
             }
 
 
-async def process_resource_link(
+async def process_resource_link_lti_13(
     logger: Any,
     course_id: str,
     jwt_body_decoded: Dict[str, Any],

@@ -17,6 +17,7 @@ from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
+from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 
 @pytest.mark.asyncio
@@ -253,3 +254,63 @@ async def test_setup_course_hook_sets_lti11_kvs(
     Ensure the setup course hook calls the register control file function if applicable.
     """
     pass
+
+
+@pytest.mark.asyncio()
+async def test_setup_course_hook_does_not_call_add_instructor_to_jupyterhub_group_when_role_is_learner(
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
+    mock_nbhelper,
+):
+    """
+    Is the register_new_service function called when the user_role is learner or student?
+    """
+    local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_authentication = make_auth_state_dict()
+
+    with patch.object(NbGraderServiceHelper, 'add_user_to_nbgrader_gradebook', return_value=None):
+        with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
+            with patch.object(
+                JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
+            ) as mock_add_instructor_to_jupyterhub_group:
+                with patch.object(
+                    AsyncHTTPClient,
+                    'fetch',
+                    return_value=make_http_response(handler=local_handler.request),
+                ):
+                    await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                    assert not mock_add_instructor_to_jupyterhub_group.called
+
+
+@pytest.mark.asyncio()
+async def test_setup_course_hook_does_not_call_add_instructor_to_jupyterhub_group_when_role_is_learner(
+    setup_course_environ,
+    setup_course_hook_environ,
+    make_auth_state_dict,
+    make_http_response,
+    make_mock_request_handler,
+    mock_nbhelper,
+):
+    """
+    Is the register_new_service function called when the user_role is learner or student?
+    """
+    local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
+    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_authentication = make_auth_state_dict()
+
+    with patch.object(NbGraderServiceHelper, 'add_user_to_nbgrader_gradebook', return_value=None):
+        with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
+            with patch.object(
+                JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
+            ) as mock_add_instructor_to_jupyterhub_group:
+                with patch.object(
+                    AsyncHTTPClient,
+                    'fetch',
+                    return_value=make_http_response(handler=local_handler.request),
+                ):
+                    await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                    assert not mock_add_instructor_to_jupyterhub_group.called

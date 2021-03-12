@@ -151,7 +151,7 @@ def lti11_complete_launch_args():
         'lis_result_sourcedid': ['feb-123-456-2929::28883'.encode()],
         'lti_version': ['LTI-1p0'.encode()],
         'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
-        'resource_link_title': ['IllumiDesk'.encode()],
+        'resource_link_title': ['Test-Assignment-Another-LMS'.encode()],
         'roles': ['Learner'.encode()],
         'tool_consumer_info_product_family_code': ['canvas'.encode()],
         'tool_consumer_info_version': ['cloud'.encode()],
@@ -483,16 +483,26 @@ def make_auth_state_dict() -> Dict[str, str]:
     """
 
     def _make_auth_state_dict(
-        username: str = 'foo', course_id: str = 'intro101', lms_user_id: str = 'abc123', user_role: str = 'Learner'
+        username: str = 'foo',
+        assignment_name: str = 'myassignment',
+        course_id: str = 'intro101',
+        lms_user_id: str = 'abc123',
+        user_role: str = 'Learner',
+        lis_outcome_service_url: str = 'http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=',
+        lis_result_sourcedid: str = 'feb-123-456-2929::28883',
+
     ):
         return {
-            'name': username,
-            'auth_state': {
-                'course_id': course_id,
-                'lms_user_id': lms_user_id,
-                'user_role': user_role,
-            },  # noqa: E231
-        }
+                'name': username,
+                'auth_state': {
+                    'assignment_name': assignment_name,
+                    'course_id': course_id,
+                    'lms_user_id': lms_user_id,
+                    'user_role': user_role,
+                    'lis_outcome_service_url': lis_outcome_service_url,
+                    'lis_result_sourcedid': lis_result_sourcedid,
+                },  # noqa: E231
+            }
 
     return _make_auth_state_dict
 
@@ -579,7 +589,7 @@ def make_lti11_success_authentication_request_args():
             'lis_result_sourcedid': ['feb-123-456-2929::28883'.encode()],
             'lti_version': ['LTI-1p0'.encode()],
             'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
-            'resource_link_title': ['IllumiDesk'.encode()],
+            'resource_link_title': ['Test-Assignment-Another-LMS'.encode()],
             'roles': [role.encode()],
             'tool_consumer_info_product_family_code': [lms_vendor.encode()],
             'tool_consumer_info_version': ['cloud'.encode()],
