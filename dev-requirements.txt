@@ -78,7 +78,7 @@ packaging==20.4
     # via pytest
 pathspec==0.8.0
     # via black
-pip-tools==5.4.0
+pip-tools==6.0.0
     # via -r dev-requirements.in
 pluggy==0.13.1
     # via pytest
@@ -141,7 +141,6 @@ six==1.15.0
     #   google-auth
     #   kubernetes
     #   packaging
-    #   pip-tools
     #   python-dateutil
     #   virtualenv
     #   websocket-client
