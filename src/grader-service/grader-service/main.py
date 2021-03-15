@@ -14,9 +14,13 @@ import os
 import shutil
 import sys
 
+from secrets import token_hex
+
 from flask import jsonify
 
 from pathlib import Path
+
+from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 from . import create_app
 from .models import db
@@ -32,14 +36,22 @@ logger = logging.getLogger(__name__)
 app = create_app()
 
 
-@app.route('/services/<org_name>/<course_id>', methods=['POST'])
-def launch(org_name: str, course_id: str):
+@app.route(
+    '/control-file/<assignment_name>/<lis_outcome_service_url>/<lis_result_sourcedid>/<lms_user_id>/<course_id>',
+    methods=['POST'],
+)
+def register_control_file(
+    assignment_name: str, lis_outcome_service_url: str, lis_result_sourcedid: str, lms_user_id: str, course_id: str
+):
     """
-    Creates a new grader-notebook pod if not exists
+    Creates a new grades control file
 
     Args:
-      org_name: the organization name
-      course_id: the grader's course id (label)
+        assignment_name: string representation of the assignment name from the LMS (normalized)
+        lis_outcome_service_url: url endpoint that is used to send grades to the LMS with LTI 1.1
+        lis_result_sourcedid: unique assignment or module identifier used with LTI 1.1
+        lms_user_id: unique (opaque) user id
+        course_id: the course id within the lms
 
     Returns:
       JSON: True/False on whether or not the grader service was successfully launched
@@ -51,26 +63,56 @@ def launch(org_name: str, course_id: str):
     }
     ```
     """
-    launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
-    if not launcher.grader_deployment_exists():
-        try:
-            launcher.create_grader_deployment()
-            # Register the new service to local database
-            new_service = GraderService(
-                name=course_id,
-                course_id=course_id,
-                url=f'http://{launcher.grader_name}:8888',
-                api_token=launcher.grader_token,
-            )
-            db.session.add(new_service)
-            db.session.commit()
-            # then do patch for jhub deployment
-            # with this the jhub pod will be restarted and get/load new services
-            launcher.update_jhub_deployment()
-        except Exception as e:
-            return jsonify(success=False, message=str(e)), 500
+    # launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
+    # if not launcher.grader_deployment_exists():
+    try:
+        control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
+        control_file.register_data(assignment_name, lis_outcome_service_url, lis_result_sourcedid, lms_user_id)
+    except Exception as e:
+        return jsonify(success=False, message=str(e)), 500
 
+    else:
         return jsonify(success=True)
+
+
+@app.route('/services/<org_name>/<course_id>', methods=['POST'])
+def launch(org_name: str, course_id: str):
+    """
+    Creates a new grader-notebook pod running as a JupyterHub unmanaged service if one does not exist.
+
+    Args:
+      org_name: the organization name
+      course_id: the grader's course id
+
+    Returns:
+      JSON: True/False on whether or not the grader service was successfully launched
+
+    example:
+    ```
+    {
+        success: "True"
+    }
+    ```
+    """
+    # launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
+    # if not launcher.grader_deployment_exists():
+    try:
+        # launcher.create_grader_deployment()
+        # Register the new service to local database
+        new_service = GraderService(
+            name=course_id,
+            course_id=course_id,
+            url=f'http://{course_id}:8888',
+            api_token=token_hex(32),
+        )
+        db.session.add(new_service)
+        db.session.commit()
+        # then do patch for jhub deployment
+        # with this the jhub pod will be restarted and get/load new services
+        # launcher.update_jhub_deployment()
+    except Exception as e:
+        return jsonify(success=False, message=str(e)), 500
+
     else:
         return jsonify(success=False, message=f'A grader service already exists for this course_id:{course_id}'), 409
 
