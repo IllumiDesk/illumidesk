@@ -70,11 +70,8 @@ async def register_new_service(org_name: str, course_id: str) -> bool:
 
 
 async def register_control_file(
-    assignment_name: str,
-    lis_outcome_service_url: str,
-    lis_result_sourcedid: str,
-    lms_user_id: str,
-    course_id: str) -> bool:
+    assignment_name: str, lis_outcome_service_url: str, lis_result_sourcedid: str, lms_user_id: str, course_id: str
+) -> bool:
     """
     Helps to register the control file to keep track of assignments and resource id's with the LMS to
     send grades.
@@ -85,7 +82,7 @@ async def register_control_file(
         lis_result_sourcedid: unique assignment or module identifier used with LTI 1.1
         lms_user_id: unique (opaque) user id
         course_id: the course id within the lms
-    
+
     Returns: True when a new the control file was created and saved, false otherwise
 
     """
@@ -93,7 +90,7 @@ async def register_control_file(
     client = AsyncHTTPClient()
     try:
         response = await client.fetch(
-        f'{SERVICE_BASE_URL}/control-file/{assignment_name}/{lis_outcome_service_url}/{lis_result_sourcedid}/{lms_user_id}/{course_id}',
+            f'{SERVICE_BASE_URL}/control-file/{assignment_name}/{lis_outcome_service_url}/{lis_result_sourcedid}/{lms_user_id}/{course_id}',
             headers=SERVICE_COMMON_HEADERS,
             body='',
             method='POST',

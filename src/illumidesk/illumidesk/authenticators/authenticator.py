@@ -73,9 +73,9 @@ async def setup_course_hook(
     user_role = authentication['auth_state']['user_role']
 
     # lti 1.1 specific items
-    lis_outcome_service_url =''
+    lis_outcome_service_url = ''
     lis_result_sourcedid = ''
-    assignment_name =''
+    assignment_name = ''
     if 'lis_outcome_service_url' in authentication['auth_state']['lis_outcome_service_url']:
         lis_outcome_service_url = authentication['auth_state']['lis_outcome_service_url']
     if 'lis_result_sourcedid' in authentication['auth_state']['lis_outcome_service_url']:
@@ -96,7 +96,8 @@ async def setup_course_hook(
                 lis_result_sourcedid=lis_result_sourcedid,
                 assignment_name=assignment_name,
                 course_id=course_id,
-                lms_user_id=lms_user_id)
+                lms_user_id=lms_user_id,
+            )
     elif user_is_an_instructor(user_role):
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)

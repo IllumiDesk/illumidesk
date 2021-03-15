@@ -36,8 +36,13 @@ logger = logging.getLogger(__name__)
 app = create_app()
 
 
-@app.route('/control-file/<assignment_name>/<lis_outcome_service_url>/<lis_result_sourcedid>/<lms_user_id>/<course_id>', methods=['POST'])
-def register_control_file(assignment_name: str, lis_outcome_service_url: str, lis_result_sourcedid: str, lms_user_id: str, course_id: str):
+@app.route(
+    '/control-file/<assignment_name>/<lis_outcome_service_url>/<lis_result_sourcedid>/<lms_user_id>/<course_id>',
+    methods=['POST'],
+)
+def register_control_file(
+    assignment_name: str, lis_outcome_service_url: str, lis_result_sourcedid: str, lms_user_id: str, course_id: str
+):
     """
     Creates a new grades control file
 
@@ -65,7 +70,7 @@ def register_control_file(assignment_name: str, lis_outcome_service_url: str, li
         control_file.register_data(assignment_name, lis_outcome_service_url, lis_result_sourcedid, lms_user_id)
     except Exception as e:
         return jsonify(success=False, message=str(e)), 500
-    
+
     else:
         return jsonify(success=True)
 

@@ -490,19 +490,18 @@ def make_auth_state_dict() -> Dict[str, str]:
         user_role: str = 'Learner',
         lis_outcome_service_url: str = 'http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=',
         lis_result_sourcedid: str = 'feb-123-456-2929::28883',
-
     ):
         return {
-                'name': username,
-                'auth_state': {
-                    'assignment_name': assignment_name,
-                    'course_id': course_id,
-                    'lms_user_id': lms_user_id,
-                    'user_role': user_role,
-                    'lis_outcome_service_url': lis_outcome_service_url,
-                    'lis_result_sourcedid': lis_result_sourcedid,
-                },  # noqa: E231
-            }
+            'name': username,
+            'auth_state': {
+                'assignment_name': assignment_name,
+                'course_id': course_id,
+                'lms_user_id': lms_user_id,
+                'user_role': user_role,
+                'lis_outcome_service_url': lis_outcome_service_url,
+                'lis_result_sourcedid': lis_result_sourcedid,
+            },  # noqa: E231
+        }
 
     return _make_auth_state_dict
 

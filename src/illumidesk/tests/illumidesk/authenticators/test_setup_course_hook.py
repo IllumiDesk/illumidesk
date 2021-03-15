@@ -7,7 +7,6 @@ import pytest
 from tornado.web import RequestHandler
 from tornado.httpclient import AsyncHTTPClient
 
-from unittest.mock import AsyncMock
 from unittest.mock import patch
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
@@ -17,7 +16,6 @@ from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
-from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 
 @pytest.mark.asyncio
