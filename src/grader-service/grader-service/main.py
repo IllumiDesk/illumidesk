@@ -65,18 +65,19 @@ def register_control_file(assignment_name: str, lis_outcome_service_url: str, li
         control_file.register_data(assignment_name, lis_outcome_service_url, lis_result_sourcedid, lms_user_id)
     except Exception as e:
         return jsonify(success=False, message=str(e)), 500
-
-    return jsonify(success=True)
+    
+    else:
+        return jsonify(success=True)
 
 
 @app.route('/services/<org_name>/<course_id>', methods=['POST'])
 def launch(org_name: str, course_id: str):
     """
-    Creates a new grader-notebook pod if not exists
+    Creates a new grader-notebook pod running as a JupyterHub unmanaged service if one does not exist.
 
     Args:
       org_name: the organization name
-      course_id: the grader's course id (label)
+      course_id: the grader's course id
 
     Returns:
       JSON: True/False on whether or not the grader service was successfully launched
@@ -107,7 +108,6 @@ def launch(org_name: str, course_id: str):
     except Exception as e:
         return jsonify(success=False, message=str(e)), 500
 
-        return jsonify(success=True)
     else:
         return jsonify(success=False, message=f'A grader service already exists for this course_id:{course_id}'), 409
 
