@@ -23,7 +23,6 @@ max-complexity = 15
 max-line-length = 119
 builtins = c, get_config
 exclude =
-    .ansible,
     .cache,
     __pycache__,
     .github,
@@ -31,7 +30,6 @@ exclude =
     .pytest_cache,
     .travis,
     .vscode,
-    ansible,
     docs,
     node_modules,
     venv
