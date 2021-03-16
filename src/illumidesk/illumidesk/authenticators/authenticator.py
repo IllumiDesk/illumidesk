@@ -76,11 +76,11 @@ async def setup_course_hook(
     lis_outcome_service_url = ''
     lis_result_sourcedid = ''
     assignment_name = ''
-    if 'lis_outcome_service_url' in authentication['auth_state']['lis_outcome_service_url']:
+    if 'lis_outcome_service_url' in authentication['auth_state']:
         lis_outcome_service_url = authentication['auth_state']['lis_outcome_service_url']
-    if 'lis_result_sourcedid' in authentication['auth_state']['lis_outcome_service_url']:
-        lis_result_sourcedid = authentication['auth_state']['lis_outcome_service_url']
-    if 'assignment_name' in authentication['auth_state']['assignment_name']:
+    if 'lis_result_sourcedid' in authentication['auth_state']:
+        lis_result_sourcedid = authentication['auth_state']['lis_result_sourcedid']
+    if 'assignment_name' in authentication['auth_state']:
         assignment_name = lti_utils.normalize_string(authentication['auth_state']['assignment_name'])
 
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
