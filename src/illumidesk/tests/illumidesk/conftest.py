@@ -287,7 +287,7 @@ def grades_controlfile_reset_file_loaded():
 
 
 @pytest.fixture(scope='function')
-def register_control_file():
+def register_control_file_reponse():
     """
     Register a control file to manage grades with LTI 1.1
     """

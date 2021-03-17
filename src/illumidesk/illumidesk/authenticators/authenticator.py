@@ -19,9 +19,7 @@ from typing import Dict
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
-from illumidesk.apis.setup_course_service import register_new_service
-from illumidesk.apis.setup_course_service import register_control_file
-from illumidesk.apis.setup_course_service import create_assignment_source_dir
+from illumidesk.apis.setup_course_service_api import SetupCourseServiceAPI
 
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
@@ -62,11 +60,11 @@ async def setup_course_hook(
     Returns:
         authentication (Required): updated authentication object
     """
-    lti_utils = LTIUtils()
     jupyterhub_api = JupyterHubAPI()
+    setup_course_service_api = SetupCourseServiceAPI()
 
     # name is always included
-    username = lti_utils.normalize_string(authentication['name'])
+    username = authentication['name']
     # included with both lti 1.1 and lti 1.3
     assignment_name = ''
     course_id = ''
@@ -75,9 +73,9 @@ async def setup_course_hook(
     lis_outcome_service_url = ''
     lis_result_sourcedid = ''
     if 'assignment_name' in authentication['auth_state']:
-        assignment_name = lti_utils.normalize_string(authentication['auth_state']['assignment_name'])
+        assignment_name = authentication['auth_state']['assignment_name']
     if 'course_id' in authentication['auth_state']:
-        course_id = lti_utils.normalize_string(authentication['auth_state']['course_id'])
+        course_id = authentication['auth_state']['course_id']
     if 'lms_user_id' in authentication['auth_state']:
         lms_user_id = authentication['auth_state']['lms_user_id']
     if 'lis_outcome_service_url' in authentication['auth_state']:
@@ -99,7 +97,7 @@ async def setup_course_hook(
         logger.debug("Response from JupyterHub when adding student: %s", result)
         # add or update the lti 1.1 grader control file
         if lis_outcome_service_url and lis_result_sourcedid:
-            await register_control_file(
+            await setup_course_service_api.register_control_file(
                 lis_outcome_service_url=lis_outcome_service_url,
                 lis_result_sourcedid=lis_result_sourcedid,
                 assignment_name=assignment_name,
@@ -111,8 +109,7 @@ async def setup_course_hook(
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
 
     # launch the new grader-notebook as a service
-    await register_new_service(org_name=ORG_NAME, course_id=course_id)
-    # logger.debug("Register new grader service resulted in %s", register_new_service_result)
+    await setup_course_service_api.register_new_service(org_name=ORG_NAME, course_id=course_id)
 
     return authentication
 
@@ -436,6 +433,7 @@ async def process_resource_link_lti_13(
     """
     Executes additional processes with the claims that come only with LtiResourceLinkRequest
     """
+    setup_course_service_api = SetupCourseServiceAPI()
     # Values for send-grades functionality
     resource_link = jwt_body_decoded['https://purl.imsglobal.org/spec/lti/claim/resource_link']
     resource_link_title = resource_link['title'] or ''
@@ -453,4 +451,4 @@ async def process_resource_link_lti_13(
         # register the new assignment in nbgrader database
         nbgrader_service.register_assignment(assignment_name)
         # create the assignment source directory by calling the grader-setup service
-        await create_assignment_source_dir(ORG_NAME, course_id, assignment_name)
+        await setup_course_service_api.create_assignment_source_dir(ORG_NAME, course_id, assignment_name)

@@ -63,7 +63,7 @@ def test_initializer_sets_headers_to_make_request(jupyterhub_api_environ):
 @pytest.mark.asyncio
 async def test_request_raises_value_error_with_endpoint_empty(jupyterhub_api_environ):
     """
-    Does the _request method accespt an missing endpoint argument?
+    Does the _request method accept an missing endpoint argument?
     """
     with pytest.raises(ValueError):
         await JupyterHubAPI()._request(endpoint='')
