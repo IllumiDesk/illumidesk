@@ -18,10 +18,6 @@ class SetupCourseServiceAPI(LoggingConfigurable):
         self.client = AsyncHTTPClient()
         self.setup_course_service_name = os.environ.get('SETUP_COURSE_SERVICE_NAME') or 'grader-setup-service'
         self.setup_course_port = os.environ.get('SETUP_COURSE_PORT') or '8000'
-        if not self.setup_course_service_name:
-            raise EnvironmentError('SETUP_COURSE_SERVICE_NAME env-var is not set')
-        if not self.setup_course_port:
-            raise EnvironmentError('SETUP_COURSE_PORT env-var is not set')
         self.service_base_url = f'http://{self.setup_course_service_name}:{self.setup_course_port}'
         self.default_headers = {
             'Content-Type': 'application/json',
