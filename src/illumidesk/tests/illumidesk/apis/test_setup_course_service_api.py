@@ -6,15 +6,6 @@ from unittest.mock import patch
 from illumidesk.apis.setup_course_service_api import SetupCourseServiceAPI
 
 
-def test_initializer_sets_http_client(setup_course_hook_environ):
-    """
-    Does initializer set a httpclient instance?
-    """
-    sut = SetupCourseServiceAPI()
-    assert sut.client is not None
-    assert sut.client != ''
-
-
 def test_initializer_sets_service_name_from_env_var(setup_course_hook_environ):
     """
     Does initializer set service name correctly?
@@ -52,7 +43,35 @@ async def test_create_assignment_source_dir_request_helper_method_with_correct_v
     sut = SetupCourseServiceAPI()
     await sut.create_assignment_source_dir('some-org', 'some-course', 'some-assignment')
     assert mock_request.called
-    mock_request.assert_called_with('/some-org/some-course/some-assignment', body='', method='GET')
+    assert mock_request.await_args('/some-org/some-course/some-assignment', body='', method='GET')
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.apis.setup_course_service_api.SetupCourseServiceAPI._request')
+async def test_register_new_service_request_helper_method_with_correct_values(mock_request, setup_course_hook_environ):
+    """
+    Does register_new_service method use the helper method and pass the correct values?
+    """
+    sut = SetupCourseServiceAPI()
+    await sut.register_new_service('some-org', 'some-course')
+    assert mock_request.called
+    assert mock_request.await_args('/some-org/some-course', body='', method='GET')
+
+
+@pytest.mark.asyncio
+@patch('illumidesk.apis.setup_course_service_api.SetupCourseServiceAPI._request')
+async def test_register_control_file_request_helper_method_with_correct_values(
+    mock_request, setup_course_hook_environ
+):
+    """
+    Does register_control_file method use the helper method and pass the correct values?
+    """
+    sut = SetupCourseServiceAPI()
+    await sut.register_control_file('some-assignment', 'some-outcome', 'some-sourceid', 'some-lms', 'some-course')
+    assert mock_request.called
+    assert mock_request.await_args(
+        '/some-assignment/some-outcome/some-sourceid/some-lms/some-course', body='', method='GET'
+    )
 
 
 @pytest.mark.asyncio

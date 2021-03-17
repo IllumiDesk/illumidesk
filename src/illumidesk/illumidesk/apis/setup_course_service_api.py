@@ -42,7 +42,7 @@ class SetupCourseServiceAPI(LoggingConfigurable):
             raise ValueError('missing endpoint argument')
         headers = kwargs.pop('headers', {})
         headers.update(self.default_headers)
-        url = f'{self.api_root_url}/{endpoint}'
+        url = f'{self.service_base_url}/{endpoint}'
         self.log.debug(f'Creating request with url: {url}')
         return await self.client.fetch(url, headers=headers, **kwargs)
 
@@ -59,7 +59,7 @@ class SetupCourseServiceAPI(LoggingConfigurable):
           True when the service response is 200
         """
         try:
-            response = await self.client.fetch(
+            response = await self._request(
                 f'{self.service_base_url}/courses/{org_name}/{course_id}/{assignment_name}',
                 headers=self.default_headers,
                 body='',
@@ -73,7 +73,7 @@ class SetupCourseServiceAPI(LoggingConfigurable):
 
         return False
 
-    async def register_new_service(self, org_name: str, course_id: str) -> bool:
+    async def register_new_service(self, org_name: str, course_id: str) -> Bool:
         """
         Helps to register (asynchronously) new course definition through the grader setup service
 
@@ -85,7 +85,7 @@ class SetupCourseServiceAPI(LoggingConfigurable):
           True when a new deployment was launched (k8s) otherwise False
         """
         try:
-            response = await self.client.fetch(
+            response = await self._request(
                 f'{self.service_base_url}/services/{org_name}/{course_id}',
                 headers=self.default_headers,
                 body='',
@@ -124,7 +124,7 @@ class SetupCourseServiceAPI(LoggingConfigurable):
 
         """
         try:
-            response = await self.client.fetch(
+            response = await self._request(
                 f'{self.service_base_url}/control-file/{assignment_name}/{lis_outcome_service_url}/{lis_result_sourcedid}/{lms_user_id}/{course_id}',
                 headers=self.default_headers,
                 body='',

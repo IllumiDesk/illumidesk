@@ -435,21 +435,21 @@ def make_http_response() -> HTTPResponse:
         a dictionary to represent the StringIO body in the response.
 
         Example:
-
+        ```
             response_args = {'handler': local_handler.request, 'body': {'code': 200}}
             http_response = await factory_http_response(**response_args)
-
+        ```
         Args:
-        handler: tornado.web.RequestHandler object.
-        code: response code, e.g. 200 or 404
-        reason: reason phrase describing the status code
-        headers: HTTPHeaders (response header object), use the dict within the constructor, e.g.
+          handler: tornado.web.RequestHandler object.
+          code: response code, e.g. 200 or 404
+          reason: reason phrase describing the status code
+          headers: HTTPHeaders (response header object), use the dict within the constructor, e.g.
             {"content-type": "application/json"}
-        effective_url: final location of the resource after following any redirects
-        body: dictionary that represents the StringIO (buffer) body
+          effective_url: final location of the resource after following any redirects
+          body: dictionary that represents the StringIO (buffer) body
 
         Returns:
-        A tornado.client.HTTPResponse object
+          A tornado.client.HTTPResponse object
         """
         dict_to_buffer = StringIO(json.dumps(body)) if body is not None else None
         return HTTPResponse(

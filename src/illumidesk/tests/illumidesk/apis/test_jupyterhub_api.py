@@ -189,7 +189,7 @@ async def test_get_group_uses_request_helper_method_with_correct_values(mock_req
     sut = JupyterHubAPI()
     await sut.get_group('some-value')
     assert mock_request.called
-    mock_request.assert_called_with('groups/some-value')
+    assert mock_request.await_args('groups/some-value')
 
 
 @pytest.mark.asyncio
