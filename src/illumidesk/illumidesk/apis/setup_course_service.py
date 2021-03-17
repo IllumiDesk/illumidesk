@@ -46,11 +46,13 @@ async def create_assignment_source_dir(org_name: str, course_id: str, assignment
 async def register_new_service(org_name: str, course_id: str) -> bool:
     """
     Helps to register (asynchronously) new course definition through the grader setup service
-    Args:
-        org: organization name
-        course_id: the course name detected in the request args
-    Returns: True when a new deployment was launched (k8s) otherwise False
 
+    Args:
+      org: organization name
+      course_id: the course name detected in the request args
+
+    Returns:
+      True when a new deployment was launched (k8s) otherwise False
     """
     client = AsyncHTTPClient()
     try:
@@ -66,7 +68,8 @@ async def register_new_service(org_name: str, course_id: str) -> bool:
         # HTTPError is raised for non-200 responses
         # the response can be found in e.response.
         logger.error(f'Grader-setup service returned an error: {e}')
-        return False
+
+    return False
 
 
 async def register_control_file(
@@ -101,4 +104,4 @@ async def register_control_file(
         # HTTPError is raised for non-200 responses
         # the response can be found in e.response.
         logger.error(f'Grader-setup service returned an error: {e}')
-        return False
+    return False

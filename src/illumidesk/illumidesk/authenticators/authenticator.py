@@ -65,33 +65,41 @@ async def setup_course_hook(
     lti_utils = LTIUtils()
     jupyterhub_api = JupyterHubAPI()
 
-    # normalize the name and course_id strings in authentication dictionary
-    course_id = lti_utils.normalize_string(authentication['auth_state']['course_id'])
-    nb_service = NbGraderServiceHelper(course_id)
+    # name is always included
     username = lti_utils.normalize_string(authentication['name'])
-    lms_user_id = authentication['auth_state']['lms_user_id']
-    user_role = authentication['auth_state']['user_role']
-
+    # included with both lti 1.1 and lti 1.3
+    assignment_name = ''
+    course_id = ''
+    user_role = ''
     # lti 1.1 specific items
     lis_outcome_service_url = ''
     lis_result_sourcedid = ''
-    assignment_name = ''
+    if 'assignment_name' in authentication['auth_state']:
+        assignment_name = lti_utils.normalize_string(authentication['auth_state']['assignment_name'])
+    if 'course_id' in authentication['auth_state']:
+        course_id = lti_utils.normalize_string(authentication['auth_state']['course_id'])
+    if 'lms_user_id' in authentication['auth_state']:
+        lms_user_id = authentication['auth_state']['lms_user_id']
     if 'lis_outcome_service_url' in authentication['auth_state']:
         lis_outcome_service_url = authentication['auth_state']['lis_outcome_service_url']
     if 'lis_result_sourcedid' in authentication['auth_state']:
         lis_result_sourcedid = authentication['auth_state']['lis_result_sourcedid']
-    if 'assignment_name' in authentication['auth_state']:
-        assignment_name = lti_utils.normalize_string(authentication['auth_state']['assignment_name'])
+    if 'user_role' in authentication['auth_state']:
+        user_role = authentication['auth_state']['user_role']
+
+    # connect to grader db
+    nb_service = NbGraderServiceHelper(course_id)
 
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
     nb_service.add_user_to_nbgrader_gradebook(username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
     if user_is_a_student(user_role):
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
-        await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+        result = await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+        logger.debug("Response from JupyterHub when adding student: %s", result)
         # add or update the lti 1.1 grader control file
         if lis_outcome_service_url and lis_result_sourcedid:
-            _ = await register_control_file(
+            await register_control_file(
                 lis_outcome_service_url=lis_outcome_service_url,
                 lis_result_sourcedid=lis_result_sourcedid,
                 assignment_name=assignment_name,
@@ -103,7 +111,8 @@ async def setup_course_hook(
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
 
     # launch the new grader-notebook as a service
-    _ = await register_new_service(org_name=ORG_NAME, course_id=course_id)
+    await register_new_service(org_name=ORG_NAME, course_id=course_id)
+    # logger.debug("Register new grader service resulted in %s", register_new_service_result)
 
     return authentication
 

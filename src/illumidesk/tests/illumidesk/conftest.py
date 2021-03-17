@@ -287,6 +287,14 @@ def grades_controlfile_reset_file_loaded():
 
 
 @pytest.fixture(scope='function')
+def register_control_file():
+    """
+    Register a control file to manage grades with LTI 1.1
+    """
+    return True
+
+
+@pytest.fixture(scope='function')
 def setup_jupyterhub_db(monkeypatch):
     """
     Set the enviroment variables used to identify the end user image.
@@ -357,25 +365,20 @@ def pre_spawn_hook_environ(monkeypatch, jupyterhub_api_environ):
 
 
 @pytest.fixture(scope='function')
+def register_new_service():
+    """
+    Return a value for the register_new_service function
+    """
+    return True
+
+
+@pytest.fixture(scope='function')
 def setup_utils_environ(monkeypatch, tmp_path):
     """
     Set the enviroment variables used in SetupUtils class
     """
     monkeypatch.setenv('JUPYTERHUB_SERVICE_NAME', 'jupyterhub')
     monkeypatch.setenv('ILLUMIDESK_DIR', '/home/foo/illumidesk_deployment')
-
-
-@pytest.fixture(scope='function')
-def test_quart_client(monkeypatch, tmp_path):
-    """
-    Set the env-vars required by quart-based application
-    """
-    monkeypatch.setenv('JUPYTERHUB_CONFIG_PATH', str(tmp_path))
-    # important than environ reads JUPYTERHUB_CONFIG_PATH variable before
-    # app initialization
-    from illumidesk.setup_course.app import app
-
-    return app.test_client()
 
 
 @pytest.fixture(scope='function')
