@@ -38,7 +38,5 @@ class GraderService(db.Model):
     admin = db.Column(db.Boolean, default=True)
     api_token = db.Column(db.String(150), nullable=True)
 
-    db.create_all()
-
     def __repr__(self):
         return "<Service name: {} at {}>".format(self.name, self.url)

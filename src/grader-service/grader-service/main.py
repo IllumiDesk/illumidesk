@@ -14,13 +14,13 @@ import os
 import shutil
 import sys
 
-from secrets import token_hex
-
 from flask import jsonify
 
 from pathlib import Path
 
-from illumidesk.grades.senders import LTIGradesSenderControlFile
+from secrets import token_hex
+
+from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 
 from . import create_app
 from .models import db
@@ -32,6 +32,7 @@ from .grader_service import NB_GID
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 
 app = create_app()
 
@@ -45,17 +46,14 @@ def register_control_file(
 ):
     """
     Creates a new grades control file
-
     Args:
         assignment_name: string representation of the assignment name from the LMS (normalized)
         lis_outcome_service_url: url endpoint that is used to send grades to the LMS with LTI 1.1
         lis_result_sourcedid: unique assignment or module identifier used with LTI 1.1
         lms_user_id: unique (opaque) user id
         course_id: the course id within the lms
-
     Returns:
       JSON: True/False on whether or not the grader service was successfully launched
-
     example:
     ```
     {
@@ -79,14 +77,11 @@ def register_control_file(
 def launch(org_name: str, course_id: str):
     """
     Creates a new grader-notebook pod running as a JupyterHub unmanaged service if one does not exist.
-
     Args:
       org_name: the organization name
       course_id: the grader's course id
-
     Returns:
       JSON: True/False on whether or not the grader service was successfully launched
-
     example:
     ```
     {
@@ -121,11 +116,9 @@ def launch(org_name: str, course_id: str):
 def services():
     """
     Returns the grader-notebook list used as services defined in the JupyterHub config.
-
     Returns:
       JSON: a list of service dictionaries with the name and url and the groups associated
       to the grader service.
-
     example:
     ```
     {
@@ -156,11 +149,9 @@ def services():
 @app.route("/services/<org_name>/<course_id>", methods=['DELETE'])
 def services_deletion(org_name: str, course_id: str):
     """Deletes the grader setup service
-
     Args:
         org_name (str): the organization name
         course_id (str): the course id (label)
-
     Returns:
         JSON: True if the grader was successfully deleted false otherwise
     """
@@ -179,12 +170,10 @@ def services_deletion(org_name: str, course_id: str):
 @app.route("/courses/<org_name>/<course_id>/<assignment_name>", methods=['POST'])
 def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str):
     """Creates the directories required to manage assignments.
-
     Args:
         org_name (str): the organization name
         course_id (str): the course id (label)
         assignment_name (str): the assignment name
-
     Returns:
         JSON: True if the assignment directories were successfully created, false otherwise
     """
@@ -203,7 +192,6 @@ def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str)
 @app.route("/healthcheck")
 def healthcheck():
     """Healtheck endpoint
-
     Returns:
         JSON: True if the service is alive
     """
