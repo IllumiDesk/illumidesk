@@ -30,21 +30,21 @@ from unittest.mock import patch
 from unittest.mock import Mock
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def auth_state_dict():
     authenticator_auth_state = {
-        'name': 'student1',
-        'auth_state': {
-            'course_id': 'intro101',
-            'course_lineitems': 'my.platform.com/api/lti/courses/1/line_items',
-            'lms_user_id': '185d6c59731a553009ca9b59ca3a885100000',
-            'user_role': 'Learner',
+        "name": "student1",
+        "auth_state": {
+            "course_id": "intro101",
+            "course_lineitems": "my.platform.com/api/lti/courses/1/line_items",
+            "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
+            "user_role": "Learner",
         },
     }
     return authenticator_auth_state
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def app():
     class TestHandler(RequestHandler):
         def get(self):
@@ -55,19 +55,19 @@ def app():
 
     application = Application(
         [
-            (r'/', TestHandler),
+            (r"/", TestHandler),
         ]
     )  # noqa: E231
     return application
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def mock_nbhelper():
-    with patch('shutil.chown'):
-        with patch('pathlib.Path.mkdir'):
-            with patch('illumidesk.apis.nbgrader_service.Gradebook'):
+    with patch("shutil.chown"):
+        with patch("pathlib.Path.mkdir"):
+            with patch("illumidesk.apis.nbgrader_service.Gradebook"):
                 with patch.multiple(
-                    'illumidesk.apis.nbgrader_service.NbGraderServiceHelper',
+                    "illumidesk.apis.nbgrader_service.NbGraderServiceHelper",
                     # __init__=lambda x, y: None,
                     update_course=Mock(return_value=None),
                     create_database_if_not_exists=Mock(),
@@ -75,144 +75,155 @@ def mock_nbhelper():
                     register_assignment=Mock(return_value=None),
                     get_course=Mock(
                         return_value=Course(
-                            id='123', lms_lineitems_endpoint='canvas.docker.com/api/lti/courses/1/line_items'
+                            id="123",
+                            lms_lineitems_endpoint="canvas.docker.com/api/lti/courses/1/line_items",
                         )
                     ),
                 ) as mock_nb:
                     yield mock_nb
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def jupyterhub_api_environ(monkeypatch):
     """
     Set the enviroment variables used in Course class
     """
-    monkeypatch.setenv('JUPYTERHUB_API_TOKEN', str(uuid.uuid4()))
-    monkeypatch.setenv('JUPYTERHUB_API_URL', 'https://localhost/hub/api')
-    monkeypatch.setenv('JUPYTERHUB_ADMIN_USER', 'admin')
+    monkeypatch.setenv("JUPYTERHUB_API_TOKEN", str(uuid.uuid4()))
+    monkeypatch.setenv("JUPYTERHUB_API_URL", "https://localhost/hub/api")
+    monkeypatch.setenv("JUPYTERHUB_ADMIN_USER", "admin")
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def lti11_config_environ(monkeypatch, pem_file):
     """
     Set the enviroment variables used in Course class
     """
-    monkeypatch.setenv('LTI_CONSUMER_KEY', 'ild_test_consumer_key')
-    monkeypatch.setenv('LTI_SHARED_SECRET', 'ild_test_shared_secret')
+    monkeypatch.setenv("LTI_CONSUMER_KEY", "ild_test_consumer_key")
+    monkeypatch.setenv("LTI_SHARED_SECRET", "ild_test_shared_secret")
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def lti13_config_environ(monkeypatch, pem_file):
     """
     Set the enviroment variables used in Course class
     """
-    monkeypatch.setenv('LTI13_PRIVATE_KEY', pem_file)
-    monkeypatch.setenv('LTI13_TOKEN_URL', 'https://my.platform.domain/login/oauth2/token')
-    monkeypatch.setenv('LTI13_ENDPOINT', 'https://my.platform.domain/api/lti/security/jwks')
-    monkeypatch.setenv('LTI13_CLIENT_ID', 'https://my.platform.domain/login/oauth2/token')
-    monkeypatch.setenv('LTI13_AUTHORIZE_URL', 'https://my.platform.domain/api/lti/authorize_redirect')
+    monkeypatch.setenv("LTI13_PRIVATE_KEY", pem_file)
+    monkeypatch.setenv(
+        "LTI13_TOKEN_URL", "https://my.platform.domain/login/oauth2/token"
+    )
+    monkeypatch.setenv(
+        "LTI13_ENDPOINT", "https://my.platform.domain/api/lti/security/jwks"
+    )
+    monkeypatch.setenv(
+        "LTI13_CLIENT_ID", "https://my.platform.domain/login/oauth2/token"
+    )
+    monkeypatch.setenv(
+        "LTI13_AUTHORIZE_URL", "https://my.platform.domain/api/lti/authorize_redirect"
+    )
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def lti11_complete_launch_args():
     """
     Valid response when retrieving jwks from the platform.
     """
     args = {
-        'oauth_callback': ['about:blank'.encode()],
-        'oauth_consumer_key': ['my_consumer_key'.encode()],
-        'oauth_signature_method': ['HMAC-SHA1'.encode()],
-        'oauth_timestamp': ['1585947271'.encode()],
-        'oauth_nonce': ['01fy8HKIASKuD9gK9vWUcBj9fql1nOCWfOLPzeylsmg'.encode()],
-        'oauth_signature': ['abc123'.encode()],
-        'oauth_version': ['1.0'.encode()],
-        'context_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
-        'context_label': ['intro101'.encode()],
-        'context_title': ['intro101'.encode()],
-        'custom_canvas_assignment_title': ['test-assignment'.encode()],
-        'custom_canvas_user_login_id': ['student1'.encode()],
-        'custom_worskpace_type': ['foo'.encode()],
-        'ext_roles': ['urn:lti:instrole:ims/lis/Learner'.encode()],
-        'launch_presentation_document_target': ['iframe'.encode()],
-        'launch_presentation_height': ['1000'.encode()],
-        'launch_presentation_locale': ['en'.encode()],
-        'launch_presentation_return_url': [
-            'https: //illumidesk.instructure.com/courses/161/external_content/success/external_tool_redirect'.encode()
+        "oauth_callback": ["about:blank".encode()],
+        "oauth_consumer_key": ["my_consumer_key".encode()],
+        "oauth_signature_method": ["HMAC-SHA1".encode()],
+        "oauth_timestamp": ["1585947271".encode()],
+        "oauth_nonce": ["01fy8HKIASKuD9gK9vWUcBj9fql1nOCWfOLPzeylsmg".encode()],
+        "oauth_signature": ["abc123".encode()],
+        "oauth_version": ["1.0".encode()],
+        "context_id": ["888efe72d4bbbdf90619353bb8ab5965ccbe9b3f".encode()],
+        "context_label": ["intro101".encode()],
+        "context_title": ["intro101".encode()],
+        "custom_canvas_assignment_title": ["test-assignment".encode()],
+        "custom_canvas_user_login_id": ["student1".encode()],
+        "custom_worskpace_type": ["foo".encode()],
+        "ext_roles": ["urn:lti:instrole:ims/lis/Learner".encode()],
+        "launch_presentation_document_target": ["iframe".encode()],
+        "launch_presentation_height": ["1000".encode()],
+        "launch_presentation_locale": ["en".encode()],
+        "launch_presentation_return_url": [
+            "https: //illumidesk.instructure.com/courses/161/external_content/success/external_tool_redirect".encode()
         ],
-        'launch_presentation_width': ['1000'.encode()],
-        'lis_outcome_service_url': [
-            'http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ='.encode()
+        "launch_presentation_width": ["1000".encode()],
+        "lis_outcome_service_url": [
+            "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=".encode()
         ],
-        'lis_person_contact_email_primary': ['student1@example.com'.encode()],
-        'lis_person_name_family': ['Bar'.encode()],
-        'lis_person_name_full': ['Foo Bar'.encode()],
-        'lis_person_name_given': ['Foo'.encode()],
-        'lti_message_type': ['basic-lti-launch-request'.encode()],
-        'lis_result_sourcedid': ['feb-123-456-2929::28883'.encode()],
-        'lti_version': ['LTI-1p0'.encode()],
-        'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
-        'resource_link_title': ['Test-Assignment-Another-LMS'.encode()],
-        'roles': ['Learner'.encode()],
-        'tool_consumer_info_product_family_code': ['canvas'.encode()],
-        'tool_consumer_info_version': ['cloud'.encode()],
-        'tool_consumer_instance_contact_email': ['notifications@mylms.com'.encode()],
-        'tool_consumer_instance_guid': ['srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:test-lms'.encode()],
-        'tool_consumer_instance_name': ['myorg'.encode()],
-        'user_id': ['185d6c59731a553009ca9b59ca3a885100000'.encode()],
-        'user_image': ['https://lms.example.com/avatar-50.png'.encode()],
+        "lis_person_contact_email_primary": ["student1@example.com".encode()],
+        "lis_person_name_family": ["Bar".encode()],
+        "lis_person_name_full": ["Foo Bar".encode()],
+        "lis_person_name_given": ["Foo".encode()],
+        "lti_message_type": ["basic-lti-launch-request".encode()],
+        "lis_result_sourcedid": ["feb-123-456-2929::28883".encode()],
+        "lti_version": ["LTI-1p0".encode()],
+        "resource_link_id": ["888efe72d4bbbdf90619353bb8ab5965ccbe9b3f".encode()],
+        "resource_link_title": ["Test-Assignment-Another-LMS".encode()],
+        "roles": ["Learner".encode()],
+        "tool_consumer_info_product_family_code": ["canvas".encode()],
+        "tool_consumer_info_version": ["cloud".encode()],
+        "tool_consumer_instance_contact_email": ["notifications@mylms.com".encode()],
+        "tool_consumer_instance_guid": [
+            "srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:test-lms".encode()
+        ],
+        "tool_consumer_instance_name": ["myorg".encode()],
+        "user_id": ["185d6c59731a553009ca9b59ca3a885100000".encode()],
+        "user_image": ["https://lms.example.com/avatar-50.png".encode()],
     }
     return args
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def lti13_login_params():
     """
     Creates a dictionary with k/v's that emulates an initial login request.
     """
-    client_id = '125900000000000085'
-    iss = 'https://platform.vendor.com'
-    login_hint = '185d6c59731a553009ca9b59ca3a885104ecb4ad'
-    target_link_uri = 'https://edu.example.com/hub'
-    lti_message_hint = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA'
+    client_id = "125900000000000085"
+    iss = "https://platform.vendor.com"
+    login_hint = "185d6c59731a553009ca9b59ca3a885104ecb4ad"
+    target_link_uri = "https://edu.example.com/hub"
+    lti_message_hint = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA"
 
     params = {
-        'client_id': [client_id.encode()],
-        'iss': [iss.encode()],
-        'login_hint': [login_hint.encode()],
-        'target_link_uri': [target_link_uri.encode()],
-        'lti_message_hint': [lti_message_hint.encode()],
+        "client_id": [client_id.encode()],
+        "iss": [iss.encode()],
+        "login_hint": [login_hint.encode()],
+        "target_link_uri": [target_link_uri.encode()],
+        "lti_message_hint": [lti_message_hint.encode()],
     }
     return params
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def lti13_auth_params():
     """
     Creates a dictionary with k/v's that emulates a login request.
     """
-    client_id = '125900000000000081'
-    redirect_uri = 'https://acme.illumidesk.com/hub/oauth_callback'
-    lti_message_hint = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA'
-    login_hint = '185d6c59731a553009ca9b59ca3a885104ecb4ad'
-    state = 'eyJzdGF0ZV9pZCI6ICI2ZjBlYzE1NjlhM2E0MDJkYWM2MTYyNjM2MWQwYzEyNSIsICJuZXh0X3VybCI6ICIvIn0='
-    nonce = '38048502278109788461591832959'
+    client_id = "125900000000000081"
+    redirect_uri = "https://acme.illumidesk.com/hub/oauth_callback"
+    lti_message_hint = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2ZXJpZmllciI6IjFlMjk2NjEyYjZmMjdjYmJkZTg5YmZjNGQ1ZmQ5ZDBhMzhkOTcwYzlhYzc0NDgwYzdlNTVkYzk3MTQyMzgwYjQxNGNiZjMwYzM5Nzk1Y2FmYTliOWYyYTgzNzJjNzg3MzAzNzAxZDgxMzQzZmRmMmIwZDk5ZTc3MWY5Y2JlYWM5IiwiY2FudmFzX2RvbWFpbiI6ImlsbHVtaWRlc2suaW5zdHJ1Y3R1cmUuY29tIiwiY29udGV4dF90eXBlIjoiQ291cnNlIiwiY29udGV4dF9pZCI6MTI1OTAwMDAwMDAwMDAwMTM2LCJleHAiOjE1OTE4MzMyNTh9.uYHinkiAT5H6EkZW9D7HJ1efoCmRpy3Id-gojZHlUaA"
+    login_hint = "185d6c59731a553009ca9b59ca3a885104ecb4ad"
+    state = "eyJzdGF0ZV9pZCI6ICI2ZjBlYzE1NjlhM2E0MDJkYWM2MTYyNjM2MWQwYzEyNSIsICJuZXh0X3VybCI6ICIvIn0="
+    nonce = "38048502278109788461591832959"
 
     params = {
-        'response_type': ['id_token'.encode()],
-        'scope': ['openid'.encode()],
-        'client_id': [client_id.encode()],
-        'redirect_uri': [redirect_uri.encode()],
-        'response_mode': ['form_post'.encode()],
-        'lti_message_hint': [lti_message_hint.encode()],
-        'prompt': ['none'.encode()],
-        'login_hint': [login_hint.encode()],
-        'state': [state.encode()],
-        'nonce': [nonce.encode()],
+        "response_type": ["id_token".encode()],
+        "scope": ["openid".encode()],
+        "client_id": [client_id.encode()],
+        "redirect_uri": [redirect_uri.encode()],
+        "response_mode": ["form_post".encode()],
+        "lti_message_hint": [lti_message_hint.encode()],
+        "prompt": ["none".encode()],
+        "login_hint": [login_hint.encode()],
+        "state": [state.encode()],
+        "nonce": [nonce.encode()],
     }
     return params
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def lti13_auth_params_dict(lti13_auth_params):
     """
     Return the initial LTI 1.3 authorization request as a dict
@@ -222,7 +233,7 @@ def lti13_auth_params_dict(lti13_auth_params):
     return args
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def lti13_login_params_dict(lti13_login_params):
     """
     Return the initial LTI 1.3 authorization request as a dict
@@ -253,11 +264,11 @@ def mock_jhub_user(request):
         mock_user = Mock()
         mock_spawner = Mock()
         # define the mock attrs
-        spawner_attrs = {'environment': environ or {}}
+        spawner_attrs = {"environment": environ or {}}
         mock_spawner.configure_mock(**spawner_attrs)
         attrs = {
-            'name': 'user1',
-            'spawner': mock_spawner,
+            "name": "user1",
+            "spawner": mock_spawner,
             "get_auth_state.side_effect": auth_state or [],
         }
         mock_user.configure_mock(**attrs)
@@ -272,9 +283,9 @@ def pem_file(tmp_path):
     Create a test private key file used with LTI 1.3 request/reponse flows
     """
     key = RSA.generate(2048)
-    key_path = f'{tmp_path}/private.key'
-    with open(key_path, 'wb') as content_file:
-        content_file.write(key.exportKey('PEM'))
+    key_path = f"{tmp_path}/private.key"
+    with open(key_path, "wb") as content_file:
+        content_file.write(key.exportKey("PEM"))
     return key_path
 
 
@@ -286,91 +297,91 @@ def grades_controlfile_reset_file_loaded():
     LTIGradesSenderControlFile.FILE_LOADED = False
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def setup_jupyterhub_db(monkeypatch):
     """
     Set the enviroment variables used to identify the end user image.
     """
-    monkeypatch.setenv('POSTGRES_JUPYTERHUB_DB', 'jupyterhub')
-    monkeypatch.setenv('POSTGRES_JUPYTERHUB_HOST', 'jupyterhub-db')
-    monkeypatch.setenv('POSTGRES_JUPYTERHUB_PORT', '5432')
-    monkeypatch.setenv('POSTGRES_JUPYTERHUB_USER', 'foobar')
-    monkeypatch.setenv('POSTGRES_JUPYTERHUB_PASSWORD', 'abc123')
+    monkeypatch.setenv("POSTGRES_JUPYTERHUB_DB", "jupyterhub")
+    monkeypatch.setenv("POSTGRES_JUPYTERHUB_HOST", "jupyterhub-db")
+    monkeypatch.setenv("POSTGRES_JUPYTERHUB_PORT", "5432")
+    monkeypatch.setenv("POSTGRES_JUPYTERHUB_USER", "foobar")
+    monkeypatch.setenv("POSTGRES_JUPYTERHUB_PASSWORD", "abc123")
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def setup_jupyterhub_config_base(monkeypatch):
     """
     Set the enviroment variables used to identify the end user image.
     """
-    monkeypatch.setenv('JUPYTERHUB_BASE_URL', '/')
-    monkeypatch.setenv('JUPYTERHUB_SHUTDOWN_ON_LOGOUT', 'True')
-    monkeypatch.setenv('JUPYTERHUB_ADMIN_USER', 'admin0')
-    monkeypatch.setenv('SPAWNER_CPU_LIMIT', '0.5')
-    monkeypatch.setenv('SPAWNER_MEM_LIMIT', '2G')
-    monkeypatch.setenv('DOCKER_SPAWN_CMD', 'single_user_test.sh')
-    monkeypatch.setenv('DOCKER_NETWORK_NAME', 'test-network')
-    monkeypatch.setenv('EXCHANGE_DIR', '/path/to/exchange')
-    monkeypatch.setenv('DOCKER_NOTEBOOK_DIR', '/home/saturn')
-    monkeypatch.setenv('NB_NON_GRADER_UID', '1000')
+    monkeypatch.setenv("JUPYTERHUB_BASE_URL", "/")
+    monkeypatch.setenv("JUPYTERHUB_SHUTDOWN_ON_LOGOUT", "True")
+    monkeypatch.setenv("JUPYTERHUB_ADMIN_USER", "admin0")
+    monkeypatch.setenv("SPAWNER_CPU_LIMIT", "0.5")
+    monkeypatch.setenv("SPAWNER_MEM_LIMIT", "2G")
+    monkeypatch.setenv("DOCKER_SPAWN_CMD", "single_user_test.sh")
+    monkeypatch.setenv("DOCKER_NETWORK_NAME", "test-network")
+    monkeypatch.setenv("EXCHANGE_DIR", "/path/to/exchange")
+    monkeypatch.setenv("DOCKER_NOTEBOOK_DIR", "/home/saturn")
+    monkeypatch.setenv("NB_NON_GRADER_UID", "1000")
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def setup_image_environ(monkeypatch):
     """
     Set the enviroment variables used to identify the end user image.
     """
-    monkeypatch.setenv('DOCKER_END_USER_IMAGE', 'standard_image')
-    monkeypatch.setenv('SPAWNER_CPU_LIMIT', '2G')
-    monkeypatch.setenv('SPAWNER_MEM_LIMIT', '1.0')
+    monkeypatch.setenv("DOCKER_END_USER_IMAGE", "standard_image")
+    monkeypatch.setenv("SPAWNER_CPU_LIMIT", "2G")
+    monkeypatch.setenv("SPAWNER_MEM_LIMIT", "1.0")
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def setup_course_environ(monkeypatch, tmp_path, jupyterhub_api_environ):
     """
     Set the environment variables used in Course class`
     """
-    monkeypatch.setenv('MNT_ROOT', str(tmp_path))
-    monkeypatch.setenv('NB_GRADER_UID', '10001')
-    monkeypatch.setenv('NB_GID', '100')
-    monkeypatch.setenv('DOCKER_GRADER_IMAGE', 'grader-image')
-    monkeypatch.setenv('USER_ROLE', 'Grader')
+    monkeypatch.setenv("MNT_ROOT", str(tmp_path))
+    monkeypatch.setenv("NB_GRADER_UID", "10001")
+    monkeypatch.setenv("NB_GID", "100")
+    monkeypatch.setenv("DOCKER_GRADER_IMAGE", "grader-image")
+    monkeypatch.setenv("USER_ROLE", "Grader")
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def setup_course_hook_environ(monkeypatch, jupyterhub_api_environ):
     """
     Set the environment variables used in the setup_course_hook function
     """
-    monkeypatch.setenv('SETUP_COURSE_SERVICE_NAME', 'grader-setup-service')
-    monkeypatch.setenv('SETUP_COURSE_PORT', '8000')
-    monkeypatch.setenv('ORGANIZATION_NAME', 'test-org')
+    monkeypatch.setenv("SETUP_COURSE_SERVICE_NAME", "grader-setup-service")
+    monkeypatch.setenv("SETUP_COURSE_PORT", "8000")
+    monkeypatch.setenv("ORGANIZATION_NAME", "test-org")
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def pre_spawn_hook_environ(monkeypatch, jupyterhub_api_environ):
     """
     Set the environment variables used in the setup_course_hook function
     """
-    monkeypatch.setenv('NB_GID', '100')
-    monkeypatch.setenv('NB_NON_GRADER_UID', '1000')
+    monkeypatch.setenv("NB_GID", "100")
+    monkeypatch.setenv("NB_NON_GRADER_UID", "1000")
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def setup_utils_environ(monkeypatch, tmp_path):
     """
     Set the enviroment variables used in SetupUtils class
     """
-    monkeypatch.setenv('JUPYTERHUB_SERVICE_NAME', 'jupyterhub')
-    monkeypatch.setenv('ILLUMIDESK_DIR', '/home/foo/illumidesk_deployment')
+    monkeypatch.setenv("JUPYTERHUB_SERVICE_NAME", "jupyterhub")
+    monkeypatch.setenv("ILLUMIDESK_DIR", "/home/foo/illumidesk_deployment")
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def test_quart_client(monkeypatch, tmp_path):
     """
     Set the env-vars required by quart-based application
     """
-    monkeypatch.setenv('JUPYTERHUB_CONFIG_PATH', str(tmp_path))
+    monkeypatch.setenv("JUPYTERHUB_CONFIG_PATH", str(tmp_path))
     # important than environ reads JUPYTERHUB_CONFIG_PATH variable before
     # app initialization
     from illumidesk.setup_course.app import app
@@ -378,20 +389,23 @@ def test_quart_client(monkeypatch, tmp_path):
     return app.test_client()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def make_mock_request_handler() -> RequestHandler:
     """
     Sourced from https://github.com/jupyterhub/oauthenticator/blob/master/oauthenticator/tests/mocks.py
     """
 
     def _make_mock_request_handler(
-        handler: RequestHandler, uri: str = 'https://hub.example.com', method: str = 'GET', **settings: dict
+        handler: RequestHandler,
+        uri: str = "https://hub.example.com",
+        method: str = "GET",
+        **settings: dict,
     ) -> RequestHandler:
         """Instantiate a Handler in a mock application"""
         application = Application(
             hub=Mock(
-                base_url='/hub/',
-                server=Mock(base_url='/hub/'),
+                base_url="/hub/",
+                server=Mock(base_url="/hub/"),
             ),
             cookie_secret=os.urandom(32),
             db=Mock(rollback=Mock(return_value=None)),
@@ -412,15 +426,15 @@ def make_mock_request_handler() -> RequestHandler:
     return _make_mock_request_handler
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def make_http_response() -> HTTPResponse:
     async def _make_http_response(
         handler: RequestHandler,
         code: int = 200,
-        reason: str = 'OK',
-        headers: HTTPHeaders = HTTPHeaders({'content-type': 'application/json'}),
-        effective_url: str = 'http://hub.example.com/',
-        body: Dict[str, str] = {'foo': 'bar'},
+        reason: str = "OK",
+        headers: HTTPHeaders = HTTPHeaders({"content-type": "application/json"}),
+        effective_url: str = "http://hub.example.com/",
+        body: Dict[str, str] = {"foo": "bar"},
     ) -> HTTPResponse:
         """
         Creates an HTTPResponse object from a given request. The buffer key is used to
@@ -461,320 +475,338 @@ def make_http_response() -> HTTPResponse:
     return _make_http_response
 
 
-@pytest.fixture(scope='function')
-def http_async_httpclient_with_simple_response(request, make_http_response, make_mock_request_handler):
+@pytest.fixture(scope="function")
+def http_async_httpclient_with_simple_response(
+    request, make_http_response, make_mock_request_handler
+):
     """
     Creates a patch of AsyncHttpClient.fetch method, useful when other tests are making http request
     """
     local_handler = make_mock_request_handler(RequestHandler)
-    test_request_body_param = request.param if hasattr(request, 'param') else {'message': 'ok'}
+    test_request_body_param = (
+        request.param if hasattr(request, "param") else {"message": "ok"}
+    )
     with patch.object(
         AsyncHTTPClient,
-        'fetch',
-        return_value=make_http_response(handler=local_handler.request, body=test_request_body_param),
+        "fetch",
+        return_value=make_http_response(
+            handler=local_handler.request, body=test_request_body_param
+        ),
     ):
         yield AsyncHTTPClient()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def make_auth_state_dict() -> Dict[str, str]:
     """
     Creates an authentication dictionary with default name and auth_state k/v's
     """
 
     def _make_auth_state_dict(
-        username: str = 'foo',
-        assignment_name: str = 'myassignment',
-        course_id: str = 'intro101',
-        lms_user_id: str = 'abc123',
-        user_role: str = 'Learner',
-        lis_outcome_service_url: str = 'http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=',
-        lis_result_sourcedid: str = 'feb-123-456-2929::28883',
+        username: str = "foo",
+        assignment_name: str = "myassignment",
+        course_id: str = "intro101",
+        lms_user_id: str = "abc123",
+        user_role: str = "Learner",
+        lis_outcome_service_url: str = "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
+        lis_result_sourcedid: str = "feb-123-456-2929::28883",
     ):
         return {
-            'name': username,
-            'auth_state': {
-                'assignment_name': assignment_name,
-                'course_id': course_id,
-                'lms_user_id': lms_user_id,
-                'user_role': user_role,
-                'lis_outcome_service_url': lis_outcome_service_url,
-                'lis_result_sourcedid': lis_result_sourcedid,
+            "name": username,
+            "auth_state": {
+                "assignment_name": assignment_name,
+                "course_id": course_id,
+                "lms_user_id": lms_user_id,
+                "user_role": user_role,
+                "lis_outcome_service_url": lis_outcome_service_url,
+                "lis_result_sourcedid": lis_result_sourcedid,
             },  # noqa: E231
         }
 
     return _make_auth_state_dict
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def make_lti11_basic_launch_request_args() -> Dict[str, str]:
     def _make_lti11_basic_launch_args(
-        oauth_consumer_key: str = 'my_consumer_key',
-        oauth_consumer_secret: str = 'my_shared_secret',
+        oauth_consumer_key: str = "my_consumer_key",
+        oauth_consumer_secret: str = "my_shared_secret",
     ):
         oauth_timestamp = str(int(time.time()))
         oauth_nonce = secrets.token_urlsafe(32)
         args = {
-            'lti_message_type': 'basic-lti-launch-request',
-            'lti_version': 'LTI-1p0'.encode(),
-            'resource_link_id': '88391-e1919-bb3456',
-            'oauth_consumer_key': oauth_consumer_key,
-            'oauth_timestamp': str(int(oauth_timestamp)),
-            'oauth_nonce': str(oauth_nonce),
-            'oauth_signature_method': 'HMAC-SHA1',
-            'oauth_callback': 'about:blank',
-            'oauth_version': '1.0',
-            'user_id': '123123123',
+            "lti_message_type": "basic-lti-launch-request",
+            "lti_version": "LTI-1p0".encode(),
+            "resource_link_id": "88391-e1919-bb3456",
+            "oauth_consumer_key": oauth_consumer_key,
+            "oauth_timestamp": str(int(oauth_timestamp)),
+            "oauth_nonce": str(oauth_nonce),
+            "oauth_signature_method": "HMAC-SHA1",
+            "oauth_callback": "about:blank",
+            "oauth_version": "1.0",
+            "user_id": "123123123",
         }
-        extra_args = {'my_key': 'this_value'}
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        launch_url = 'http://jupyterhub/hub/lti/launch'
+        extra_args = {"my_key": "this_value"}
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        launch_url = "http://jupyterhub/hub/lti/launch"
 
         args.update(extra_args)
 
         base_string = signature.signature_base_string(
-            'POST',
+            "POST",
             signature.base_string_uri(launch_url),
-            signature.normalize_parameters(signature.collect_parameters(body=args, headers=headers)),
+            signature.normalize_parameters(
+                signature.collect_parameters(body=args, headers=headers)
+            ),
         )
 
-        args['oauth_signature'] = signature.sign_hmac_sha1(base_string, oauth_consumer_secret, None)
+        args["oauth_signature"] = signature.sign_hmac_sha1(
+            base_string, oauth_consumer_secret, None
+        )
         return args
 
     return _make_lti11_basic_launch_args
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def make_lti11_success_authentication_request_args():
     def _make_lti11_success_authentication_request_args(
-        lms_vendor: str = 'canvas', role: str = 'Instructor'
+        lms_vendor: str = "canvas", role: str = "Instructor"
     ) -> Dict[str, str]:
         """
         Return a valid request arguments make from LMS to our tool (when authentication steps were success)
         """
         args = {
-            'oauth_callback': ['about:blank'.encode()],
-            'oauth_consumer_key': ['my_consumer_key'.encode()],
-            'oauth_signature_method': ['HMAC-SHA1'.encode()],
-            'oauth_timestamp': ['1585947271'.encode()],
-            'oauth_nonce': ['01fy8HKIASKuD9gK9vWUcBj9fql1nOCWfOLPzeylsmg'.encode()],
-            'oauth_signature': ['abc123'.encode()],
-            'oauth_version': ['1.0'.encode()],
-            'context_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
-            'context_label': ['intro101'.encode()],
-            'context_title': ['intro101'.encode()],
-            'course_lineitems': ['my.platform.com/api/lti/courses/1/line_items'.encode()],
-            'custom_canvas_assignment_title': ['test-assignment'.encode()],
-            'custom_canvas_course_id': ['616'.encode()],
-            'custom_canvas_enrollment_state': ['active'.encode()],
-            'custom_canvas_user_id': ['1091'.encode()],
-            'custom_canvas_user_login_id': ['student1@example.com'.encode()],
-            'ext_roles': ['urn:lti:instrole:ims/lis/Learner'.encode()],
-            'launch_presentation_document_target': ['iframe'.encode()],
-            'launch_presentation_height': ['1000'.encode()],
-            'launch_presentation_locale': ['en'.encode()],
-            'launch_presentation_return_url': [
-                'https: //illumidesk.instructure.com/courses/161/external_content/success/external_tool_redirect'.encode()
+            "oauth_callback": ["about:blank".encode()],
+            "oauth_consumer_key": ["my_consumer_key".encode()],
+            "oauth_signature_method": ["HMAC-SHA1".encode()],
+            "oauth_timestamp": ["1585947271".encode()],
+            "oauth_nonce": ["01fy8HKIASKuD9gK9vWUcBj9fql1nOCWfOLPzeylsmg".encode()],
+            "oauth_signature": ["abc123".encode()],
+            "oauth_version": ["1.0".encode()],
+            "context_id": ["888efe72d4bbbdf90619353bb8ab5965ccbe9b3f".encode()],
+            "context_label": ["intro101".encode()],
+            "context_title": ["intro101".encode()],
+            "course_lineitems": [
+                "my.platform.com/api/lti/courses/1/line_items".encode()
             ],
-            'launch_presentation_width': ['1000'.encode()],
-            'lis_outcome_service_url': [
-                'http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ='.encode()
+            "custom_canvas_assignment_title": ["test-assignment".encode()],
+            "custom_canvas_course_id": ["616".encode()],
+            "custom_canvas_enrollment_state": ["active".encode()],
+            "custom_canvas_user_id": ["1091".encode()],
+            "custom_canvas_user_login_id": ["student1@example.com".encode()],
+            "ext_roles": ["urn:lti:instrole:ims/lis/Learner".encode()],
+            "launch_presentation_document_target": ["iframe".encode()],
+            "launch_presentation_height": ["1000".encode()],
+            "launch_presentation_locale": ["en".encode()],
+            "launch_presentation_return_url": [
+                "https: //illumidesk.instructure.com/courses/161/external_content/success/external_tool_redirect".encode()
             ],
-            'lis_person_contact_email_primary': ['student1@example.com'.encode()],
-            'lis_person_name_family': ['Bar'.encode()],
-            'lis_person_name_full': ['Foo Bar'.encode()],
-            'lis_person_name_given': ['Foo'.encode()],
-            'lti_message_type': ['basic-lti-launch-request'.encode()],
-            'lis_result_sourcedid': ['feb-123-456-2929::28883'.encode()],
-            'lti_version': ['LTI-1p0'.encode()],
-            'resource_link_id': ['888efe72d4bbbdf90619353bb8ab5965ccbe9b3f'.encode()],
-            'resource_link_title': ['Test-Assignment-Another-LMS'.encode()],
-            'roles': [role.encode()],
-            'tool_consumer_info_product_family_code': [lms_vendor.encode()],
-            'tool_consumer_info_version': ['cloud'.encode()],
-            'tool_consumer_instance_contact_email': ['notifications@mylms.com'.encode()],
-            'tool_consumer_instance_guid': ['srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:test-lms'.encode()],
-            'tool_consumer_instance_name': ['myorg'.encode()],
-            'user_id': ['185d6c59731a553009ca9b59ca3a885100000'.encode()],
-            'user_image': ['https://lms.example.com/avatar-50.png'.encode()],
+            "launch_presentation_width": ["1000".encode()],
+            "lis_outcome_service_url": [
+                "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=".encode()
+            ],
+            "lis_person_contact_email_primary": ["student1@example.com".encode()],
+            "lis_person_name_family": ["Bar".encode()],
+            "lis_person_name_full": ["Foo Bar".encode()],
+            "lis_person_name_given": ["Foo".encode()],
+            "lti_message_type": ["basic-lti-launch-request".encode()],
+            "lis_result_sourcedid": ["feb-123-456-2929::28883".encode()],
+            "lti_version": ["LTI-1p0".encode()],
+            "resource_link_id": ["888efe72d4bbbdf90619353bb8ab5965ccbe9b3f".encode()],
+            "resource_link_title": ["Test-Assignment-Another-LMS".encode()],
+            "roles": [role.encode()],
+            "tool_consumer_info_product_family_code": [lms_vendor.encode()],
+            "tool_consumer_info_version": ["cloud".encode()],
+            "tool_consumer_instance_contact_email": [
+                "notifications@mylms.com".encode()
+            ],
+            "tool_consumer_instance_guid": [
+                "srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:test-lms".encode()
+            ],
+            "tool_consumer_instance_name": ["myorg".encode()],
+            "user_id": ["185d6c59731a553009ca9b59ca3a885100000".encode()],
+            "user_image": ["https://lms.example.com/avatar-50.png".encode()],
         }
         return args
 
     return _make_lti11_success_authentication_request_args
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def make_lti13_resource_link_request() -> Dict[str, str]:
     """
     Returns valid json after decoding JSON Web Token (JWT) for resource link launch (core).
     """
     jws = {
-        'https://purl.imsglobal.org/spec/lti/claim/message_type': 'LtiResourceLinkRequest',
-        'https://purl.imsglobal.org/spec/lti/claim/version': '1.3.0',
-        'https://purl.imsglobal.org/spec/lti/claim/resource_link': {
-            'id': 'b81accac78543cb7cd239f3792bcfdc7c6efeadb',
-            'description': None,
-            'title': None,
-            'validation_context': None,
-            'errors': {'errors': {}},
+        "https://purl.imsglobal.org/spec/lti/claim/message_type": "LtiResourceLinkRequest",
+        "https://purl.imsglobal.org/spec/lti/claim/version": "1.3.0",
+        "https://purl.imsglobal.org/spec/lti/claim/resource_link": {
+            "id": "b81accac78543cb7cd239f3792bcfdc7c6efeadb",
+            "description": None,
+            "title": None,
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'aud': '125900000000000071',
-        'azp': '125900000000000071',
-        'https://purl.imsglobal.org/spec/lti/claim/deployment_id': '847:b81accac78543cb7cd239f3792bcfdc7c6efeadb',
-        'exp': 1589843421,
-        'iat': 1589839821,
-        'iss': 'https://canvas.instructure.com',
-        'nonce': '125687018437687229621589839822',
-        'sub': '8171934b-f5e2-4f4e-bdbd-6d798615b93e',
-        'https://purl.imsglobal.org/spec/lti/claim/target_link_uri': 'https://edu.example.com/hub',
-        'https://purl.imsglobal.org/spec/lti/claim/context': {
-            'id': 'b81accac78543cb7cd239f3792bcfdc7c6efeadb',
-            'label': 'intro101',
-            'title': 'intro101',
-            'type': ['http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering'],
-            'validation_context': None,
-            'errors': {'errors': {}},
+        "aud": "125900000000000071",
+        "azp": "125900000000000071",
+        "https://purl.imsglobal.org/spec/lti/claim/deployment_id": "847:b81accac78543cb7cd239f3792bcfdc7c6efeadb",
+        "exp": 1589843421,
+        "iat": 1589839821,
+        "iss": "https://canvas.instructure.com",
+        "nonce": "125687018437687229621589839822",
+        "sub": "8171934b-f5e2-4f4e-bdbd-6d798615b93e",
+        "https://purl.imsglobal.org/spec/lti/claim/target_link_uri": "https://edu.example.com/hub",
+        "https://purl.imsglobal.org/spec/lti/claim/context": {
+            "id": "b81accac78543cb7cd239f3792bcfdc7c6efeadb",
+            "label": "intro101",
+            "title": "intro101",
+            "type": ["http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering"],
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'https://purl.imsglobal.org/spec/lti/claim/tool_platform': {
-            'guid': 'srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:canvas-lms',
-            'name': 'IllumiDesk',
-            'version': 'cloud',
-            'product_family_code': 'canvas',
-            'validation_context': None,
-            'errors': {'errors': {}},
+        "https://purl.imsglobal.org/spec/lti/claim/tool_platform": {
+            "guid": "srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:canvas-lms",
+            "name": "IllumiDesk",
+            "version": "cloud",
+            "product_family_code": "canvas",
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'https://purl.imsglobal.org/spec/lti/claim/launch_presentation': {
-            'document_target': 'iframe',
-            'height': 400,
-            'width': 800,
-            'return_url': 'https://illumidesk.instructure.com/courses/147/external_content/success/external_tool_redirect',
-            'locale': 'en',
-            'validation_context': None,
-            'errors': {'errors': {}},
+        "https://purl.imsglobal.org/spec/lti/claim/launch_presentation": {
+            "document_target": "iframe",
+            "height": 400,
+            "width": 800,
+            "return_url": "https://illumidesk.instructure.com/courses/147/external_content/success/external_tool_redirect",
+            "locale": "en",
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'locale': 'en',
-        'https://purl.imsglobal.org/spec/lti/claim/roles': [
-            'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student',
-            'http://purl.imsglobal.org/vocab/lis/v2/membership#Learner',
-            'http://purl.imsglobal.org/vocab/lis/v2/system/person#User',
+        "locale": "en",
+        "https://purl.imsglobal.org/spec/lti/claim/roles": [
+            "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student",
+            "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner",
+            "http://purl.imsglobal.org/vocab/lis/v2/system/person#User",
         ],
-        'https://purl.imsglobal.org/spec/lti/claim/custom': {'email': 'foo@example.com'},
-        'errors': {'errors': {}},
-        'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint': {
-            'scope': [
-                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly',
-                'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                'https://purl.imsglobal.org/spec/lti-ags/scope/score',
+        "https://purl.imsglobal.org/spec/lti/claim/custom": {
+            "email": "foo@example.com"
+        },
+        "errors": {"errors": {}},
+        "https://purl.imsglobal.org/spec/lti-ags/claim/endpoint": {
+            "scope": [
+                "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem",
+                "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly",
+                "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly",
+                "https://purl.imsglobal.org/spec/lti-ags/scope/score",
             ],
-            'lineitems': 'https://illumidesk.instructure.com/api/lti/courses/147/line_items',
-            'validation_context': None,
-            'errors': {'errors': {}},
+            "lineitems": "https://illumidesk.instructure.com/api/lti/courses/147/line_items",
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'picture': 'https://canvas.instructure.com/images/messages/avatar-50.png',
-        'email': 'foo@example.com',
-        'name': 'Foo Bar',
-        'given_name': 'Foo',
-        'family_name': 'Bar',
-        'https://purl.imsglobal.org/spec/lti/claim/lis': {
-            'person_sourcedid': None,
-            'course_offering_sourcedid': None,
-            'validation_context': None,
-            'errors': {'errors': {}},
+        "picture": "https://canvas.instructure.com/images/messages/avatar-50.png",
+        "email": "foo@example.com",
+        "name": "Foo Bar",
+        "given_name": "Foo",
+        "family_name": "Bar",
+        "https://purl.imsglobal.org/spec/lti/claim/lis": {
+            "person_sourcedid": None,
+            "course_offering_sourcedid": None,
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice': {
-            'context_memberships_url': 'https://illumidesk.instructure.com/api/lti/courses/147/names_and_roles',
-            'service_versions': [
-                '2.0',
+        "https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice": {
+            "context_memberships_url": "https://illumidesk.instructure.com/api/lti/courses/147/names_and_roles",
+            "service_versions": [
+                "2.0",
             ],  # noqa: E231
-            'validation_context': None,
-            'errors': {'errors': {}},
+            "validation_context": None,
+            "errors": {"errors": {}},
         },  # noqa: E231
     }
     return jws
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def make_lti13_resource_link_request_privacy_enabled() -> Dict[str, str]:
     """
     Returns valid json after decoding JSON Web Token (JWT) for resource link launch (core)
     when Privacy is enabled.
     """
     jws = {
-        'https://purl.imsglobal.org/spec/lti/claim/message_type': 'LtiResourceLinkRequest',
-        'https://purl.imsglobal.org/spec/lti/claim/version': '1.3.0',
-        'https://purl.imsglobal.org/spec/lti/claim/resource_link': {
-            'id': '41c4731cc7668aef2eddeeb99132ba6239d8e058',
-            'description': None,
-            'title': None,
-            'validation_context': None,
-            'errors': {'errors': {}},
+        "https://purl.imsglobal.org/spec/lti/claim/message_type": "LtiResourceLinkRequest",
+        "https://purl.imsglobal.org/spec/lti/claim/version": "1.3.0",
+        "https://purl.imsglobal.org/spec/lti/claim/resource_link": {
+            "id": "41c4731cc7668aef2eddeeb99132ba6239d8e058",
+            "description": None,
+            "title": None,
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'https://purl.imsglobal.org/spec/lti-ags/claim/endpoint': {
-            'scope': [
-                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly',
-                'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                'https://purl.imsglobal.org/spec/lti-ags/scope/score',
+        "https://purl.imsglobal.org/spec/lti-ags/claim/endpoint": {
+            "scope": [
+                "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem",
+                "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly",
+                "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly",
+                "https://purl.imsglobal.org/spec/lti-ags/scope/score",
             ],
-            'lineitems': 'https://illumidesk.instructure.com/api/lti/courses/169/line_items',
-            'validation_context': None,
-            'errors': {'errors': {}},
+            "lineitems": "https://illumidesk.instructure.com/api/lti/courses/169/line_items",
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'aud': '125900000000000094',
-        'azp': '125900000000000094',
-        'https://purl.imsglobal.org/spec/lti/claim/deployment_id': '905:41c4731cc7668aef2eddeeb99132ba6239d8e058',
-        'exp': 1595538982,
-        'iat': 1595535382,
-        'iss': 'https://canvas.instructure.com',
-        'nonce': '02cb8d54c4e0f7678a3c5bcbff70095349d18994cf727c1f5efe7724e40ca766',
-        'sub': '8171934b-f5e2-4f4e-bdbd-6d798615b93e',
-        'https://purl.imsglobal.org/spec/lti/claim/target_link_uri': 'https://test.illumidesk.com/',
-        'https://purl.imsglobal.org/spec/lti/claim/context': {
-            'id': '41c4731cc7668aef2eddeeb99132ba6239d8e058',
-            'label': 'intro101',
-            'title': 'intro101',
-            'type': ['http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering'],
-            'validation_context': None,
-            'errors': {'errors': {}},
+        "aud": "125900000000000094",
+        "azp": "125900000000000094",
+        "https://purl.imsglobal.org/spec/lti/claim/deployment_id": "905:41c4731cc7668aef2eddeeb99132ba6239d8e058",
+        "exp": 1595538982,
+        "iat": 1595535382,
+        "iss": "https://canvas.instructure.com",
+        "nonce": "02cb8d54c4e0f7678a3c5bcbff70095349d18994cf727c1f5efe7724e40ca766",
+        "sub": "8171934b-f5e2-4f4e-bdbd-6d798615b93e",
+        "https://purl.imsglobal.org/spec/lti/claim/target_link_uri": "https://test.illumidesk.com/",
+        "https://purl.imsglobal.org/spec/lti/claim/context": {
+            "id": "41c4731cc7668aef2eddeeb99132ba6239d8e058",
+            "label": "intro101",
+            "title": "intro101",
+            "type": ["http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering"],
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'https://purl.imsglobal.org/spec/lti/claim/tool_platform': {
-            'guid': 'srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:canvas-lms',
-            'name': 'Illumidesk',
-            'version': 'cloud',
-            'product_family_code': 'canvas',
-            'validation_context': None,
-            'errors': {'errors': {}},
+        "https://purl.imsglobal.org/spec/lti/claim/tool_platform": {
+            "guid": "srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:canvas-lms",
+            "name": "Illumidesk",
+            "version": "cloud",
+            "product_family_code": "canvas",
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'https://purl.imsglobal.org/spec/lti/claim/launch_presentation': {
-            'document_target': 'iframe',
-            'height': 400,
-            'width': 800,
-            'return_url': 'https://illumidesk.instructure.com/courses/169/external_content/success/external_tool_redirect',
-            'locale': 'en',
-            'validation_context': None,
-            'errors': {'errors': {}},
+        "https://purl.imsglobal.org/spec/lti/claim/launch_presentation": {
+            "document_target": "iframe",
+            "height": 400,
+            "width": 800,
+            "return_url": "https://illumidesk.instructure.com/courses/169/external_content/success/external_tool_redirect",
+            "locale": "en",
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'locale': 'en',
-        'https://purl.imsglobal.org/spec/lti/claim/roles': [
-            'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator',
-            'http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor',
-            'http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor',
-            'http://purl.imsglobal.org/vocab/lis/v2/system/person#User',
+        "locale": "en",
+        "https://purl.imsglobal.org/spec/lti/claim/roles": [
+            "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator",
+            "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor",
+            "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor",
+            "http://purl.imsglobal.org/vocab/lis/v2/system/person#User",
         ],
-        'https://purl.imsglobal.org/spec/lti/claim/custom': {'lms_user_id': 4},
-        'https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice': {
-            'context_memberships_url': 'https://illumidesk.instructure.com/api/lti/courses/169/names_and_roles',
-            'service_versions': ['2.0'],
-            'validation_context': None,
-            'errors': {'errors': {}},
+        "https://purl.imsglobal.org/spec/lti/claim/custom": {"lms_user_id": 4},
+        "https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice": {
+            "context_memberships_url": "https://illumidesk.instructure.com/api/lti/courses/169/names_and_roles",
+            "service_versions": ["2.0"],
+            "validation_context": None,
+            "errors": {"errors": {}},
         },
-        'errors': {'errors': {}},
+        "errors": {"errors": {}},
     }
     return jws
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def make_lti13_platform_jwks() -> Dict[str, List[Dict[str, str]]]:
     def _make_lti13_platform_jwks():
         """
@@ -813,7 +845,7 @@ def make_lti13_platform_jwks() -> Dict[str, List[Dict[str, str]]]:
     return _make_lti13_platform_jwks
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def build_lti13_jwt_id_token() -> str:
     def _make_lti13_jwt_id_token(json_lti13_launch_request: Dict[str, str]):
         """
@@ -821,7 +853,7 @@ def build_lti13_jwt_id_token() -> str:
         We can use the `make_lti13_resource_link_request` or `make_lti13_resource_link_request_privacy_enabled`
         fixture to create the json then call this method.
         """
-        encoded_jwt = jwt.encode(json_lti13_launch_request, 'secret', algorithm='HS256')
+        encoded_jwt = jwt.encode(json_lti13_launch_request, "secret", algorithm="HS256")
         return encoded_jwt
 
     return _make_lti13_jwt_id_token

@@ -35,19 +35,19 @@ class LTIUtils(LoggingConfigurable):
           normalized_name: The normalized string
         """
         if not name:
-            raise ValueError('Name is empty')
+            raise ValueError("Name is empty")
         # truncate name after 30th character
-        name = (name[:25] + '') if len(name) > 30 else name
+        name = (name[:25] + "") if len(name) > 30 else name
         # remove special characters
-        name = re.sub(r'[^\w-]+', '', name)
+        name = re.sub(r"[^\w-]+", "", name)
         # if the first character is any of _.- remove it
-        name = name.lstrip('_.-')
+        name = name.lstrip("_.-")
         # convert to lower case
         name = name.lower()
         # limit course_id to 25 characters, since its used for o/s username
         # in jupyter/docker-stacks compatible grader notebook (NB_USER)
         normalized_name = name[0:25]
-        self.log.debug('String normalized to %s' % normalized_name)
+        self.log.debug("String normalized to %s" % normalized_name)
         return normalized_name
 
     def email_to_username(self, email: str) -> str:
@@ -68,13 +68,13 @@ class LTIUtils(LoggingConfigurable):
           ValueError if email is empty
         """
         if not email:
-            raise ValueError('email is missing')
-        username = email.split('@')[0]
-        username = username.split('+')[0]
-        username = re.sub(r'\([^)]*\)', '', username)
-        username = re.sub(r'[^\w-]+', '', username)
+            raise ValueError("email is missing")
+        username = email.split("@")[0]
+        username = username.split("+")[0]
+        username = re.sub(r"\([^)]*\)", "", username)
+        username = re.sub(r"[^\w-]+", "", username)
         username = username.lower()
-        self.log.debug('Username normalized to %s' % username)
+        self.log.debug("Username normalized to %s" % username)
         return username
 
     def get_client_protocol(self, handler: RequestHandler) -> Dict[str, str]:
@@ -91,15 +91,20 @@ class LTIUtils(LoggingConfigurable):
         Returns:
           A decoded dict with keys/values extracted from the request's arguments
         """
-        if 'x-forwarded-proto' in handler.request.headers:
-            hops = [h.strip() for h in handler.request.headers['x-forwarded-proto'].split(',')]
+        if "x-forwarded-proto" in handler.request.headers:
+            hops = [
+                h.strip()
+                for h in handler.request.headers["x-forwarded-proto"].split(",")
+            ]
             protocol = hops[0]
         else:
             protocol = handler.request.protocol
 
         return protocol
 
-    def convert_request_to_dict(self, arguments: Dict[str, List[bytes]]) -> Dict[str, Any]:
+    def convert_request_to_dict(
+        self, arguments: Dict[str, List[bytes]]
+    ) -> Dict[str, Any]:
         """
         Converts the arguments obtained from a request to a dict.
 
@@ -117,16 +122,16 @@ class LTIUtils(LoggingConfigurable):
 
 def user_is_a_student(user_role: str) -> Boolean:
     if not user_role:
-        raise ValueError('user_role must have a value')
+        raise ValueError("user_role must have a value")
     return user_role.lower() in DEFAULT_ROLE_NAMES_FOR_STUDENT
 
 
 def user_is_an_instructor(user_role: str) -> Boolean:
     if not user_role:
-        raise ValueError('user_role must have a value')
+        raise ValueError("user_role must have a value")
     # find the extra role names to recognize an instructor (to be added in the grader group)
-    extra_roles = os.environ.get('EXTRA_ROLE_NAMES_FOR_INSTRUCTOR') or []
+    extra_roles = os.environ.get("EXTRA_ROLE_NAMES_FOR_INSTRUCTOR") or []
     if extra_roles:
-        extra_roles = extra_roles.lower().split(',')
+        extra_roles = extra_roles.lower().split(",")
         DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR.extend(extra_roles)
     return user_role.lower() in DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR

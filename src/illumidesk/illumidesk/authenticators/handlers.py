@@ -38,7 +38,7 @@ class LTI11AuthenticateHandler(BaseHandler):
 
     async def post(self):
         user = await self.login_user()  # noqa: F841
-        self.redirect(self.get_body_argument('custom_next', self.get_next_url()))
+        self.redirect(self.get_body_argument("custom_next", self.get_next_url()))
 
 
 class LTI13LoginHandler(OAuthLoginHandler):
@@ -76,54 +76,62 @@ class LTI13LoginHandler(OAuthLoginHandler):
             callback and provide Cross-Site Request Forgery (CSRF) mitigation.
         """
         handler = cast(RequestHandler, self)
-        args = {'response_type': 'id_token'}
-        args['scope'] = 'openid'
+        args = {"response_type": "id_token"}
+        args["scope"] = "openid"
         if redirect_uri is not None:
-            args['redirect_uri'] = redirect_uri
+            args["redirect_uri"] = redirect_uri
         if client_id is not None:
-            args['client_id'] = client_id
-        extra_params = {'extra_params': {}}
-        extra_params['response_mode'] = 'form_post'
-        extra_params['prompt'] = 'none'
+            args["client_id"] = client_id
+        extra_params = {"extra_params": {}}
+        extra_params["response_mode"] = "form_post"
+        extra_params["prompt"] = "none"
         if login_hint is not None:
-            extra_params['login_hint'] = login_hint
+            extra_params["login_hint"] = login_hint
         if lti_message_hint is not None:
-            extra_params['lti_message_hint'] = lti_message_hint
+            extra_params["lti_message_hint"] = lti_message_hint
         if state is not None:
-            extra_params['state'] = state
+            extra_params["state"] = state
         if nonce is not None:
-            extra_params['nonce'] = nonce
+            extra_params["nonce"] = nonce
         args.update(extra_params)
-        url = os.environ.get('LTI13_AUTHORIZE_URL')
+        url = os.environ.get("LTI13_AUTHORIZE_URL")
         if not url:
-            raise EnvironmentError('LTI13_AUTHORIZE_URL env var is not set')
+            raise EnvironmentError("LTI13_AUTHORIZE_URL env var is not set")
         handler.redirect(url_concat(url, args))
 
     def get_state(self):
-        next_url = original_next_url = self.get_argument('next', None)
+        next_url = original_next_url = self.get_argument("next", None)
         if not next_url:
             # try with the target_link_uri arg
-            target_link = self.get_argument('target_link_uri', '')
-            if 'next' in target_link:
-                self.log.debug(f'Trying to get the next-url from target_link_uri: {target_link}')
-                next_search = re.search('next=(.*)', target_link, re.IGNORECASE)
+            target_link = self.get_argument("target_link_uri", "")
+            if "next" in target_link:
+                self.log.debug(
+                    f"Trying to get the next-url from target_link_uri: {target_link}"
+                )
+                next_search = re.search("next=(.*)", target_link, re.IGNORECASE)
                 if next_search:
                     next_url = next_search.group(1)
                     # decode the some characters obtained with the link builder
                     next_url = unquote(next_url)
-            elif not target_link.endswith('/hub'):
+            elif not target_link.endswith("/hub"):
                 next_url = target_link
         if next_url:
             # avoid browsers treating \ as /
-            next_url = next_url.replace('\\', quote('\\'))
+            next_url = next_url.replace("\\", quote("\\"))
             # disallow hostname-having urls,
             # force absolute path redirect
             urlinfo = urlparse(next_url)
-            next_url = urlinfo._replace(scheme='', netloc='', path='/' + urlinfo.path.lstrip('/')).geturl()
+            next_url = urlinfo._replace(
+                scheme="", netloc="", path="/" + urlinfo.path.lstrip("/")
+            ).geturl()
             if next_url != original_next_url:
-                self.log.warning("Ignoring next_url %r, using %r", original_next_url, next_url)
+                self.log.warning(
+                    "Ignoring next_url %r, using %r", original_next_url, next_url
+                )
         if self._state is None:
-            self._state = _serialize_state({'state_id': uuid.uuid4().hex, 'next_url': next_url})
+            self._state = _serialize_state(
+                {"state_id": uuid.uuid4().hex, "next_url": next_url}
+            )
         return self._state
 
     def set_state_cookie(self, state):
@@ -131,7 +139,14 @@ class LTI13LoginHandler(OAuthLoginHandler):
         Overrides the base method to send the 'samesite' and 'secure' arguments and avoid the issues related with the use of iframes.
         It depends of python 3.8
         """
-        self.set_secure_cookie(STATE_COOKIE_NAME, state, expires_days=1, httponly=True, samesite=None, secure=True)
+        self.set_secure_cookie(
+            STATE_COOKIE_NAME,
+            state,
+            expires_days=1,
+            httponly=True,
+            samesite=None,
+            secure=True,
+        )
 
     def post(self):
         """
@@ -141,16 +156,18 @@ class LTI13LoginHandler(OAuthLoginHandler):
         lti_utils = LTIUtils()
         validator = LTI13LaunchValidator()
         args = lti_utils.convert_request_to_dict(self.request.arguments)
-        self.log.debug('Initial login request args are %s' % args)
+        self.log.debug("Initial login request args are %s" % args)
         if validator.validate_login_request(args):
-            login_hint = args['login_hint']
-            self.log.debug('login_hint is %s' % login_hint)
-            lti_message_hint = args['lti_message_hint']
-            self.log.debug('lti_message_hint is %s' % lti_message_hint)
-            client_id = args['client_id']
-            self.log.debug('client_id is %s' % client_id)
-            redirect_uri = guess_callback_uri('https', self.request.host, self.hub.server.base_url)
-            self.log.info('redirect_uri: %r', redirect_uri)
+            login_hint = args["login_hint"]
+            self.log.debug("login_hint is %s" % login_hint)
+            lti_message_hint = args["lti_message_hint"]
+            self.log.debug("lti_message_hint is %s" % lti_message_hint)
+            client_id = args["client_id"]
+            self.log.debug("client_id is %s" % client_id)
+            redirect_uri = guess_callback_uri(
+                "https", self.request.host, self.hub.server.base_url
+            )
+            self.log.info("redirect_uri: %r", redirect_uri)
             state = self.get_state()
             self.set_state_cookie(state)
             # TODO: validate that received nonces haven't been received before
@@ -178,8 +195,8 @@ class LTI13CallbackHandler(OAuthCallbackHandler):
         """
         self.check_state()
         user = await self.login_user()
-        self.log.debug(f'user logged in: {user}')
+        self.log.debug(f"user logged in: {user}")
         if user is None:
-            raise HTTPError(403, 'User missing or null')
+            raise HTTPError(403, "User missing or null")
         self.redirect(self.get_next_url(user))
-        self.log.debug('Redirecting user %s to %s' % (user.id, self.get_next_url(user)))
+        self.log.debug("Redirecting user %s to %s" % (user.id, self.get_next_url(user)))

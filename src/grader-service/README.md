@@ -8,8 +8,8 @@ Microservice used to setup new shared grader notebooks.
 
 Install in editable mode:
 
-    python3 -m pip install -e .
+    pip install -r requirements.txt
 
 ## Update Dependencies
 
-    pip-compile
+    pip-compile requirements.in

@@ -18,16 +18,14 @@ from flask import jsonify
 
 from pathlib import Path
 
-from secrets import token_hex
-
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 
 from . import create_app
 from .models import db
 from .models import GraderService
-from .grader_service import GraderServiceLauncher
-from .grader_service import NB_UID
-from .grader_service import NB_GID
+from .graderservice import GraderServiceLauncher
+from .graderservice import NB_UID
+from .graderservice import NB_GID
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -38,20 +36,26 @@ app = create_app()
 
 
 @app.route(
-    '/control-file/<assignment_name>/<lis_outcome_service_url>/<lis_result_sourcedid>/<lms_user_id>/<course_id>',
-    methods=['POST'],
+    "/control-file/path:<org_name>/path:<assignment_name>/path:<lis_outcome_service_url>/path:<lis_result_sourcedid>/path:<lms_user_id>/path:<course_id>",
+    methods=["POST"],
 )
 def register_control_file(
-    assignment_name: str, lis_outcome_service_url: str, lis_result_sourcedid: str, lms_user_id: str, course_id: str
+    org_name: str,
+    assignment_name: str,
+    lis_outcome_service_url: str,
+    lis_result_sourcedid: str,
+    lms_user_id: str,
+    course_id: str,
 ):
     """
     Creates a new grades control file
     Args:
-        assignment_name: string representation of the assignment name from the LMS (normalized)
-        lis_outcome_service_url: url endpoint that is used to send grades to the LMS with LTI 1.1
-        lis_result_sourcedid: unique assignment or module identifier used with LTI 1.1
-        lms_user_id: unique (opaque) user id
-        course_id: the course id within the lms
+      org_name: string of the organization name
+      assignment_name: string representation of the assignment name from the LMS (normalized)
+      lis_outcome_service_url: url endpoint that is used to send grades to the LMS with LTI 1.1
+      lis_result_sourcedid: unique assignment or module identifier used with LTI 1.1
+      lms_user_id: unique (opaque) user id
+      course_id: the course id within the lms
     Returns:
       JSON: True/False on whether or not the grader service was successfully launched
     example:
@@ -61,27 +65,37 @@ def register_control_file(
     }
     ```
     """
-    # launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
-    # if not launcher.grader_deployment_exists():
-    try:
-        control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
-        control_file.register_data(assignment_name, lis_outcome_service_url, lis_result_sourcedid, lms_user_id)
-    except Exception as e:
-        return jsonify(success=False, message=str(e)), 500
+    launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
+    if not launcher.grader_deployment_exists():
+        try:
+            control_file = LTIGradesSenderControlFile(
+                f"/home/grader-{course_id}/{course_id}"
+            )
+            control_file.register_data(
+                assignment_name,
+                lis_outcome_service_url,
+                lis_result_sourcedid,
+                lms_user_id,
+            )
+        except Exception as e:
+            return jsonify(success=False, message=str(e)), 500
 
-    else:
-        return jsonify(success=True)
+        else:
+            return jsonify(success=True)
 
 
-@app.route('/services/<org_name>/<course_id>', methods=['POST'])
+@app.route("/services/path:<org_name>/path:<course_id>", methods=["POST"])
 def launch(org_name: str, course_id: str):
     """
-    Creates a new grader-notebook pod running as a JupyterHub unmanaged service if one does not exist.
+    Creates a new grader-notebook pod if not exists
+
     Args:
       org_name: the organization name
-      course_id: the grader's course id
+      course_id: the grader's course id (label)
+
     Returns:
       JSON: True/False on whether or not the grader service was successfully launched
+
     example:
     ```
     {
@@ -89,36 +103,45 @@ def launch(org_name: str, course_id: str):
     }
     ```
     """
-    # launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
-    # if not launcher.grader_deployment_exists():
-    try:
-        # launcher.create_grader_deployment()
-        # Register the new service to local database
-        new_service = GraderService(
-            name=course_id,
-            course_id=course_id,
-            url=f'http://{course_id}:8888',
-            api_token=token_hex(32),
-        )
-        db.session.add(new_service)
-        db.session.commit()
-        # then do patch for jhub deployment
-        # with this the jhub pod will be restarted and get/load new services
-        # launcher.update_jhub_deployment()
-    except Exception as e:
-        return jsonify(success=False, message=str(e)), 500
+    launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
+    if not launcher.grader_deployment_exists():
+        try:
+            launcher.create_grader_deployment()
+            # Register the new service to local database
+            new_service = GraderService(
+                name=course_id,
+                course_id=course_id,
+                url=f"http://{launcher.grader_name}:8888",
+                api_token=launcher.grader_token,
+            )
+            db.session.add(new_service)
+            db.session.commit()
+            # then do patch for jhub deployment
+            # with this the jhub pod will be restarted and get/load new services
+            launcher.update_jhub_deployment()
+        except Exception as e:
+            return jsonify(success=False, message=str(e)), 500
 
+        return jsonify(success=True)
     else:
-        return jsonify(success=False, message=f'A grader service already exists for this course_id:{course_id}'), 409
+        return (
+            jsonify(
+                success=False,
+                message=f"A grader service already exists for this course_id:{course_id}",
+            ),
+            409,
+        )
 
 
-@app.route('/services', methods=['GET'])
+@app.route("/services", methods=["GET"])
 def services():
     """
     Returns the grader-notebook list used as services defined in the JupyterHub config.
+
     Returns:
       JSON: a list of service dictionaries with the name and url and the groups associated
       to the grader service.
+
     example:
     ```
     {
@@ -134,24 +157,26 @@ def services():
     for s in services:
         services_resp.append(
             {
-                'name': s.name,
-                'url': s.url,
-                'oauth_no_confirm': s.oauth_no_confirm,
-                'admin': s.admin,
-                'api_token': s.api_token,
+                "name": s.name,
+                "url": s.url,
+                "oauth_no_confirm": s.oauth_no_confirm,
+                "admin": s.admin,
+                "api_token": s.api_token,
             }
         )
         # add the jhub user group
-        groups_resp.update({f'formgrade-{s.course_id}': [f'grader-{s.course_id}']})
+        groups_resp.update({f"formgrade-{s.course_id}": [f"grader-{s.course_id}"]})
     return jsonify(services=services_resp, groups=groups_resp)
 
 
-@app.route("/services/<org_name>/<course_id>", methods=['DELETE'])
+@app.route("/services/path:<org_name>/path:<course_id>", methods=["DELETE"])
 def services_deletion(org_name: str, course_id: str):
     """Deletes the grader setup service
+
     Args:
         org_name (str): the organization name
         course_id (str): the course id (label)
+
     Returns:
         JSON: True if the grader was successfully deleted false otherwise
     """
@@ -167,22 +192,31 @@ def services_deletion(org_name: str, course_id: str):
         return jsonify(success=False, error=str(e)), 500
 
 
-@app.route("/courses/<org_name>/<course_id>/<assignment_name>", methods=['POST'])
+@app.route(
+    "/courses/path:<org_name>/path:<course_id>/path:<assignment_name>", methods=["POST"]
+)
 def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str):
     """Creates the directories required to manage assignments.
+
     Args:
         org_name (str): the organization name
         course_id (str): the course id (label)
         assignment_name (str): the assignment name
+
     Returns:
         JSON: True if the assignment directories were successfully created, false otherwise
     """
     launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
-    assignment_dir = os.path.abspath(Path(launcher.course_dir, 'source', assignment_name))
+    assignment_dir = os.path.abspath(
+        Path(launcher.course_dir, "source", assignment_name)
+    )
     if not os.path.isdir(assignment_dir):
-        logger.info('Creating source dir %s for the assignment %s' % (assignment_dir, assignment_name))
+        logger.info(
+            "Creating source dir %s for the assignment %s"
+            % (assignment_dir, assignment_name)
+        )
         os.makedirs(assignment_dir)
-    logger.info('Fixing folder permissions for %s' % assignment_dir)
+    logger.info("Fixing folder permissions for %s" % assignment_dir)
     shutil.chown(str(Path(assignment_dir).parent), user=NB_UID, group=NB_GID)
     shutil.chown(str(assignment_dir), user=NB_UID, group=NB_GID)
 
@@ -192,6 +226,7 @@ def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str)
 @app.route("/healthcheck")
 def healthcheck():
     """Healtheck endpoint
+
     Returns:
         JSON: True if the service is alive
     """
@@ -199,4 +234,4 @@ def healthcheck():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host="0.0.0.0")

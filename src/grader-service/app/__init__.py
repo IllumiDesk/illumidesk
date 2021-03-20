@@ -16,7 +16,9 @@ from .models import db
 
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
-database_file = "sqlite:///{}".format(os.path.join(project_dir, "gradersetup.db.sqlite3"))
+database_file = "sqlite:///{}".format(
+    os.path.join(project_dir, "gradersetup.db.sqlite3")
+)
 
 
 def create_app():
@@ -26,8 +28,11 @@ def create_app():
         flask_app: the Flask application object
     """
     flask_app = Flask(__name__)
-    flask_app.config['SQLALCHEMY_DATABASE_URI'] = database_file
-    flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    flask_app.config["SQLALCHEMY_DATABASE_URI"] = database_file
+    flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     flask_app.app_context().push()
     db.init_app(flask_app)
-    return flask_app
+
+    with flask_app.app_context():
+        db.create_all()  # Create sql tables for our data models
+        return flask_app

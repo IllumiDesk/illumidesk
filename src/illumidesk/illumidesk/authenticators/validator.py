@@ -17,7 +17,10 @@ from traitlets.config import LoggingConfigurable
 from typing import Any
 from typing import Dict
 
-from .constants import ILLUMIDESK_LTI13_DEEP_LINKING_REQUIRED_CLAIMS, LTI13_GENERAL_REQUIRED_CLAIMS
+from .constants import (
+    ILLUMIDESK_LTI13_DEEP_LINKING_REQUIRED_CLAIMS,
+    LTI13_GENERAL_REQUIRED_CLAIMS,
+)
 from .constants import ILLUMIDESK_LTI13_RESOURCE_LINK_REQUIRED_CLAIMS
 from .constants import LTI11_LAUNCH_PARAMS_REQUIRED
 from .constants import LTI11_OAUTH_ARGS
@@ -76,57 +79,70 @@ class LTI11LaunchValidator(LoggingConfigurable):
         # Ensure that required oauth_* body arguments are included in the request
         for param in LTI11_OAUTH_ARGS:
             if param not in args.keys():
-                raise HTTPError(400, 'Required oauth arg %s not included in request' % param)
+                raise HTTPError(
+                    400, "Required oauth arg %s not included in request" % param
+                )
             if not args.get(param):
-                raise HTTPError(400, 'Required oauth arg %s does not have a value' % param)
+                raise HTTPError(
+                    400, "Required oauth arg %s does not have a value" % param
+                )
 
         # Ensure that consumer key is registered in in jupyterhub_config.py
         # LTI11Authenticator.consumers defined in parent class
-        if args['oauth_consumer_key'] not in self.consumers:
-            raise HTTPError(401, 'unknown oauth_consumer_key')
+        if args["oauth_consumer_key"] not in self.consumers:
+            raise HTTPError(401, "unknown oauth_consumer_key")
 
         # Ensure that required LTI 1.1 body arguments are included in the request
         for param in LTI11_LAUNCH_PARAMS_REQUIRED:
             if param not in args.keys():
-                raise HTTPError(400, 'Required LTI 1.1 arg arg %s not included in request' % param)
+                raise HTTPError(
+                    400, "Required LTI 1.1 arg arg %s not included in request" % param
+                )
             if not args.get(param):
-                raise HTTPError(400, 'Required LTI 1.1 arg arg %s does not have a value' % param)
+                raise HTTPError(
+                    400, "Required LTI 1.1 arg arg %s does not have a value" % param
+                )
 
         # Inspiration to validate nonces/timestamps from OAuthlib
         # https://github.com/oauthlib/oauthlib/blob/master/oauthlib/oauth1/rfc5849/endpoints/base.py#L147
-        if len(str(int(args['oauth_timestamp']))) != 10:
-            raise HTTPError(401, 'Invalid timestamp size')
+        if len(str(int(args["oauth_timestamp"]))) != 10:
+            raise HTTPError(401, "Invalid timestamp size")
         try:
-            ts = int(args['oauth_timestamp'])
+            ts = int(args["oauth_timestamp"])
         except ValueError:
-            raise HTTPError(401, 'Timestamp must be an integer')
+            raise HTTPError(401, "Timestamp must be an integer")
         else:
             # Reject timestamps that are older than 30 seconds
             if abs(time.time() - ts) > 30:
                 raise HTTPError(
                     401,
-                    'Timestamp given is invalid, differ from '
-                    'allowed by over %s seconds.' % str(int(time.time() - ts)),
+                    "Timestamp given is invalid, differ from "
+                    "allowed by over %s seconds." % str(int(time.time() - ts)),
                 )
-            if ts in LTI11LaunchValidator.nonces and args['oauth_nonce'] in LTI11LaunchValidator.nonces[ts]:
-                raise HTTPError(401, 'oauth_nonce + oauth_timestamp already used')
-            LTI11LaunchValidator.nonces.setdefault(ts, set()).add(args['oauth_nonce'])
+            if (
+                ts in LTI11LaunchValidator.nonces
+                and args["oauth_nonce"] in LTI11LaunchValidator.nonces[ts]
+            ):
+                raise HTTPError(401, "oauth_nonce + oauth_timestamp already used")
+            LTI11LaunchValidator.nonces.setdefault(ts, set()).add(args["oauth_nonce"])
 
         # convert arguments dict back to a list of tuples for signature
         args_list = [(k, v) for k, v in args.items()]
 
         base_string = signature.signature_base_string(
-            'POST',
+            "POST",
             signature.base_string_uri(launch_url),
-            signature.normalize_parameters(signature.collect_parameters(body=args_list, headers=headers)),
+            signature.normalize_parameters(
+                signature.collect_parameters(body=args_list, headers=headers)
+            ),
         )
-        consumer_secret = self.consumers[args['oauth_consumer_key']]
+        consumer_secret = self.consumers[args["oauth_consumer_key"]]
         sign = signature.sign_hmac_sha1(base_string, consumer_secret, None)
-        is_valid = signature.safe_string_equals(sign, args['oauth_signature'])
-        self.log.debug('signature in request: %s' % args['oauth_signature'])
-        self.log.debug('calculated signature: %s' % sign)
+        is_valid = signature.safe_string_equals(sign, args["oauth_signature"])
+        self.log.debug("signature in request: %s" % args["oauth_signature"])
+        self.log.debug("calculated signature: %s" % sign)
         if not is_valid:
-            raise HTTPError(401, 'Invalid oauth_signature')
+            raise HTTPError(401, "Invalid oauth_signature")
 
         return True
 
@@ -137,7 +153,9 @@ class LTI13LaunchValidator(LoggingConfigurable):
     provider with LTI 1.1).
     """
 
-    async def _retrieve_matching_jwk(self, endpoint: str, header_kid: str, verify: bool = True) -> Any:
+    async def _retrieve_matching_jwk(
+        self, endpoint: str, header_kid: str, verify: bool = True
+    ) -> Any:
         """
         Retrieves the matching cryptographic key from the platform as a
         JSON Web Key (JWK).
@@ -150,26 +168,30 @@ class LTI13LaunchValidator(LoggingConfigurable):
         client = AsyncHTTPClient()
         resp = await client.fetch(endpoint, validate_cert=verify)
         platform_jwks = json.loads(resp.body)
-        self.log.debug('Retrieved jwks from lms platform %s' % platform_jwks)
+        self.log.debug("Retrieved jwks from lms platform %s" % platform_jwks)
 
-        if not platform_jwks or 'keys' not in platform_jwks:
-            raise ValueError('Platform endpoint returned an empty jwks')
+        if not platform_jwks or "keys" not in platform_jwks:
+            raise ValueError("Platform endpoint returned an empty jwks")
 
         key = None
-        for jwk in platform_jwks['keys']:
-            if jwk['kid'] != header_kid:
+        for jwk in platform_jwks["keys"]:
+            if jwk["kid"] != header_kid:
                 continue
             key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(jwk))
-            self.log.debug('Get keys from jwks dict  %s' % key)
+            self.log.debug("Get keys from jwks dict  %s" % key)
         if key is None:
-            error_msg = f'There is not a key matching in the platform jwks for the jwt received. kid: {header_kid}'
+            error_msg = f"There is not a key matching in the platform jwks for the jwt received. kid: {header_kid}"
             self.log.debug(error_msg)
             raise ValueError(error_msg)
 
         return key
 
     async def jwt_verify_and_decode(
-        self, id_token: str, jwks_endpoint: str, verify: bool = True, audience: str = None
+        self,
+        id_token: str,
+        jwks_endpoint: str,
+        verify: bool = True,
+        audience: str = None,
     ) -> Dict[str, str]:
         """
         Decodes the JSON Web Token (JWT) sent from the platform. The JWT should contain claims
@@ -184,17 +206,25 @@ class LTI13LaunchValidator(LoggingConfigurable):
             token endpoint for the platform (LMS) such as https://my.lms.domain/login/oauth2/token
         """
         if verify is False:
-            self.log.debug('JWK verification is off, returning token %s' % jwt.decode(id_token, verify=False))
+            self.log.debug(
+                "JWK verification is off, returning token %s"
+                % jwt.decode(id_token, verify=False)
+            )
             return jwt.decode(id_token, verify=False)
 
         jws = JWS.from_compact(id_token)
-        self.log.debug('Retrieving matching jws %s' % jws)
+        self.log.debug("Retrieving matching jws %s" % jws)
         json_header = jws.signature.protected
         header = Header.json_loads(json_header)
-        self.log.debug('Header from decoded jwt %s' % header)
+        self.log.debug("Header from decoded jwt %s" % header)
 
-        key_from_jwks = await self._retrieve_matching_jwk(jwks_endpoint, verify, header.kid)
-        self.log.debug('Returning decoded jwt with token %s key %s and verify %s' % (id_token, key_from_jwks, verify))
+        key_from_jwks = await self._retrieve_matching_jwk(
+            jwks_endpoint, verify, header.kid
+        )
+        self.log.debug(
+            "Returning decoded jwt with token %s key %s and verify %s"
+            % (id_token, key_from_jwks, verify)
+        )
 
         return jwt.decode(id_token, key=key_from_jwks, verify=False, audience=audience)
 
@@ -208,7 +238,10 @@ class LTI13LaunchValidator(LoggingConfigurable):
         :return: bool  Returns true if the current launch is a deep linking launch.
         """
         return (
-            jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/message_type', None) == 'LtiDeepLinkingRequest'
+            jwt_decoded.get(
+                "https://purl.imsglobal.org/spec/lti/claim/message_type", None
+            )
+            == "LtiDeepLinkingRequest"
         )
 
     def validate_launch_request(
@@ -245,14 +278,23 @@ class LTI13LaunchValidator(LoggingConfigurable):
 
             for claim, v in required_claims_by_message_type.items():
                 if claim not in jwt_decoded:
-                    raise HTTPError(400, 'Required claim %s not included in request' % claim)
+                    raise HTTPError(
+                        400, "Required claim %s not included in request" % claim
+                    )
             if not is_deep_linking:
                 # custom validations with resource launch
-                if jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/resource_link').get('id') == '':
+                if (
+                    jwt_decoded.get(
+                        "https://purl.imsglobal.org/spec/lti/claim/resource_link"
+                    ).get("id")
+                    == ""
+                ):
                     raise HTTPError(
                         400,
-                        'Incorrect value %s for id in resource_link claim'
-                        % jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/resource_link').get('id'),
+                        "Incorrect value %s for id in resource_link claim"
+                        % jwt_decoded.get(
+                            "https://purl.imsglobal.org/spec/lti/claim/resource_link"
+                        ).get("id"),
                     )
 
         return True
@@ -264,32 +306,47 @@ class LTI13LaunchValidator(LoggingConfigurable):
         # does all the required keys exist?
         for claim, v in LTI13_GENERAL_REQUIRED_CLAIMS.items():
             if claim not in jwt_decoded:
-                raise HTTPError(400, 'Required claim %s not included in request' % claim)
+                raise HTTPError(
+                    400, "Required claim %s not included in request" % claim
+                )
         # some fixed values
-        lti_version = jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/version')
-        if lti_version != '1.3.0':
-            raise HTTPError(400, 'Incorrect value %s for version claim' % lti_version)
+        lti_version = jwt_decoded.get(
+            "https://purl.imsglobal.org/spec/lti/claim/version"
+        )
+        if lti_version != "1.3.0":
+            raise HTTPError(400, "Incorrect value %s for version claim" % lti_version)
 
         # validate context label
-        context_claim = jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/context', None)
+        context_claim = jwt_decoded.get(
+            "https://purl.imsglobal.org/spec/lti/claim/context", None
+        )
         context_label = (
-            jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/context').get('label')
+            jwt_decoded.get("https://purl.imsglobal.org/spec/lti/claim/context").get(
+                "label"
+            )
             if context_claim
             else None
         )
-        if context_label == '':
+        if context_label == "":
             raise HTTPError(
-                400, 'Missing course context label for claim https://purl.imsglobal.org/spec/lti/claim/context'
+                400,
+                "Missing course context label for claim https://purl.imsglobal.org/spec/lti/claim/context",
             )
         # validate message type value
-        message_type = jwt_decoded.get('https://purl.imsglobal.org/spec/lti/claim/message_type', None)
+        message_type = jwt_decoded.get(
+            "https://purl.imsglobal.org/spec/lti/claim/message_type", None
+        )
         if (
             message_type
-            != LTI13_RESOURCE_LINK_REQUIRED_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/message_type']
+            != LTI13_RESOURCE_LINK_REQUIRED_CLAIMS[
+                "https://purl.imsglobal.org/spec/lti/claim/message_type"
+            ]
             and message_type
-            != LTI13_DEEP_LINKING_REQUIRED_CLAIMS['https://purl.imsglobal.org/spec/lti/claim/message_type']
+            != LTI13_DEEP_LINKING_REQUIRED_CLAIMS[
+                "https://purl.imsglobal.org/spec/lti/claim/message_type"
+            ]
         ):
-            raise HTTPError(400, 'Incorrect value %s for version claim' % message_type)
+            raise HTTPError(400, "Incorrect value %s for version claim" % message_type)
 
         return True
 
@@ -305,7 +362,11 @@ class LTI13LaunchValidator(LoggingConfigurable):
         """
         for param in LTI13_LOGIN_REQUEST_ARGS:
             if param not in args:
-                raise HTTPError(400, 'Required LTI 1.3 arg %s not included in request' % param)
+                raise HTTPError(
+                    400, "Required LTI 1.3 arg %s not included in request" % param
+                )
             if not args.get(param):
-                raise HTTPError(400, 'Required LTI 1.3 arg %s does not have a value' % param)
+                raise HTTPError(
+                    400, "Required LTI 1.3 arg %s does not have a value" % param
+                )
         return True
