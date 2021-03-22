@@ -1,5 +1,4 @@
 from kubespawner import KubeSpawner
-
 from traitlets.traitlets import Bool
 
 

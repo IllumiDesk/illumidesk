@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Describe the bug**
-There are projects in production being created with the root user and group. 
+There are projects in production being created with the root user and group.
 
 **To Reproduce**
 Steps to reproduce the behavior:

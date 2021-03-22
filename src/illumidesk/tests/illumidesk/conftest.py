@@ -1,33 +1,28 @@
-from io import StringIO
 import json
-import jwt
-from nbgrader.api import Course
-import pytest
 import os
 import secrets
 import time
 import uuid
+from io import StringIO
+from typing import Dict
+from typing import List
+from unittest.mock import Mock
+from unittest.mock import patch
 
+import jwt
+import pytest
 from Crypto.PublicKey import RSA
-
-from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
-from illumidesk.authenticators.utils import LTIUtils
-
+from nbgrader.api import Course
 from oauthlib.oauth1.rfc5849 import signature
-
-from tornado.web import Application
-from tornado.web import RequestHandler
-
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpclient import HTTPResponse
 from tornado.httputil import HTTPHeaders
 from tornado.httputil import HTTPServerRequest
+from tornado.web import Application
+from tornado.web import RequestHandler
 
-from typing import Dict
-from typing import List
-
-from unittest.mock import patch
-from unittest.mock import Mock
+from illumidesk.authenticators.utils import LTIUtils
+from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 
 
 @pytest.fixture(scope='module')

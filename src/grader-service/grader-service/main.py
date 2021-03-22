@@ -13,22 +13,19 @@ import logging
 import os
 import shutil
 import sys
-
+from pathlib import Path
 from secrets import token_hex
 
 from flask import jsonify
 
-from pathlib import Path
-
 from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 from . import create_app
-from .models import db
-from .models import GraderService
-from .grader_service import GraderServiceLauncher
-from .grader_service import NB_UID
 from .grader_service import NB_GID
-
+from .grader_service import NB_UID
+from .grader_service import GraderServiceLauncher
+from .models import GraderService
+from .models import db
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)

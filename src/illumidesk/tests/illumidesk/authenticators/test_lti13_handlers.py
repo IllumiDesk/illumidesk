@@ -1,13 +1,13 @@
 import hashlib
+from unittest.mock import patch
 from uuid import uuid4
-from oauthenticator.oauth2 import _deserialize_state, _serialize_state
 
 import pytest
+from oauthenticator.oauth2 import _deserialize_state
+from oauthenticator.oauth2 import _serialize_state
 
-from unittest.mock import patch
-
-from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.authenticator import LTI13LaunchValidator
+from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.utils import LTIUtils
 
 

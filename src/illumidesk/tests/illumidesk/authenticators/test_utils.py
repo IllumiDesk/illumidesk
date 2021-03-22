@@ -1,12 +1,12 @@
 import re
-
-import pytest
-
-from tornado.web import RequestHandler
-
 from unittest.mock import Mock
 
-from illumidesk.authenticators.utils import LTIUtils, user_is_a_student, user_is_an_instructor
+import pytest
+from tornado.web import RequestHandler
+
+from illumidesk.authenticators.utils import LTIUtils
+from illumidesk.authenticators.utils import user_is_a_student
+from illumidesk.authenticators.utils import user_is_an_instructor
 
 
 def test_normalize_string_return_false_with_missing_name():

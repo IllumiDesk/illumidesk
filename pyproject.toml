@@ -4,7 +4,6 @@ line-length = 119
 target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
-
 (
   /(
       \.eggs
@@ -16,9 +15,9 @@ exclude = '''
     | \.vscode
     | \.venv
     | _build
-    | ansible
     | build
     | dist
-  )
+  )/
+  | pyproject.toml
 )
 '''
