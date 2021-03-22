@@ -1,16 +1,14 @@
 import logging
 import os
 
-from illumidesk.authenticators.utils import LTIUtils
-
 from nbgrader.api import Assignment
 from nbgrader.api import Course
 from nbgrader.api import Gradebook
 from nbgrader.api import InvalidEntry
-
-from sqlalchemy_utils import database_exists
 from sqlalchemy_utils import create_database
+from sqlalchemy_utils import database_exists
 
+from illumidesk.authenticators.utils import LTIUtils
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

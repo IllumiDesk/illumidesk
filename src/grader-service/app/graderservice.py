@@ -13,18 +13,16 @@ import logging
 import os
 import shutil
 import sys
-
 from datetime import datetime
+from pathlib import Path
+from secrets import token_hex
 
 from kubernetes import client
 from kubernetes import config
 from kubernetes.config import ConfigException
 
-from pathlib import Path
-from secrets import token_hex
-from .templates import NBGRADER_HOME_CONFIG_TEMPLATE
-from .templates import NBGRADER_COURSE_CONFIG_TEMPLATE
-
+from .constants import NBGRADER_COURSE_CONFIG_TEMPLATE
+from .constants import NBGRADER_HOME_CONFIG_TEMPLATE
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)

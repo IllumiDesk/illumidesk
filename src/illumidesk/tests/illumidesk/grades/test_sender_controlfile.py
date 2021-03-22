@@ -1,10 +1,9 @@
-import os
 import json
-import pytest
-
+import os
 from pathlib import Path
-
 from unittest.mock import patch
+
+import pytest
 
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 

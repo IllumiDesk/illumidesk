@@ -3,9 +3,7 @@ import os
 
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpclient import HTTPError
-
 from traitlets.traitlets import Bool
-
 
 # course setup service name
 INTENAL_SERVICE_NAME = (

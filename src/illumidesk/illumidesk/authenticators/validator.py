@@ -1,32 +1,25 @@
 import json
-import jwt
 import time
-
 from collections import OrderedDict
-
-from josepy.jws import JWS
-from josepy.jws import Header
-
-from oauthlib.oauth1.rfc5849 import signature
-
-from tornado.httpclient import AsyncHTTPClient
-from tornado.web import HTTPError
-
-from traitlets.config import LoggingConfigurable
-
 from typing import Any
 from typing import Dict
 
-from .constants import (
-    ILLUMIDESK_LTI13_DEEP_LINKING_REQUIRED_CLAIMS,
-    LTI13_GENERAL_REQUIRED_CLAIMS,
-)
+import jwt
+from josepy.jws import JWS
+from josepy.jws import Header
+from oauthlib.oauth1.rfc5849 import signature
+from tornado.httpclient import AsyncHTTPClient
+from tornado.web import HTTPError
+from traitlets.config import LoggingConfigurable
+
+from .constants import ILLUMIDESK_LTI13_DEEP_LINKING_REQUIRED_CLAIMS
 from .constants import ILLUMIDESK_LTI13_RESOURCE_LINK_REQUIRED_CLAIMS
 from .constants import LTI11_LAUNCH_PARAMS_REQUIRED
 from .constants import LTI11_OAUTH_ARGS
+from .constants import LTI13_DEEP_LINKING_REQUIRED_CLAIMS
+from .constants import LTI13_GENERAL_REQUIRED_CLAIMS
 from .constants import LTI13_LOGIN_REQUEST_ARGS
 from .constants import LTI13_RESOURCE_LINK_REQUIRED_CLAIMS
-from .constants import LTI13_DEEP_LINKING_REQUIRED_CLAIMS
 
 
 class LTI11LaunchValidator(LoggingConfigurable):

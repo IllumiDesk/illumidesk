@@ -14,7 +14,6 @@ from flask import Flask
 
 from .models import db
 
-
 project_dir = os.path.dirname(os.path.abspath(__file__))
 database_file = "sqlite:///{}".format(
     os.path.join(project_dir, "gradersetup.db.sqlite3")

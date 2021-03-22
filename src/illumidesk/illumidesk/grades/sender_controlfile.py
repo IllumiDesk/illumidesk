@@ -1,9 +1,9 @@
 import json
 import logging
 import os
+from pathlib import Path
 
 from filelock import FileLock
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

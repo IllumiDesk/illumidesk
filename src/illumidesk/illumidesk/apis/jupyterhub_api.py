@@ -1,14 +1,12 @@
 import json
 import os
+from typing import Any
+from typing import Awaitable
 
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpclient import HTTPClientError
 from tornado.httpclient import HTTPResponse  # noqa: F401
-
 from traitlets.config import LoggingConfigurable
-
-from typing import Any
-from typing import Awaitable
 
 
 class JupyterHubAPI(LoggingConfigurable):

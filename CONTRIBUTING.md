@@ -83,6 +83,8 @@ For the most part, contributors do not need to worry about commit message format
 
 ### For Maintainers
 
+#### Commits and merges
+
 When squashing and merging to the `main` branch, use the following format to provide consistent updates to the `CHANGELOG.md` file:
 
     <Commit Type>(scope): <Merge Description>
@@ -128,6 +130,16 @@ Examples:
 
     BREAKING CHANGE: `extends` key in config file is now used for extending other config files
     ```
+
+#### Pre-commit hooks
+
+This repo includes the `pre-commit` setup with:
+
+- black: code formatting
+- flake8: python linter
+- isort: imports organizer
+
+To enable the pre-commit hook in your local environment,
 
 **Updating the Changelog Format**
 

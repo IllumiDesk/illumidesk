@@ -1,12 +1,11 @@
-import pytest
-
-from tornado.web import RequestHandler
-
 from unittest.mock import patch
 
-from illumidesk.authenticators.validator import LTI13LaunchValidator
+import pytest
+from tornado.web import RequestHandler
+
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import LTIUtils
+from illumidesk.authenticators.validator import LTI13LaunchValidator
 
 
 @pytest.mark.asyncio

@@ -1,17 +1,15 @@
 import os
 import re
-from sqlalchemy.sql.sqltypes import Boolean
-
-from tornado.web import RequestHandler
-
 from typing import Any
 from typing import Dict
 from typing import List
 
+from sqlalchemy.sql.sqltypes import Boolean
+from tornado.web import RequestHandler
 from traitlets.config import LoggingConfigurable
 
-from illumidesk.authenticators.constants import DEFAULT_ROLE_NAMES_FOR_STUDENT
 from illumidesk.authenticators.constants import DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR
+from illumidesk.authenticators.constants import DEFAULT_ROLE_NAMES_FOR_STUDENT
 
 
 class LTIUtils(LoggingConfigurable):

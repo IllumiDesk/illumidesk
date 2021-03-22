@@ -1,14 +1,12 @@
 import json
 
+from jupyterhub.handlers import BaseHandler
+from tornado import web
 
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.grades import exceptions
 from illumidesk.grades.senders import LTI13GradeSender
 from illumidesk.grades.senders import LTIGradeSender
-
-from jupyterhub.handlers import BaseHandler
-
-from tornado import web
 
 
 class SendGradesHandler(BaseHandler):

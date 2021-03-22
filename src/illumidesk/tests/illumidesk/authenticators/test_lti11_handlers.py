@@ -1,6 +1,6 @@
-import pytest
-
 from unittest.mock import patch
+
+import pytest
 
 from illumidesk.authenticators.authenticator import LTI11AuthenticateHandler
 

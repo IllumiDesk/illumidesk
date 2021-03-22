@@ -13,20 +13,18 @@ import logging
 import os
 import shutil
 import sys
+from pathlib import Path
 
 from flask import jsonify
 
-from pathlib import Path
-
-from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
+from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 from . import create_app
-from .models import db
+from .grader_service import NB_GID
+from .grader_service import NB_UID
+from .grader_service import GraderServiceLauncher
 from .models import GraderService
-from .graderservice import GraderServiceLauncher
-from .graderservice import NB_UID
-from .graderservice import NB_GID
-
+from .models import db
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)

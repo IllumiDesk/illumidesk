@@ -1,17 +1,15 @@
-import pytest
-
 from unittest.mock import patch
 
+import pytest
+from tornado.httpclient import AsyncHTTPClient
 from tornado.httputil import HTTPHeaders
+from tornado.web import RequestHandler
 
-from illumidesk.grades.senders import LTIGradeSender
-from illumidesk.grades.senders import LTI13GradeSender
 from illumidesk.grades.exceptions import AssignmentWithoutGradesError
 from illumidesk.grades.exceptions import GradesSenderMissingInfoError
 from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
-
-from tornado.httpclient import AsyncHTTPClient
-from tornado.web import RequestHandler
+from illumidesk.grades.senders import LTI13GradeSender
+from illumidesk.grades.senders import LTIGradeSender
 
 
 class TestLTI11GradesSender:
