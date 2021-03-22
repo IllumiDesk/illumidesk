@@ -1,15 +1,14 @@
-import pytest
 import json
-
-from tornado.web import RequestHandler
-from tornado.httputil import HTTPServerRequest
-
 from unittest.mock import Mock
 from unittest.mock import patch
 
-from illumidesk.authenticators.validator import LTI11LaunchValidator
+import pytest
+from tornado.httputil import HTTPServerRequest
+from tornado.web import RequestHandler
+
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTIUtils
+from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 

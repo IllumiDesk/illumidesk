@@ -1,16 +1,16 @@
 import json
-import jwt
 import logging
-import pem
 import os
 import time
 import urllib
+import uuid
 
+import jwt
+import pem
 from Crypto.PublicKey import RSA
 from jwcrypto.jwk import JWK
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpclient import HTTPClientError
-import uuid
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

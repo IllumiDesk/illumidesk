@@ -1,29 +1,25 @@
-import logging
 import hashlib
+import logging
 import os
 import re
-
-from jupyterhub.handlers import BaseHandler
-
-from oauthenticator.oauth2 import STATE_COOKIE_NAME
-from oauthenticator.oauth2 import _serialize_state
-from oauthenticator.oauth2 import guess_callback_uri
-from oauthenticator.oauth2 import OAuthLoginHandler
-from oauthenticator.oauth2 import OAuthCallbackHandler
-
-from tornado.httputil import url_concat
-from tornado.web import HTTPError
-from tornado.web import RequestHandler
-
+import uuid
 from typing import cast
 from urllib.parse import quote
 from urllib.parse import unquote
 from urllib.parse import urlparse
-import uuid
 
-from illumidesk.authenticators.validator import LTI13LaunchValidator
+from jupyterhub.handlers import BaseHandler
+from oauthenticator.oauth2 import STATE_COOKIE_NAME
+from oauthenticator.oauth2 import OAuthCallbackHandler
+from oauthenticator.oauth2 import OAuthLoginHandler
+from oauthenticator.oauth2 import _serialize_state
+from oauthenticator.oauth2 import guess_callback_uri
+from tornado.httputil import url_concat
+from tornado.web import HTTPError
+from tornado.web import RequestHandler
+
 from illumidesk.authenticators.utils import LTIUtils
-
+from illumidesk.authenticators.validator import LTI13LaunchValidator
 
 logger = logging.getLogger(__name__)
 

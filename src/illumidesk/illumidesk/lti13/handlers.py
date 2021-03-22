@@ -1,20 +1,16 @@
-import os
 import json
+import os
 from pathlib import Path
+from urllib.parse import quote
+from urllib.parse import urlencode
 
 import pem
-
 from Crypto.PublicKey import RSA
-
 from jupyterhub.handlers import BaseHandler
+from tornado import web
 
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.lti13.auth import get_jwk
-
-from tornado import web
-
-from urllib.parse import urlencode
-from urllib.parse import quote
 
 
 class LTI13ConfigHandler(BaseHandler):

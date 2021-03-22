@@ -1,9 +1,8 @@
 import os
 import sys
 
-from setuptools import setup
 from setuptools import find_packages
-
+from setuptools import setup
 
 v = sys.version_info
 if v[:2] < (3, 6):

@@ -1,8 +1,8 @@
 import json
-import pytest
 import os
-
 from unittest.mock import patch
+
+import pytest
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 

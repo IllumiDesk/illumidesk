@@ -1,36 +1,30 @@
-import os
 import logging
-
-from jupyterhub.auth import Authenticator
-from jupyterhub.app import JupyterHub
-from jupyterhub.handlers import BaseHandler
-
-from ltiauthenticator import LTIAuthenticator
-
-from oauthenticator.oauth2 import OAuthenticator
-
-from tornado.web import HTTPError
-from tornado.web import RequestHandler
-
-from traitlets import Unicode
-
+import os
 from typing import Any
 from typing import Dict
 
+from jupyterhub.app import JupyterHub
+from jupyterhub.auth import Authenticator
+from jupyterhub.handlers import BaseHandler
+from ltiauthenticator import LTIAuthenticator
+from oauthenticator.oauth2 import OAuthenticator
+from tornado.web import HTTPError
+from tornado.web import RequestHandler
+from traitlets import Unicode
+
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
-from illumidesk.apis.setup_course_service import register_new_service
-from illumidesk.apis.setup_course_service import register_control_file
 from illumidesk.apis.setup_course_service import create_assignment_source_dir
-
+from illumidesk.apis.setup_course_service import register_control_file
+from illumidesk.apis.setup_course_service import register_new_service
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
-from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
-from illumidesk.authenticators.utils import LTIUtils, user_is_an_instructor
+from illumidesk.authenticators.handlers import LTI13LoginHandler
+from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.authenticators.utils import user_is_a_student
+from illumidesk.authenticators.utils import user_is_an_instructor
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
