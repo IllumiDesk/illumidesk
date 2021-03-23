@@ -20,9 +20,9 @@ from flask import jsonify
 from illumidesk.grades.senders import LTIGradesSenderControlFile
 
 from . import create_app
-from .grader_service import NB_GID
-from .grader_service import NB_UID
-from .grader_service import GraderServiceLauncher
+from .graderservice import NB_GID
+from .graderservice import NB_UID
+from .graderservice import GraderServiceLauncher
 from .models import GraderService
 from .models import db
 
@@ -31,6 +31,11 @@ logger = logging.getLogger(__name__)
 
 
 app = create_app()
+
+
+@app.route("/")
+def hello_world():
+    return "Hello, World!"
 
 
 @app.route(

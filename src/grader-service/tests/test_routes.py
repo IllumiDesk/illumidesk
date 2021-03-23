@@ -1,4 +1,8 @@
-def test_healthcheck(app, client):
-    """Ensure the healthcheck endpoint returns a 200 (OK) status code."""
-    res = client.get("/healthcheck", method="GET")
+import json
+
+
+def test_index(app, client):
+    res = client.get("/")
     assert res.status_code == 200
+    expected = {"hello": "world"}
+    assert expected == json.loads(res.get_data(as_text=True))

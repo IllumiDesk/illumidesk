@@ -23,7 +23,7 @@ with open(os.path.join("_version.py")) as f:
     exec(f.read(), {}, version_ns)
 
 setup(
-    name="illumidesk-grader-setup-service",
+    name="gradersetupservice",
     version=version_ns["__version__"],
     description="IllumiDesk grader setup service package",
     long_description=open("README.md").read(),

@@ -8,6 +8,7 @@
 #  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
 #  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 #  specific language governing permissions and limitations under the License.
+
 import os
 
 from flask import Flask
@@ -31,7 +32,5 @@ def create_app():
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     flask_app.app_context().push()
     db.init_app(flask_app)
-
-    with flask_app.app_context():
-        db.create_all()  # Create sql tables for our data models
-        return flask_app
+    db.create_all()
+    return flask_app
