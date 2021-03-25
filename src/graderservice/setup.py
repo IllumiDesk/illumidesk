@@ -23,7 +23,7 @@ with open(os.path.join("_version.py")) as f:
     exec(f.read(), {}, version_ns)
 
 setup(
-    name="gradersetupservice",
+    name="graderservice",
     version=version_ns["__version__"],
     description="IllumiDesk grader setup service package",
     long_description=open("README.md").read(),
@@ -35,9 +35,9 @@ setup(
     packages=find_packages(exclude="./tests"),
     install_requires=[
         "flask==1.1.2",
-        "flask-sqlalchemy==2.4.4",
+        "flask-sqlalchemy==2.5.1",
         "gunicorn==20.0.4",
-        "kubernetes==12.0.0",
+        "kubernetes==12.0.1",
     ],  # noqa: E231
     package_data={
         "": ["*.html"],

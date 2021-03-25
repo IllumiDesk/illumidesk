@@ -4,6 +4,7 @@ set -e
 
 run_linters () {
   echo "Running linters ..."
+  isort 
   flake8 src/
   black --check src/
 }
@@ -11,6 +12,9 @@ run_linters () {
 run_unit_tests () {
   echo "Running unit tests ..."
   python3 -m pytest
+  cd src/graderservice
+  python3 -m pytest
+  cd ../../
 }
 
 run_coverage_report () {

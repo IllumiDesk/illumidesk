@@ -2,10 +2,8 @@ import json
 import logging
 import os
 import re
-import time
 from datetime import datetime
 
-from lti.outcome_request import OutcomeRequest
 from nbgrader.api import Gradebook
 from nbgrader.api import MissingEntry
 from tornado.httpclient import AsyncHTTPClient
@@ -17,7 +15,6 @@ from illumidesk.lti13.auth import get_lms_access_token
 from .exceptions import AssignmentWithoutGradesError
 from .exceptions import GradesSenderCriticalError
 from .exceptions import GradesSenderMissingInfoError
-from .sender_controlfile import LTIGradesSenderControlFile
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -78,81 +75,6 @@ class GradesBaseSender:
         logger.info(f"Grades found: {out}")
         logger.info("Maximum score for this assignment %s" % max_score)
         return max_score, out
-
-
-class LTIGradeSender(GradesBaseSender):
-    """
-    This class implements the grades submission for LTI 1.1
-    """
-
-    def _message_identifier(self):
-        return "{:.0f}".format(time.time())
-
-    async def send_grades(self) -> None:
-        """Sends grades to the tool consumer (LMS).
-
-        A json control file is used to maintain the relationship between the assignment (resource) registered
-        in the database and the tool conumer's (LMS) assignment records. The grades are sent to the endpoint registered
-        with the ``lis_outcome_service_url`` and uses the ``lis_result_sourcedid`` as the assignment's unique identifier.
-        """
-        max_score, nbgrader_grades = self._retrieve_grades_from_db()
-        if not nbgrader_grades:
-            raise AssignmentWithoutGradesError
-        msg_id = self._message_identifier()
-        # create the consumers map {'consumer_key': {'secret': 'shared_secret'}}
-        consumer_key = os.environ.get("LTI_CONSUMER_KEY")
-        shared_secret = os.environ.get("LTI_SHARED_SECRET")
-        # get assignment info from control file
-        grades_sender_file = LTIGradesSenderControlFile(self.gradebook_dir)
-        assignment_info = grades_sender_file.get_assignment_by_name(
-            self.assignment_name
-        )
-        if not assignment_info:
-            logger.warning(
-                f"There is not info related to assignment: {self.assignment_name}. Check if the config file path is correct"
-            )
-            raise GradesSenderMissingInfoError
-
-        url = assignment_info["lis_outcome_service_url"]
-        # for each grade in nbgrader db, use the info saved in control file to process each student submission
-        for grade in nbgrader_grades:
-            # get student lis_result_sourcedid
-            logger.info(f"Retrieving info for student id:{grade['lms_user_id']}")
-            student_array = [
-                s
-                for s in assignment_info["students"]
-                if s["lms_user_id"] == grade["lms_user_id"]
-            ][:1]
-            # student object is an array []
-            if student_array:
-                student = student_array[0]
-                logger.info(f"Student data retrieved sender control file: {student}")
-                # detect if sourcedid contains backslash to escape quotes
-                if '"' in student["lis_result_sourcedid"]:
-                    student["lis_result_sourcedid"] = student[
-                        "lis_result_sourcedid"
-                    ].replace('"', '"')
-
-                score = float(grade["score"])
-                # calculate the percentage
-                max_score = float(max_score)
-                score = score * 100 / max_score / 100
-                outcome_args = {
-                    "lis_outcome_service_url": url,
-                    "lis_result_sourcedid": student["lis_result_sourcedid"],
-                    "consumer_key": consumer_key,
-                    "consumer_secret": shared_secret,
-                }
-                req = OutcomeRequest(outcome_args)
-                # send to lms through lti package (we used pylti before but some errors found with moodle)
-                outcome_result = req.post_replace_result(score)
-                if outcome_result.is_success():
-                    logger.info("Your score was submitted. Great job!")
-                else:
-                    logger.error(
-                        "An error occurred while sending your score to the LMS. Please try again."
-                    )
-                    raise GradesSenderCriticalError
 
 
 class LTI13GradeSender(GradesBaseSender):

@@ -1,93 +1,25 @@
-#  (C) Copyright IllumiDesk, LLC, 2020.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-#  the License. You may obtain a copy of the License at
-
-#  http://www.apache.org/licenses/LICENSE-2.0
-
-#  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-#  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
-#  specific language governing permissions and limitations under the License.
-
 import logging
 import os
 import shutil
 import sys
 from pathlib import Path
 
+from flask import Blueprint
 from flask import jsonify
-
-from illumidesk.grades.senders import LTIGradesSenderControlFile
-
-from . import create_app
-from .graderservice import NB_GID
-from .graderservice import NB_UID
-from .graderservice import GraderServiceLauncher
-from .models import GraderService
-from .models import db
+from graderservice.graderservice import NB_GID
+from graderservice.graderservice import NB_UID
+from graderservice.graderservice import GraderServiceLauncher
+from graderservice.models import GraderService
+from graderservice.models import db
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-app = create_app()
+routes_blueprint = Blueprint("routes", __name__)
 
 
-@app.route("/")
-def hello_world():
-    return "Hello, World!"
-
-
-@app.route(
-    "/control-file/path:<org_name>/path:<assignment_name>/path:<lis_outcome_service_url>/path:<lis_result_sourcedid>/path:<lms_user_id>/path:<course_id>",
-    methods=["POST"],
-)
-def register_control_file(
-    org_name: str,
-    assignment_name: str,
-    lis_outcome_service_url: str,
-    lis_result_sourcedid: str,
-    lms_user_id: str,
-    course_id: str,
-):
-    """
-    Creates a new grades control file
-    Args:
-      org_name: string of the organization name
-      assignment_name: string representation of the assignment name from the LMS (normalized)
-      lis_outcome_service_url: url endpoint that is used to send grades to the LMS with LTI 1.1
-      lis_result_sourcedid: unique assignment or module identifier used with LTI 1.1
-      lms_user_id: unique (opaque) user id
-      course_id: the course id within the lms
-    Returns:
-      JSON: True/False on whether or not the grader service was successfully launched
-    example:
-    ```
-    {
-        success: "True"
-    }
-    ```
-    """
-    launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
-    if not launcher.grader_deployment_exists():
-        try:
-            control_file = LTIGradesSenderControlFile(
-                f"/home/grader-{course_id}/{course_id}"
-            )
-            control_file.register_data(
-                assignment_name,
-                lis_outcome_service_url,
-                lis_result_sourcedid,
-                lms_user_id,
-            )
-        except Exception as e:
-            return jsonify(success=False, message=str(e)), 500
-
-        else:
-            return jsonify(success=True)
-
-
-@app.route("/services/path:<org_name>/path:<course_id>", methods=["POST"])
+@routes_blueprint.route("/services/path:<org_name>/path:<course_id>", methods=["POST"])
 def launch(org_name: str, course_id: str):
     """
     Creates a new grader-notebook pod if not exists
@@ -111,21 +43,22 @@ def launch(org_name: str, course_id: str):
         try:
             launcher.create_grader_deployment()
             # Register the new service to local database
-            new_service = GraderService(
-                name=course_id,
-                course_id=course_id,
-                url=f"http://{launcher.grader_name}:8888",
-                api_token=launcher.grader_token,
-            )
-            db.session.add(new_service)
-            db.session.commit()
+            with routes_blueprint.app_context():
+                new_service = GraderService(
+                    name=course_id,
+                    course_id=course_id,
+                    url=f"http://{launcher.grader_name}:8888",
+                    api_token=launcher.grader_token,
+                )
+                db.session.add(new_service)
+                db.session.commit()
             # then do patch for jhub deployment
             # with this the jhub pod will be restarted and get/load new services
             launcher.update_jhub_deployment()
+            return jsonify(success=True)
+
         except Exception as e:
             return jsonify(success=False, message=str(e)), 500
-
-        return jsonify(success=True)
     else:
         return (
             jsonify(
@@ -136,7 +69,7 @@ def launch(org_name: str, course_id: str):
         )
 
 
-@app.route("/services", methods=["GET"])
+@routes_blueprint.route("/services", methods=["GET"])
 def services():
     """
     Returns the grader-notebook list used as services defined in the JupyterHub config.
@@ -172,7 +105,9 @@ def services():
     return jsonify(services=services_resp, groups=groups_resp)
 
 
-@app.route("/services/path:<org_name>/path:<course_id>", methods=["DELETE"])
+@routes_blueprint.route(
+    "/services/path:<org_name>/path:<course_id>", methods=["DELETE"]
+)
 def services_deletion(org_name: str, course_id: str):
     """Deletes the grader setup service
 
@@ -188,23 +123,24 @@ def services_deletion(org_name: str, course_id: str):
         launcher.delete_grader_deployment()
         service_saved = GraderService.query.filter_by(course_id=course_id).first()
         if service_saved:
-            db.session.delete(service_saved)
-            db.session.commit()
+            with routes_blueprint.app_context():
+                db.session.delete(service_saved)
+                db.session.commit()
         return jsonify(success=True)
     except Exception as e:
         return jsonify(success=False, error=str(e)), 500
 
 
-@app.route(
-    "/courses/path:<org_name>/path:<course_id>/path:<assignment_name>", methods=["POST"]
+@routes_blueprint.route(
+    "/courses/<org_name>/<course_id>/<assignment_name>", methods=["POST"]
 )
 def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str):
     """Creates the directories required to manage assignments.
 
     Args:
-        org_name (str): the organization name
-        course_id (str): the course id (label)
-        assignment_name (str): the assignment name
+        org_name: the organization name
+        course_id: the course id (label)
+        assignment_name: the assignment name
 
     Returns:
         JSON: True if the assignment directories were successfully created, false otherwise
@@ -226,7 +162,7 @@ def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str)
     return jsonify(success=True)
 
 
-@app.route("/healthcheck")
+@routes_blueprint.route("/healthcheck")
 def healthcheck():
     """Healtheck endpoint
 
@@ -234,7 +170,3 @@ def healthcheck():
         JSON: True if the service is alive
     """
     return jsonify(success=True)
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0")

@@ -22,7 +22,6 @@ from tornado.web import Application
 from tornado.web import RequestHandler
 
 from illumidesk.authenticators.utils import LTIUtils
-from illumidesk.grades.sender_controlfile import LTIGradesSenderControlFile
 
 
 @pytest.fixture(scope="module")
@@ -284,14 +283,6 @@ def pem_file(tmp_path):
     return key_path
 
 
-@pytest.fixture
-def grades_controlfile_reset_file_loaded():
-    """
-    Set flag to false to reload control file used in LTIGradesSenterControlFile class
-    """
-    LTIGradesSenderControlFile.FILE_LOADED = False
-
-
 @pytest.fixture(scope="function")
 def setup_jupyterhub_db(monkeypatch):
     """
@@ -369,19 +360,6 @@ def setup_utils_environ(monkeypatch, tmp_path):
     """
     monkeypatch.setenv("JUPYTERHUB_SERVICE_NAME", "jupyterhub")
     monkeypatch.setenv("ILLUMIDESK_DIR", "/home/foo/illumidesk_deployment")
-
-
-@pytest.fixture(scope="function")
-def test_quart_client(monkeypatch, tmp_path):
-    """
-    Set the env-vars required by quart-based application
-    """
-    monkeypatch.setenv("JUPYTERHUB_CONFIG_PATH", str(tmp_path))
-    # important than environ reads JUPYTERHUB_CONFIG_PATH variable before
-    # app initialization
-    from illumidesk.setup_course.app import app
-
-    return app.test_client()
 
 
 @pytest.fixture(scope="function")
@@ -513,8 +491,6 @@ def make_auth_state_dict() -> Dict[str, str]:
                 "course_id": course_id,
                 "lms_user_id": lms_user_id,
                 "user_role": user_role,
-                "lis_outcome_service_url": lis_outcome_service_url,
-                "lis_result_sourcedid": lis_result_sourcedid,
             },  # noqa: E231
         }
 

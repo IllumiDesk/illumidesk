@@ -33,13 +33,11 @@ venv:
 
 dev: venv
 	${PYTHON} -m pip install -e src/illumidesk/.
+	${PYTHON} -m pip install -e src/graderservice/.
 
 lint: venv
 	${VENV_BIN}/flake8 src
 	${VENV_BIN}/black .
-
-test: dev
-	${PYTHON} -m pytest -vv src/illumidesk/tests
 
 clean:
 	find . -name '*.pyc' -exec rm -f {} +

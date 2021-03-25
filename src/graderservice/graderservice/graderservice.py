@@ -1,14 +1,3 @@
-#  (C) Copyright IllumiDesk, LLC, 2020.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
-#  the License. You may obtain a copy of the License at
-
-#  http://www.apache.org/licenses/LICENSE-2.0
-
-#  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-#  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
-#  specific language governing permissions and limitations under the License.
-
 import logging
 import os
 import shutil
@@ -17,12 +6,11 @@ from datetime import datetime
 from pathlib import Path
 from secrets import token_hex
 
+from graderservice.templates import NBGRADER_COURSE_CONFIG_TEMPLATE
+from graderservice.templates import NBGRADER_HOME_CONFIG_TEMPLATE
 from kubernetes import client
 from kubernetes import config
 from kubernetes.config import ConfigException
-
-from .templates import NBGRADER_COURSE_CONFIG_TEMPLATE
-from .templates import NBGRADER_HOME_CONFIG_TEMPLATE
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger(__name__)

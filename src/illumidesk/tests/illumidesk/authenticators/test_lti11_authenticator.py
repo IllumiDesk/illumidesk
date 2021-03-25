@@ -9,18 +9,6 @@ from tornado.web import RequestHandler
 from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTIUtils
 from illumidesk.authenticators.validator import LTI11LaunchValidator
-from illumidesk.grades.senders import LTIGradesSenderControlFile
-
-
-@pytest.fixture(scope="function")
-def gradesender_controlfile_mock():
-    with patch.multiple(
-        "illumidesk.grades.sender_controlfile.LTIGradesSenderControlFile",
-        _loadFromFile=Mock(),
-        register_data=Mock(return_value=None),
-    ) as mock_controlfile:
-        with patch("pathlib.Path.mkdir"):
-            yield mock_controlfile
 
 
 @pytest.mark.asyncio
@@ -28,7 +16,6 @@ def gradesender_controlfile_mock():
 async def test_authenticator_returns_auth_state_with_canvas_fields(
     mock_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -55,8 +42,6 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Instructor",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -67,7 +52,6 @@ async def test_authenticator_returns_auth_state_with_canvas_fields(
 async def test_authenticator_returns_auth_state_with_other_lms_vendor(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -94,8 +78,6 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Instructor",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -104,7 +86,6 @@ async def test_authenticator_returns_auth_state_with_other_lms_vendor(
 @pytest.mark.asyncio
 async def test_authenticator_uses_lti11validator(
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -138,7 +119,6 @@ async def test_authenticator_uses_lti11validator(
 @pytest.mark.asyncio
 async def test_authenticator_uses_lti_utils_normalize_string(
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -172,57 +152,9 @@ async def test_authenticator_uses_lti_utils_normalize_string(
 
 
 @pytest.mark.asyncio
-@patch("pathlib.Path.mkdir")
-async def test_authenticator_uses_lti_grades_sender_control_file_with_instructor_role(
-    mock_mkdir, tmp_path, make_lti11_success_authentication_request_args, mock_nbhelper
-):
-    """
-    Is the LTIGradesSenderControlFile class register_data method called when setting the user_role with the
-    Instructor string?
-    """
-
-    def _change_flag():
-        LTIGradesSenderControlFile.FILE_LOADED = True
-
-    with patch.object(
-        LTI11LaunchValidator, "validate_launch_request", return_value=True
-    ):
-        with patch.object(
-            LTIGradesSenderControlFile, "register_data", return_value=None
-        ) as mock_register_data:
-            with patch.object(
-                LTIGradesSenderControlFile, "_loadFromFile", return_value=None
-            ) as mock_loadFromFileMethod:
-                mock_loadFromFileMethod.side_effect = _change_flag
-                authenticator = LTI11Authenticator()
-                handler = Mock(spec=RequestHandler)
-                request = HTTPServerRequest(
-                    method="POST",
-                    connection=Mock(),
-                )
-                handler.request = request
-                handler.request.arguments = (
-                    make_lti11_success_authentication_request_args(
-                        lms_vendor="canvas", role="Instructor"
-                    )
-                )
-                handler.request.get_argument = lambda x, strip=True: make_lti11_success_authentication_request_args(
-                    "Instructor"
-                )[
-                    x
-                ][
-                    0
-                ].decode()
-
-                _ = await authenticator.authenticate(handler, None)
-                assert mock_register_data.assert_not_called
-
-
-@pytest.mark.asyncio
 async def test_authenticator_invokes_validator_with_decoded_dict(
     make_lti11_success_authentication_request_args,
     mock_nbhelper,
-    gradesender_controlfile_mock,
 ):
     """
     Does the authentictor call the validator?
@@ -261,7 +193,6 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
     lti11_validator,
     make_lti11_success_authentication_request_args,
     mock_nbhelper,
-    gradesender_controlfile_mock,
 ):
     """
     Are we able to handle requests with a missing lis_outcome_service_url key?
@@ -289,8 +220,6 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Learner",
-                "lis_outcome_service_url": "",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -301,7 +230,6 @@ async def test_authenticator_returns_auth_state_with_missing_lis_outcome_service
 async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedid(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -330,8 +258,6 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Learner",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "",
             },
         }
         assert result == expected
@@ -342,7 +268,6 @@ async def test_authenticator_returns_auth_state_with_missing_lis_result_sourcedi
 async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -371,8 +296,6 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Learner",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "",
             },
         }
         assert result == expected
@@ -383,7 +306,6 @@ async def test_authenticator_returns_auth_state_with_empty_lis_result_sourcedid(
 async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_url(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -412,8 +334,6 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Learner",
-                "lis_outcome_service_url": "",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -424,7 +344,6 @@ async def test_authenticator_returns_auth_state_with_empty_lis_outcome_service_u
 async def test_authenticator_returns_correct_username_when_using_email_as_username(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -455,8 +374,6 @@ async def test_authenticator_returns_correct_username_when_using_email_as_userna
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Instructor",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -467,7 +384,6 @@ async def test_authenticator_returns_correct_username_when_using_email_as_userna
 async def test_authenticator_returns_correct_course_id_when_using_context_label_given_as_course_name(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -496,8 +412,6 @@ async def test_authenticator_returns_correct_course_id_when_using_context_label_
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Instructor",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -508,7 +422,6 @@ async def test_authenticator_returns_correct_course_id_when_using_context_label_
 async def test_authenticator_returns_correct_course_id_when_using_context_title_given_as_course_name(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -537,8 +450,6 @@ async def test_authenticator_returns_correct_course_id_when_using_context_title_
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Instructor",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -549,7 +460,6 @@ async def test_authenticator_returns_correct_course_id_when_using_context_title_
 async def test_authenticator_returns_correct_username_when_using_lis_person_name_given_as_username(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -580,8 +490,6 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Instructor",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -592,7 +500,6 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
 async def test_authenticator_returns_correct_username_when_using_lis_person_name_family_as_username(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -623,8 +530,6 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Instructor",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -635,7 +540,6 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
 async def test_authenticator_returns_correct_username_when_using_lis_person_name_full_as_username(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -666,8 +570,6 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Instructor",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -678,7 +580,6 @@ async def test_authenticator_returns_correct_username_when_using_lis_person_name
 async def test_authenticator_returns_username_from_user_id_with_another_lms(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -703,14 +604,12 @@ async def test_authenticator_returns_username_from_user_id_with_another_lms(
         )
         result = await authenticator.authenticate(handler, None)
         expected = {
-            "name": "student1",
+            "name": "185d6c59731a553009ca9b59c",
             "auth_state": {
-                "assignment_name": "illumidesk",
+                "assignment_name": "test-assignment",
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Instructor",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
@@ -718,24 +617,9 @@ async def test_authenticator_returns_username_from_user_id_with_another_lms(
 
 @pytest.mark.asyncio
 @patch("illumidesk.authenticators.authenticator.LTI11LaunchValidator")
-async def test_authenticator_returns_username_from_user_id_with_another_lms(
-    lti11_validator,
-    make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
-    mock_nbhelper,
-):
-    """
-    Ensure the lti 1.1 args for the control file are returned with the auth dict
-    """
-    pass
-
-
-@pytest.mark.asyncio
-@patch("illumidesk.authenticators.authenticator.LTI11LaunchValidator")
 async def test_authenticator_returns_login_id_plus_user_id_as_username_with_canvas(
     lti11_validator,
     make_lti11_success_authentication_request_args,
-    gradesender_controlfile_mock,
     mock_nbhelper,
 ):
     """
@@ -768,8 +652,6 @@ async def test_authenticator_returns_login_id_plus_user_id_as_username_with_canv
                 "course_id": "intro101",
                 "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
                 "user_role": "Instructor",
-                "lis_outcome_service_url": "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-                "lis_result_sourcedid": "feb-123-456-2929::28883",
             },
         }
         assert result == expected
