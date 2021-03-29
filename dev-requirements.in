@@ -4,7 +4,7 @@ coverage==5.5
 flake8==3.8.4
 flask==1.1.2
 flask-sqlalchemy==2.5.1
-gunicorn==20.0.4
+gunicorn==20.1.0
 isort==5.7.0
 kubernetes==12.0.1
 mock==4.0.2
