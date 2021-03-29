@@ -9,12 +9,11 @@
 #  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 #  specific language governing permissions and limitations under the License.
 
-from flask import Flask
-
 import os
 
-from .models import db
+from flask import Flask
 
+from .models import db
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
 database_file = "sqlite:///{}".format(os.path.join(project_dir, "gradersetup.db.sqlite3"))

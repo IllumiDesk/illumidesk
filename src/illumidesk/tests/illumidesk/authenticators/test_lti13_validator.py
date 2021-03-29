@@ -1,8 +1,7 @@
-import pytest
-
-from tornado.web import HTTPError
-
 from unittest.mock import patch
+
+import pytest
+from tornado.web import HTTPError
 
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 

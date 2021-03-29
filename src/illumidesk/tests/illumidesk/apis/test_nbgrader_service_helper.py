@@ -1,6 +1,6 @@
-import pytest
-
 from unittest.mock import patch
+
+import pytest
 
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.nbgrader_service import nbgrader_format_db_url
