@@ -1,5 +1,4 @@
 import pytest
-
 from tornado.web import HTTPError
 
 from illumidesk.authenticators.authenticator import LTI11LaunchValidator

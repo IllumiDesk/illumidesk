@@ -6,7 +6,7 @@
 newIssueWelcomeComment: >
   Thanks for opening your first issue here! We would like to help you as efficiently as possible
   so would very much appreciate if you use one of the provided Issue templates to document your feature,
-  o but report. 
+  o but report.
 
 # Configuration for new-pr-welcome - https://github.com/behaviorbot/new-pr-welcome
 
@@ -22,4 +22,3 @@ newPRWelcomeComment: >
 # Comment to be posted to on pull requests merged by a first time user
 firstPRMergeComment: >
   Congrats on merging your first pull request! You are now an official IllumiDesk contributor :smile:!
-

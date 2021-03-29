@@ -1,37 +1,30 @@
-import os
 import logging
-
-from jupyterhub.auth import Authenticator
-from jupyterhub.app import JupyterHub
-from jupyterhub.handlers import BaseHandler
-
-from ltiauthenticator import LTIAuthenticator
-
-from oauthenticator.oauth2 import OAuthenticator
-
-from tornado.web import HTTPError
-from tornado.web import RequestHandler
-
-from traitlets import Unicode
-
+import os
 from typing import Any
 from typing import Dict
 
+from jupyterhub.app import JupyterHub
+from jupyterhub.auth import Authenticator
+from jupyterhub.handlers import BaseHandler
+from ltiauthenticator import LTIAuthenticator
+from oauthenticator.oauth2 import OAuthenticator
+from tornado.web import HTTPError
+from tornado.web import RequestHandler
+from traitlets import Unicode
+
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
-from illumidesk.apis.setup_course_service import register_new_service
 from illumidesk.apis.setup_course_service import create_assignment_source_dir
-
+from illumidesk.apis.setup_course_service import register_control_file
+from illumidesk.apis.setup_course_service import register_new_service
 from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
-from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
-from illumidesk.authenticators.utils import LTIUtils, user_is_an_instructor
+from illumidesk.authenticators.handlers import LTI13LoginHandler
+from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.authenticators.utils import user_is_a_student
+from illumidesk.authenticators.utils import user_is_an_instructor
 from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
-
-from illumidesk.grades.senders import LTIGradesSenderControlFile
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -72,17 +65,39 @@ async def setup_course_hook(
     username = lti_utils.normalize_string(authentication['name'])
     lms_user_id = authentication['auth_state']['lms_user_id']
     user_role = authentication['auth_state']['user_role']
+
+    # lti 1.1 specific items
+    lis_outcome_service_url = ''
+    lis_result_sourcedid = ''
+    assignment_name = ''
+    if 'lis_outcome_service_url' in authentication['auth_state']['lis_outcome_service_url']:
+        lis_outcome_service_url = authentication['auth_state']['lis_outcome_service_url']
+    if 'lis_result_sourcedid' in authentication['auth_state']['lis_outcome_service_url']:
+        lis_result_sourcedid = authentication['auth_state']['lis_outcome_service_url']
+    if 'assignment_name' in authentication['auth_state']['assignment_name']:
+        assignment_name = lti_utils.normalize_string(authentication['auth_state']['assignment_name'])
+
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
     nb_service.add_user_to_nbgrader_gradebook(username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
     if user_is_a_student(user_role):
         # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
         await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+        # add or update the lti 1.1 grader control file
+        if lis_outcome_service_url and lis_result_sourcedid:
+            _ = await register_control_file(
+                lis_outcome_service_url=lis_outcome_service_url,
+                lis_result_sourcedid=lis_result_sourcedid,
+                assignment_name=assignment_name,
+                course_id=course_id,
+                lms_user_id=lms_user_id,
+            )
     elif user_is_an_instructor(user_role):
         # assign the user in 'formgrade-<course_id>' group
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
-    # launch the new (?) grader-notebook as a service
-    setup_response = await register_new_service(org_name=ORG_NAME, course_id=course_id)
+
+    # launch the new grader-notebook as a service
+    _ = await register_new_service(org_name=ORG_NAME, course_id=course_id)
 
     return authentication
 
@@ -241,10 +256,7 @@ class LTI11Authenticator(LTIAuthenticator):
                 lis_outcome_service_url = args['lis_outcome_service_url']
             if 'lis_result_sourcedid' in args and args['lis_result_sourcedid']:
                 lis_result_sourcedid = args['lis_result_sourcedid']
-            # only if both values exist we can register them to submit grades later
-            if lis_outcome_service_url and lis_result_sourcedid:
-                control_file = LTIGradesSenderControlFile(f'/home/grader-{course_id}/{course_id}')
-                control_file.register_data(assignment_name, lis_outcome_service_url, lms_user_id, lis_result_sourcedid)
+
             # Assignment creation
             if assignment_name:
                 nbgrader_service = NbGraderServiceHelper(course_id, True)
@@ -259,9 +271,12 @@ class LTI11Authenticator(LTIAuthenticator):
             return {
                 'name': username_normalized,
                 'auth_state': {
+                    'assignment_name': assignment_name,
                     'course_id': course_id,
                     'lms_user_id': lms_user_id,
                     'user_role': user_role,
+                    'lis_outcome_service_url': lis_outcome_service_url,
+                    'lis_result_sourcedid': lis_result_sourcedid,
                 },  # noqa: E231
             }
 
@@ -379,7 +394,7 @@ class LTI13Authenticator(OAuthenticator):
                 ]
             # if there is a resource link request then process additional steps
             if not validator.is_deep_link_launch(jwt_decoded):
-                await process_resource_link(self.log, course_id, jwt_decoded)
+                await process_resource_link_lti_13(self.log, course_id, jwt_decoded)
 
             lms_user_id = jwt_decoded['sub'] if 'sub' in jwt_decoded else username
 
@@ -398,7 +413,7 @@ class LTI13Authenticator(OAuthenticator):
             }
 
 
-async def process_resource_link(
+async def process_resource_link_lti_13(
     logger: Any,
     course_id: str,
     jwt_body_decoded: Dict[str, Any],

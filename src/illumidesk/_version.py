@@ -3,7 +3,7 @@
 # for now, update the version so that its the same as the one reflected
 # within the repo's root package.json
 version_info = (
-    1,
+    2,
     0,
     0,
 )

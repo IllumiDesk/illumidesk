@@ -1,7 +1,7 @@
 
 [flake8]
 # Explicitly ignore rules to maintain better compatibility with black.
-# 
+#
 # F403: import *
 # F811: redefinition of unused `name` from line `N`
 # F841: local variable assigned but never used
@@ -11,7 +11,7 @@
 # D400: first line should end with a period.
 # E203: colons should not have any space before them.
 # E231: missing whitespace after ','
-# E501: line lengths are recommended to be no greater than 79 characters. 
+# E501: line lengths are recommended to be no greater than 79 characters.
 # E503: there is no need for backslashes between brackets.
 # W293: line break before binary operator
 # W293: blank line contains whitespace
@@ -23,7 +23,6 @@ max-complexity = 15
 max-line-length = 119
 builtins = c, get_config
 exclude =
-    .ansible,
     .cache,
     __pycache__,
     .github,
@@ -31,7 +30,6 @@ exclude =
     .pytest_cache,
     .travis,
     .vscode,
-    ansible,
     docs,
     node_modules,
     venv

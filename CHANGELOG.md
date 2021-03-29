@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 2.0.0 (2021-03-16)
+
+### ⚠ BREAKING CHANGES
+
+* **core:** Default uses the Postgres database and no longer supports SQLite for shared grader notebooks.
+
+### Refactor
+
+* Refactor to improve how the grader control file is used with the LTI 1.1 authenticator ([#574]https://github.com/IllumiDesk/illumidesk/pull/524)) ([638a73e7]https://github.com/IllumiDesk/illumidesk/commit/638a73e76ba68062a73f47a3fa4e05a836efa296)
+
+
+### Fixes
+
+* Fix metadata spelling for function that loads JupyterHub services ([#519](https://github.com/IllumiDesk/illumidesk/issues/519)) ([8a5724b]https://github.com/IllumiDesk/illumidesk/commit/8a5724bd1d82914669fbad98000be14db607185f))
+
+
 ### 1.1.1 (2021-02-16)
 
 ## Dependencies
