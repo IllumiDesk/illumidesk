@@ -38,7 +38,7 @@ distlib==0.3.1
     # via virtualenv
 filelock==3.0.12
     # via virtualenv
-flake8==3.8.4
+flake8==3.9.0
     # via -r dev-requirements.in
 flask-sqlalchemy==2.5.1
     # via -r dev-requirements.in
@@ -94,9 +94,9 @@ pyasn1==0.4.8
     # via
     #   pyasn1-modules
     #   rsa
-pycodestyle==2.6.0
+pycodestyle==2.7.0
     # via flake8
-pyflakes==2.2.0
+pyflakes==2.3.0
     # via flake8
 pyparsing==2.4.7
     # via packaging
