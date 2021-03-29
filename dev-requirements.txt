@@ -48,7 +48,7 @@ flask==1.1.2
     #   flask-sqlalchemy
 google-auth==1.24.0
     # via kubernetes
-gunicorn==20.0.4
+gunicorn==20.1.0
     # via -r dev-requirements.in
 identify==1.5.5
     # via pre-commit
@@ -56,6 +56,8 @@ idna==2.10
     # via requests
 iniconfig==1.0.1
     # via pytest
+isort==5.7.0
+    # via -r dev-requirements.in
 itsdangerous==1.1.0
     # via flask
 jinja2==2.11.2
