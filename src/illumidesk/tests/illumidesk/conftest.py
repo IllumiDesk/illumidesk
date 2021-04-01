@@ -481,8 +481,6 @@ def make_auth_state_dict() -> Dict[str, str]:
         course_id: str = "intro101",
         lms_user_id: str = "abc123",
         user_role: str = "Learner",
-        lis_outcome_service_url: str = "http://www.imsglobal.org/developers/LTI/test/v1p1/common/tool_consumer_outcome.php?b64=MTIzNDU6OjpzZWNyZXQ=",
-        lis_result_sourcedid: str = "feb-123-456-2929::28883",
     ):
         return {
             "name": username,

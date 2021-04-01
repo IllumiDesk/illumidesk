@@ -1,10 +1,11 @@
-import logging
-import sys
+import logging.config
+from os import path
 
 from graderservice import create_app
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+log_file_path = path.join(path.dirname(path.abspath(__file__)), "logging_config.ini")
+logging.config.fileConfig(log_file_path)
+logger = logging.getLogger()
 
 
 app = create_app()

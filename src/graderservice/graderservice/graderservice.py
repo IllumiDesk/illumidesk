@@ -1,8 +1,9 @@
 import logging
+import logging.config
 import os
 import shutil
-import sys
 from datetime import datetime
+from os import path
 from pathlib import Path
 from secrets import token_hex
 
@@ -12,8 +13,12 @@ from kubernetes import client
 from kubernetes import config
 from kubernetes.config import ConfigException
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+log_file_path = path.join(path.dirname(path.abspath(__file__)), "logging_config.ini")
+logging.config.fileConfig(log_file_path)
+logger = logging.getLogger()
+
+logging.getLogger("asyncio").setLevel(logging.WARNING)
+
 
 # namespace to deploy new pods
 NAMESPACE = os.environ.get("ILLUMIDESK_K8S_NAMESPACE", "default")
@@ -87,6 +92,8 @@ class GraderServiceLauncher:
             namespace=NAMESPACE, field_selector=f"metadata.name={self.grader_name}"
         )
         if deployment_list and deployment_list.items:
+            logger.info("Deployment exists for %s", self.grader_name)
+            print("Deployment exists for %s", self.grader_name)
             return True
 
         return False
@@ -98,6 +105,8 @@ class GraderServiceLauncher:
             namespace=NAMESPACE, field_selector=f"metadata.name={self.grader_name}"
         )
         if service_list and service_list.items:
+            logger.info("Service exists for %s", self.grader_name)
+            print("Service exists for %s", self.grader_name)
             return True
 
         return False
@@ -122,6 +131,7 @@ class GraderServiceLauncher:
             body=deployment, namespace=NAMESPACE
         )
         logger.info(f'Deployment created. Status="{str(api_response.status)}"')
+        print(f'Deployment created. Status="{str(api_response.status)}"')
         # Create grader service
         service = self._create_service_object()
         self.coreV1Api.create_namespaced_service(namespace=NAMESPACE, body=service)
@@ -139,14 +149,16 @@ class GraderServiceLauncher:
         - grader_root: /<org-name>/home/grader-<course-id>
         - course_root: /<org-name>/home/grader-<course-id>/<course-id>
         """
-        logger.debug(
+        logger.info(
             f'Create course directory "{self.course_dir}" with special permissions {NB_UID}:{NB_GID}'
         )
         self.course_dir.mkdir(parents=True, exist_ok=True)
         # change the course directory owner
         shutil.chown(str(self.course_dir), user=NB_UID, group=NB_GID)
+        logger.info("Updated permissions for %s", self.course_dir)
         # change the grader-home directory owner
         shutil.chown(str(self.course_dir.parent), user=NB_UID, group=NB_GID)
+        logger.info("Change grader home directory owner %s", self.course_dir)
 
     def _create_nbgrader_files(self):
         """Creates nbgrader configuration files used in the grader's home directory and the
@@ -254,7 +266,7 @@ class GraderServiceLauncher:
                 ),
             ],
         )
-        # Create and configurate a spec section
+        # Create and configure a spec section
         template = client.V1PodTemplateSpec(
             metadata=client.V1ObjectMeta(
                 labels={"component": self.grader_name, "app": "illumidesk"}
@@ -329,3 +341,4 @@ class GraderServiceLauncher:
                     name="hub", namespace=NAMESPACE, body=deployment
                 )
                 logger.info(f"Jhub patch response:{api_response}")
+                print(f"Jhub patch response:{api_response}")

@@ -78,7 +78,7 @@ async def setup_course_hook(
         await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
 
     # launch the new grader-notebook as a service
-    _ = await register_new_service(org_name=ORG_NAME, course_id=course_id)
+    new_setup = await register_new_service(org_name=ORG_NAME, course_id=course_id)
 
     return authentication
 

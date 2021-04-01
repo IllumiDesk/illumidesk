@@ -1,7 +1,7 @@
-import logging
+import logging.config
 import os
 import shutil
-import sys
+from os import path
 from pathlib import Path
 
 from flask import Blueprint
@@ -12,14 +12,15 @@ from graderservice.graderservice import GraderServiceLauncher
 from graderservice.models import GraderService
 from graderservice.models import db
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+log_file_path = path.join(path.dirname(path.abspath(__file__)), "logging_config.ini")
+logging.config.fileConfig(log_file_path)
+logger = logging.getLogger()
 
 
 routes_blueprint = Blueprint("routes", __name__)
 
 
-@routes_blueprint.route("/services/path:<org_name>/path:<course_id>", methods=["POST"])
+@routes_blueprint.route("/services/<org_name>/<course_id>", methods=["POST"])
 def launch(org_name: str, course_id: str):
     """
     Creates a new grader-notebook pod if not exists
@@ -42,6 +43,10 @@ def launch(org_name: str, course_id: str):
     if not launcher.grader_deployment_exists():
         try:
             launcher.create_grader_deployment()
+            logger.info(
+                "Creating grader deployment for org %s and course %s"
+                % (org_name, course_id)
+            )
             # Register the new service to local database
             with routes_blueprint.app_context():
                 new_service = GraderService(
@@ -58,8 +63,10 @@ def launch(org_name: str, course_id: str):
             return jsonify(success=True)
 
         except Exception as e:
+            logger.error("Exception when calling create_grader_deployment() %s" % e)
             return jsonify(success=False, message=str(e)), 500
     else:
+        logger.info("A grader service exists for the course_id %s" % course_id)
         return (
             jsonify(
                 success=False,
@@ -102,18 +109,18 @@ def services():
         )
         # add the jhub user group
         groups_resp.update({f"formgrade-{s.course_id}": [f"grader-{s.course_id}"]})
+        logger.debug("Adding formgrade-%s and grader-%s to response" % s.course_id)
+    logger.info("Services response %s and %s" % (services_resp, groups_resp))
     return jsonify(services=services_resp, groups=groups_resp)
 
 
-@routes_blueprint.route(
-    "/services/path:<org_name>/path:<course_id>", methods=["DELETE"]
-)
+@routes_blueprint.route("/services/<org_name>/<course_id>", methods=["DELETE"])
 def services_deletion(org_name: str, course_id: str):
     """Deletes the grader setup service
 
     Args:
-        org_name (str): the organization name
-        course_id (str): the course id (label)
+        org_name: the organization name
+        course_id: the course id (label)
 
     Returns:
         JSON: True if the grader was successfully deleted false otherwise
@@ -126,8 +133,10 @@ def services_deletion(org_name: str, course_id: str):
             with routes_blueprint.app_context():
                 db.session.delete(service_saved)
                 db.session.commit()
+        logger.info("Deleting grader service for course %s:" % course_id)
         return jsonify(success=True)
     except Exception as e:
+        logger.error("Exception when calling delete_grader_deployment(): %s" % e)
         return jsonify(success=False, error=str(e)), 500
 
 
@@ -154,11 +163,20 @@ def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str)
             "Creating source dir %s for the assignment %s"
             % (assignment_dir, assignment_name)
         )
-        os.makedirs(assignment_dir)
-    logger.info("Fixing folder permissions for %s" % assignment_dir)
-    shutil.chown(str(Path(assignment_dir).parent), user=NB_UID, group=NB_GID)
-    shutil.chown(str(assignment_dir), user=NB_UID, group=NB_GID)
-
+        try:
+            os.makedirs(assignment_dir)
+        except Exception as e:
+            logger.error("Exception when making assignmen directory: %s" % e)
+    try:
+        shutil.chown(str(Path(assignment_dir).parent), user=NB_UID, group=NB_GID)
+        logger.debug(
+            f"Updating permissions for {str(Path(assignment_dir).parent)} with {NB_UID} and {NB_GID}"
+        )
+        shutil.chown(str(assignment_dir), user=NB_UID, group=NB_GID)
+        logger.debug(f"Creating new assignment directory {assignment_dir} OK")
+    except Exception as e:
+        logger.error(f"Exception when updating assignment directory permissions: {e}")
+    logger.info("Creating new assignment directory %s OK" % assignment_dir)
     return jsonify(success=True)
 
 
@@ -169,4 +187,5 @@ def healthcheck():
     Returns:
         JSON: True if the service is alive
     """
+    logger.debug("Health check reponse OK")
     return jsonify(success=True)
