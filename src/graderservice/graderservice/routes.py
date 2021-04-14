@@ -17,10 +17,10 @@ logging.config.fileConfig(log_file_path)
 logger = logging.getLogger()
 
 
-routes_blueprint = Blueprint("routes", __name__)
+grader_setup_bp = Blueprint("grader_setup_bp", __name__)
 
 
-@routes_blueprint.route("/services/<org_name>/<course_id>", methods=["POST"])
+@grader_setup_bp.route("/services/<org_name>/<course_id>", methods=["POST"])
 def launch(org_name: str, course_id: str):
     """
     Creates a new grader-notebook pod if not exists
@@ -48,19 +48,21 @@ def launch(org_name: str, course_id: str):
                 % (org_name, course_id)
             )
             # Register the new service to local database
-            with routes_blueprint.app_context():
-                new_service = GraderService(
-                    name=course_id,
-                    course_id=course_id,
-                    url=f"http://{launcher.grader_name}:8888",
-                    api_token=launcher.grader_token,
-                )
-                db.session.add(new_service)
-                db.session.commit()
+            new_service = GraderService(
+                name=course_id,
+                course_id=course_id,
+                url=f"http://{launcher.grader_name}:8888",
+                api_token=launcher.grader_token,
+            )
+            db.session.add(new_service)
+            db.session.commit()
             # then do patch for jhub deployment
             # with this the jhub pod will be restarted and get/load new services
             launcher.update_jhub_deployment()
-            return jsonify(success=True)
+            return jsonify(
+                success=True,
+                message=f"Created new grader service for: {course_id}",
+            )
 
         except Exception as e:
             logger.error("Exception when calling create_grader_deployment() %s" % e)
@@ -76,7 +78,7 @@ def launch(org_name: str, course_id: str):
         )
 
 
-@routes_blueprint.route("/services", methods=["GET"])
+@grader_setup_bp.route("/services", methods=["GET"])
 def services():
     """
     Returns the grader-notebook list used as services defined in the JupyterHub config.
@@ -116,7 +118,7 @@ def services():
     return jsonify(services=services_resp, groups=groups_resp)
 
 
-@routes_blueprint.route("/services/<org_name>/<course_id>", methods=["DELETE"])
+@grader_setup_bp.route("/services/<org_name>/<course_id>", methods=["DELETE"])
 def services_deletion(org_name: str, course_id: str):
     """Deletes the grader setup service
 
@@ -132,17 +134,19 @@ def services_deletion(org_name: str, course_id: str):
         launcher.delete_grader_deployment()
         service_saved = GraderService.query.filter_by(course_id=course_id).first()
         if service_saved:
-            with routes_blueprint.app_context():
-                db.session.delete(service_saved)
-                db.session.commit()
-        logger.info("Deleting grader service for course %s:" % course_id)
-        return jsonify(success=True)
+            db.session.delete(service_saved)
+            db.session.commit()
+        logger.info("Deleted grader service for course %s:" % course_id)
+        return jsonify(
+            success=True,
+            message=f"Deleted grader service for course: {course_id}",
+        )
     except Exception as e:
         logger.error("Exception when calling delete_grader_deployment(): %s" % e)
         return jsonify(success=False, error=str(e)), 500
 
 
-@routes_blueprint.route(
+@grader_setup_bp.route(
     "/courses/<org_name>/<course_id>/<assignment_name>", methods=["POST"]
 )
 def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str):
@@ -179,10 +183,13 @@ def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str)
     except Exception as e:
         logger.error(f"Exception when updating assignment directory permissions: {e}")
     logger.info("Creating new assignment directory %s OK" % assignment_dir)
-    return jsonify(success=True)
+    return jsonify(
+        success=True,
+        message=f"Created new assignment directory: {assignment_dir}",
+    )
 
 
-@routes_blueprint.route("/healthcheck")
+@grader_setup_bp.route("/healthcheck")
 def healthcheck():
     """Healtheck endpoint
 

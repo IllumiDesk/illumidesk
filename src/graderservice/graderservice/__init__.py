@@ -1,12 +1,13 @@
 import os
 
 from flask import Flask
-from graderservice.models import db
-from graderservice.routes import routes_blueprint
+
+from .models import db
+from .routes import grader_setup_bp
 
 project_dir = os.path.dirname(os.path.abspath(__file__))
 database_file = "sqlite:///{}".format(
-    os.path.join(project_dir, "graderervice.db.sqlite3")
+    os.path.join(project_dir, "graderservice.db.sqlite3")
 )
 
 
@@ -17,7 +18,7 @@ def create_app():
         flask_app: the Flask application object
     """
     app = Flask(__name__)
-    app.register_blueprint(routes_blueprint)
+    app.register_blueprint(grader_setup_bp)
     app.config["SQLALCHEMY_DATABASE_URI"] = database_file
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.app_context().push()
