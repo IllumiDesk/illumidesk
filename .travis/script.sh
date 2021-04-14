@@ -4,7 +4,7 @@ set -e
 
 run_linters () {
   echo "Running linters ..."
-  isort 
+  isort .
   flake8 src/
   black --check src/
 }

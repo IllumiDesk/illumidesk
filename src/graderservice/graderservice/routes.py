@@ -109,7 +109,9 @@ def services():
         )
         # add the jhub user group
         groups_resp.update({f"formgrade-{s.course_id}": [f"grader-{s.course_id}"]})
-        logger.debug("Adding formgrade-%s and grader-%s to response" % s.course_id)
+        logger.debug(
+            "Adding formgrade-%s and grader-%s to response" % (s.course_id, s.course_id)
+        )
     logger.info("Services response %s and %s" % (services_resp, groups_resp))
     return jsonify(services=services_resp, groups=groups_resp)
 
