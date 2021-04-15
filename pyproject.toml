@@ -1,6 +1,5 @@
 [tool.black]
-skip-string-normalization = true
-line-length = 119
+line-length = 88
 target-version = ['py38']
 include = '\.pyi?$'
 exclude = '''
@@ -8,11 +7,9 @@ exclude = '''
   /(
       \.eggs
     | \.git
-    | \.ipynb_checkpoints
+    | \.hg
     | \.mypy_cache
-    | \.pytest_cache
-    | \.travis
-    | \.vscode
+    | \.tox
     | \.venv
     | _build
     | build

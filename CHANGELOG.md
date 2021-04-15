@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 3.0.0 (2021-04-15)
+
+### ⚠ BREAKING CHANGES
+
+* removes send grades feature from LTI 1.1.
+* **core:** Default uses the Postgres database and no longer supports SQLite for shared grader notebooks.
+
+### Features
+
+* Deprecate sending grades with LTI 1.1 ([#536](https://github.com/IllumiDesk/illumidesk/issues/536)) ([88e905f](https://github.com/IllumiDesk/illumidesk/commit/88e905f0ecf9eb44ecdb2e58f15598430b9a37c7))
+### Bug Fixes
+
+* Updates routes to fix error where the JupyterHub rolling update was not initiated ([#546](https://github.com/IllumiDesk/illumidesk/issues/546)) ([ecf4e8c](https://github.com/IllumiDesk/illumidesk/commit/ecf4e8c4d0567567c788fd0f20538e3a474f8ac2))
+
 ## 2.0.0 (2021-03-16)
 
 ### ⚠ BREAKING CHANGES
