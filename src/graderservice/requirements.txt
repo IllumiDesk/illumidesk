@@ -1,0 +1,5 @@
+# Flask app
+flask==1.1.2
+flask-sqlalchemy==2.4.4
+gunicorn==20.0.4
+kubernetes==12.0.0

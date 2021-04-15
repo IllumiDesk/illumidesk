@@ -35,11 +35,20 @@ $ git checkout -b branch-name-here
 ```
 
 7.  Make the appropriate changes for the issue you are trying to address or the feature that you want to add. Validate your changes by following the steps in the "How do I validate my changes" segment below.
+
 8.  Confirm that unit tests still pass successfully with:
 
 ```
+$ cd src/illumidesk
 $ python3 -m pytest
 ```
+or
+
+```
+$ cd src/graderservice
+$ python3 -m pytest
+```
+
 If tests fail, don't hesitate to ask for help.
 
 9.  Add and commit the changed files using `git add` and `git commit -m "my commit message here"`. You may notice that some commands run right after running `git commit ...`. These commands are run with the `pre-commit` hooks defined in the `.pre-commit-config.yaml` configuration file.

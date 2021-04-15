@@ -46,6 +46,7 @@ flask==1.1.2
     # via
     #   -r dev-requirements.in
     #   flask-sqlalchemy
+    #   pytest-flask
 google-auth==1.24.0
     # via kubernetes
 gunicorn==20.1.0
@@ -96,13 +97,15 @@ pyasn1==0.4.8
     #   rsa
 pycodestyle==2.7.0
     # via flake8
-pyflakes==2.3.0
+pyflakes==2.3.1
     # via flake8
 pyparsing==2.4.7
     # via packaging
 pytest-asyncio==0.14.0
     # via -r dev-requirements.in
 pytest-cov==2.10.1
+    # via -r dev-requirements.in
+pytest-flask==1.2.0
     # via -r dev-requirements.in
 pytest-html==3.0.0
     # via -r dev-requirements.in
@@ -117,12 +120,13 @@ pytest==6.2.2
     #   -r dev-requirements.in
     #   pytest-asyncio
     #   pytest-cov
+    #   pytest-flask
     #   pytest-html
     #   pytest-metadata
     #   pytest-mock
 python-dateutil==2.8.1
     # via kubernetes
-pyyaml==5.3.1
+pyyaml==5.4
     # via
     #   kubernetes
     #   pre-commit
@@ -167,8 +171,6 @@ virtualenv==20.0.33
 websocket-client==0.57.0
     # via kubernetes
 werkzeug==1.0.1
-    # via flask
-
-# The following packages are considered to be unsafe in a requirements file:
-# pip
-# setuptools
+    # via
+    #   flask
+    #   pytest-flask

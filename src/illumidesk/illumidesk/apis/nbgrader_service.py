@@ -14,16 +14,16 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-nbgrader_db_host = os.environ.get('POSTGRES_NBGRADER_HOST')
-nbgrader_db_port = os.environ.get('POSTGRES_NBGRADER_PORT') or 5432
-nbgrader_db_password = os.environ.get('POSTGRES_NBGRADER_PASSWORD')
-nbgrader_db_user = os.environ.get('POSTGRES_NBGRADER_USER')
-mnt_root = os.environ.get('ILLUMIDESK_MNT_ROOT', '/illumidesk-courses')
+nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
+nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT") or 5432
+nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
+nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
+mnt_root = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 
-org_name = os.environ.get('ORGANIZATION_NAME') or 'my-org'
+org_name = os.environ.get("ORGANIZATION_NAME") or "my-org"
 
 if not org_name:
-    raise EnvironmentError('ORGANIZATION_NAME env-var is not set')
+    raise EnvironmentError("ORGANIZATION_NAME env-var is not set")
 
 
 def nbgrader_format_db_url(course_id: str) -> str:
@@ -34,10 +34,8 @@ def nbgrader_format_db_url(course_id: str) -> str:
       course_id: the course id (usually associated with the course label) from which the launch was initiated.
     """
     course_id = LTIUtils().normalize_string(course_id)
-    database_name = f'{org_name}_{course_id}'
-    return (
-        f'postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{database_name}'
-    )
+    database_name = f"{org_name}_{course_id}"
+    return f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{database_name}"
 
 
 class NbGraderServiceHelper:
@@ -55,15 +53,17 @@ class NbGraderServiceHelper:
 
     def __init__(self, course_id: str, check_database_exists: bool = False):
         if not course_id:
-            raise ValueError('course_id missing')
+            raise ValueError("course_id missing")
 
         self.course_id = LTIUtils().normalize_string(course_id)
-        self.course_dir = f'{mnt_root}/{org_name}/home/grader-{self.course_id}/{self.course_id}'
-        self.uid = int(os.environ.get('NB_GRADER_UID') or '10001')
-        self.gid = int(os.environ.get('NB_GID') or '100')
+        self.course_dir = (
+            f"{mnt_root}/{org_name}/home/grader-{self.course_id}/{self.course_id}"
+        )
+        self.uid = int(os.environ.get("NB_GRADER_UID") or "10001")
+        self.gid = int(os.environ.get("NB_GID") or "100")
 
         self.db_url = nbgrader_format_db_url(course_id)
-        self.database_name = f'{org_name}_{self.course_id}'
+        self.database_name = f"{org_name}_{self.course_id}"
         if check_database_exists:
             self.create_database_if_not_exists()
 
@@ -86,16 +86,19 @@ class NbGraderServiceHelper:
             InvalidEntry: when there was an error adding the user to the database
         """
         if not username:
-            raise ValueError('username missing')
+            raise ValueError("username missing")
         if not lms_user_id:
-            raise ValueError('lms_user_id missing')
+            raise ValueError("lms_user_id missing")
 
         with Gradebook(self.db_url, course_id=self.course_id) as gb:
             try:
                 gb.update_or_create_student(username, lms_user_id=lms_user_id)
-                logger.debug('Added user %s with lms_user_id %s to gradebook' % (username, lms_user_id))
+                logger.debug(
+                    "Added user %s with lms_user_id %s to gradebook"
+                    % (username, lms_user_id)
+                )
             except InvalidEntry as e:
-                logger.debug('Error during adding student to gradebook: %s' % e)
+                logger.debug("Error during adding student to gradebook: %s" % e)
 
     def update_course(self, **kwargs) -> None:
         """
@@ -110,7 +113,7 @@ class NbGraderServiceHelper:
         """
         with Gradebook(self.db_url, course_id=self.course_id) as gb:
             course = gb.check_course(self.course_id)
-            logger.debug(f'course got from db:{course}')
+            logger.debug(f"course got from db:{course}")
             return course
 
     def register_assignment(self, assignment_name: str, **kwargs: dict) -> Assignment:
@@ -123,13 +126,15 @@ class NbGraderServiceHelper:
             InvalidEntry: when there was an error adding the assignment to the database
         """
         if not assignment_name:
-            raise ValueError('assignment_name missing')
-        logger.debug('Assignment name normalized %s to save in gradebook' % assignment_name)
+            raise ValueError("assignment_name missing")
+        logger.debug(
+            "Assignment name normalized %s to save in gradebook" % assignment_name
+        )
         assignment = None
         with Gradebook(self.db_url, course_id=self.course_id) as gb:
             try:
                 assignment = gb.update_or_create_assignment(assignment_name, **kwargs)
-                logger.debug('Added assignment %s to gradebook' % assignment_name)
+                logger.debug("Added assignment %s to gradebook" % assignment_name)
             except InvalidEntry as e:
-                logger.debug('Error ocurred by adding assignment to gradebook: %s' % e)
+                logger.debug("Error ocurred by adding assignment to gradebook: %s" % e)
         return assignment
