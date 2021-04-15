@@ -4,6 +4,7 @@
 #
 #    pip-compile dev-requirements.in
 #
+
 appdirs==1.4.4
     # via
     #   black
@@ -170,7 +171,3 @@ websocket-client==0.57.0
     # via kubernetes
 werkzeug==1.0.1
     # via flask
-
-# The following packages are considered to be unsafe in a requirements file:
-# pip
-# setuptools

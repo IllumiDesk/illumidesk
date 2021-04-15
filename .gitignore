@@ -26,6 +26,7 @@ hosts
 htmlcov
 jupyterhub_cookie_secret
 jupyterhub.sqlite
+*.sqlite3
 MANIFEST
 pip-wheel-metadata
 *pycache*
