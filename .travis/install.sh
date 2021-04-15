@@ -14,12 +14,18 @@ install_python_requirements () {
 
 install_illumidesk_package () {
   echo "Install illumidesk package ..."
-  python3 -m pip install -r src/illumidesk/requirements.txt
+  python3 -m pip install src/illumidesk/.
+}
+
+install_graderservice_package () {
+  echo "Install graderservice package ..."
+  python3 -m pip install src/graderservice/.
 }
 
 main() {
   install_python_requirements
   install_illumidesk_package
+  install_graderservice_package
 }
 
 main

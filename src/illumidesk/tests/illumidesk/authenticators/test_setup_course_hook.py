@@ -45,20 +45,28 @@ async def test_setup_course_hook_calls_add_student_to_jupyterhub_group_when_role
     the learner role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(
+        RequestHandler, authenticator=local_authenticator
+    )
     local_authentication = make_auth_state_dict()
 
     with patch.object(
-        JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None
+        JupyterHubAPI, "add_student_to_jupyterhub_group", return_value=None
     ) as mock_add_student_to_jupyterhub_group:
-        with patch.object(AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)):
-            result = await setup_course_hook(local_authenticator, local_handler, local_authentication)
+        with patch.object(
+            AsyncHTTPClient,
+            "fetch",
+            return_value=make_http_response(handler=local_handler.request),
+        ):
+            result = await setup_course_hook(
+                local_authenticator, local_handler, local_authentication
+            )
             assert mock_add_student_to_jupyterhub_group.called
 
 
-@patch('shutil.chown')
-@patch('pathlib.Path.mkdir')
-@patch('illumidesk.apis.nbgrader_service.Gradebook')
+@patch("shutil.chown")
+@patch("pathlib.Path.mkdir")
+@patch("illumidesk.apis.nbgrader_service.Gradebook")
 @pytest.mark.asyncio()
 async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_is_learner(
     mock_mkdir,
@@ -76,17 +84,25 @@ async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_
     the learner role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(
+        RequestHandler, authenticator=local_authenticator
+    )
     local_authentication = make_auth_state_dict()
 
-    with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
+    with patch.object(
+        JupyterHubAPI, "add_student_to_jupyterhub_group", return_value=None
+    ):
         with patch.object(
-            NbGraderServiceHelper, 'add_user_to_nbgrader_gradebook', return_value=None
+            NbGraderServiceHelper, "add_user_to_nbgrader_gradebook", return_value=None
         ) as mock_add_user_to_nbgrader_gradebook:
             with patch.object(
-                AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)
+                AsyncHTTPClient,
+                "fetch",
+                return_value=make_http_response(handler=local_handler.request),
             ):
-                await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                await setup_course_hook(
+                    local_authenticator, local_handler, local_authentication
+                )
                 assert mock_add_user_to_nbgrader_gradebook.called
 
 
@@ -105,14 +121,22 @@ async def test_setup_course_hook_calls_add_instructor_to_jupyterhub_group_when_r
     the instructor role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
-    local_authentication = make_auth_state_dict(user_role='Instructor')
+    local_handler = make_mock_request_handler(
+        RequestHandler, authenticator=local_authenticator
+    )
+    local_authentication = make_auth_state_dict(user_role="Instructor")
 
     with patch.object(
-        JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
+        JupyterHubAPI, "add_instructor_to_jupyterhub_group", return_value=None
     ) as mock_add_instructor_to_jupyterhub_group:
-        with patch.object(AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)):
-            await setup_course_hook(local_authenticator, local_handler, local_authentication)
+        with patch.object(
+            AsyncHTTPClient,
+            "fetch",
+            return_value=make_http_response(handler=local_handler.request),
+        ):
+            await setup_course_hook(
+                local_authenticator, local_handler, local_authentication
+            )
             assert mock_add_instructor_to_jupyterhub_group.called
 
 
@@ -131,14 +155,24 @@ async def test_setup_course_hook_calls_add_instructor_to_jupyterhub_group_when_r
     the instructor role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
-    local_authentication = make_auth_state_dict(user_role='urn:lti:role:ims/lis/TeachingAssistant')
+    local_handler = make_mock_request_handler(
+        RequestHandler, authenticator=local_authenticator
+    )
+    local_authentication = make_auth_state_dict(
+        user_role="urn:lti:role:ims/lis/TeachingAssistant"
+    )
 
     with patch.object(
-        JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
+        JupyterHubAPI, "add_instructor_to_jupyterhub_group", return_value=None
     ) as mock_add_instructor_to_jupyterhub_group:
-        with patch.object(AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)):
-            await setup_course_hook(local_authenticator, local_handler, local_authentication)
+        with patch.object(
+            AsyncHTTPClient,
+            "fetch",
+            return_value=make_http_response(handler=local_handler.request),
+        ):
+            await setup_course_hook(
+                local_authenticator, local_handler, local_authentication
+            )
             assert mock_add_instructor_to_jupyterhub_group.called
 
 
@@ -156,19 +190,25 @@ async def test_setup_course_hook_does_not_call_add_student_to_jupyterhub_group_w
     the instructor role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
-    local_authentication = make_auth_state_dict(user_role='Instructor')
+    local_handler = make_mock_request_handler(
+        RequestHandler, authenticator=local_authenticator
+    )
+    local_authentication = make_auth_state_dict(user_role="Instructor")
 
     with patch.object(
-        JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None
+        JupyterHubAPI, "add_student_to_jupyterhub_group", return_value=None
     ) as mock_add_student_to_jupyterhub_group:
         with patch.object(
-            JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
+            JupyterHubAPI, "add_instructor_to_jupyterhub_group", return_value=None
         ) as mock_add_instructor_to_jupyterhub_group:
             with patch.object(
-                AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)
+                AsyncHTTPClient,
+                "fetch",
+                return_value=make_http_response(handler=local_handler.request),
             ):
-                await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                await setup_course_hook(
+                    local_authenticator, local_handler, local_authentication
+                )
                 assert not mock_add_student_to_jupyterhub_group.called
                 assert mock_add_instructor_to_jupyterhub_group.called
 
@@ -187,19 +227,25 @@ async def test_setup_course_hook_does_not_call_add_instructor_to_jupyterhub_grou
     the learner role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(
+        RequestHandler, authenticator=local_authenticator
+    )
     local_authentication = make_auth_state_dict()
 
-    with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
+    with patch.object(
+        JupyterHubAPI, "add_student_to_jupyterhub_group", return_value=None
+    ):
         with patch.object(
-            JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
+            JupyterHubAPI, "add_instructor_to_jupyterhub_group", return_value=None
         ) as mock_add_instructor_to_jupyterhub_group:
             with patch.object(
                 AsyncHTTPClient,
-                'fetch',
+                "fetch",
                 return_value=make_http_response(handler=local_handler.request),
             ):
-                await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                await setup_course_hook(
+                    local_authenticator, local_handler, local_authentication
+                )
                 assert not mock_add_instructor_to_jupyterhub_group.called
 
 
@@ -217,36 +263,31 @@ async def test_setup_course_hook_initialize_data_dict(
     course id value in the auth state?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(
+        RequestHandler, authenticator=local_authenticator
+    )
     local_authentication = make_auth_state_dict()
 
     expected_data = {
-        'org': 'test-org',
-        'course_id': 'intro101',
-        'domain': '127.0.0.1',
+        "org": "test-org",
+        "course_id": "intro101",
+        "domain": "127.0.0.1",
     }
 
-    with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
-        with patch.object(AsyncHTTPClient, 'fetch', return_value=make_http_response(handler=local_handler.request)):
-            result = await setup_course_hook(local_authenticator, local_handler, local_authentication)
-            assert expected_data['course_id'] == result['auth_state']['course_id']
-            assert expected_data['org'] == os.environ.get('ORGANIZATION_NAME')
-            assert expected_data['domain'] == local_handler.request.host
-
-
-@pytest.mark.asyncio()
-async def test_setup_course_hook_sets_lti11_kvs(
-    setup_course_environ,
-    setup_course_hook_environ,
-    make_auth_state_dict,
-    make_http_response,
-    make_mock_request_handler,
-    mock_nbhelper,
-):
-    """
-    Ensure the setup course hook calls the register control file function if applicable.
-    """
-    pass
+    with patch.object(
+        JupyterHubAPI, "add_student_to_jupyterhub_group", return_value=None
+    ):
+        with patch.object(
+            AsyncHTTPClient,
+            "fetch",
+            return_value=make_http_response(handler=local_handler.request),
+        ):
+            result = await setup_course_hook(
+                local_authenticator, local_handler, local_authentication
+            )
+            assert expected_data["course_id"] == result["auth_state"]["course_id"]
+            assert expected_data["org"] == os.environ.get("ORGANIZATION_NAME")
+            assert expected_data["domain"] == local_handler.request.host
 
 
 @pytest.mark.asyncio()
@@ -262,20 +303,28 @@ async def test_setup_course_hook_does_not_call_add_instructor_to_jupyterhub_grou
     Is the register_new_service function called when the user_role is learner or student?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(
+        RequestHandler, authenticator=local_authenticator
+    )
     local_authentication = make_auth_state_dict()
 
-    with patch.object(NbGraderServiceHelper, 'add_user_to_nbgrader_gradebook', return_value=None):
-        with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
+    with patch.object(
+        NbGraderServiceHelper, "add_user_to_nbgrader_gradebook", return_value=None
+    ):
+        with patch.object(
+            JupyterHubAPI, "add_student_to_jupyterhub_group", return_value=None
+        ):
             with patch.object(
-                JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
+                JupyterHubAPI, "add_instructor_to_jupyterhub_group", return_value=None
             ) as mock_add_instructor_to_jupyterhub_group:
                 with patch.object(
                     AsyncHTTPClient,
-                    'fetch',
+                    "fetch",
                     return_value=make_http_response(handler=local_handler.request),
                 ):
-                    await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                    await setup_course_hook(
+                        local_authenticator, local_handler, local_authentication
+                    )
                     assert not mock_add_instructor_to_jupyterhub_group.called
 
 
@@ -292,18 +341,26 @@ async def test_setup_course_hook_does_not_call_add_instructor_to_jupyterhub_grou
     Is the register_new_service function called when the user_role is learner or student?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
-    local_handler = make_mock_request_handler(RequestHandler, authenticator=local_authenticator)
+    local_handler = make_mock_request_handler(
+        RequestHandler, authenticator=local_authenticator
+    )
     local_authentication = make_auth_state_dict()
 
-    with patch.object(NbGraderServiceHelper, 'add_user_to_nbgrader_gradebook', return_value=None):
-        with patch.object(JupyterHubAPI, 'add_student_to_jupyterhub_group', return_value=None):
+    with patch.object(
+        NbGraderServiceHelper, "add_user_to_nbgrader_gradebook", return_value=None
+    ):
+        with patch.object(
+            JupyterHubAPI, "add_student_to_jupyterhub_group", return_value=None
+        ):
             with patch.object(
-                JupyterHubAPI, 'add_instructor_to_jupyterhub_group', return_value=None
+                JupyterHubAPI, "add_instructor_to_jupyterhub_group", return_value=None
             ) as mock_add_instructor_to_jupyterhub_group:
                 with patch.object(
                     AsyncHTTPClient,
-                    'fetch',
+                    "fetch",
                     return_value=make_http_response(handler=local_handler.request),
                 ):
-                    await setup_course_hook(local_authenticator, local_handler, local_authentication)
+                    await setup_course_hook(
+                        local_authenticator, local_handler, local_authentication
+                    )
                     assert not mock_add_instructor_to_jupyterhub_group.called
