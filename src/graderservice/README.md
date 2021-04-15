@@ -8,7 +8,17 @@ Microservice used to setup new shared grader notebooks.
 
 Install in editable mode:
 
-    pip install -r requirements.txt
+    pip install -e .
+
+## Run Application
+
+Run application locally with debug mode enabled:
+
+```bash
+export FLASK_APP=src/graderservice/graderservice
+export FLASK_ENV=development
+flask run
+```
 
 ## Update Dependencies
 
