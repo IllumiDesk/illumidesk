@@ -6,11 +6,12 @@ from pathlib import Path
 
 from flask import Blueprint
 from flask import jsonify
-from graderservice.graderservice import NB_GID
-from graderservice.graderservice import NB_UID
-from graderservice.graderservice import GraderServiceLauncher
-from graderservice.models import GraderService
-from graderservice.models import db
+
+from .graderservice import NB_GID
+from .graderservice import NB_UID
+from .graderservice import GraderServiceLauncher
+from .models import GraderService
+from .models import db
 
 log_file_path = path.join(path.dirname(path.abspath(__file__)), "logging_config.ini")
 logging.config.fileConfig(log_file_path)
