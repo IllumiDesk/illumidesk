@@ -15,7 +15,7 @@ Install in editable mode:
 Run application locally with debug mode enabled:
 
 ```bash
-export FLASK_APP=src/graderservice/graderservice
+export FLASK_APP=graderservice
 export FLASK_ENV=development
 flask run
 ```

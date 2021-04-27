@@ -54,11 +54,15 @@ def grader_setup_environ(monkeypatch):
     """
     Set the enviroment variables used in Course class
     """
-    monkeypatch.setenv("NAMESPACE", "default")
-    monkeypatch.setenv("GRADER_IMAGE_NAME", "illumidesk/grader-notebook:latest")
-    monkeypatch.setenv("MNT_ROOT", "/illumidesk-courses")
-    monkeypatch.setenv("EXCHANGE_MNT_ROOT", "/illumidesk-nb-exchange")
-    monkeypatch.setenv("GRADER_PVC", "grader-setup-pvc")
+    monkeypatch.setenv("ILLUMIDESK_K8S_NAMESPACE", "default")
+    monkeypatch.setenv("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
+    monkeypatch.setenv("ILLUMIDESK_NB_EXCHANGE_MNT_ROOT", "/illumidesk-nb-exchange")
     monkeypatch.setenv("GRADER_EXCHANGE_SHARED_PVC", "exchange-shared-volume")
+    monkeypatch.setenv("GRADER_IMAGE_NAME", "illumidesk/grader-notebook:latest")
+    monkeypatch.setenv("GRADER_PVC", "grader-setup-pvc")
+    monkeypatch.setenv("GRADER_SHARED_PVC", "exchange-shared-volume")
+    monkeypatch.setenv("IS_DEBUG", "True")
+    monkeypatch.setenv("MNT_ROOT", "/illumidesk-courses")
+    monkeypatch.setenv("NAMESPACE", "default")
     monkeypatch.setenv("NB_UID", "10001")
     monkeypatch.setenv("NB_GID", "100")
