@@ -21,7 +21,7 @@ logging.getLogger("asyncio").setLevel(logging.WARNING)
 
 
 # namespace to deploy new pods
-NAMESPACE = os.environ.get("ILLUMIDESK_K8S_NAMESPACE", "default")
+NAMESPACE = os.environ.get("ILLUMIDESK_K8S_NAMESPACE", "test")
 # image name for grader-notebooks
 GRADER_IMAGE_NAME = os.environ.get(
     "GRADER_IMAGE_NAME", "illumidesk/grader-notebook:latest"
