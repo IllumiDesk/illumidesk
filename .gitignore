@@ -12,6 +12,7 @@ node_modules
 .ipynb_checkpoints
 *.pid
 .pytest_cache
+.pytest-kind/
 *.retry
 .vim/
 .vscode
