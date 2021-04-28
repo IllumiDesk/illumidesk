@@ -38,8 +38,8 @@ GRADER_EXCHANGE_SHARED_PVC = os.environ.get(
 )
 
 # user UI and GID to use within the grader container
-NB_UID = 10001
-NB_GID = 100
+NB_UID = os.environ.get("NB_UID", 10001)
+NB_GID = os.environ.get("NB_GID", 100)
 
 # NBGrader DATABASE settings to save in nbgrader_config.py file
 nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
@@ -50,13 +50,15 @@ nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DB_NAME")
 
 
 class GraderServiceLauncher:
-    def __init__(self, org_name: str, course_id: str):
+    def __init__(self, org_name: str, course_id: str, is_debug: bool = False):
         """
         Helper class to launch grader notebooks within the kubernetes cluster
 
         Args:
           org_name: the organization name
           course_id: the course id
+          is_debug: if true, runs the grader notebook and the kubernetes client with
+            debugging enabled. Defaults to False.
 
         Raises:
           ConfigException if the kubectl python client does not have a valid configuration set.
@@ -69,15 +71,18 @@ class GraderServiceLauncher:
             # next method uses the KUBECONFIG env var by default
             config.load_kube_config()
         # Uncomment the following lines to enable debug logging
-        c = client.Configuration()
-        c.debug = True
-        apps_v1 = client.AppsV1Api(api_client=client.ApiClient(configuration=c))
-        self.apps_v1 = client.AppsV1Api()
+        kube_client_config = client.Configuration()
+        kube_client_config.debug = is_debug
+        self.apps_v1 = client.AppsV1Api(
+            api_client=client.ApiClient(configuration=kube_client_config)
+        )
         self.coreV1Api = client.CoreV1Api()
         self.course_id = course_id
-        self.org_name = org_name
+        self.grader_is_debug = is_debug
         self.grader_name = f"grader-{self.course_id}"
         self.grader_token = token_hex(32)
+        self.org_name = org_name
+
         # Course home directory, its parent should be the grader name
         self.course_dir = Path(
             f"{MNT_ROOT}/{self.org_name}/home/grader-{self.course_id}/{self.course_id}"
@@ -233,6 +238,7 @@ class GraderServiceLauncher:
             ),
             security_context=client.V1SecurityContext(allow_privilege_escalation=False),
             env=[
+                client.V1EnvVar(name="DEBUG", value=self.grader_is_debug),
                 client.V1EnvVar(name="JUPYTERHUB_SERVICE_NAME", value=self.course_id),
                 client.V1EnvVar(name="JUPYTERHUB_API_TOKEN", value=self.grader_token),
                 # we're using the K8s Service name 'hub' (defined in the jhub helm chart)
