@@ -4,6 +4,7 @@
 #
 #    pip-compile dev-requirements.in
 #
+
 appdirs==1.4.4
     # via
     #   black
