@@ -165,7 +165,7 @@ requests==2.25.1
     #   pykube
     #   pykube-ng
     #   requests-oauthlib
-rsa==4.6
+rsa==4.7
     # via
     #   google-auth
     #   oauth2client
