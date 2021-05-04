@@ -11,14 +11,13 @@ This project enforces the [Contributor Covenant](./CODE_OF_CONDUCT.md). Be kind 
 ## How do I make a contribution?
 
 Never made an open source contribution before? Wondering how contributions work
-in the nteract world? Here's a quick rundown!
+in the IllumiDesk world? Here's a quick rundown!
 
-1.  Find an issue that you are interested in addressing or a feature that you would like to address.
-2.  Fork the repository associated with the issue to your local GitHub organization.
-4.  Clone the repository to your local machine using:
+1.  Fork this repository with GitHub's `Fork` option.
+2.  Clone the repository to your local machine using:
 
 ```
-$ git clone https://github.com/github-username/repository-name.git
+$ git clone `https://github.com/<github-account>/illumidesk.git`
 ```
 
 5.  Install the dependencies required for the project by running:
@@ -28,38 +27,32 @@ $ make dev
 $ source venv/bin/activate
 ```
 
+or
+
+```bash
+$ virtualenv -p python3 venv
+$ python3 -m pip install -r dev-requirements.txt
+$ source venv/bin/activate
+```
+
 6.  Create a new branch for your feature or fix using:
 
 ```
 $ git checkout -b branch-name-here
 ```
 
-7.  Make the appropriate changes for the issue you are trying to address or the feature that you want to add. Validate your changes by following the steps in the "How do I validate my changes" segment below.
+7.  Make the appropriate changes for the issue you are trying to address or the feature that you want to add. Validate your changes by following the steps in the [Validate Changes](#validate-changes) segment below.
 
-8.  Confirm that unit tests still pass successfully with:
+8.  Add and commit the changed files using `git add` and `git commit -m "my commit message here"`. You may notice that some commands run right after running `git commit ...`. These commands are run with the `pre-commit` hooks defined in the `.pre-commit-config.yaml` configuration file.
 
-```
-$ cd src/illumidesk
-$ python3 -m pytest
-```
-or
-
-```
-$ cd src/graderservice
-$ python3 -m pytest
-```
-
-If tests fail, don't hesitate to ask for help.
-
-9.  Add and commit the changed files using `git add` and `git commit -m "my commit message here"`. You may notice that some commands run right after running `git commit ...`. These commands are run with the `pre-commit` hooks defined in the `.pre-commit-config.yaml` configuration file.
-
-10. Push the changes to your fork using:
+9. Push the changes to your fork using:
 
 ```
 $ git push origin branch-name-here
 ```
+
 11. Submit a pull request to the upstream repository.
-12. Title the pull request per the requirements outlined in the section below.
+12. Title the pull request per the requirements outlined in the [Commits and Merges](#commits-and-merges) section.
 13. Set the description of the pull request with a brief description of what you did and any questions you might have about what you did.
 14. Wait for the pull request to be reviewed by a maintainer.
 15. Make changes to the pull request if the reviewing maintainer recommends them.
@@ -139,6 +132,68 @@ Examples:
 
     BREAKING CHANGE: `extends` key in config file is now used for extending other config files
     ```
+
+## Validate Changes
+
+This setup contains one Kubernetes compatible microservice and one Python package meant to run with a JupyterHub instance:
+
+- `src/illumidesk`: Python package structured as JupyterHub Authenticators for LTI Authenticators (1.1 and 1.3).
+- `src/graderservice`: Kubernetes compatible RESTful API running as a JupyterHub externally managed service which is used to set up shared grader notebooks.
+
+To validate your changes, it may be necessary to run both unit and integration tests for both the `graderservice` RESTful API and the `illumidesk` Python package.
+
+### Unit Tests
+
+Confirm that unit tests still pass successfully:
+
+```
+$ cd src/illumidesk
+$ python3 -m pytest
+```
+or
+
+```
+$ cd src/graderservice
+$ python3 -m pytest
+```
+
+### Integration Tests
+
+A `Dockerfile` is provided in the `src/graderservice` and the `src/illumidesk` folders to facilitate **basic** integration testing. Use the command below to build the docker images:
+
+1. Change directory into the `src/illumidesk` or `src/graderservice` folder.
+2. Run the docker build command to create the docker image (replace tag with your desired tag, such as `dev`):
+
+```bash
+$ cd src/illumidesk
+$ docker build -t illumidesk/jupyterhub:<tag>
+$ cd src/graderservice
+$ docker build -t illumidesk/graderservice:<tag>
+```
+
+3. Run the `illumidesk/jupyterhub:<tag>` and the `illumidesk/jupyterhub:<tag>` as docker containers:
+
+```bash
+docker run -d -p 8000:8000 -v $HOME:/home/jovyan/ illumidesk/graderservice:<tag>
+```
+
+> **NOTE**: this step requires you to have the `kubectl` client installed and connected with your `Kubernetes` configuration file, `.kubeconfig`. Please refer to the official [Kuberentes documentation for additional setup instructions](https://kubernetes.io/docs/tasks/tools/).
+
+4. Test a `graderservice` endpoints using `curl` or any other client capable of sending http requests. Here are some examples with the `curl` command:
+
+Fetch a list of JupyterHub services that represent shared grader notebooks:
+
+```bash
+curl -v http://localhost:8000/services
+```
+
+Create a new shared grader notebook with the `acme` organization and `intro101` course id:
+
+```bash
+curl -v -X POST http://localhost:8000/services/acme/intro101
+```
+
+If tests fail, don't hesitate to ask for help.
 
 #### Pre-commit hooks
 

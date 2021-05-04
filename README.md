@@ -36,6 +36,7 @@ This setup only supports Kubernetes-based installations at this time. Refer to t
 ## Development Installation
 
 Refer to the [contributing](./CONTRIBUTING.md) guide located in the root of this repo.
+
 ### General Guidelines
 
 This project enforces the [Contributor Covenant](./CODE_OF_CONDUCT.md). Be kind and build a nice open source community with us.
