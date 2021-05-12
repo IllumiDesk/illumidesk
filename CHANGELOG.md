@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 3.1.0 (2021-05-02)
+
+### Features
+
+* Add is_debug config option for the grader setup service ([#558](https://github.com/IllumiDesk/illumidesk/issues/560))
+* Update grader setup service environment variables ([#560](https://github.com/IllumiDesk/illumidesk/issues/560))
+* Adds Dockerfiles to graderserive and illumidesk folders ([#564](https://github.com/IllumiDesk/illumidesk/issues/564))
+
+### Chore
+
+* Removes kind dependency ([#562](https://github.com/IllumiDesk/illumidesk/issues/562))
+* Removes dependabot.yaml from GitHub Action workflow ([#555](https://github.com/IllumiDesk/illumidesk/pull/555)) 
+
 ## 3.0.0 (2021-04-15)
 
 ### ⚠ BREAKING CHANGES
@@ -12,6 +25,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Features
 
 * Deprecate sending grades with LTI 1.1 ([#536](https://github.com/IllumiDesk/illumidesk/issues/536)) ([88e905f](https://github.com/IllumiDesk/illumidesk/commit/88e905f0ecf9eb44ecdb2e58f15598430b9a37c7))
+
 ### Bug Fixes
 
 * Updates routes to fix error where the JupyterHub rolling update was not initiated ([#546](https://github.com/IllumiDesk/illumidesk/issues/546)) ([ecf4e8c](https://github.com/IllumiDesk/illumidesk/commit/ecf4e8c4d0567567c788fd0f20538e3a474f8ac2))
@@ -24,12 +38,12 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Refactor
 
-* Refactor to improve how the grader control file is used with the LTI 1.1 authenticator ([#574]https://github.com/IllumiDesk/illumidesk/pull/524)) ([638a73e7]https://github.com/IllumiDesk/illumidesk/commit/638a73e76ba68062a73f47a3fa4e05a836efa296)
+* Refactor to improve how the grader control file is used with the LTI 1.1 authenticator ([#574](https://github.com/IllumiDesk/illumidesk/pull/524)) ([638a73e7](https://github.com/IllumiDesk/illumidesk/commit/638a73e76ba68062a73f47a3fa4e05a836efa296))
 
 
 ### Fixes
 
-* Fix metadata spelling for function that loads JupyterHub services ([#519](https://github.com/IllumiDesk/illumidesk/issues/519)) ([8a5724b]https://github.com/IllumiDesk/illumidesk/commit/8a5724bd1d82914669fbad98000be14db607185f))
+* Fix metadata spelling for function that loads JupyterHub services ([#519](https://github.com/IllumiDesk/illumidesk/issues/519)) ([8a5724b](https://github.com/IllumiDesk/illumidesk/commit/8a5724bd1d82914669fbad98000be14db607185f))
 
 
 ### 1.1.1 (2021-02-16)
