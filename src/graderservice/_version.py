@@ -3,8 +3,8 @@
 # for now, update the version so that its the same as the one reflected
 # within the repo's root package.json
 version_info = (
-    2,
-    0,
+    3,
+    1,
     0,
 )
 __version__ = ".".join(map(str, version_info[:3]))
