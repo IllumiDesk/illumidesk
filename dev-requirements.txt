@@ -38,7 +38,7 @@ distlib==0.3.1
     # via virtualenv
 filelock==3.0.12
     # via virtualenv
-flake8==3.9.0
+flake8==3.9.1
     # via -r dev-requirements.in
 flask-sqlalchemy==2.5.1
     # via -r dev-requirements.in
@@ -91,7 +91,7 @@ pip-tools==6.1.0
     # via -r dev-requirements.in
 pluggy==0.13.1
     # via pytest
-pre-commit==2.10.0
+pre-commit==2.10.1
     # via -r dev-requirements.in
 py==1.10.0
     # via pytest
@@ -116,7 +116,7 @@ pyparsing==2.4.7
     #   packaging
 pytest-asyncio==0.15.1
     # via -r dev-requirements.in
-pytest-cov==2.10.1
+pytest-cov==2.11.1
     # via -r dev-requirements.in
 pytest-flask==1.2.0
     # via -r dev-requirements.in
@@ -128,7 +128,7 @@ pytest-metadata==1.10.0
     #   pytest-html
 pytest-mock==3.3.1
     # via -r dev-requirements.in
-pytest==6.2.2
+pytest==6.2.4
     # via
     #   -r dev-requirements.in
     #   pytest-asyncio
