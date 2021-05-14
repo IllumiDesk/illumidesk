@@ -8,12 +8,13 @@ gunicorn==20.1.0
 isort==5.8.0
 kubernetes==12.0.1
 mock==4.0.2
-pip-tools==6.1.0
+pip-tools==5.4.0
+pre-commit==2.10.1
 pytest==6.2.4
 pre-commit==2.10.0
 pykube==0.15.0
-pytest-asyncio==0.14.0
-pytest-cov==2.10.1
+pytest-cov==2.11.1
+pytest-asyncio==0.15.1
 pytest-flask==1.2.0
 pytest-html==3.0.0
 pytest-metadata==1.10.0
