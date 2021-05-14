@@ -71,14 +71,29 @@ async def setup_course_hook(
     nb_service.add_user_to_nbgrader_gradebook(username, lms_user_id)
     # TODO: verify the logic to simplify groups creation and membership
     if user_is_a_student(user_role):
-        # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
-        await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+        try:
+            # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
+            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+        except Exception as e:
+            logger.error(
+                "An error when adding student username: %s to course_id: %s with exception %s",
+                (username, course_id, e),
+            )
     elif user_is_an_instructor(user_role):
-        # assign the user in 'formgrade-<course_id>' group
-        await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
+        try:
+            # assign the user in 'formgrade-<course_id>' group
+            await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
+        except Exception as e:
+            logger.error(
+                "An error when adding instructor username: %s to course_id: %s with exception %s",
+                (username, course_id, e),
+            )
 
     # launch the new grader-notebook as a service
-    new_setup = await register_new_service(org_name=ORG_NAME, course_id=course_id)
+    try:
+        new_setup = await register_new_service(org_name=ORG_NAME, course_id=course_id)
+    except Exception as e:
+        logger.error("Unable to launch the shared grader notebook with exception %s", e)
 
     return authentication
 

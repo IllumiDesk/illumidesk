@@ -171,11 +171,16 @@ class JupyterHubAPI(LoggingConfigurable):
             await self.create_group(group_name)
         except HTTPClientError as e:
             if e.code != 409:
-                self.log.error(
-                    "Error creating student group %s with exception %s"
-                    % (group_name, e)
-                )
-        await self._add_user_to_jupyterhub_group(student, group_name)
+                self.log.error("Error creating instructors group %e", e)
+        else:
+            try:
+                await self._add_user_to_jupyterhub_group(student, group_name)
+            except HTTPClientError as e:
+                if e.code != 409:
+                    self.log.error(
+                        "Error adding user %s to group %s with exception %s"
+                        % (student, group_name, e)
+                    )
 
     async def add_instructor_to_jupyterhub_group(
         self, course_id: str, instructor: str
@@ -199,8 +204,16 @@ class JupyterHubAPI(LoggingConfigurable):
             await self.create_group(group_name)
         except HTTPClientError as e:
             if e.code != 409:
-                self.log.error("Error creating instructors group")
-        await self._add_user_to_jupyterhub_group(instructor, group_name)
+                self.log.error("Error creating instructors group %e", e)
+        else:
+            try:
+                await self._add_user_to_jupyterhub_group(instructor, group_name)
+            except HTTPClientError as e:
+                if e.code != 409:
+                    self.log.error(
+                        "Error adding user %s to group %s with exception %s"
+                        % (instructor, group_name, e)
+                    )
 
     async def _add_user_to_jupyterhub_group(
         self, username: str, group_name: str
