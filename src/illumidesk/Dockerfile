@@ -32,7 +32,6 @@ WORKDIR /srv/jupyterhub/
 
 # This config is overwitten with k8s setup
 COPY jupyterhub_config.py /srv/jupyterhub/
-COPY wait-for-postgres.sh /srv/jupyterhub/
 RUN chmod +rx wait-for-postgres.sh
 
 RUN curl -O https://raw.githubusercontent.com/IllumiDesk/illumidesk-containers/main/jupyterhub/wait-for-postgres.sh \

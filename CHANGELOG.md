@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/IllumiDesk/illumidesk/compare/v3.1.0...v3.2.0) (2021-05-14)
+
+### Bug Fixes
+
+* Add try/except blocks to setup course hook ([#570](https://github.com/IllumiDesk/illumidesk/issues/570)) ([7842069](https://github.com/IllumiDesk/illumidesk/commit/7842069d349792944b549a952b2e468cd86cd9ef))
+
 ## 3.1.0 (2021-05-02)
 
 ### Features
