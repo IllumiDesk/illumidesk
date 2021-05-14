@@ -2,25 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [3.2.0](https://github.com/IllumiDesk/illumidesk/compare/v1.0.0...v3.2.0) (2021-05-14)
-
-
-### ⚠ BREAKING CHANGES
-
-* removes send grades feature from LTI 1.1.
-
-### Features
-
-* Add is_debug config option for the grader setup service ([#558](https://github.com/IllumiDesk/illumidesk/issues/558)) ([d556c12](https://github.com/IllumiDesk/illumidesk/commit/d556c1279f18d6415a0a5fa6f1f09317d6c78f63))
-* Deprecate sending grades with LTI 1.1 ([#536](https://github.com/IllumiDesk/illumidesk/issues/536)) ([88e905f](https://github.com/IllumiDesk/illumidesk/commit/88e905f0ecf9eb44ecdb2e58f15598430b9a37c7))
-* Fetch course name from context_title if context_label value is empty ([#497](https://github.com/IllumiDesk/illumidesk/issues/497)) ([174a35e](https://github.com/IllumiDesk/illumidesk/commit/174a35e94180b3aec158b1838d6fe1ee6ade691a))
-
+## [3.2.0](https://github.com/IllumiDesk/illumidesk/compare/v3.1.0...v3.2.0) (2021-05-14)
 
 ### Bug Fixes
 
 * Add try/except blocks to setup course hook ([#570](https://github.com/IllumiDesk/illumidesk/issues/570)) ([7842069](https://github.com/IllumiDesk/illumidesk/commit/7842069d349792944b549a952b2e468cd86cd9ef))
-* Update metadata spelling ([#519](https://github.com/IllumiDesk/illumidesk/issues/519)) ([8a5724b](https://github.com/IllumiDesk/illumidesk/commit/8a5724bd1d82914669fbad98000be14db607185f))
-* Updates routes to fix error where the JupyterHub rolling update was not initiated ([#546](https://github.com/IllumiDesk/illumidesk/issues/546)) ([ecf4e8c](https://github.com/IllumiDesk/illumidesk/commit/ecf4e8c4d0567567c788fd0f20538e3a474f8ac2))
 
 ## 3.1.0 (2021-05-02)
 
