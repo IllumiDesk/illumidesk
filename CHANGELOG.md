@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.2.1](https://github.com/IllumiDesk/illumidesk/compare/v3.2.0...v3.2.1) (2021-05-15)
+
+## Bug Fixes
+
+* Fix docker build ([#575](https://github.com/IllumiDesk/illumidesk/issues/575)) ([986766c](https://github.com/IllumiDesk/illumidesk/commit/986766c46d094dfe7fb9885313a1961ce3616d02))
+* Update wait-for-postgres.sh script permissions ([#576](https://github.com/IllumiDesk/illumidesk/issues/576)) ([09714cf](https://github.com/IllumiDesk/illumidesk/commit/09714cfd3585e4d22903be38f7d56a729f76921f))
+
 ## [3.2.0](https://github.com/IllumiDesk/illumidesk/compare/v3.1.0...v3.2.0) (2021-05-14)
 
 ### Bug Fixes
