@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.2.2](https://github.com/IllumiDesk/illumidesk/compare/v3.2.1...v3.2.2) (2021-05-17)
+
+## Chore
+
+* Update Jupyterhub version ([#578](https://github.com/IllumiDesk/illumidesk/issues/578)) ([064ef3c](https://github.com/IllumiDesk/illumidesk/commit/064ef3c2fecda875dab6d9041f580bbcca1de30e))
+* Remove extra requirements.in file from src/graderservice folder ([#579](https://github.com/IllumiDesk/illumidesk/issues/579)) ([064ef3c](https://github.com/IllumiDesk/illumidesk/commit/064ef3c2fecda875dab6d9041f580bbcca1de30e))
+
 ### [3.2.1](https://github.com/IllumiDesk/illumidesk/compare/v3.2.0...v3.2.1) (2021-05-15)
 
 ## Bug Fixes
