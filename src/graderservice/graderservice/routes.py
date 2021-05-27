@@ -69,6 +69,8 @@ def launch(org_name: str, course_id: str):
             logger.error("Exception when calling create_grader_deployment() %s" % e)
             db.session.rollback()
             return jsonify(success=False, message=str(e)), 500
+        finally:
+            db.session.close()
     else:
         logger.info("A grader service exists for the course_id %s" % course_id)
         return (
@@ -147,6 +149,8 @@ def services_deletion(org_name: str, course_id: str):
         logger.error("Exception when calling delete_grader_deployment(): %s" % e)
         db.session.rollback()
         return jsonify(success=False, error=str(e)), 500
+    finally:
+        db.session.close()
 
 
 @grader_setup_bp.route(
