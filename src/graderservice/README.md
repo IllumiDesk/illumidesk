@@ -39,6 +39,9 @@ flask run
 | NAMESPACE | The Kubernetes namespace name | `string` | `default` |
 | NB_UID | The user's uid that owns the shared grader home directory | `integer` | `10001` |
 | NB_GID | The user's gid that owns the shared grader home directory | `integer` | `100` |
+| POSTGRES_GRADER_SETUP_HOST | The grader setup host | `string` | `''` |
+| POSTGRES_GRADER_SETUP_PASSWORD | The Kubernetes namespace name | `string` | `''` |
+| POSTGRES_GRADER_SETUP_USER | The Kubernetes namespace name | `string` | `postgres` | 
 
 ## License
 
