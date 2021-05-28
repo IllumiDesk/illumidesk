@@ -7,11 +7,12 @@ from os import path
 from pathlib import Path
 from secrets import token_hex
 
-from graderservice.templates import NBGRADER_COURSE_CONFIG_TEMPLATE
-from graderservice.templates import NBGRADER_HOME_CONFIG_TEMPLATE
 from kubernetes import client
 from kubernetes import config
 from kubernetes.config import ConfigException
+
+from .templates import NBGRADER_COURSE_CONFIG_TEMPLATE
+from .templates import NBGRADER_HOME_CONFIG_TEMPLATE
 
 log_file_path = path.join(path.dirname(path.abspath(__file__)), "logging_config.ini")
 logging.config.fileConfig(log_file_path)
