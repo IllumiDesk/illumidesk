@@ -136,7 +136,6 @@ class GraderServiceLauncher:
             body=deployment, namespace=NAMESPACE
         )
         logger.info(f'Deployment created. Status="{str(api_response.status)}"')
-        print(f'Deployment created. Status="{str(api_response.status)}"')
         # Create grader service
         service = self._create_service_object()
         self.coreV1Api.create_namespaced_service(namespace=NAMESPACE, body=service)
@@ -347,4 +346,3 @@ class GraderServiceLauncher:
                     name="hub", namespace=NAMESPACE, body=deployment
                 )
                 logger.info(f"Jhub patch response:{api_response}")
-                print(f"Jhub patch response:{api_response}")
