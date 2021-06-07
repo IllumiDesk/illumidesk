@@ -64,7 +64,7 @@ six==1.16.0
     #   websocket-client
 sqlalchemy==1.4.15
     # via flask-sqlalchemy
-urllib3==1.26.4
+urllib3==1.26.5
     # via
     #   kubernetes
     #   requests
