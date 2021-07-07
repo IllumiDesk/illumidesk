@@ -1,3 +1,12 @@
+# Dummy Authenticator
+ILLUMIDESK_DUMMY_PARAMS_REQUIRED = [
+    "assignment_name",
+    "course_id",
+    "lms_user_id",
+    "password",
+    "username",
+]
+
 # LTI 1.1
 # Defined from https://www.imsglobal.org/specs/ltiv1p1p1/implementation-guide
 # We define the user_id as required even though it is defined as recommended as it used as

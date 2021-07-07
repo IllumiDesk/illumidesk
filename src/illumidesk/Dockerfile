@@ -1,9 +1,10 @@
-ARG BASE_IMAGE=jupyterhub/k8s-hub:0.11.1
+ARG BASE_IMAGE=jupyterhub/jupyterhub:1.4.1
 FROM "${BASE_IMAGE}"
 
 USER root
 RUN apt-get update \
  && apt-get install -y \
+    git \
     unzip \
     wget \
  && rm -rf /var/lib/apt/lists/*
@@ -33,7 +34,4 @@ WORKDIR /srv/jupyterhub/
 # This config is overwitten with k8s setup
 COPY jupyterhub_config.py /srv/jupyterhub/
 
-RUN curl -O https://raw.githubusercontent.com/IllumiDesk/illumidesk-containers/main/jupyterhub/wait-for-postgres.sh \
- && chmod +rwx /srv/jupyterhub/wait-for-postgres.sh
-
-CMD ["./wait-for-postgres.sh", "jupyterhub", "--config", "/srv/jupyterhub/jupyterhub_config.py"]
+CMD ["jupyterhub", "--config", "/srv/jupyterhub/jupyterhub_config.py"]
