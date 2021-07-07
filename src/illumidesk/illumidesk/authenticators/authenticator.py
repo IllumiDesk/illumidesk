@@ -13,11 +13,21 @@ from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.setup_course_service import create_assignment_source_dir
 from illumidesk.apis.setup_course_service import register_new_service
+<<<<<<< HEAD
+=======
+
+# from illumidesk.authenticators.handlers import IllumiDeskDummyLoginHandler
+from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
+>>>>>>> refactor illumideskdummyauthenticator to new package
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.authenticators.utils import user_is_a_student
 from illumidesk.authenticators.utils import user_is_an_instructor
+<<<<<<< HEAD
+=======
+from illumidesk.authenticators.validator import LTI11LaunchValidator
+>>>>>>> refactor illumideskdummyauthenticator to new package
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 
 logger = logging.getLogger(__name__)
@@ -159,6 +169,7 @@ async def setup_course_hook(
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 class IllumiDeskDummyAuthenticator(Authenticator):
     """
@@ -215,6 +226,8 @@ class IllumiDeskDummyAuthenticator(Authenticator):
             }
 
 
+=======
+>>>>>>> refactor illumideskdummyauthenticator to new package
 class LTI11Authenticator(LTIAuthenticator):
     """
     JupyterHub LTI 1.1 Authenticator which extends the ltiauthenticator.LTIAuthenticator class.

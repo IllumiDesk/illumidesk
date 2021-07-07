@@ -5,11 +5,10 @@ flake8==3.9.1
 flask==1.1.2
 flask-sqlalchemy==2.5.1
 gunicorn==20.1.0
-isort==5.8.0
+isort==5.9.1
 kubernetes==12.0.1
 mock==4.0.2
 pip-tools==5.4.0
-pre-commit==2.10.1
 pytest==6.2.4
 pre-commit==2.10.0
 pykube==0.15.0
