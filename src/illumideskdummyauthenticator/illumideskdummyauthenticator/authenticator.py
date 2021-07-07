@@ -6,7 +6,7 @@ from jupyterhub.auth import Authenticator
 from jupyterhub.handlers import BaseHandler
 
 from .handlers import IllumiDeskDummyLoginHandler
-from .validators import IllumiDeskDummyAuthenticatorValidator
+from .validators import IllumiDeskDummyValidator
 
 
 class IllumiDeskDummyAuthenticator(Authenticator):
@@ -34,21 +34,25 @@ class IllumiDeskDummyAuthenticator(Authenticator):
     ) -> Dict[str, Any]:  # noqa: C901
         """Allow any user/pass combo"""
 
-        validator = IllumiDeskDummyAuthenticatorValidator()
+        validator = IllumiDeskDummyValidator()
+
+        print("Original request args: %s" % handler.request.arguments)
 
         # extract the request arguments to a dict
         args = {}
-        for k, values in data.items():
+        for k, values in handler.request.arguments.items():
             args[k] = values[0].decode()
         self.log.debug("Decoded args from request: %s" % args)
 
+        print("Decoded args from request: %s" % args)
+
         if validator.validate_login_request(args):
             # get the lms vendor to implement optional logic for said vendor
-            username = data["username"]
-            assignment_name = data["assignment_name"]
-            course_id = data["course_id"]
-            lms_user_id = data["lms_user_id"]
-            user_role = data["user_role"]
+            username = args["username"]
+            assignment_name = args["assignment_name"]
+            course_id = args["course_id"]
+            lms_user_id = args["lms_user_id"]
+            user_role = args["user_role"]
 
             return {
                 "name": username,

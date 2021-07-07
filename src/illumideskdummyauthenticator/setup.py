@@ -25,9 +25,9 @@ with open(os.path.join("_version.py")) as f:
     exec(f.read(), {}, version_ns)
 
 setup(
-    name="illumidesk",
+    name="illumideskdummyauthenticator",
     version=version_ns["__version__"],
-    description="IllumiDesk core package",
+    description="IllumiDesk dummy authenticator",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/illumidesk/illumidesk",

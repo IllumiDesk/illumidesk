@@ -3,7 +3,7 @@ Import with 'JupyterHub.authenticator_class = illumideskdummyauthenticator.Illum
 
 isort:skip_file
 """
-from illumideskdummyauthenticator.illumideskdummyauthenticator import (
+from illumideskdummyauthenticator.authenticator import (
     IllumiDeskDummyAuthenticator,
 )  # NOQA
 

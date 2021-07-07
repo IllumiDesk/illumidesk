@@ -7,7 +7,7 @@ from traitlets.config import LoggingConfigurable
 from .constants import ILLUMIDESK_DUMMY_PARAMS_REQUIRED
 
 
-class IllumiDeskDummyAuthenticatorValidator(LoggingConfigurable):
+class IllumiDeskDummyValidator(LoggingConfigurable):
     """
     Validates that the dictionary returned by the IllumiDeskDummyAuthenticator
     has all required keys/values. Uses primarily for testing.
