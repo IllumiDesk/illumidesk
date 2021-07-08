@@ -42,3 +42,7 @@ lint: venv
 clean:
 	find . -name '*.pyc' -exec rm -f {} +
 	rm -rf $(VENV_NAME) *.eggs *.egg-info dist build docs/_build .cache
+
+test: dev
+	${VENV_BIN}/pytest -v src/illumidesk
+	${VENV_BIN}/pytest -v src/graderservice
