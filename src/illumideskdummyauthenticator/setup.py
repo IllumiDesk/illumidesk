@@ -37,7 +37,6 @@ setup(
     packages=find_packages(exclude="./tests"),
     install_requires=[
         "jupyterhub==1.4.1",
-        "jupyterhub-kubespawner==0.14.1",
     ],  # noqa: E231
     package_data={
         "": ["*.html"],

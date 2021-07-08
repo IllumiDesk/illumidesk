@@ -39,14 +39,14 @@ This repo includes the `graderservice` microservice that configures the user's e
 Follow the steps below to test the IllumiDesk setup with the `IllumiDeskDummyAuthenticator`:
 
 1. Ensure that `JupyterHub.authenticator_class = IllumiDeskDummyAuthenticator` is set in the `jupyterhub_config.py`.
-1. Start the JupyterHub with `jupyterhub --config=jupyterhub_config.py`
+1. Start the JupyterHub with `jupyterhub --config=/path/to/my/jupyterhub_config.py`
 1. Navigate to `http://127.0.0.1:8000/hub/login`.
 1. Add form values and submit to login.
 
 You may also use the provided `Dockerfile` to build a docker image:
 
 1. Build the docker image with `docker build -t illumidesk/jupyterhub:latest . --no-cache`.
-1. Run the docker container with `docker run -d -p 8000:8000 illumidesk/jupyterhub:latest`.
+1. Run the docker container with `docker run -d -p 8000:8000 illumidesk/jupyterhub:latest .`.
 1. Navigate to `http://127.0.0.1:8000/hub/login`.
 1. Add form values and submit to login.
 
