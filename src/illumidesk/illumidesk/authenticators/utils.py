@@ -1,4 +1,3 @@
-import os
 import re
 from typing import Any
 from typing import Dict
@@ -119,17 +118,34 @@ class LTIUtils(LoggingConfigurable):
 
 
 def user_is_a_student(user_role: str) -> Boolean:
+    """Checks whether or not a given user role corresponds to a Student/Learner role.
+
+    Args:
+        user_role (str): the user role to check against
+
+    Raises:
+        ValueError: if the user rule is empty or None
+
+    Returns:
+        Boolean: True if the user role is a student role, false otherwise.
+    """
     if not user_role:
         raise ValueError("user_role must have a value")
     return user_role.lower() in DEFAULT_ROLE_NAMES_FOR_STUDENT
 
 
 def user_is_an_instructor(user_role: str) -> Boolean:
+    """Checks whether or not a given user role corresponds to a Instructor role.
+
+    Args:
+        user_role (str): the user role to check against
+
+    Raises:
+        ValueError: if the user rule is empty or None
+
+    Returns:
+        Boolean: True if the user role is a instructor role, false otherwise.
+    """
     if not user_role:
         raise ValueError("user_role must have a value")
-    # find the extra role names to recognize an instructor (to be added in the grader group)
-    extra_roles = os.environ.get("EXTRA_ROLE_NAMES_FOR_INSTRUCTOR") or []
-    if extra_roles:
-        extra_roles = extra_roles.lower().split(",")
-        DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR.extend(extra_roles)
     return user_role.lower() in DEFAULT_ROLE_NAMES_FOR_INSTRUCTOR

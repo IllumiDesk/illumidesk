@@ -3,10 +3,7 @@ import os
 from typing import Any
 from typing import Dict
 
-from jupyterhub.app import JupyterHub
 from jupyterhub.auth import Authenticator
-from jupyterhub.handlers import BaseHandler
-from ltiauthenticator import LTIAuthenticator
 from oauthenticator.oauth2 import OAuthenticator
 from tornado.web import HTTPError
 from tornado.web import RequestHandler
@@ -16,13 +13,11 @@ from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
 from illumidesk.apis.setup_course_service import create_assignment_source_dir
 from illumidesk.apis.setup_course_service import register_new_service
-from illumidesk.authenticators.handlers import LTI11AuthenticateHandler
 from illumidesk.authenticators.handlers import LTI13CallbackHandler
 from illumidesk.authenticators.handlers import LTI13LoginHandler
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.authenticators.utils import user_is_a_student
 from illumidesk.authenticators.utils import user_is_an_instructor
-from illumidesk.authenticators.validator import LTI11LaunchValidator
 from illumidesk.authenticators.validator import LTI13LaunchValidator
 
 logger = logging.getLogger(__name__)
@@ -32,6 +27,71 @@ logger.setLevel(logging.DEBUG)
 ORG_NAME = os.environ.get("ORGANIZATION_NAME") or "my-org"
 if not ORG_NAME:
     raise EnvironmentError("ORGANIZATION_NAME env-var is not set")
+
+
+async def setup_course_hook_lti11(
+    self,
+    handler: RequestHandler,
+    authentication: Dict[str, str],
+) -> Dict[str, str]:
+    """
+    Calls the microservice to setup up a new course in case it does not exist when receiving
+    LTI 1.1 launch requests. The data needed is received from auth_state within authentication object.
+    This function assumes that the required k/v's in the auth_state dictionary are available,
+    since the Authenticator(s) validates the data beforehand.
+
+    This function requires `Authenticator.enable_auth_state = True` and is intended
+    to be used as a post_auth_hook.
+
+    Args:
+        handler: the JupyterHub handler object
+        authentication: the authentication object returned by the
+            authenticator class
+
+    Returns:
+        authentication (Required): updated authentication object
+    """
+    lti_utils = LTIUtils()
+    jupyterhub_api = JupyterHubAPI()
+
+    # normalize the name and course_id strings in authentication dictionary
+    username = authentication["name"]
+    lms_user_id = authentication["auth_state"]["lms_user_id"]
+    user_role = authentication["auth_state"]["roles"].split(",")[0]
+    course_id = lti_utils.normalize_string(
+        authentication["auth_state"]["context_label"]
+    )
+    nb_service = NbGraderServiceHelper(course_id)
+
+    # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
+    nb_service.add_user_to_nbgrader_gradebook(username, lms_user_id)
+    # TODO: verify the logic to simplify groups creation and membership
+    if user_is_a_student(user_role):
+        try:
+            # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
+            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+        except Exception as e:
+            logger.error(
+                "An error when adding student username: %s to course_id: %s with exception %s",
+                (username, course_id, e),
+            )
+    elif user_is_an_instructor(user_role):
+        try:
+            # assign the user in 'formgrade-<course_id>' group
+            await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
+        except Exception as e:
+            logger.error(
+                "An error when adding instructor username: %s to course_id: %s with exception %s",
+                (username, course_id, e),
+            )
+
+    # launch the new grader-notebook as a service
+    try:
+        _ = await register_new_service(org_name=ORG_NAME, course_id=course_id)
+    except Exception as e:
+        logger.error("Unable to launch the shared grader notebook with exception %s", e)
+
+    return authentication
 
 
 async def setup_course_hook(
@@ -96,207 +156,6 @@ async def setup_course_hook(
         logger.error("Unable to launch the shared grader notebook with exception %s", e)
 
     return authentication
-
-
-class LTI11Authenticator(LTIAuthenticator):
-    """
-    JupyterHub LTI 1.1 Authenticator which extends the ltiauthenticator.LTIAuthenticator class.
-    Messages sent to this authenticator are sent from a tool consumer (TC), such as
-    an LMS. JupyterHub, as the authenticator, works as the tool provider (TP), also
-    known as the external tool.
-
-    The LTIAuthenticator base class defines the consumers, defined as 1 or (n) consumer key
-    and shared secret k/v's to verify requests from their tool consumer.
-    """
-
-    def get_handlers(self, app: JupyterHub) -> BaseHandler:
-        return [("/lti/launch", LTI11AuthenticateHandler)]
-
-    async def authenticate(  # noqa: C901
-        self, handler: BaseHandler, data: Dict[str, str] = None
-    ) -> Dict[str, str]:  # noqa: C901
-        """
-        LTI 1.1 authenticator which overrides authenticate function from base LTIAuthenticator.
-        After validating the LTI 1.1 signuature, this function decodes the dictionary object
-        from the request payload to set normalized strings for the course_id, username,
-        user role, and lms user id. Once those values are set they are added to the auth_state
-        and returned as a dictionary for further processing by hooks defined in jupyterhub_config.
-
-        One or more consumer keys/values must be set in the jupyterhub config with the
-        LTIAuthenticator.consumers dict.
-
-        Args:
-            handler: JupyterHub's Authenticator handler object. For LTI 1.1 requests, the handler is
-              an instance of LTIAuthenticateHandler.
-            data: optional data object
-
-        Returns:
-            Authentication's auth_state dictionary
-
-        Raises:
-            HTTPError if the required values are not in the request
-        """
-        validator = LTI11LaunchValidator(self.consumers)
-        lti_utils = LTIUtils()
-
-        self.log.debug(
-            "Original arguments received in request: %s" % handler.request.arguments
-        )
-
-        # extract the request arguments to a dict
-        args = lti_utils.convert_request_to_dict(handler.request.arguments)
-        self.log.debug("Decoded args from request: %s" % args)
-
-        # get the origin protocol
-        protocol = lti_utils.get_client_protocol(handler)
-        self.log.debug("Origin protocol is: %s" % protocol)
-
-        # build the full launch url value required for oauth1 signatures
-        launch_url = f"{protocol}://{handler.request.host}{handler.request.uri}"
-        self.log.debug("Launch url is: %s" % launch_url)
-
-        if validator.validate_launch_request(launch_url, handler.request.headers, args):
-            # get the lms vendor to implement optional logic for said vendor
-            lms_vendor = ""
-            if (
-                "tool_consumer_info_product_family_code" in args
-                and args["tool_consumer_info_product_family_code"]
-            ):
-                lms_vendor = args["tool_consumer_info_product_family_code"]
-
-            # We use the course_id to setup the grader service notebook. Since this service
-            # runs as a container we need to normalize the string so we can use it
-            # as a container name.
-            if "context_label" in args and args["context_label"]:
-                course_id = args["context_label"]
-                self.log.debug("Course context_label normalized to: %s" % course_id)
-            elif "context_title" in args and args["context_title"]:
-                course_id = args["context_title"]
-                self.log.debug("Course context_title normalized to: %s" % course_id)
-            else:
-                raise HTTPError(
-                    400, "course_label or course_title not included in the LTI request"
-                )
-
-            # Get the user's role, assign to Learner role by default. Roles are sent as institution
-            # roles, where the roles' value is <handle>,<full URN>.
-            # https://www.imsglobal.org/specs/ltiv1p0/implementation-guide#toc-16
-            user_role = "Learner"
-            if "roles" in args and args["roles"]:
-                user_role = args["roles"].split(",")[0]
-                self.log.debug("User LTI role is: %s" % user_role)
-            else:
-                raise HTTPError(400, "User role not included in the LTI request")
-
-            # Assign the user_id. Check the tool consumer (lms) vendor. If canvas use their
-            # custom user id extension by default, else use standar lti values.
-            username = ""
-            if lms_vendor == "canvas":
-                login_id = ""
-                user_id = ""
-                self.log.debug("TC is a Canvas LMS instance")
-                if (
-                    "custom_canvas_user_login_id" in args
-                    and args["custom_canvas_user_login_id"]
-                    and "custom_canvas_user_id" in args
-                    and args["custom_canvas_user_id"]
-                ):
-                    custom_canvas_user_login_id = args["custom_canvas_user_login_id"]
-                    login_id = lti_utils.email_to_username(custom_canvas_user_login_id)
-                    self.log.debug("using custom_canvas_user_login_id for username")
-                if "custom_canvas_user_id" in args and args["custom_canvas_user_id"]:
-                    custom_canvas_user_id = args["custom_canvas_user_id"]
-                    user_id = lti_utils.email_to_username(custom_canvas_user_id)
-                    self.log.debug("using custom_canvas_user_id for username")
-                username = f"{login_id}-{user_id}"
-            if (
-                not username
-                and "lis_person_contact_email_primary" in args
-                and args["lis_person_contact_email_primary"]
-            ):
-                email = args["lis_person_contact_email_primary"]
-                username = lti_utils.email_to_username(email)
-                self.log.debug("using lis_person_contact_email_primary for username")
-            elif (
-                not username
-                and "lis_person_name_given" in args
-                and args["lis_person_name_given"]
-            ):
-                username = args["lis_person_name_given"]
-                self.log.debug("using lis_person_name_given for username")
-            elif (
-                not username
-                and "lis_person_sourcedid" in args
-                and args["lis_person_sourcedid"]
-            ):
-                username = args["lis_person_sourcedid"]
-                self.log.debug("using lis_person_sourcedid for username")
-            elif (
-                not username
-                and "lis_person_name_family" in args
-                and args["lis_person_name_family"]
-            ):
-                username = args["lis_person_name_family"]
-                self.log.debug("using lis_person_name_family for username")
-            elif (
-                not username
-                and "lis_person_name_full" in args
-                and args["lis_person_name_full"]
-            ):
-                username = args["lis_person_name_full"]
-                self.log.debug("using lis_person_name_full for username")
-            elif not username and "user_id" in args and args["user_id"]:
-                username = args["user_id"]
-            elif not username:
-                raise HTTPError(400, "Unable to get username from request arguments")
-
-            # use the user_id to identify the unique user id, if its not sent with the request
-            # then default to the username
-            lms_user_id = args["user_id"] if "user_id" in args else username
-
-            # retrieve assignment_name from standard property vs custom lms properties
-            assignment_name = ""
-            # the next fields must come in args
-            if (
-                "custom_canvas_assignment_title" in args
-                and args["custom_canvas_assignment_title"]
-            ):
-                assignment_name = lti_utils.normalize_string(
-                    args["custom_canvas_assignment_title"]
-                )
-            # this requires adding a the assignment_title as a custom parameter in the tool consumer (lms)
-            elif "custom_assignment_title" in args and args["custom_assignment_title"]:
-                assignment_name = lti_utils.normalize_string(
-                    args["custom_assignment_title"]
-                )
-            elif "resource_link_title" in args and args["resource_link_title"]:
-                assignment_name = lti_utils.normalize_string(
-                    args["resource_link_title"]
-                )
-            elif "resource_link_id" in args and args["resource_link_id"]:
-                assignment_name = lti_utils.normalize_string(args["resource_link_id"])
-
-            # Assignment creation
-            if assignment_name:
-                nbgrader_service = NbGraderServiceHelper(course_id, True)
-                self.log.debug(
-                    "Creating a new assignment from the Authentication flow with title %s"
-                    % assignment_name
-                )
-                nbgrader_service.register_assignment(assignment_name)
-            # ensure the user name is normalized
-            username_normalized = lti_utils.normalize_string(username)
-            self.log.debug("Assigned username is: %s" % username_normalized)
-
-            return {
-                "name": username_normalized,
-                "auth_state": {
-                    "assignment_name": assignment_name,
-                    "course_id": course_id,
-                    "lms_user_id": lms_user_id,
-                    "user_role": user_role,
-                },  # noqa: E231
-            }
 
 
 class LTI13Authenticator(OAuthenticator):
