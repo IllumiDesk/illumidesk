@@ -1,5 +1,5 @@
-ARG BASE_IMAGE=jupyterhub/k8s-hub:1.0.1-n014.h8c8ee4a0
-
+# ARG BASE_IMAGE=jupyterhub/k8s-hub:1.0.1-n014.h8c8ee4a0
+ARG BASE_IMAGE=jupyterhub/jupyterhub:1.4.1
 FROM "${BASE_IMAGE}"
 
 USER root
@@ -23,12 +23,9 @@ ENV PATH="/home/${NB_USER}/.local/bin:${PATH}"
 # ensure pip is up to date
 RUN python3 -m pip install --upgrade pip
 
-COPY requirements.txt /tmp/
-RUN pip install -r /tmp/requirements.txt
-
 WORKDIR /tmp
 COPY . /tmp
-RUN python3 -m pip install /tmp/.
+RUN python3 -m pip install -e /tmp/.
 
 WORKDIR /srv/jupyterhub/
 

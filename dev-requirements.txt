@@ -59,7 +59,7 @@ idna==2.10
     # via requests
 iniconfig==1.0.1
     # via pytest
-isort==5.8.0
+isort==5.9.1
     # via -r dev-requirements.in
 itsdangerous==1.1.0
     # via flask
@@ -85,13 +85,11 @@ packaging==20.4
     # via pytest
 pathspec==0.8.0
     # via black
-pep517==0.10.0
-    # via pip-tools
-pip-tools==6.1.0
+pip-tools==5.4.0
     # via -r dev-requirements.in
 pluggy==0.13.1
     # via pytest
-pre-commit==2.10.1
+pre-commit==2.10.0
     # via -r dev-requirements.in
 py==1.10.0
     # via pytest
@@ -169,6 +167,7 @@ six==1.15.0
     #   kubernetes
     #   oauth2client
     #   packaging
+    #   pip-tools
     #   pykube
     #   python-dateutil
     #   virtualenv
@@ -178,7 +177,6 @@ sqlalchemy==1.3.20
 toml==0.10.1
     # via
     #   black
-    #   pep517
     #   pre-commit
     #   pytest
 typed-ast==1.4.1
@@ -199,3 +197,7 @@ werkzeug==1.0.1
     # via
     #   flask
     #   pytest-flask
+
+# The following packages are considered to be unsafe in a requirements file:
+# pip
+# setuptools

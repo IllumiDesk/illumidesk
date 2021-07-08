@@ -1,5 +1,4 @@
 import hashlib
-import logging
 import os
 import re
 import uuid
@@ -20,8 +19,6 @@ from tornado.web import RequestHandler
 
 from illumidesk.authenticators.utils import LTIUtils
 from illumidesk.authenticators.validator import LTI13LaunchValidator
-
-logger = logging.getLogger(__name__)
 
 
 class LTI11AuthenticateHandler(BaseHandler):

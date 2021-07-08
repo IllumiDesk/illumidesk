@@ -318,12 +318,22 @@ async def process_resource_link_lti_13(
     """
     Executes additional processes with the claims that come only with LtiResourceLinkRequest
     """
-    nbgrader_service = NbGraderServiceHelper(course_id, True)
+    # Values for send-grades functionality
     resource_link = jwt_body_decoded[
         "https://purl.imsglobal.org/spec/lti/claim/resource_link"
     ]
     resource_link_title = resource_link["title"] or ""
-
+    course_lineitems = ""
+    if (
+        "https://purl.imsglobal.org/spec/lti-ags/claim/endpoint" in jwt_body_decoded
+        and "lineitems"
+        in jwt_body_decoded["https://purl.imsglobal.org/spec/lti-ags/claim/endpoint"]
+    ):
+        course_lineitems = jwt_body_decoded[
+            "https://purl.imsglobal.org/spec/lti-ags/claim/endpoint"
+        ]["lineitems"]
+    nbgrader_service = NbGraderServiceHelper(course_id, True)
+    nbgrader_service.update_course(lms_lineitems_endpoint=course_lineitems)
     if resource_link_title:
         assignment_name = LTIUtils().normalize_string(resource_link_title)
         logger.debug(
