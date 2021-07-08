@@ -30,7 +30,6 @@ def auth_state_dict():
         "name": "student1",
         "auth_state": {
             "course_id": "intro101",
-            "course_lineitems": "my.platform.com/api/lti/courses/1/line_items",
             "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
             "user_role": "Learner",
         },
@@ -70,7 +69,6 @@ def mock_nbhelper():
                     get_course=Mock(
                         return_value=Course(
                             id="123",
-                            lms_lineitems_endpoint="canvas.docker.com/api/lti/courses/1/line_items",
                         )
                     ),
                 ) as mock_nb:
