@@ -27,7 +27,7 @@ class IllumiDeskDummyAuthenticator(Authenticator):
     """
 
     def get_handlers(self, app: JupyterHub) -> BaseHandler:
-        return [("/login", IllumiDeskDummyLoginHandler)]
+        return [("/dummy/login", IllumiDeskDummyLoginHandler)]
 
     async def authenticate(  # noqa: C901
         self, handler: BaseHandler, data: Dict[str, Any] = None
@@ -36,15 +36,11 @@ class IllumiDeskDummyAuthenticator(Authenticator):
 
         validator = IllumiDeskDummyValidator()
 
-        print("Original request args: %s" % handler.request.arguments)
-
         # extract the request arguments to a dict
         args = {}
         for k, values in handler.request.arguments.items():
             args[k] = values[0].decode()
         self.log.debug("Decoded args from request: %s" % args)
-
-        print("Decoded args from request: %s" % args)
 
         if validator.validate_login_request(args):
             # get the lms vendor to implement optional logic for said vendor
@@ -54,7 +50,7 @@ class IllumiDeskDummyAuthenticator(Authenticator):
             lms_user_id = args["lms_user_id"]
             user_role = args["user_role"]
 
-            return {
+            auth_dict = {
                 "name": username,
                 "auth_state": {
                     "assignment_name": assignment_name,
@@ -63,3 +59,7 @@ class IllumiDeskDummyAuthenticator(Authenticator):
                     "user_role": user_role,
                 },  # noqa: E231
             }
+
+            self.log.debug("Returning authentiation dictionary with %s" % auth_dict)
+
+            return auth_dict

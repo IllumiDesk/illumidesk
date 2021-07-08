@@ -10,7 +10,7 @@ from tornado.web import RequestHandler
 
 
 @pytest.fixture
-def app():
+def hubapp():
     hub = MockHub()
     hub.init_db()
     return hub

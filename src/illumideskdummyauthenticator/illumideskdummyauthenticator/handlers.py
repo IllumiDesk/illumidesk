@@ -59,17 +59,17 @@ class IllumiDeskDummyLoginHandler(LocalBase):
         )
         self.finish(html)
 
-    async def post(self):
-        """Handle the request data when sent with the login form."""
-        user_info = {
-            "username": self.get_body_argument("username", strip=False),
-            "assignment_name": self.get_body_argument("assignment_name", strip=False),
-            "course_id": self.get_body_argument("course_id", "", strip=False),
-            "lms_user_id": bool(self.get_body_argument("lms_user_id", "", strip=False)),
-            "user_role": bool(self.get_body_argument("user_role", "", strip=False)),
-        }
+    # async def post(self):
+    #     """Handle the request data when sent with the login form."""
+    #     user_info = {
+    #         "username": self.get_body_argument("username", strip=False),
+    #         "assignment_name": self.get_body_argument("assignment_name", strip=False),
+    #         "course_id": self.get_body_argument("course_id", "", strip=False),
+    #         "lms_user_id": bool(self.get_body_argument("lms_user_id", "", strip=False)),
+    #         "user_role": bool(self.get_body_argument("user_role", "", strip=False)),
+    #     }
 
-        html = await self.render_template(
-            "dummy_login.html",
-        )
-        self.finish(html)
+    #     html = await self.render_template(
+    #         "dummy_login.html",
+    #     )
+    #     self.finish(html)
