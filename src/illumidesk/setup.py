@@ -43,7 +43,7 @@ setup(
         "jupyterhub-ltiauthenticator@git+git://github.com/jupyterhub/ltiauthenticator.git@01009c50834771acf124b505cf9ba5269f75238a",
         "jwcrypto==0.8",
         "lti==0.9.5",
-        "nbgrader@git+https://github.com/IllumiDesk/nbgrader.git@v0.64.3#egg=nbgrader",
+        "nbgrader==0.6.2",
         "oauthenticator==0.11.0",
         "pem==20.1.0",
         "psycopg2-binary==2.8.6",
