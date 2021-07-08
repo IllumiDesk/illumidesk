@@ -205,11 +205,3 @@ def test_user_is_an_instructor_method_returns_true_when_TeachingAssistant_role()
 def test_user_is_an_instructor_method_returns_false_when_other_role():
     result = user_is_an_instructor("Student")
     assert result is False
-
-
-def test_user_is_an_instructor_method_returns_true_with_extra_role_passed_in_the_environ(
-    monkeypatch,
-):
-    monkeypatch.setenv("EXTRA_ROLE_NAMES_FOR_INSTRUCTOR", "CustomInstructorRole")
-    result = user_is_an_instructor("CustomInstructorRole")
-    assert result is True

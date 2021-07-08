@@ -8,18 +8,8 @@ from tornado.web import RequestHandler
 
 from illumidesk.apis.jupyterhub_api import JupyterHubAPI
 from illumidesk.apis.nbgrader_service import NbGraderServiceHelper
-from illumidesk.authenticators.authenticator import LTI11Authenticator
 from illumidesk.authenticators.authenticator import LTI13Authenticator
 from illumidesk.authenticators.authenticator import setup_course_hook
-
-
-@pytest.mark.asyncio
-async def test_setup_course_hook_is_assigned_to_lti11_authenticator_post_auth_hook():
-    """
-    Does the setup course hook get assigned to the post_auth_hook for the LTI11Authenticator?
-    """
-    authenticator = LTI11Authenticator(post_auth_hook=setup_course_hook)
-    assert authenticator.post_auth_hook == setup_course_hook
 
 
 @pytest.mark.asyncio
