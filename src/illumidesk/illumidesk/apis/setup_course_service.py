@@ -64,6 +64,7 @@ async def register_new_service(org_name: str, course_id: str) -> bool:
         )
         logger.debug(f"Grader-setup service response: {response.body}")
         return True
+
     except HTTPError as e:
         # HTTPError is raised for non-200 responses
         # the response can be found in e.response.

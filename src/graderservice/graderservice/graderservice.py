@@ -7,11 +7,12 @@ from os import path
 from pathlib import Path
 from secrets import token_hex
 
-from graderservice.templates import NBGRADER_COURSE_CONFIG_TEMPLATE
-from graderservice.templates import NBGRADER_HOME_CONFIG_TEMPLATE
 from kubernetes import client
 from kubernetes import config
 from kubernetes.config import ConfigException
+
+from .templates import NBGRADER_COURSE_CONFIG_TEMPLATE
+from .templates import NBGRADER_HOME_CONFIG_TEMPLATE
 
 log_file_path = path.join(path.dirname(path.abspath(__file__)), "logging_config.ini")
 logging.config.fileConfig(log_file_path)
@@ -136,7 +137,6 @@ class GraderServiceLauncher:
             body=deployment, namespace=NAMESPACE
         )
         logger.info(f'Deployment created. Status="{str(api_response.status)}"')
-        print(f'Deployment created. Status="{str(api_response.status)}"')
         # Create grader service
         service = self._create_service_object()
         self.coreV1Api.create_namespaced_service(namespace=NAMESPACE, body=service)
@@ -347,4 +347,3 @@ class GraderServiceLauncher:
                     name="hub", namespace=NAMESPACE, body=deployment
                 )
                 logger.info(f"Jhub patch response:{api_response}")
-                print(f"Jhub patch response:{api_response}")
