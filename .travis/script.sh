@@ -11,10 +11,7 @@ run_linters () {
 
 run_unit_tests () {
   echo "Running unit tests ..."
-  python3 -m pytest
-  cd src/graderservice
-  python3 -m pytest
-  cd ../../
+  make test
 }
 
 run_coverage_report () {
