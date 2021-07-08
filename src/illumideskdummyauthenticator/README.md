@@ -6,29 +6,7 @@ This package provides users with a JupyterHub compatible authenticator used for 
 authentication dictionaries. Use cases include local dev testing and testing end-to-end workflows without relying on
 LTI 1.x login flows.
 
-## Dev Install
-
-1. Follow the steps in the `CONTRIBUTION.md` guide in the root of this repo to install all dependencies.
-
-1. Install in editable mode:
-
-```bash
-virtualenv -p python3 venv
-source venv/bin/activate
-python3 -m pip install -e .
-```
-
-2. Start the JupyterHub in your local environment:
-
-```bash
-jupyterhub --config=jupyterhub_config.py
-```
-
-Once the JupyterHub server is running navigate to `http://<your-ipv4-address>:8000/hub/login`.
-
-## Test with the IllumIDeskDummyAuthenticator
-
-This repo includes the `graderservice` microservice that configures the user's environment when logging into the system with the LTI 1.x standard. A convinience class, `IllumiDeskDummyAuthenticator`, replicates how the LTI 1.x authenticators return the authentication dictionary:
+The `graderservice` microservice included in this repo configures the user's environment when logging into the system. A convinience class, `IllumiDeskDummyAuthenticator`, replicates how the LTI 1.x authenticators return the authentication dictionary:
 
 - `username`
 - `auth_state[assignment_name]`
