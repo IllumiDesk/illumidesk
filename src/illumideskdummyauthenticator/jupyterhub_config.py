@@ -1,5 +1,6 @@
 """ Configuration file for jupyterhub. This version is used primarily for testing. """
 from illumideskdummyauthenticator.authenticator import IllumiDeskDummyAuthenticator
+from jupyterhub.spawner import SimpleLocalProcessSpawner
 
 # Set port and IP
 c.JupyterHub.ip = "0.0.0.0"
@@ -24,7 +25,7 @@ c.JupyterHub.authenticator_class = IllumiDeskDummyAuthenticator
 c.Authenticator.admin_users = {"admin"}
 
 # Add a simple spawner
-c.JupyterHub.spawner_class = "simplespawner.SimpleLocalProcessSpawner"
+c.JupyterHub.spawner_class = SimpleLocalProcessSpawner
 
 # Enable auth state to pass the authentication dictionary values within auth_state to ths spawner
 c.Authenticator.enable_auth_state = True
