@@ -62,10 +62,10 @@ docker run -d \
 1. You may also use the provided `Dockerfile` to build a docker image built to run with a `Kubernetes` cluster. The provided Dockerfile does not provide a Kubernetes-compatible base image. However, you can use the `--build-args` option to specify the image's base image:
 
 ```bash
-docker run -d \
-  -p 8000:8000 \
-  -e JUPYTERHUB_CRYPT_KEY=<openssl-hex-value> \
-  illumidesk/jupyterhub:latest
+docker build \
+  --build-arg BASE_IMAGE=jupyterhub/k8s-hub:1.0.1-n014.h8c8ee4a0 \
+  -t illumidesk/jupyterhub:test . \
+  --no-cache
 ```
 
 2. Create a value for the `JUPYTERHUB_CRYPT_KEY` environment variable: `openssl rand -hex 32`
