@@ -29,6 +29,7 @@ Follow the `CONTRIBUTING.md` guide in the root of this repo to install all requi
 ```bash
 virtualenv -p python3 venv
 source venv/bin/activate
+pip install -e ../illumidesk/.
 pip install -e .
 ```
 
@@ -40,10 +41,10 @@ pip install -e .
 
 ### Docker
 
-Use the provided `Dockerfile` to build a docker image using the `jupyterhub:jupyterhub:<tag>` image.
+Use the provided `Dockerfile` to build a docker image using the `illumidesk/jupyterhub:<tag>` image.
 
 1. Create a value for the `JUPYTERHUB_CRYPT_KEY` environment variable: `openssl rand -hex 32`
-2. Build the docker image with `docker build -t illumidesk/jupyterhub:latest . --no-cache`.
+2. Build the docker image with `docker build -t illumidesk/jupyterhub:<tag> . --no-cache`.
 3. Run the docker container:
 
 ```bash
@@ -63,13 +64,13 @@ docker run -d \
 
 ```bash
 docker build \
-  --build-arg BASE_IMAGE=jupyterhub/k8s-hub:1.0.1-n014.h8c8ee4a0 \
+  --build-arg BASE_IMAGE=illumidesk/k8s-hub:1.0.1-n014.h8c8ee4a0 \
   -t illumidesk/jupyterhub:test . \
   --no-cache
 ```
 
 2. Create a value for the `JUPYTERHUB_CRYPT_KEY` environment variable: `openssl rand -hex 32`
-3. Configure the `illumidesk/illumidesk` helm chart to set the `authenticator_class` and the `post_auth_hook` mentioned above.
+3. Configure the `illumidesk/illumidesk` [helm chart](https://github.com/illumidesk/helm-chart) to set the `authenticator_class` and the `post_auth_hook` mentioned above.
 4. Deploy the `illumidesk/illumidesk` application to a `kubernetes` cluster. [Refer to IllumiDesk's helm-chart repo](https://github.com/illumidesk/helm-chart) for further instructions.
 5. Navigate to `https://<external-facing-address>/hub/dummy/login`.
 
