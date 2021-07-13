@@ -284,13 +284,24 @@ def pem_file(tmp_path):
 @pytest.fixture(scope="function")
 def setup_jupyterhub_db(monkeypatch):
     """
-    Set the enviroment variables used to identify the end user image.
+    Set the enviroment variables used to connect to the jupyterhub db.
     """
     monkeypatch.setenv("POSTGRES_JUPYTERHUB_DB", "jupyterhub")
     monkeypatch.setenv("POSTGRES_JUPYTERHUB_HOST", "jupyterhub-db")
     monkeypatch.setenv("POSTGRES_JUPYTERHUB_PORT", "5432")
     monkeypatch.setenv("POSTGRES_JUPYTERHUB_USER", "foobar")
     monkeypatch.setenv("POSTGRES_JUPYTERHUB_PASSWORD", "abc123")
+
+
+@pytest.fixture(scope="function")
+def setup_nbgrader_db(monkeypatch):
+    """
+    Set the enviroment variables used to connect to the nbgrader db.
+    """
+    monkeypatch.setenv("POSTGRES_NBGRADER_HOST", "jupyterhub-db")
+    monkeypatch.setenv("POSTGRES_NBGRADER_PORT", "5432")
+    monkeypatch.setenv("POSTGRES_NBGRADER_USER", "foobar")
+    monkeypatch.setenv("POSTGRES_NBGRADER_PASSWORD", "abc123")
 
 
 @pytest.fixture(scope="function")
@@ -321,7 +332,9 @@ def setup_image_environ(monkeypatch):
 
 
 @pytest.fixture(scope="function")
-def setup_course_environ(monkeypatch, tmp_path, jupyterhub_api_environ):
+def setup_course_environ(
+    monkeypatch, tmp_path, jupyterhub_api_environ, setup_jupyterhub_db
+):
     """
     Set the environment variables used in Course class`
     """
@@ -656,7 +669,8 @@ def make_lti13_resource_link_request() -> Dict[str, str]:
             "http://purl.imsglobal.org/vocab/lis/v2/system/person#User",
         ],
         "https://purl.imsglobal.org/spec/lti/claim/custom": {
-            "email": "foo@example.com"
+            "email": "foo@example.com",
+            "lms_user_id": "4",
         },
         "errors": {"errors": {}},
         "https://purl.imsglobal.org/spec/lti-ags/claim/endpoint": {
@@ -701,7 +715,7 @@ def make_lti13_resource_link_request_privacy_enabled(
     Returns valid json after decoding JSON Web Token (JWT) for resource link launch (core)
     when Privacy is enabled.
     """
-    jws = make_lti13_resource_link_request()
+    jws = make_lti13_resource_link_request
     del jws["picture"]
     del jws["email"]
     del jws["given_name"]

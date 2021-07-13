@@ -51,7 +51,7 @@ class NbGraderServiceHelper:
       database_name: the database name
     """
 
-    def __init__(self, course_id: str, check_database_exists: bool = True):
+    def __init__(self, course_id: str, check_database_exists: bool = False):
         if not course_id:
             raise ValueError("course_id missing")
 

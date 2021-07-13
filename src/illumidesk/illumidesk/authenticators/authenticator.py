@@ -133,7 +133,7 @@ async def setup_course_hook(
     if user_is_a_student(user_role):
         try:
             # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
-            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+            jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
         except Exception as e:
             logger.error(
                 "An error when adding student username: %s to course_id: %s with exception %s",
@@ -261,11 +261,6 @@ class LTI13Authenticator(OAuthenticator):
                         "lms_user_id"
                     ]
                 )
-            self.log.debug("username is %s" % username)
-            # ensure the username is normalized
-            self.log.debug("username is %s" % username)
-            if username == "":
-                raise HTTPError("Unable to set the username")
 
             # set role to learner role (by default) if instructor or learner/student roles aren't
             # sent with the request
@@ -294,6 +289,11 @@ class LTI13Authenticator(OAuthenticator):
                 await process_resource_link_lti_13(self.log, course_id, jwt_decoded)
 
             lms_user_id = jwt_decoded["sub"] if "sub" in jwt_decoded else username
+
+            # ensure the username is normalized
+            self.log.debug("username is %s" % username)
+            if not username:
+                raise HTTPError(400, "Unable to set the username")
 
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)

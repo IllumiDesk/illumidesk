@@ -1,6 +1,6 @@
 # for kubernetes, use the --build-arg when building image or uncomment
-ARG BASE_IMAGE=jupyterhub/k8s-hub:1.0.1-n014.h8c8ee4a0
-# ARG BASE_IMAGE=jupyterhub/jupyterhub:1.4.1
+# ARG BASE_IMAGE=jupyterhub/k8s-hub:1.0.1-n014.h8c8ee4a0
+ARG BASE_IMAGE=jupyterhub/jupyterhub:1.4.1
 FROM "${BASE_IMAGE}"
 
 USER root
