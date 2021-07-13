@@ -21,11 +21,11 @@ c.JupyterHub.upgrade_db = True
 # Set the authenticator
 c.JupyterHub.authenticator_class = IllumiDeskDummyAuthenticator
 
-# Add an admin user for testing the admin page
-c.Authenticator.admin_users = {"admin"}
-
 # Add a simple spawner
 c.JupyterHub.spawner_class = SimpleLocalProcessSpawner
+
+# Add an admin user for testing the admin page
+c.Authenticator.admin_users = {"admin"}
 
 # Enable auth state to pass the authentication dictionary values within auth_state to ths spawner
 c.Authenticator.enable_auth_state = True

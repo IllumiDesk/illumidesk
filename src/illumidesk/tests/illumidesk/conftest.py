@@ -284,13 +284,24 @@ def pem_file(tmp_path):
 @pytest.fixture(scope="function")
 def setup_jupyterhub_db(monkeypatch):
     """
-    Set the enviroment variables used to identify the end user image.
+    Set the enviroment variables used to connect to the jupyterhub db.
     """
     monkeypatch.setenv("POSTGRES_JUPYTERHUB_DB", "jupyterhub")
     monkeypatch.setenv("POSTGRES_JUPYTERHUB_HOST", "jupyterhub-db")
     monkeypatch.setenv("POSTGRES_JUPYTERHUB_PORT", "5432")
     monkeypatch.setenv("POSTGRES_JUPYTERHUB_USER", "foobar")
     monkeypatch.setenv("POSTGRES_JUPYTERHUB_PASSWORD", "abc123")
+
+
+@pytest.fixture(scope="function")
+def setup_nbgrader_db(monkeypatch):
+    """
+    Set the enviroment variables used to connect to the nbgrader db.
+    """
+    monkeypatch.setenv("POSTGRES_NBGRADER_HOST", "jupyterhub-db")
+    monkeypatch.setenv("POSTGRES_NBGRADER_PORT", "5432")
+    monkeypatch.setenv("POSTGRES_NBGRADER_USER", "foobar")
+    monkeypatch.setenv("POSTGRES_NBGRADER_PASSWORD", "abc123")
 
 
 @pytest.fixture(scope="function")
@@ -321,7 +332,9 @@ def setup_image_environ(monkeypatch):
 
 
 @pytest.fixture(scope="function")
-def setup_course_environ(monkeypatch, tmp_path, jupyterhub_api_environ):
+def setup_course_environ(
+    monkeypatch, tmp_path, jupyterhub_api_environ, setup_jupyterhub_db
+):
     """
     Set the environment variables used in Course class`
     """
@@ -656,7 +669,8 @@ def make_lti13_resource_link_request() -> Dict[str, str]:
             "http://purl.imsglobal.org/vocab/lis/v2/system/person#User",
         ],
         "https://purl.imsglobal.org/spec/lti/claim/custom": {
-            "email": "foo@example.com"
+            "email": "foo@example.com",
+            "lms_user_id": "4",
         },
         "errors": {"errors": {}},
         "https://purl.imsglobal.org/spec/lti-ags/claim/endpoint": {
@@ -694,82 +708,19 @@ def make_lti13_resource_link_request() -> Dict[str, str]:
 
 
 @pytest.fixture(scope="function")
-def make_lti13_resource_link_request_privacy_enabled() -> Dict[str, str]:
+def make_lti13_resource_link_request_privacy_enabled(
+    make_lti13_resource_link_request,
+) -> Dict[str, str]:
     """
     Returns valid json after decoding JSON Web Token (JWT) for resource link launch (core)
     when Privacy is enabled.
     """
-    jws = {
-        "https://purl.imsglobal.org/spec/lti/claim/message_type": "LtiResourceLinkRequest",
-        "https://purl.imsglobal.org/spec/lti/claim/version": "1.3.0",
-        "https://purl.imsglobal.org/spec/lti/claim/resource_link": {
-            "id": "41c4731cc7668aef2eddeeb99132ba6239d8e058",
-            "description": None,
-            "title": None,
-            "validation_context": None,
-            "errors": {"errors": {}},
-        },
-        "https://purl.imsglobal.org/spec/lti-ags/claim/endpoint": {
-            "scope": [
-                "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem",
-                "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly",
-                "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly",
-                "https://purl.imsglobal.org/spec/lti-ags/scope/score",
-            ],
-            "lineitems": "https://illumidesk.instructure.com/api/lti/courses/169/line_items",
-            "validation_context": None,
-            "errors": {"errors": {}},
-        },
-        "aud": "125900000000000094",
-        "azp": "125900000000000094",
-        "https://purl.imsglobal.org/spec/lti/claim/deployment_id": "905:41c4731cc7668aef2eddeeb99132ba6239d8e058",
-        "exp": 1595538982,
-        "iat": 1595535382,
-        "iss": "https://canvas.instructure.com",
-        "nonce": "02cb8d54c4e0f7678a3c5bcbff70095349d18994cf727c1f5efe7724e40ca766",
-        "sub": "8171934b-f5e2-4f4e-bdbd-6d798615b93e",
-        "https://purl.imsglobal.org/spec/lti/claim/target_link_uri": "https://test.illumidesk.com/",
-        "https://purl.imsglobal.org/spec/lti/claim/context": {
-            "id": "41c4731cc7668aef2eddeeb99132ba6239d8e058",
-            "label": "intro101",
-            "title": "intro101",
-            "type": ["http://purl.imsglobal.org/vocab/lis/v2/course#CourseOffering"],
-            "validation_context": None,
-            "errors": {"errors": {}},
-        },
-        "https://purl.imsglobal.org/spec/lti/claim/tool_platform": {
-            "guid": "srnuz6h1U8kOMmETzoqZTJiPWzbPXIYkAUnnAJ4u:canvas-lms",
-            "name": "Illumidesk",
-            "version": "cloud",
-            "product_family_code": "canvas",
-            "validation_context": None,
-            "errors": {"errors": {}},
-        },
-        "https://purl.imsglobal.org/spec/lti/claim/launch_presentation": {
-            "document_target": "iframe",
-            "height": 400,
-            "width": 800,
-            "return_url": "https://illumidesk.instructure.com/courses/169/external_content/success/external_tool_redirect",
-            "locale": "en",
-            "validation_context": None,
-            "errors": {"errors": {}},
-        },
-        "locale": "en",
-        "https://purl.imsglobal.org/spec/lti/claim/roles": [
-            "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Administrator",
-            "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Instructor",
-            "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor",
-            "http://purl.imsglobal.org/vocab/lis/v2/system/person#User",
-        ],
-        "https://purl.imsglobal.org/spec/lti/claim/custom": {"lms_user_id": 4},
-        "https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice": {
-            "context_memberships_url": "https://illumidesk.instructure.com/api/lti/courses/169/names_and_roles",
-            "service_versions": ["2.0"],
-            "validation_context": None,
-            "errors": {"errors": {}},
-        },
-        "errors": {"errors": {}},
-    }
+    jws = make_lti13_resource_link_request
+    del jws["picture"]
+    del jws["email"]
+    del jws["given_name"]
+    del jws["family_name"]
+    del jws["https://purl.imsglobal.org/spec/lti/claim/lis"]
     return jws
 
 

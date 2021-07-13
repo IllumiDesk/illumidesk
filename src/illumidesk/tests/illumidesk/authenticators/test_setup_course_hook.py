@@ -65,6 +65,7 @@ async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_
     monkeypatch,
     setup_course_environ,
     setup_course_hook_environ,
+    setup_nbgrader_db,
     make_auth_state_dict,
     make_mock_request_handler,
     make_http_response,
@@ -80,20 +81,17 @@ async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_
     local_authentication = make_auth_state_dict()
 
     with patch.object(
-        JupyterHubAPI, "add_student_to_jupyterhub_group", return_value=None
-    ):
+        NbGraderServiceHelper, "add_user_to_nbgrader_gradebook", return_value=None
+    ) as mock_add_user_to_nbgrader_gradebook:
         with patch.object(
-            NbGraderServiceHelper, "add_user_to_nbgrader_gradebook", return_value=None
-        ) as mock_add_user_to_nbgrader_gradebook:
-            with patch.object(
-                AsyncHTTPClient,
-                "fetch",
-                return_value=make_http_response(handler=local_handler.request),
-            ):
-                await setup_course_hook(
-                    local_authenticator, local_handler, local_authentication
-                )
-                assert mock_add_user_to_nbgrader_gradebook.called
+            AsyncHTTPClient,
+            "fetch",
+            return_value=make_http_response(handler=local_handler.request),
+        ):
+            result = await setup_course_hook(
+                local_authenticator, local_handler, local_authentication
+            )
+            assert mock_add_user_to_nbgrader_gradebook.called
 
 
 @pytest.mark.asyncio()
