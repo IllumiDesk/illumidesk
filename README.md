@@ -37,6 +37,19 @@ This setup only supports Kubernetes-based installations at this time. Refer to t
 
 Refer to the [contributing](./CONTRIBUTING.md) guide located in the root of this repo.
 
+### Building the JupyterHubs
+
+1. Build the JupyterHub for local testing with `docker-compose` or `docker`:
+
+```bash
+make build-hubs
+```
+
+1. Build the JupyterHub for local testing with `Kubernetes`:
+
+```bash
+make build-hubs-k8
+```
 ### General Guidelines
 
 This project enforces the [Contributor Covenant](./CODE_OF_CONDUCT.md). Be kind and build a nice open source community with us.
