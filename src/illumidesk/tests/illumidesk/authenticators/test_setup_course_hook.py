@@ -54,44 +54,38 @@ async def test_setup_course_hook_calls_add_student_to_jupyterhub_group_when_role
             assert mock_add_student_to_jupyterhub_group.called
 
 
-@patch("shutil.chown")
-@patch("pathlib.Path.mkdir")
-@patch("illumidesk.apis.nbgrader_service.Gradebook")
 @pytest.mark.asyncio()
-async def test_setup_course_hook_calls_add_user_to_nbgrader_gradebook_when_role_is_learner(
-    mock_mkdir,
-    mock_chown,
-    mock_gradebook,
+async def test_setup_course_hook_calls_add_student_to_jupyterhub_group_when_role_is_learner(
     monkeypatch,
     setup_course_environ,
     setup_course_hook_environ,
-    setup_nbgrader_db,
     make_auth_state_dict,
     make_mock_request_handler,
     make_http_response,
+    mock_nbhelper,
 ):
     """
-    Is the jupyterhub_api add user to nbgrader gradebook function called when the user role is
+    Is the jupyterhub_api add learner to jupyterhub group function called when the user role is
     the learner role?
     """
     local_authenticator = Authenticator(post_auth_hook=setup_course_hook)
     local_handler = make_mock_request_handler(
         RequestHandler, authenticator=local_authenticator
     )
-    local_authentication = make_auth_state_dict()
+    local_authentication = make_auth_state_dict(user_role="Learner")
 
     with patch.object(
-        NbGraderServiceHelper, "add_user_to_nbgrader_gradebook", return_value=None
-    ) as mock_add_user_to_nbgrader_gradebook:
+        JupyterHubAPI, "add_student_to_jupyterhub_group", return_value=None
+    ) as mock_add_student_to_jupyterhub_group:
         with patch.object(
             AsyncHTTPClient,
             "fetch",
             return_value=make_http_response(handler=local_handler.request),
         ):
-            result = await setup_course_hook(
+            await setup_course_hook(
                 local_authenticator, local_handler, local_authentication
             )
-            assert mock_add_user_to_nbgrader_gradebook.called
+            assert mock_add_student_to_jupyterhub_group.called
 
 
 @pytest.mark.asyncio()
