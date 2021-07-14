@@ -61,7 +61,7 @@ async def setup_course_hook_lti11(
     course_id = lti_utils.normalize_string(
         authentication["auth_state"]["context_label"]
     )
-    nb_service = NbGraderServiceHelper(course_id)
+    nb_service = NbGraderServiceHelper(course_id, True)
 
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
     nb_service.add_user_to_nbgrader_gradebook(username, lms_user_id)
@@ -122,7 +122,7 @@ async def setup_course_hook(
 
     # normalize the name and course_id strings in authentication dictionary
     course_id = lti_utils.normalize_string(authentication["auth_state"]["course_id"])
-    nb_service = NbGraderServiceHelper(course_id)
+    nb_service = NbGraderServiceHelper(course_id, True)
     username = lti_utils.normalize_string(authentication["name"])
     lms_user_id = authentication["auth_state"]["lms_user_id"]
     user_role = authentication["auth_state"]["user_role"]
@@ -151,7 +151,7 @@ async def setup_course_hook(
 
     # launch the new grader-notebook as a service
     try:
-        new_setup = await register_new_service(org_name=ORG_NAME, course_id=course_id)
+        _ = await register_new_service(org_name=ORG_NAME, course_id=course_id)
     except Exception as e:
         logger.error("Unable to launch the shared grader notebook with exception %s", e)
 
