@@ -59,17 +59,22 @@ class IllumiDeskDummyLoginHandler(LocalBase):
         )
         self.finish(html)
 
-    # async def post(self):
-    #     """Handle the request data when sent with the login form."""
-    #     user_info = {
-    #         "username": self.get_body_argument("username", strip=False),
-    #         "assignment_name": self.get_body_argument("assignment_name", strip=False),
-    #         "course_id": self.get_body_argument("course_id", "", strip=False),
-    #         "lms_user_id": bool(self.get_body_argument("lms_user_id", "", strip=False)),
-    #         "user_role": bool(self.get_body_argument("user_role", "", strip=False)),
-    #     }
+    async def post(self):
+        # parse the arguments dict
+        data = {}
+        for arg in self.request.arguments:
+            data[arg] = self.get_argument(arg, strip=False)
 
-    #     html = await self.render_template(
-    #         "dummy_login.html",
-    #     )
-    #     self.finish(html)
+        auth_timer = self.statsd.timer("login.authenticate").start()
+        user = await self.login_user(data)
+        auth_timer.stop(send=False)
+
+        if user:
+            # register current user for subsequent requests to user (e.g. logging the request)
+            self._jupyterhub_user = user
+            self.redirect(self.get_next_url(user))
+        else:
+            html = await self._render(
+                login_error="Invalid username or password", username=data["username"]
+            )
+            self.finish(html)
