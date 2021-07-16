@@ -67,7 +67,11 @@ def launch(org_name: str, course_id: str):
 
         except Exception as e:
             logger.error("Exception when calling create_grader_deployment() %s" % e)
+            db.session.rollback()
             return jsonify(success=False, message=str(e)), 500
+        finally:
+            db.session.close()
+
     else:
         logger.info("A grader service exists for the course_id %s" % course_id)
         return (
@@ -96,27 +100,35 @@ def services():
     }
     ```
     """
-    services = GraderService.query.all()
-    # format a json
-    services_resp = []
-    groups_resp = {}
-    for s in services:
-        services_resp.append(
-            {
-                "name": s.name,
-                "url": s.url,
-                "oauth_no_confirm": s.oauth_no_confirm,
-                "admin": s.admin,
-                "api_token": s.api_token,
-            }
-        )
-        # add the jhub user group
-        groups_resp.update({f"formgrade-{s.course_id}": [f"grader-{s.course_id}"]})
-        logger.debug(
-            "Adding formgrade-%s and grader-%s to response" % (s.course_id, s.course_id)
-        )
-    logger.info("Services response %s and %s" % (services_resp, groups_resp))
-    return jsonify(services=services_resp, groups=groups_resp)
+    try:
+        services = GraderService.query.all()
+        # format a json
+        services_resp = []
+        groups_resp = {}
+        for s in services:
+            services_resp.append(
+                {
+                    "name": s.name,
+                    "url": s.url,
+                    "oauth_no_confirm": s.oauth_no_confirm,
+                    "admin": s.admin,
+                    "api_token": s.api_token,
+                }
+            )
+            # add the jhub user group
+            groups_resp.update({f"formgrade-{s.course_id}": [f"grader-{s.course_id}"]})
+            logger.debug(
+                "Adding formgrade-%s and grader-%s to response"
+                % (s.course_id, s.course_id)
+            )
+        logger.info("Services response %s and %s" % (services_resp, groups_resp))
+        return jsonify(services=services_resp, groups=groups_resp)
+    except Exception as e:
+        logger.error("Exception when calling services: %s" % e)
+        db.session.rollback()
+        return jsonify(success=False, error=str(e)), 500
+    finally:
+        db.session.close()
 
 
 @grader_setup_bp.route("/services/<org_name>/<course_id>", methods=["DELETE"])
@@ -144,7 +156,10 @@ def services_deletion(org_name: str, course_id: str):
         )
     except Exception as e:
         logger.error("Exception when calling delete_grader_deployment(): %s" % e)
+        db.session.rollback()
         return jsonify(success=False, error=str(e)), 500
+    finally:
+        db.session.close()
 
 
 @grader_setup_bp.route(
