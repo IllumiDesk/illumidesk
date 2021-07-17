@@ -340,7 +340,7 @@ traitlets==4.3.3
     #   nbgrader
     #   notebook
     #   qtconsole
-urllib3==1.26.4
+urllib3==1.26.5
     # via
     #   jupyterhub-kubespawner
     #   kubernetes
