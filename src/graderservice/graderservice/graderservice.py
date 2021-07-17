@@ -99,7 +99,6 @@ class GraderServiceLauncher:
         )
         if deployment_list and deployment_list.items:
             logger.info("Deployment exists for %s", self.grader_name)
-            print("Deployment exists for %s", self.grader_name)
             return True
 
         return False
@@ -112,7 +111,6 @@ class GraderServiceLauncher:
         )
         if service_list and service_list.items:
             logger.info("Service exists for %s", self.grader_name)
-            print("Service exists for %s", self.grader_name)
             return True
 
         return False
