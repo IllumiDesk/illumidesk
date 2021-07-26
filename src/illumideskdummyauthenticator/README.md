@@ -64,7 +64,7 @@ docker run -d \
 
 ```bash
 docker build \
-  --build-arg BASE_IMAGE=illumidesk/k8s-hub:1.0.1-n014.h8c8ee4a0 \
+  --build-arg BASE_IMAGE=illumidesk/k8s-hub:1.1.1 \
   -t illumidesk/jupyterhub:test . \
   --no-cache
 ```
