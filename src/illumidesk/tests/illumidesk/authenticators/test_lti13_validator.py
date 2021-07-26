@@ -126,7 +126,6 @@ def test_validate_empty_conext_label_claim_value(make_lti13_resource_link_reques
     """
     validator = LTI13LaunchValidator()
     jws = make_lti13_resource_link_request
-    print("jws", jws)
     jws["https://purl.imsglobal.org/spec/lti/claim/context"]["label"] = ""
 
     with pytest.raises(HTTPError):
