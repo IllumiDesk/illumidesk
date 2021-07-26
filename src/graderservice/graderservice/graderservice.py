@@ -39,8 +39,8 @@ GRADER_EXCHANGE_SHARED_PVC = os.environ.get(
 )
 
 # user UI and GID to use within the grader container
-NB_UID = int(os.environ.get("NB_UID", 10001))
-NB_GID = int(os.environ.get("NB_GID", 100))
+NB_UID = os.environ.get("NB_UID", 10001)
+NB_GID = os.environ.get("NB_GID", 100)
 
 # NBGrader DATABASE settings to save in nbgrader_config.py file
 nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
