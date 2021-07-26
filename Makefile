@@ -46,3 +46,11 @@ clean:
 test: dev
 	${VENV_BIN}/pytest -v src/illumidesk
 	${VENV_BIN}/pytest -v src/graderservice
+
+build-hubs-k8:
+	@docker build --build-arg BASE_IMAGE=jupyterhub/k8s-hub:0.11.1-n495.h232e257c -t illumidesk/k8s-hub:1.4.1 src/illumidesk/. --no-cache
+	@docker build --build-arg BASE_IMAGE=illumidesk/k8s-hub:1.4.1 -t illumidesk/k8s-hub:dummy-auth-1.4.1 src/illumideskdummyauthenticator/. --no-cache
+
+build-hubs:
+	@docker build --build-arg BASE_IMAGE=jupyterhub/jupyterhub:1.4.1 -t illumidesk/jupyterhub:1.4.1 src/illumidesk/. --no-cache
+	@docker build --build-arg BASE_IMAGE=illumidesk/jupyterhub:1.4.1 -t illumidesk/jupyterhub:dummy-auth-1.4.1 src/illumideskdummyauthenticator/. --no-cache

@@ -72,6 +72,6 @@ docker build \
 2. Create a value for the `JUPYTERHUB_CRYPT_KEY` environment variable: `openssl rand -hex 32`
 3. Configure the `illumidesk/illumidesk` [helm chart](https://github.com/illumidesk/helm-chart) to set the `authenticator_class` and the `post_auth_hook` mentioned above.
 4. Deploy the `illumidesk/illumidesk` application to a `kubernetes` cluster. [Refer to IllumiDesk's helm-chart repo](https://github.com/illumidesk/helm-chart) for further instructions.
-5. Navigate to `https://<external-facing-address>/hub/dummy/login`.
+5. Navigate to `https://<external-facing-address>/hub/login`.
 
 > **NOTE**: when using docker your IPv4 address may not work with localhost.

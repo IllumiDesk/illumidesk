@@ -27,7 +27,7 @@ class IllumiDeskDummyAuthenticator(Authenticator):
     """
 
     def get_handlers(self, app: JupyterHub) -> BaseHandler:
-        return [("/dummy/login", IllumiDeskDummyLoginHandler)]
+        return [("/login", IllumiDeskDummyLoginHandler)]
 
     async def authenticate(  # noqa: C901
         self, handler: BaseHandler, data: Dict[str, Any] = None
