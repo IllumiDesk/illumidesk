@@ -40,13 +40,13 @@ filelock==3.0.12
     # via virtualenv
 flake8==3.9.1
     # via -r dev-requirements.in
-flask-sqlalchemy==2.5.1
-    # via -r dev-requirements.in
 flask==1.1.2
     # via
     #   -r dev-requirements.in
     #   flask-sqlalchemy
     #   pytest-flask
+flask-sqlalchemy==2.5.1
+    # via -r dev-requirements.in
 google-auth==1.24.0
     # via kubernetes
 gunicorn==20.1.0
@@ -93,15 +93,15 @@ pre-commit==2.10.0
     # via -r dev-requirements.in
 py==1.10.0
     # via pytest
-pyasn1-modules==0.2.8
-    # via
-    #   google-auth
-    #   oauth2client
 pyasn1==0.4.8
     # via
     #   oauth2client
     #   pyasn1-modules
     #   rsa
+pyasn1-modules==0.2.8
+    # via
+    #   google-auth
+    #   oauth2client
 pycodestyle==2.7.0
     # via flake8
 pyflakes==2.3.1
@@ -112,6 +112,15 @@ pyparsing==2.4.7
     # via
     #   httplib2
     #   packaging
+pytest==6.2.4
+    # via
+    #   -r dev-requirements.in
+    #   pytest-asyncio
+    #   pytest-cov
+    #   pytest-flask
+    #   pytest-html
+    #   pytest-metadata
+    #   pytest-mock
 pytest-asyncio==0.15.1
     # via -r dev-requirements.in
 pytest-cov==2.11.1
@@ -126,15 +135,6 @@ pytest-metadata==1.10.0
     #   pytest-html
 pytest-mock==3.3.1
     # via -r dev-requirements.in
-pytest==6.2.4
-    # via
-    #   -r dev-requirements.in
-    #   pytest-asyncio
-    #   pytest-cov
-    #   pytest-flask
-    #   pytest-html
-    #   pytest-metadata
-    #   pytest-mock
 python-dateutil==2.8.1
     # via kubernetes
 pytz==2021.1
@@ -146,10 +146,6 @@ pyyaml==5.4
     #   pykube
 regex==2020.9.27
     # via black
-requests-oauthlib==1.3.0
-    # via
-    #   kubernetes
-    #   pykube
 requests==2.25.1
     # via
     #   -r dev-requirements.in
@@ -157,6 +153,10 @@ requests==2.25.1
     #   kubernetes
     #   pykube
     #   requests-oauthlib
+requests-oauthlib==1.3.0
+    # via
+    #   kubernetes
+    #   pykube
 rsa==4.7
     # via
     #   google-auth
@@ -185,7 +185,7 @@ typing-extensions==3.7.4.3
     # via black
 tzlocal==2.1
     # via pykube
-urllib3==1.25.11
+urllib3==1.26.5
     # via
     #   kubernetes
     #   requests
