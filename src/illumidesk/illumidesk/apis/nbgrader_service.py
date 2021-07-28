@@ -20,7 +20,7 @@ nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
 nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
 mnt_root = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 
-org_name = os.environ.get("ORGANIZATION_NAME")
+org_name = os.environ.get("ORGANIZATION_NAME") or "my-org"
 
 if not org_name:
     raise EnvironmentError("ORGANIZATION_NAME env-var is not set")
