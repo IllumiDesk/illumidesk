@@ -60,7 +60,7 @@ class NbGraderServiceHelper:
             f"{mnt_root}/{org_name}/home/grader-{self.course_id}/{self.course_id}"
         )
         self.uid = int(os.environ.get("NB_GRADER_UID") or "10001")
-        self.gid = int(os.environ.get("NB_GID") or "100")
+        self.gid = int(os.environ.get("NB_GRADER_GID") or "100")
 
         self.db_url = nbgrader_format_db_url(course_id)
         self.database_name = f"{org_name}_{self.course_id}"

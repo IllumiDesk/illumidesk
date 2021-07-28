@@ -67,6 +67,10 @@ def grader_setup_environ(monkeypatch):
     monkeypatch.setenv("GRADER_EXCHANGE_SHARED_PVC", "exchange-shared-volume")
     monkeypatch.setenv("GRADER_IMAGE_NAME", "illumidesk/grader-notebook:latest")
     monkeypatch.setenv("GRADER_PVC", "grader-setup-pvc")
+    monkeypatch.setenv("GRADER_REQUESTS_MEM", "")
+    monkeypatch.setenv("GRADER_REQUESTS_CPU", "")
+    monkeypatch.setenv("GRADER_LIMITS_MEM", "500Mi")
+    monkeypatch.setenv("GRADER_LIMITS_CPU", "1000m")
     monkeypatch.setenv("GRADER_SHARED_PVC", "exchange-shared-volume")
     monkeypatch.setenv("IS_DEBUG", "True")
     monkeypatch.setenv("MNT_ROOT", "/illumidesk-courses")
@@ -90,8 +94,14 @@ def mock_kube_deployment(kubeconfig, kube, grader_setup_environ):
         ports=[kube.V1ContainerPort(container_port=8888)],
         working_dir=f"/home/grader-{course_id}",
         resources=kube.V1ResourceRequirements(
-            requests={"cpu": "100m", "memory": "200Mi"},
-            limits={"cpu": "500m", "memory": "1G"},
+            requests={
+                "cpu": os.environ.get("GRADER_REQUESTS_CPU"),
+                "memory": os.environ.get("GRADER_REQUESTS_MEM"),
+            },
+            limits={
+                "cpu": os.environ.get("GRADER_LIMITS_CPU"),
+                "memory": os.environ.get("GRADER_LIMITS_MEM"),
+            },
         ),
         security_context=kube.V1SecurityContext(allow_privilege_escalation=False),
         env=[

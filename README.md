@@ -53,7 +53,7 @@ make build-hubs-k8
 ### General Guidelines
 
 This project enforces the [Contributor Covenant](./CODE_OF_CONDUCT.md). Be kind and build a nice open source community with us.
-
+++
 ### License
 
 Please refer to the included [license](./LICENSE) in this repository's root directory.
