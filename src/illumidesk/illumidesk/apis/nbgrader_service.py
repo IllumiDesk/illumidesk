@@ -20,7 +20,7 @@ nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
 nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
 mnt_root = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 
-org_name = os.environ.get("ORGANIZATION_NAME") or "my-org"
+org_name = os.environ.get("ORGANIZATION_NAME")
 
 if not org_name:
     raise EnvironmentError("ORGANIZATION_NAME env-var is not set")
@@ -60,7 +60,7 @@ class NbGraderServiceHelper:
             f"{mnt_root}/{org_name}/home/grader-{self.course_id}/{self.course_id}"
         )
         self.uid = int(os.environ.get("NB_GRADER_UID") or "10001")
-        self.gid = int(os.environ.get("NB_GID") or "100")
+        self.gid = int(os.environ.get("NB_GRADER_GID") or "100")
 
         self.db_url = nbgrader_format_db_url(course_id)
         self.database_name = f"{org_name}_{self.course_id}"

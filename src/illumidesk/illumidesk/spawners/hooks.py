@@ -28,7 +28,7 @@ def custom_auth_state_hook(spawner: Spawner, auth_state: dict) -> None:
     # Notebook directory within docker image
     notebook_dir = os.environ.get("DOCKER_NOTEBOOK_DIR")
     # Root directory to mount org, home, and exchange folders
-    mnt_root = os.environ.get("MNT_ROOT")
+    mnt_root = os.environ.get("ILLUMIDESK_MNT_ROOT")
     # add the shared folder as a volume if it was enabled
     shared_folder_enabled = os.environ.get("SHARED_FOLDER_ENABLED") or "False"
     # shared-folder feat is enabled but we make sure the instructor must have it

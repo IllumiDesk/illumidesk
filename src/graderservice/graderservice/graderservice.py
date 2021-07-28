@@ -48,6 +48,10 @@ GRADER_REQUEST_CPU = os.environ.get("GRADER_REQUEST_CPU")
 GRADER_LIMIT_MEM = os.environ.get("GRADER_LIMIT_MEM") or "1G"
 GRADER_LIMIT_CPU = os.environ.get("GRADER_LIMIT_CPU") or "500m"
 
+# JupyterHub settings
+JUPYTERHUB_API_URL = os.environ.get("JUPYTERHUB_API_URL") or "http://hub:8081/hub/api"
+JUPYTERHUB_BASE_URL = os.environ.get("JUPYTERHUB_BASE_URL") or "/"
+
 # NBGrader DATABASE settings to save in nbgrader_config.py file
 nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
 nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
@@ -245,10 +249,8 @@ class GraderServiceLauncher:
                 client.V1EnvVar(name="JUPYTERHUB_API_TOKEN", value=self.grader_token),
                 # we're using the K8s Service name 'hub' (defined in the jhub helm chart)
                 # to connect from our grader-notebooks
-                client.V1EnvVar(
-                    name="JUPYTERHUB_API_URL", value="http://hub:8081/hub/api"
-                ),
-                client.V1EnvVar(name="JUPYTERHUB_BASE_URL", value="/"),
+                client.V1EnvVar(name="JUPYTERHUB_API_URL", value=JUPYTERHUB_API_URL),
+                client.V1EnvVar(name="JUPYTERHUB_BASE_URL", value=JUPYTERHUB_BASE_URL),
                 client.V1EnvVar(
                     name="JUPYTERHUB_SERVICE_PREFIX",
                     value=f"/services/{self.course_id}/",

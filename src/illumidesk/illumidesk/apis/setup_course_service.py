@@ -10,7 +10,7 @@ INTENAL_SERVICE_NAME = (
     os.environ.get("SETUP_COURSE_SERVICE_NAME") or "grader-setup-service"
 )
 # course setup service port
-SERVICE_PORT = os.environ.get("SETUP_COURSE_PORT") or "8000"
+SERVICE_PORT = os.environ.get("SETUP_COURSE_SERVICE_PORT") or "8000"
 
 
 logger = logging.getLogger(__name__)
