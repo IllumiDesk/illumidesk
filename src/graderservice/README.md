@@ -35,8 +35,8 @@ flask run
 | GRADER_SHARED_PVC | The shared grader notebook PVC for the exchange directory | `string` | `exchange-shared-volume` |
 | GRADER_REQUESTS_MEM | The guaranteed amount of memory (RAM). | `string` | `""` |
 | GRADER_REQUESTS_CPU | The guaranteed CPU. | `string` | `""` |
-| GRADER_LIMITS_MEM | The upper bound memory (RAM) limit. | `string` | `"500Mi"` |
-| GRADER_LIMITS_CPU | The upper bound CPU limit. | `string` | `"1000m"` |
+| GRADER_LIMITS_MEM | The upper bound memory (RAM) limit. | `string` | `"4G"` |
+| GRADER_LIMITS_CPU | The upper bound CPU limit. | `string` | `"2000m"` |
 | ILLUMIDESK_MNT_ROOT | Root directory for `{org_name}/grader-{course_id}` | `string` | `/illumidesk-courses` |
 | ILLUMIDESK_NB_EXCHANGE_MNT_ROOT | Root directory for `{org_name}/exchange` | `string` | `/illumidesk-nb-exchange` |
 | IS_DEBUG | Sets the debug option to True or False for the Kubernetes client and the shared grader notebook | `bool` | `True` |
