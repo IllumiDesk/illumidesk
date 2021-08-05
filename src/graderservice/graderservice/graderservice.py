@@ -27,7 +27,7 @@ NAMESPACE = os.environ.get("ILLUMIDESK_K8S_NAMESPACE", "default")
 GRADER_IMAGE_NAME = os.environ.get(
     "GRADER_IMAGE_NAME", "illumidesk/grader-notebook:latest"
 )
-GRADER_IMAGE_PULL_POLICY = os.environ.get("GRADER_IMAGE_PULL_POLICY", "Always")
+GRADER_IMAGE_PULL_POLICY = os.environ.get("GRADER_IMAGE_PULL_POLICY", "IfNotPresent")
 # mount root path for grader and course home directories
 MNT_ROOT = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 # shared directory to use with students and instructors

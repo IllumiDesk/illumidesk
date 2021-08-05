@@ -66,6 +66,7 @@ def grader_setup_environ(monkeypatch):
     monkeypatch.setenv("ILLUMIDESK_NB_EXCHANGE_MNT_ROOT", "/illumidesk-nb-exchange")
     monkeypatch.setenv("GRADER_EXCHANGE_SHARED_PVC", "exchange-shared-volume")
     monkeypatch.setenv("GRADER_IMAGE_NAME", "illumidesk/grader-notebook:latest")
+    monkeypatch.setenv("GRADER_IMAGE_PULL_POLICY", "IfNotPresent")
     monkeypatch.setenv("GRADER_PVC", "grader-setup-pvc")
     monkeypatch.setenv("GRADER_REQUESTS_MEM", "")
     monkeypatch.setenv("GRADER_REQUESTS_CPU", "")
