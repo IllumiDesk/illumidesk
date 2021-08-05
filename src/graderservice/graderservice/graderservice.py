@@ -27,6 +27,7 @@ NAMESPACE = os.environ.get("ILLUMIDESK_K8S_NAMESPACE", "default")
 GRADER_IMAGE_NAME = os.environ.get(
     "GRADER_IMAGE_NAME", "illumidesk/grader-notebook:latest"
 )
+GRADER_IMAGE_PULL_POLICY = os.environ.get("GRADER_IMAGE_PULL_POLICY", "Always")
 # mount root path for grader and course home directories
 MNT_ROOT = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 # shared directory to use with students and instructors
@@ -43,16 +44,16 @@ NB_UID = os.environ.get("NB_UID", 10001)
 NB_GID = os.environ.get("NB_GID", 100)
 
 # Shared grader notebook CPU and Memory settings
-GRADER_REQUEST_MEM = os.environ.get("GRADER_REQUEST_MEM")
-GRADER_REQUEST_CPU = os.environ.get("GRADER_REQUEST_CPU")
-GRADER_LIMIT_MEM = os.environ.get("GRADER_LIMIT_MEM") or "1G"
-GRADER_LIMIT_CPU = os.environ.get("GRADER_LIMIT_CPU") or "500m"
+GRADER_REQUESTS_MEM = os.environ.get("GRADER_REQUESTS_MEM")
+GRADER_REQUESTS_CPU = os.environ.get("GRADER_REQUESTS_CPU")
+GRADER_LIMITS_MEM = os.environ.get("GRADER_LIMITS_MEM") or "4G"
+GRADER_LIMITS_CPU = os.environ.get("GRADER_LIMITS_CPU") or "2000m"
 
 # JupyterHub settings
 JUPYTERHUB_API_URL = os.environ.get("JUPYTERHUB_API_URL") or "http://hub:8081/hub/api"
 JUPYTERHUB_BASE_URL = os.environ.get("JUPYTERHUB_BASE_URL") or "/"
 
-# NBGrader DATABASE settings to save in nbgrader_config.py file
+# NBGrader database settings to save in nbgrader_config.py file
 nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
 nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
 nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
@@ -230,17 +231,18 @@ class GraderServiceLauncher:
         container = client.V1Container(
             name="grader-notebook",
             image=GRADER_IMAGE_NAME,
+            image_pull_policy=GRADER_IMAGE_PULL_POLICY,
             command=["start-notebook.sh", f"--group=formgrade-{self.course_id}"],
             ports=[client.V1ContainerPort(container_port=8888)],
             working_dir=f"/home/{self.grader_name}",
             resources=client.V1ResourceRequirements(
                 requests={
-                    "cpu": os.environ.get("GRADER_REQUESTS_CPU"),
-                    "memory": os.environ.get("GRADER_REQUESTS_MEM"),
+                    "cpu": GRADER_REQUESTS_CPU,
+                    "memory": GRADER_REQUESTS_MEM,
                 },
                 limits={
-                    "cpu": os.environ.get("GRADER_LIMITS_CPU"),
-                    "memory": os.environ.get("GRADER_LIMITS_MEM"),
+                    "cpu": GRADER_LIMITS_CPU,
+                    "memory": GRADER_LIMITS_MEM,
                 },
             ),
             security_context=client.V1SecurityContext(allow_privilege_escalation=False),
