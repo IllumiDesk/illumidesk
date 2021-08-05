@@ -31,6 +31,7 @@ flask run
 | Environment Variable | Description | Type | Default Value |
 | --- | --- | --- | --- |
 | GRADER_IMAGE_NAME | The shared grader notebook image:tag | `string` | `illumidesk/grader-notebook:latest` |
+| GRADER_IMAGE_PULL_POLICY | The shared grader notebook image pull policy | `string` | `IfNotPresent` |
 | GRADER_PVC | The Kubernetes PVC for the grader setup service | `string` | `grader-setup-pvc` |
 | GRADER_SHARED_PVC | The shared grader notebook PVC for the exchange directory | `string` | `exchange-shared-volume` |
 | GRADER_REQUESTS_MEM | The guaranteed amount of memory (RAM). | `string` | `""` |

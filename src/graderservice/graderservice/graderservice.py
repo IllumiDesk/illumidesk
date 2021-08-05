@@ -27,6 +27,7 @@ NAMESPACE = os.environ.get("ILLUMIDESK_K8S_NAMESPACE", "default")
 GRADER_IMAGE_NAME = os.environ.get(
     "GRADER_IMAGE_NAME", "illumidesk/grader-notebook:latest"
 )
+GRADER_IMAGE_PULL_POLICY = os.environ.get("GRADER_IMAGE_PULL_POLICY", "IfNotPresent")
 # mount root path for grader and course home directories
 MNT_ROOT = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 # shared directory to use with students and instructors
@@ -230,6 +231,7 @@ class GraderServiceLauncher:
         container = client.V1Container(
             name="grader-notebook",
             image=GRADER_IMAGE_NAME,
+            image_pull_policy=GRADER_IMAGE_PULL_POLICY,
             command=["start-notebook.sh", f"--group=formgrade-{self.course_id}"],
             ports=[client.V1ContainerPort(container_port=8888)],
             working_dir=f"/home/{self.grader_name}",
