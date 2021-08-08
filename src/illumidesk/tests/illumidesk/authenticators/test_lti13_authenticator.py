@@ -332,7 +332,7 @@ async def test_authenticator_returns_username_in_auth_state_with_privacy_enabled
     mock_nbhelper,
 ):
     """
-    Do we get a valid username when only including lis person sourcedid resource link request?
+    Do we get a valid username when privacy is enabled?
     """
     authenticator = LTI13Authenticator()
     request_handler = make_mock_request_handler(
@@ -357,36 +357,6 @@ async def test_authenticator_returns_username_in_auth_state_with_privacy_enabled
             result = await authenticator.authenticate(request_handler, None)
 
             assert result["name"] == "4"
-
-
-# @pytest.mark.asyncio
-# async def test_authenticator_returns_username_in_auth_state_with_privacy_enabled(
-#     make_lti13_resource_link_request_privacy_enabled,
-#     build_lti13_jwt_id_token,
-#     make_mock_request_handler,
-#     mock_nbhelper,
-# ):
-#     """
-#     Do we get a valid username when initiating the login flow with privacy enabled?
-#     """
-#     authenticator = LTI13Authenticator()
-#     request_handler = make_mock_request_handler(
-#         RequestHandler, authenticator=authenticator
-#     )
-
-#     with patch.object(
-#         RequestHandler,
-#         "get_argument",
-#         return_value=build_lti13_jwt_id_token(
-#             make_lti13_resource_link_request_privacy_enabled
-#         ),
-#     ):
-#         with patch.object(
-#             LTI13LaunchValidator, "validate_launch_request", return_value=True
-#         ):
-#             result = await authenticator.authenticate(request_handler, None)
-
-#             assert result["name"] == "4"
 
 
 @pytest.mark.asyncio
