@@ -2,7 +2,7 @@ ARG BASE_IMAGE=python:3.8
 FROM "${BASE_IMAGE}"
 
 RUN apt-get update \
- && apt-get install unzip=6.0-23+deb10u2 -y --no-install-recommends \
+ && apt-get install unzip -y --no-install-recommends \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
