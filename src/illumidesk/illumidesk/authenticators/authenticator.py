@@ -133,7 +133,7 @@ async def setup_course_hook(
     if user_is_a_student(user_role):
         try:
             # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
-            jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
         except Exception as e:
             logger.error(
                 "An error when adding student username: %s to course_id: %s with exception %s",
