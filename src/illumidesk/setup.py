@@ -40,7 +40,7 @@ setup(
         "josepy==1.4.0",
         "jupyterhub==1.4.1",
         "jupyterhub-kubespawner==0.14.1",
-        "jupyterhub-ltiauthenticator@git+git://github.com/jupyterhub/ltiauthenticator.git@01009c50834771acf124b505cf9ba5269f75238a",
+        "jupyterhub-ltiauthenticator@git+git://github.com/jupyterhub/ltiauthenticator.git@71d86a9da2562df4bdcc9f374af834a172ac52d5",
         "jwcrypto==0.8",
         "lti==0.9.5",
         "nbgrader==0.6.2",
