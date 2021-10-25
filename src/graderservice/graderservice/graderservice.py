@@ -261,6 +261,7 @@ class GraderServiceLauncher:
                     name="JUPYTERHUB_CLIENT_ID", value=f"service-{self.course_id}"
                 ),
                 client.V1EnvVar(name="JUPYTERHUB_USER", value=self.grader_name),
+                client.V1EnvVar(name="NAMESPACE", value=NAMESPACE),
                 client.V1EnvVar(name="NB_UID", value=str(NB_UID)),
                 client.V1EnvVar(name="NB_GID", value=str(NB_GID)),
                 client.V1EnvVar(name="NB_USER", value=self.grader_name),
