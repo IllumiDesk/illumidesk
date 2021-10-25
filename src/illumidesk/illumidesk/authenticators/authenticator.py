@@ -24,9 +24,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-ORG_NAME = os.environ.get("ORGANIZATION_NAME")
+ORG_NAME = os.environ.get("ORGANIZATION_NAME") or "my-org"
 if not ORG_NAME:
     raise EnvironmentError("ORGANIZATION_NAME env-var is not set")
+
+
+class AddJupyterHubUserException(Exception):
+    """Custom exception that is raised when adding a user to the JupyterHub database."""
+
+    pass
 
 
 async def setup_course_hook_lti11(
@@ -69,7 +75,7 @@ async def setup_course_hook_lti11(
         try:
             # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
             await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
-        except Exception as e:
+        except AddJupyterHubUserException as e:
             logger.error(
                 "An error when adding student username: %s to course_id: %s with exception %s",
                 (username, course_id, e),
@@ -78,7 +84,7 @@ async def setup_course_hook_lti11(
         try:
             # assign the user in 'formgrade-<course_id>' group
             await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
-        except Exception as e:
+        except AddJupyterHubUserException as e:
             logger.error(
                 "An error when adding instructor username: %s to course_id: %s with exception %s",
                 (username, course_id, e),
@@ -133,7 +139,7 @@ async def setup_course_hook(
         try:
             # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
             await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
-        except Exception as e:
+        except AddJupyterHubUserException as e:
             logger.error(
                 "An error when adding student username: %s to course_id: %s with exception %s",
                 (username, course_id, e),
@@ -142,7 +148,7 @@ async def setup_course_hook(
         try:
             # assign the user in 'formgrade-<course_id>' group
             await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
-        except Exception as e:
+        except AddJupyterHubUserException as e:
             logger.error(
                 "An error when adding instructor username: %s to course_id: %s with exception %s",
                 (username, course_id, e),
