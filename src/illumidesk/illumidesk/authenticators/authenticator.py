@@ -24,13 +24,12 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-ORG_NAME = os.environ.get("ORGANIZATION_NAME") or "my-org"
+ORG_NAME = os.environ.get("ORGANIZATION_NAME")
 if not ORG_NAME:
     raise EnvironmentError("ORGANIZATION_NAME env-var is not set")
 
 
 async def setup_course_hook_lti11(
-    self,
     handler: RequestHandler,
     authentication: Dict[str, str],
 ) -> Dict[str, str]:
@@ -56,7 +55,7 @@ async def setup_course_hook_lti11(
 
     # normalize the name and course_id strings in authentication dictionary
     username = authentication["name"]
-    lms_user_id = authentication["auth_state"]["lms_user_id"]
+    lms_user_id = authentication["auth_state"]["user_id"]
     user_role = authentication["auth_state"]["roles"].split(",")[0]
     course_id = lti_utils.normalize_string(
         authentication["auth_state"]["context_label"]

@@ -20,10 +20,8 @@ decorator==5.0.9          # via ipython, traitlets
 defusedxml==0.7.1         # via nbconvert
 entrypoints==0.3          # via jupyterhub, nbconvert
 escapism==1.0.1           # via jupyterhub-kubespawner, jupyterhub-ltiauthenticator
-filelock==3.0.12          # via illumidesk (setup.py)
 future==0.18.2            # via pyjwkest
 google-auth==1.30.0       # via kubernetes
-httplib2==0.19.1          # via oauth2, pylti
 idna==2.10                # via requests
 ipykernel==5.5.5          # via ipywidgets, jupyter, jupyter-console, notebook, qtconsole
 ipython-genutils==0.2.0   # via nbformat, notebook, qtconsole, traitlets
@@ -40,12 +38,10 @@ jupyter-telemetry==0.1.0  # via jupyterhub
 jupyter==1.0.0            # via nbgrader
 jupyterhub-kubespawner==0.14.1  # via illumidesk (setup.py)
 git+git://github.com/jupyterhub/ltiauthenticator.git@71d86a9da2562df4bdcc9f374af834a172ac52d5  # via illumidesk (setup.py)
-jupyterhub==1.4.1         # via illumidesk (setup.py), jupyterhub-kubespawner, jupyterhub-ltiauthenticator, oauthenticator
+jupyterhub==1.4.1         # via jupyterhub-kubespawner, jupyterhub-ltiauthenticator, oauthenticator
 jupyterlab-widgets==1.0.0  # via ipywidgets
 jwcrypto==0.8             # via illumidesk (setup.py)
 kubernetes==17.17.0       # via jupyterhub-kubespawner
-lti==0.9.5                # via illumidesk (setup.py)
-lxml==4.6.3               # via lti
 mako==1.1.4               # via alembic
 markupsafe==2.0.0         # via jinja2, mako
 matplotlib-inline==0.1.2  # via ipython
@@ -54,9 +50,8 @@ nbconvert==5.6.1          # via jupyter, nbgrader, notebook
 nbformat==5.1.3           # via ipywidgets, nbconvert, nbgrader, notebook
 nbgrader==0.6.2           # via illumidesk (setup.py)
 notebook==6.3.0           # via jupyter, nbgrader, widgetsnbextension
-oauth2==1.9.0.post1       # via pylti
-oauthenticator==0.11.0    # via illumidesk (setup.py)
-oauthlib==3.1.0           # via jupyterhub, jupyterhub-ltiauthenticator, lti, requests-oauthlib
+oauthenticator==14.2.0    # via illumidesk (setup.py)
+oauthlib==3.1.0           # via illumidesk (setup.py), jupyterhub, jupyterhub-ltiauthenticator, requests-oauthlib
 packaging==20.9           # via bleach
 pamela==1.0.0             # via jupyterhub
 pandocfilters==1.4.3      # via nbconvert
@@ -76,9 +71,8 @@ pycryptodomex==3.10.1     # via pyjwkest
 pygments==2.9.0           # via ipython, jupyter-console, nbconvert, qtconsole
 pyjwkest==1.4.2           # via illumidesk (setup.py)
 pyjwt==1.7.1              # via illumidesk (setup.py)
-pylti==0.7.0              # via illumidesk (setup.py)
 pyopenssl==20.0.1         # via certipy, josepy
-pyparsing==2.4.7          # via httplib2, packaging
+pyparsing==2.4.7          # via packaging
 pyrsistent==0.17.3        # via jsonschema
 python-dateutil==2.8.1    # via alembic, jupyter-client, jupyterhub, kubernetes, nbgrader
 python-editor==1.0.4      # via alembic
@@ -89,13 +83,13 @@ pyzmq==22.0.3             # via jupyter-client, notebook, qtconsole
 qtconsole==5.1.0          # via jupyter
 qtpy==1.9.0               # via qtconsole
 rapidfuzz==1.4.1          # via nbgrader
-requests-oauthlib==1.3.0  # via kubernetes, lti
+requests-oauthlib==1.3.0  # via kubernetes
 requests==2.25.1          # via jupyterhub, kubernetes, nbgrader, pyjwkest, requests-oauthlib
 rsa==4.7.2                # via google-auth
 ruamel.yaml.clib==0.2.2   # via ruamel.yaml
 ruamel.yaml==0.17.4       # via jupyter-telemetry
 send2trash==1.5.0         # via notebook
-six==1.16.0               # via argon2-cffi, bleach, google-auth, josepy, jsonschema, kubernetes, nbgrader, pyjwkest, pylti, pyopenssl, python-dateutil, sqlalchemy-utils, traitlets, websocket-client
+six==1.16.0               # via argon2-cffi, bleach, google-auth, josepy, jsonschema, kubernetes, nbgrader, pyjwkest, pyopenssl, python-dateutil, sqlalchemy-utils, traitlets, websocket-client
 sqlalchemy-utils==0.36.8  # via illumidesk (setup.py)
 sqlalchemy==1.3.24        # via alembic, jupyterhub, nbgrader, sqlalchemy-utils
 terminado==0.9.5          # via notebook

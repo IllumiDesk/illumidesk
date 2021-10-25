@@ -36,21 +36,18 @@ setup(
     license="Apache 2.0",
     packages=find_packages(exclude="./tests"),
     install_requires=[
-        "filelock==3.0.12",
         "josepy==1.4.0",
-        "jupyterhub==1.4.1",
         "jupyterhub-kubespawner==0.14.1",
         "jupyterhub-ltiauthenticator@git+git://github.com/jupyterhub/ltiauthenticator.git@71d86a9da2562df4bdcc9f374af834a172ac52d5",
         "jwcrypto==0.8",
-        "lti==0.9.5",
         "nbgrader==0.6.2",
-        "oauthenticator==0.11.0",
+        "oauthlib==3.1",
+        "oauthenticator>=0.13.0",
         "pem==20.1.0",
         "psycopg2-binary==2.8.6",
         "PyJWT==1.7.1",
         "pyjwkest==1.4.2",
         "pycryptodome==3.9.8",
-        "pylti==0.7.0",
         "SQLAlchemy-Utils==0.36.8",
     ],  # noqa: E231
     package_data={
