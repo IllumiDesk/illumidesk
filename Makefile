@@ -50,7 +50,6 @@ pre-commit-install: ## set up the git hook scripts
 
 prepare: ## install virtualenv and create virtualenv with the venv folder
 	which virtualenv || python3 -m pip install virtualenv
-	make venv
 
 test: dev ## run tests for all packages
 	${VENV_BIN}/pytest -v src/graderservice
