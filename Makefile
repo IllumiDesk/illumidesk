@@ -1,56 +1,63 @@
-.PHONY: all prepare venv lint test clean
+.PHONY: help test
 
 SHELL=/bin/bash
 
 VENV_NAME?=venv
 VENV_BIN=$(shell pwd)/${VENV_NAME}/bin
 VENV_ACTIVATE=. ${VENV_BIN}/activate
-
+OWNER?=illumidesk
 PYTHON=${VENV_BIN}/python3
 
-TEST?=bar
+GRADERSERVICE_BASE_IMAGE=python
+GRADERSERVICE_BASE_IMAGE_TAG=3.8
+JUPYTERHUB_BASE_IMAGE=jupyterhub/k8s-hub
+JUPYTERHUB_BASE_TAG=${JUPYTERHUB_BASE_TAG}
 
-all:
-	@echo "make deploy"
-	@echo "    Run deployment scripts."
-	@echo "make prepare"
-	@echo "    Create python virtual environment and install dependencies."
-	@echo "make lint"
-	@echo "    Run lint and formatting on project."
-	@echo "make test"
-	@echo "    Run tests on project."
-	@echo "make clean"
-	@echo "    Remove python artifacts and virtualenv."
+# https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
+help:
+	@echo "illumidesk/illumidesk"
+	@echo "====================="
+	@echo "Replace % with a stack directory name (e.g., make build/src/illumidesk)"
+	@echo
+	@grep -E '^[a-zA-Z0-9_%/-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-prepare:
-	which virtualenv || python3 -m pip install virtualenv
-	make venv
-
-venv:
-	test -d $(VENV_NAME) || virtualenv -p python3 $(VENV_NAME)
-	${PYTHON} -m pip install --upgrade pip
-	${PYTHON} -m pip install -r dev-requirements.txt
-
-dev: venv
-	${PYTHON} -m pip install -e src/illumidesk/.
-	${PYTHON} -m pip install -e src/graderservice/.
-
-lint: venv
-	${VENV_BIN}/flake8 src
-	${VENV_BIN}/black .
-
-clean:
+clean: ## clean files from environment (cache, egg, etc)
 	find . -name '*.pyc' -exec rm -f {} +
 	rm -rf $(VENV_NAME) *.eggs *.egg-info dist build docs/_build .cache
 
-test: dev
-	${VENV_BIN}/pytest -v src/illumidesk
+dev: venv ## install the packages in editable mode
+	${PYTHON} -m pip install -e src/graderservice/.
+	${PYTHON} -m pip install -e src/illumidesk/.
+	${PYTHON} -m pip install -e src/illumideskdummyauthenticator/.
+
+build-grader-setup-service: ## build grader-setup-service docker image
+	@docker build --build-arg BASE_IMAGE=${GRADERSERVICE_BASE_IMAGE}:${GRADERSERVICE_BASE_IMAGE_TAG} -t ${OWNER}/grader-setup-service:latest src/graderservice/. --no-cache
+
+build-hubs-k8: ## build jupyterhub images kubernetes setups
+	@docker build --build-arg BASE_IMAGE=${JUPYTERHUB_K8_BASE_IMAGE}:${JUPYTERHUB_K8_BASE_TAG} -t ${OWNER}/k8s-hub:base-${JUPYTERHUB_K8_BASE_TAG} src/illumidesk/. --no-cache
+	@docker build --build-arg BASE_IMAGE=${OWNER}/k8s-hub:base-${JUPYTERHUB_K8_BASE_TAG} -t ${OWNER}/k8s-hub:${JUPYTERHUB_K8_BASE_TAG} src/illumideskdummyauthenticator/. --no-cache
+
+build-hubs: ## build jupyterhub images for standard docker-compose and docker run setups
+	@docker build --build-arg BASE_IMAGE=${JUPYTERHUB_DOCKER_BASE_IMAGE} -t ${OWNER}/jupyterhub:base-${JUPYTERHUB_DOCKER_BASE_TAG} src/illumidesk/. --no-cache
+	@docker build --build-arg BASE_IMAGE=${OWNER}/jupyterhub:base-${JUPYTERHUB_DOCKER_BASE_TAG} -t ${OWNER}/jupyterhub:${JUPYTERHUB_DOCKER_BASE_TAG} src/illumideskdummyauthenticator/. --no-cache
+
+pre-commit-all: ## run pre-commit hook on all files (mostly linting)
+	${VENV_BIN}/pre-commit run --all-files || (printf "\n\n\n" && git --no-pager diff --color=always)
+pre-commit-install: ## set up the git hook scripts
+	${VENV_BIN}/pre-commit --version
+	${VENV_BIN}/pre-commit install
+
+prepare: ## install virtualenv and create virtualenv with the venv folder
+	which virtualenv || python3 -m pip install virtualenv
+	make venv
+
+test: dev ## run tests for all packages
 	${VENV_BIN}/pytest -v src/graderservice
+	${VENV_BIN}/pytest -v src/illumidesk
+	${VENV_BIN}/pytest -v src/illumideskdummyauthenticator
 
-build-hubs-k8:
-	@docker build --build-arg BASE_IMAGE=jupyterhub/k8s-hub:1.1.2 -t illumidesk/k8s-hub:base-1.1.2 src/illumidesk/. --no-cache
-	@docker build --build-arg BASE_IMAGE=illumidesk/k8s-hub:base-1.1.2 -t illumidesk/k8s-hub:1.1.2 src/illumideskdummyauthenticator/. --no-cache
-
-build-hubs:
-	@docker build --build-arg BASE_IMAGE=jupyterhub/jupyterhub:1.4.2 -t illumidesk/jupyterhub:1.4.2 src/illumidesk/. --no-cache
-	@docker build --build-arg BASE_IMAGE=illumidesk/jupyterhub:1.4.2 -t illumidesk/jupyterhub:dummy-auth-1.4.2 src/illumideskdummyauthenticator/. --no-cache
+venv: ## create virtual environment
+	test -d $(VENV_NAME) || virtualenv -p python3 $(VENV_NAME)
+	${PYTHON} -m pip install --upgrade pip
+	${PYTHON} -m pip install -r dev-requirements.txt
+	make pre-commit-install
