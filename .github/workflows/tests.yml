@@ -29,7 +29,10 @@ jobs:
           - "3.10"
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Clone Main Repo
+        uses: actions/checkout@v2
+        with:
+          path: main
 
       - name: Install Python ${{ matrix.python }}
         uses: actions/setup-python@v2
