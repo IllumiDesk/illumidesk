@@ -1,0 +1,64 @@
+name: Tests
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "**/test-docs.yaml"
+  push:
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - "**/test-docs.yaml"
+  workflow_dispatch:
+
+jobs:
+  # Run tests
+  test:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 10
+
+    strategy:
+      # Keep running even if one job fails
+      fail-fast: false
+      matrix:
+        python:
+          - "3.8"
+          - "3.9"
+          - "3.10"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Python ${{ matrix.python }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      # preserve pip cache to speed up installation
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          # Look to see if there is a cache hit for the corresponding requirements file
+          key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install
+        run: |
+          pip install --upgrade pip
+          pip install .
+          pip install --upgrade --pre -r dev-requirements.txt .
+          pip freeze
+
+      - name: Run tests
+        shell: 'script --return --quiet --command "bash {0}"'
+        run: make -C test
+
+      - name: Create coverage report
+        run: pytest --cov=illumidesk src/illumidesk/tests
+      
+      - name: Upload coverage report
+        run: bash <(curl -s https://codecov.io/bash)

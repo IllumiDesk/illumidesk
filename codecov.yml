@@ -4,7 +4,7 @@ coverage:
       default: false
       tests:
         target: 100%
-        paths: "src/tests/"
+        paths: "src/illumidesk/tests/"
         branches:
           - main
         if_not_found: success
@@ -16,7 +16,7 @@ coverage:
         threshold: 0%
         base: auto
         paths:
-          - "!src/tests/"
+          - "!src/illumidesk/tests/"
         branches:
           - main
         if_not_found: success

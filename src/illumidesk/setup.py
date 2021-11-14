@@ -45,8 +45,8 @@ setup(
         "oauthenticator>=0.13.0",
         "pem==20.1.0",
         "psycopg2-binary==2.8.6",
-        "PyJWT==1.7.1",
-        "pyjwkest==1.4.2",
+        "PyJWT>=1.7.1,<2",
+        "pyjwkest>=1.4.2",
         "pycryptodome==3.9.8",
         "SQLAlchemy-Utils==0.36.8",
     ],  # noqa: E231

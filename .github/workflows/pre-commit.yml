@@ -1,0 +1,28 @@
+name: Run pre-commit hooks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-hooks:
+    name: Run pre-commit hooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone Main Repo
+        uses: actions/checkout@v2
+        with:
+          path: main
+
+      - name: Set Up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+
+      - name: Install pre-commit
+        run: make -C main venv
+      - name: Run pre-commit hooks
+        run: make -C main pre-commit-all
