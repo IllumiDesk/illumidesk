@@ -24,5 +24,6 @@ jobs:
 
       - name: Install pre-commit
         run: make -C main venv
+        
       - name: Run pre-commit hooks
         run: make -C main pre-commit-all

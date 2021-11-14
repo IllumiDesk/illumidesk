@@ -56,6 +56,12 @@ test: dev ## run tests for all packages
 	${VENV_BIN}/pytest -v src/illumidesk
 	${VENV_BIN}/pytest -v src/illumideskdummyauthenticator
 
+test-create-cov: ## create coverage report
+	${VENV_BIN}/pytest --cov=illumidesk src/illumidesk/tests
+
+test-push-cov: ## push coverage report to codecov
+	@bash <(curl -s https://codecov.io/bash)
+
 venv: prepare ## create virtual environment
 	test -d $(VENV_NAME) || virtualenv -p python3 $(VENV_NAME)
 	${PYTHON} -m pip install --upgrade pip

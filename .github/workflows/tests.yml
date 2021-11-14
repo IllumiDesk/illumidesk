@@ -57,7 +57,9 @@ jobs:
         run: make -C main test
 
       - name: Create coverage report
-        run: pytest --cov=illumidesk src/illumidesk/tests
+        run: make -C main test-create-cov
+        # pytest --cov=illumidesk src/illumidesk/tests
       
       - name: Upload coverage report
-        run: bash <(curl -s https://codecov.io/bash)
+        run: make -C main test-push-cov
+        # bash <(curl -s https://codecov.io/bash)
