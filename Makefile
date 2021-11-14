@@ -44,12 +44,18 @@ build-hubs: ## build jupyterhub images for standard docker-compose and docker ru
 
 pre-commit-all: ## run pre-commit hook on all files (mostly linting)
 	${VENV_BIN}/pre-commit run --all-files || (printf "\n\n\n" && git --no-pager diff --color=always)
+
 pre-commit-install: ## set up the git hook scripts
 	${VENV_BIN}/pre-commit --version
 	${VENV_BIN}/pre-commit install
 
 prepare: ## install virtualenv and create virtualenv with the venv folder
 	which virtualenv || python3 -m pip install virtualenv
+
+push-all: ## push jupyterhub images to docker hub
+	@docker push ${OWNER}/grader-setup-service:latest
+	@docker push ${OWNER}/jupyterhub:${JUPYTERHUB_DOCKER_BASE_TAG}
+	@docker push ${OWNER}/k8s-hub:${JUPYTERHUB_DOCKER_K8_TAG}
 
 test: dev ## run tests for all packages
 	${VENV_BIN}/pytest -v src/graderservice
