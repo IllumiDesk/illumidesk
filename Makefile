@@ -10,14 +10,15 @@ PYTHON=${VENV_BIN}/python3
 
 GRADERSERVICE_BASE_IMAGE=python
 GRADERSERVICE_BASE_IMAGE_TAG=3.8
-JUPYTERHUB_BASE_IMAGE=jupyterhub/k8s-hub
-JUPYTERHUB_BASE_TAG=${JUPYTERHUB_BASE_TAG}
+JUPYTERHUB_DOCKER_BASE_IMAGE=jupyterhub/jupyterhub
+JUPYTERHUB_DOCKER_BASE_TAG=1.4.2
+JUPYTERHUB_K8_BASE_IMAGE=jupyterhub/k8s-hub
+JUPYTERHUB_K8_BASE_TAG=1.1.2
 
 # https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help:
 	@echo "illumidesk/illumidesk"
 	@echo "====================="
-	@echo "Replace % with a stack directory name (e.g., make build/src/illumidesk)"
 	@echo
 	@grep -E '^[a-zA-Z0-9_%/-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
