@@ -57,7 +57,7 @@ test: dev ## run tests for all packages
 	${VENV_BIN}/pytest -v src/illumidesk
 	${VENV_BIN}/pytest -v src/illumideskdummyauthenticator
 
-venv: ## create virtual environment
+venv: prepare ## create virtual environment
 	test -d $(VENV_NAME) || virtualenv -p python3 $(VENV_NAME)
 	${PYTHON} -m pip install --upgrade pip
 	${PYTHON} -m pip install -r dev-requirements.txt
