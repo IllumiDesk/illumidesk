@@ -47,15 +47,11 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install
-        run: |
-          pip install --upgrade pip
-          pip install .
-          pip install --upgrade --pre -r dev-requirements.txt .
-          pip freeze
+        run: make -C main dev
 
       - name: Run tests
         shell: 'script --return --quiet --command "bash {0}"'
-        run: make -C test
+        run: make -C main test
 
       - name: Create coverage report
         run: pytest --cov=illumidesk src/illumidesk/tests
