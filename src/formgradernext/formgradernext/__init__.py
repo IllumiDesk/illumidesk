@@ -1,5 +1,5 @@
 """Tornado handlers for formgrader custom UI."""
-from .handlers import load_jupyter_server_extension  # # noqa: F401
+from .handlers import load_jupyter_server_extension  # noqa: F401
 
 
 def _jupyter_nbextension_paths():
