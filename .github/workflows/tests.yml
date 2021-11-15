@@ -35,6 +35,12 @@ jobs:
         with:
           path: main
 
+      - name: Set up GCC
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: latest
+          platform: x64
+
       - name: Install Python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:
