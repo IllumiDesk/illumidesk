@@ -38,16 +38,10 @@ jobs:
         with:
           path: main
 
-      - name: Set up GCC
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: latest
-          platform: x64
-
       - name: Set Up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.x
+          python-version: 3.8
 
       - name: Install Dev Dependencies
         run: |

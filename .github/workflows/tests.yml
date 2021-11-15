@@ -24,8 +24,6 @@ jobs:
       fail-fast: false
       matrix:
         python:
-          - "3.6"
-          - "3.7"
           - "3.8"
           - "3.9"
 
@@ -34,12 +32,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: main
-
-      - name: Set up GCC
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: latest
-          platform: x64
 
       - name: Install Python ${{ matrix.python }}
         uses: actions/setup-python@v2
