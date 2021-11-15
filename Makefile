@@ -27,6 +27,7 @@ clean: ## clean files from environment (cache, egg, etc)
 	rm -rf $(VENV_NAME) *.eggs *.egg-info dist build docs/_build .cache
 
 dev: venv ## install the packages in editable mode
+	${PYTHON} -m pip install -e src/formgradernext/.
 	${PYTHON} -m pip install -e src/graderservice/.
 	${PYTHON} -m pip install -e src/illumidesk/.
 	${PYTHON} -m pip install -e src/illumideskdummyauthenticator/.
@@ -58,12 +59,16 @@ push-all: ## push jupyterhub images to docker hub
 	@docker push ${OWNER}/k8s-hub:${JUPYTERHUB_DOCKER_K8_TAG}
 
 test: dev ## run tests for all packages
+	${VENV_BIN}/pytest -v src/formgradernext
 	${VENV_BIN}/pytest -v src/graderservice
 	${VENV_BIN}/pytest -v src/illumidesk
 	${VENV_BIN}/pytest -v src/illumideskdummyauthenticator
 
 test-create-cov: ## create coverage report
-	${VENV_BIN}/pytest --cov=illumidesk src/illumidesk/tests
+	${VENV_BIN}/pytest --cov=formgradernext src/formgradernext/tests
+	${VENV_BIN}/pytest --cov=formgradernext src/graderservice/tests
+	${VENV_BIN}/pytest --cov=formgradernext src/illumidesk/tests
+	${VENV_BIN}/pytest --cov=illumidesk src/illumideskdummyauthenticator/tests
 
 test-push-cov: ## push coverage report to codecov
 	@bash <(curl -s https://codecov.io/bash)

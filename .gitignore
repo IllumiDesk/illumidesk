@@ -39,3 +39,7 @@ share/jupyterhub/static/css/style.min.css
 share/jupyterhub/static/css/style.min.css.map
 src/build*
 venv
+
+# grader files
+gradebook.db
+*.sqlite*
