@@ -16,7 +16,8 @@ from .middleware import coop_coep_headers
 DEFAULT_LMS_VERSION = os.environ.get("DEFAULT_LMS_VERSION") or "0.3.0"
 
 
-def get_template(version):
+def get_template(version: str) -> str:
+    """Gets the template based on the version of the LMS package."""
     template_response = requests.get(
         f"https://content.illumidesk.com/lms/{version}/index.html"
     )
@@ -69,11 +70,20 @@ handlers = [
 ]
 
 
-def rewrite(nbapp: NotebookApp, x):
+def rewrite(nbapp: NotebookApp, x: str) -> str:
+    """Rewrites a path to remove the trailing slash.
+
+    Args:
+        nbapp (NotebookApp): a NotebookApp instance.
+        x (str): the string that represents the path.
+
+    Returns:
+        str: the re written string.
+    """
     web_app = nbapp.web_app
     pat = ujoin(web_app.settings["base_url"], x[0].lstrip("/"))
     return (pat,) + x[1:]
 
 
-def load_jupyter_server_extension(nbapp: NotebookApp):
+def load_jupyter_server_extension(nbapp: NotebookApp) -> None:
     nbapp.web_app.add_handlers(".*$", [rewrite(nbapp, x) for x in handlers])
