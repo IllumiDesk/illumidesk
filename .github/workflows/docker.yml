@@ -47,27 +47,23 @@ jobs:
         run: |
           make -C main dev
 
-      - name: Build Docker Images
+      - name: Build Kubernetes JupyterHub Image
         run: make -C main build-hubs-k8
         env:
           # Full logs for CI build
           BUILDKIT_PROGRESS: plain
 
-      - name: Build Docker Images
+      - name: Build Standard JupyterHub Image
         run: make -C main build-hubs
         env:
           # Full logs for CI build
           BUILDKIT_PROGRESS: plain
 
-      - name: Build Docker Images
+      - name: Build Grader Setup Service Image
         run: make -C main build-grader-setup-service
         env:
           # Full logs for CI build
           BUILDKIT_PROGRESS: plain
-
-      - name: Run Post-Build Hooks
-        id: hook-all
-        run: make -C main hook-all
 
       - name: Login to Docker Hub
         if: github.ref == 'refs/heads/main'
