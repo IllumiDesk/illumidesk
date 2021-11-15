@@ -20,3 +20,4 @@ pytest-metadata
 pytest-mock
 requests
 requests-mock
+selenium
