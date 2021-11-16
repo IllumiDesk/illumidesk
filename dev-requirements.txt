@@ -24,4 +24,5 @@ pytest-rerunfailures
 pytest-xdist
 requests
 requests-mock
+selenium
 wheel

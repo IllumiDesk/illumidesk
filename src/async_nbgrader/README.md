@@ -85,7 +85,11 @@ The `async_nbgrader` package installs the `nbgrader` package as a required depen
 
 > The `async_nbgrader` package overrides `nbgrader`'s default auto-grading service (included with the `Formgrader` extension) by converting the grading service from a `syncronous` service to an `asyncronous` service. Thefore it's a good idea to get familiar with the `nbgrader` documentation (although not a must) to setup your local environment [by following these instructions](https://nbgrader.readthedocs.io/en/latest/contributor_guide/installation_developer.html).
 
-Use `pytest` to run tests:
+### Running Tests
+
+1. Install the `rabbitmq` [server](https://www.rabbitmq.com/install-debian.html#installation-methods). Ensure the `rabbitmq-server` binary is located in the `/usr/sbin/` folder.
+
+2. Use `pytest` to run tests:
 
 ```bash
 pytest -v
