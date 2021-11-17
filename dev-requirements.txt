@@ -9,12 +9,11 @@ isort
 kubernetes
 mock
 pip-tools
+pytest
 pre-commit
 pykube
-pytest
-pytest-asyncio
 pytest-cov
-pytest-docker-fixtures
+pytest-asyncio
 pytest-flask
 pytest-html
 pytest-metadata
