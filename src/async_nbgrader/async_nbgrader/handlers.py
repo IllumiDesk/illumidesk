@@ -17,7 +17,10 @@ class AsyncAutogradeHandler(AutogradeHandler):
     def post(self, assignment_id: str, student_id: str) -> None:
         """Handler for processing autograding request, queues autograding task in amqp"""
         connection = pika.BlockingConnection(
-            pika.ConnectionParameters(os.environ.get("RABBITMQ_HOST", "argo-rabbitmq-service")),
+            pika.ConnectionParameters(
+                os.environ.get("RABBITMQ_HOST", "argo-rabbitmq-service"),
+                os.environ.get("RABBITMQ_PORT", 5672),
+            ),
         )
         channel = connection.channel()
         namespace = os.environ.get("NAMESPACE")
