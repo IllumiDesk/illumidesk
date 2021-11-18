@@ -38,6 +38,15 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
+      - name: Update
+        run: apt update
+
+      - name: Add rabbitmq repository
+        run: curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | bash
+
+      - name: Install rabbitmq-server
+        run: apt-get install rabbitmq-server
+
       # preserve pip cache to speed up installation
       - name: Cache pip
         uses: actions/cache@v2
