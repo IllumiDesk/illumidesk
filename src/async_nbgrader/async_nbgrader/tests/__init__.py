@@ -1,12 +1,13 @@
-import logging
 import os
+import subprocess as sp
 import sys
+import logging
 
-from jupyter_core.application import NoStart
-from nbgrader.validator import Validator
 from six import StringIO
+from jupyter_core.application import NoStart
 
 from ..apps.async_nbgraderapp import AsyncNbGraderApp
+from nbgrader.validator import Validator
 
 
 def run_async_nbgrader(args, retcode=0, env=None, stdout=False):
@@ -30,9 +31,7 @@ def run_async_nbgrader(args, retcode=0, env=None, stdout=False):
     try:
         app.initialize(args)
         if not stdout:
-            app.init_logging(
-                logging.StreamHandler, [log_buff], color=False, subapps=True
-            )
+            app.init_logging(logging.StreamHandler, [log_buff], color=False, subapps=True)
         app.start()
     except NoStart:
         true_retcode = 0
@@ -59,7 +58,6 @@ def run_async_nbgrader(args, retcode=0, env=None, stdout=False):
 
     if retcode != true_retcode:
         raise AssertionError(
-            "process returned an unexpected return code: {}".format(true_retcode)
-        )
+            "process returned an unexpected return code: {}".format(true_retcode))
 
     return out

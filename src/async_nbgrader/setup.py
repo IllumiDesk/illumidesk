@@ -14,8 +14,8 @@ setup_args = dict(
     version=version_ns["__version__"],
     packages=find_packages(),
     package_data={
-        "async_nbgrader.tests": [
-            "apps/files/*",
+        'async_nbgrader.tests': [
+            'apps/files/*',
         ]
     },
     entry_points={
@@ -23,7 +23,6 @@ setup_args = dict(
     },
     install_requires=[
         "jupyter_core>=4.7.1",
-        "jupyter_client==6.1.2",
         "notebook>=6.4.2",
         "nbgrader>=0.6.2",
         "pika>=1.2.0",

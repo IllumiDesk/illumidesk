@@ -1,0 +1,17 @@
+black
+codecov
+flake8
+isort
+pre-commit
+pytest
+pytest-cov
+pytest-rerunfailures
+pytest-xdist
+coverage
+selenium
+sphinx
+sphinx_rtd_theme
+sphinx-autodoc-typehints
+nbval
+requests-mock
+wheel

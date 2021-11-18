@@ -1,7 +1,7 @@
 import json
 import os
-
 import pika
+
 from nbgrader.server_extensions.formgrader.apihandlers import AutogradeHandler
 from nbgrader.server_extensions.formgrader.base import check_notebook_dir
 from nbgrader.server_extensions.formgrader.base import check_xsrf
@@ -17,9 +17,7 @@ class AsyncAutogradeHandler(AutogradeHandler):
     def post(self, assignment_id: str, student_id: str) -> None:
         """Handler for processing autograding request, queues autograding task in amqp"""
         connection = pika.BlockingConnection(
-            pika.ConnectionParameters(
-                os.environ.get("RABBITMQ_HOST", "argo-rabbitmq-service")
-            ),
+            pika.ConnectionParameters(os.environ.get("RABBITMQ_HOST", "argo-rabbitmq-service")),
         )
         channel = connection.channel()
         namespace = os.environ.get("NAMESPACE")

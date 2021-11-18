@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from nbgrader.api import Gradebook
 from nbgrader.apps import ExportApp as BaseExportApp
 from traitlets import Instance

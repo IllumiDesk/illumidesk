@@ -1,13 +1,16 @@
+# coding: utf-8
+
 import base64
 import json
 import os
 import traceback
 
-from nbgrader.apps.baseapp import NbGrader
 from traitlets import default
-
+from nbgrader.apps.baseapp import NbGrader
+from nbgrader.coursedir import CourseDirectory
 from ..helpers import chdir
 from ..helpers import get_nbgrader_api
+
 
 aliases = {
     "log-level": "Application.log_level",
@@ -46,7 +49,7 @@ class ProcessMessageApp(NbGrader):
         if missing_padding > 0:
             encoded_message += b"=" * (4 - missing_padding)
         body = json.loads(base64.b64decode(encoded_message).decode("utf-8")).get("body")
-        if body is None:
+        if body == None:
             self.fail("body is missing")
         action = body.get("action")
         notebook_dir = body.get("notebook_dir")
