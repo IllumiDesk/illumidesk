@@ -39,13 +39,13 @@ jobs:
           python-version: ${{ matrix.python }}
 
       - name: Update
-        run: apt update
+        run: sudo apt update
 
       - name: Add rabbitmq repository
-        run: curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | bash
+        run: curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | sudo bash
 
       - name: Install rabbitmq-server
-        run: apt-get install rabbitmq-server
+        run: sudo apt-get install rabbitmq-server
 
       # preserve pip cache to speed up installation
       - name: Cache pip
