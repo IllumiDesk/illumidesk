@@ -47,6 +47,9 @@ jobs:
       - name: Install rabbitmq-server
         run: sudo apt-get install rabbitmq-server
 
+      - name: Disable rabbitmq-server
+        run: sudo systemctl disable rabbitmq-server
+
       # preserve pip cache to speed up installation
       - name: Cache pip
         uses: actions/cache@v2
