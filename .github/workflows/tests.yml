@@ -38,6 +38,9 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
+      - name: Install alembic
+        run: sudo apt-get install alembic
+
       # preserve pip cache to speed up installation
       - name: Cache pip
         uses: actions/cache@v2
