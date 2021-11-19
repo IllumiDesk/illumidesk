@@ -38,18 +38,6 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Update
-        run: sudo apt update
-
-      - name: Add rabbitmq repository
-        run: curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | sudo bash
-
-      - name: Install rabbitmq-server and alembic
-        run: sudo apt-get install rabbitmq-server alembic
-
-      - name: Disable rabbitmq-server
-        run: sudo systemctl disable rabbitmq-server
-
       # preserve pip cache to speed up installation
       - name: Cache pip
         uses: actions/cache@v2
@@ -59,9 +47,6 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-
-      - name: Install nbgrader
-        run: pip install nbgrader
 
       - name: Install
         run: make -C main dev
