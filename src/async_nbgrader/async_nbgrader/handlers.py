@@ -47,6 +47,7 @@ class AsyncAutogradeHandler(AutogradeHandler):
             routing_key="autograde_events",
             body=body,
         )
+        connection.close()
         self.write(
             json.dumps(
                 {

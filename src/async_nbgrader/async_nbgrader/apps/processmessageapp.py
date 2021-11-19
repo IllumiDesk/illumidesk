@@ -40,7 +40,7 @@ class ProcessMessageApp(NbGrader):
     def start(self):
         """Handler for processing mesage, message is passed as first argument, it is received in self.extra_args[0]"""
         super(ProcessMessageApp, self).start()
-        if len(self.extra_args) == 0 or self.extra_args[0] == "":
+        if not self.extra_args or not self.extra_args[0]:
             self.fail("message is missing")
         message = json.loads(self.extra_args[0])
         encoded_message = message["data"]
@@ -49,7 +49,7 @@ class ProcessMessageApp(NbGrader):
         if missing_padding > 0:
             encoded_message += b"=" * (4 - missing_padding)
         body = json.loads(base64.b64decode(encoded_message).decode("utf-8")).get("body")
-        if body == None:
+        if body is None:
             self.fail("body is missing")
         action = body.get("action")
         notebook_dir = body.get("notebook_dir")
