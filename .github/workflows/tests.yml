@@ -44,8 +44,8 @@ jobs:
       - name: Add rabbitmq repository
         run: curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.deb.sh | sudo bash
 
-      - name: Install rabbitmq-server
-        run: sudo apt-get install rabbitmq-server
+      - name: Install rabbitmq-server and alembic
+        run: sudo apt-get install rabbitmq-server alembic
 
       - name: Disable rabbitmq-server
         run: sudo systemctl disable rabbitmq-server
