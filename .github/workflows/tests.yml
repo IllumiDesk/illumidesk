@@ -38,6 +38,9 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
+      - name: Install alembic
+        run: sudo apt-get install alembic
+
       # preserve pip cache to speed up installation
       - name: Cache pip
         uses: actions/cache@v2
@@ -47,6 +50,9 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+
+      - name: Install nbgrader
+        run: pip install nbgrader
 
       - name: Install
         run: make -C main dev

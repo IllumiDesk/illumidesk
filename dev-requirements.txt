@@ -18,6 +18,10 @@ pytest-flask
 pytest-html
 pytest-metadata
 pytest-mock
+pytest-rabbitmq
+pytest-rerunfailures
+pytest-xdist
 requests
 requests-mock
 selenium
+wheel

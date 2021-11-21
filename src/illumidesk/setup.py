@@ -34,7 +34,7 @@ setup(
     author="The IllumiDesk Team",
     author_email="hello@illumidesk.com",
     license="Apache 2.0",
-    packages=find_packages(exclude="./tests"),
+    packages=find_packages(),
     install_requires=[
         "josepy==1.4.0",
         "jupyterhub-kubespawner==0.14.1",
