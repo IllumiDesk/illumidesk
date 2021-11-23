@@ -18,7 +18,7 @@ nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
 nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT") or 5432
 nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
 nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
-nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DB_NAME")
+nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DB_NAME") or "illumidesk"
 mnt_root = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 
 org_name = os.environ.get("ORGANIZATION_NAME") or "my-org"

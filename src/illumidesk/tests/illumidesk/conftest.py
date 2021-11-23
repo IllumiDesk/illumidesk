@@ -302,6 +302,7 @@ def setup_nbgrader_db(monkeypatch):
     monkeypatch.setenv("POSTGRES_NBGRADER_PORT", "5432")
     monkeypatch.setenv("POSTGRES_NBGRADER_USER", "foobar")
     monkeypatch.setenv("POSTGRES_NBGRADER_PASSWORD", "abc123")
+    monkeypatch.setenv("POSTGRES_NBGRADER_DB_NAME", "illumidesk")
 
 
 @pytest.fixture(scope="function")

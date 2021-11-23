@@ -38,6 +38,7 @@ Once the JupyterHub server is running navigate to `http://<your-ipv4-address>:80
 | POSTGRES_NBGRADER_HOST | The nbgrader Postgres host endpoint | `string` | `""` |
 | POSTGRES_NBGRADER_PORT | The nbgrader Postgres port | `string` | `5432` |
 | POSTGRES_NBGRADER_USER | The nbgrader Postgres username | `string` | `"` |
+| POSTGRES_NBGRADER_DB_NAME | The nbgrader Postgres db name | `string` | `illumidesk` |
 | POSTGRES_NBGRADER_PASSWORD | The nbgrader Postgres username | `string` | `""` |
 | SETUP_COURSE_SERVICE_NAME | The setup course service name | `string` | `grader-setup-service` |
 | SETUP_COURSE_SERVICE_PORT | The setup cours service port | `string` | `8000` |
