@@ -63,7 +63,6 @@ def mock_nbhelper():
                     "illumidesk.apis.nbgrader_service.NbGraderServiceHelper",
                     # __init__=lambda x, y: None,
                     update_course=Mock(return_value=None),
-                    create_database_if_not_exists=Mock(),
                     add_user_to_nbgrader_gradebook=Mock(return_value=None),
                     register_assignment=Mock(return_value=None),
                     get_course=Mock(
