@@ -184,7 +184,7 @@ class GraderServiceLauncher:
         grader_home_nbconfig_content = NBGRADER_HOME_CONFIG_TEMPLATE.format(
             grader_name=self.grader_name,
             course_id=self.course_id,
-            db_url=f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}",
+            db_url=f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{nbgrader_db_name}",
         )
         grader_nbconfig_path.write_text(grader_home_nbconfig_content)
         # Write the nbgrader_config.py file at grader home directory

@@ -56,9 +56,12 @@ class TestNbGraderServiceHelper:
         monkeypatch.setattr(
             "illumidesk.apis.nbgrader_service.nbgrader_db_user", "test_user"
         )
+        monkeypatch.setattr(
+            "illumidesk.apis.nbgrader_service.nbgrader_db_name", "test_db"
+        )
+        
         monkeypatch.setattr("illumidesk.apis.nbgrader_service.org_name", "org-dummy")
 
         assert (
-            nbgrader_format_db_url("Course 1")
-            == "postgresql://test_user:test_pwd@test_host:5432/org-dummy_course1"
+            nbgrader_format_db_url() == "postgresql://test_user:test_pwd@test_host:5432/test_db"
         )
