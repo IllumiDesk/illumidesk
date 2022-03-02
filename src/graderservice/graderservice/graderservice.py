@@ -30,6 +30,10 @@ GRADER_IMAGE_NAME = os.environ.get(
 GRADER_IMAGE_PULL_POLICY = os.environ.get("GRADER_IMAGE_PULL_POLICY", "IfNotPresent")
 # mount root path for grader and course home directories
 MNT_ROOT = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
+# shared directory to use with students and instructors
+EXCHANGE_MNT_ROOT = os.environ.get(
+    "ILLUMIDESK_NB_EXCHANGE_MNT_ROOT", "/illumidesk-nb-exchange"
+)
 
 GRADER_PVC = os.environ.get("GRADER_PVC", "grader-setup-pvc")
 
@@ -86,6 +90,8 @@ class GraderServiceLauncher:
         self.course_dir = Path(
             f"{MNT_ROOT}/{self.org_name}/home/grader-{self.course_id}/{self.course_id}"
         )
+        # set the exchange directory path
+        self.exchange_dir = Path(EXCHANGE_MNT_ROOT, self.org_name, "exchange")
 
     def grader_deployment_exists(self) -> bool:
         """Check if there is a deployment for the grader service name"""
@@ -115,6 +121,7 @@ class GraderServiceLauncher:
         """Deploy the grader service"""
         # first create the home directories for grader/course
         try:
+            self._create_exchange_directory()
             self._create_grader_directories()
             self._create_nbgrader_files()
         except Exception as e:
@@ -133,6 +140,12 @@ class GraderServiceLauncher:
         # Create grader service
         service = self._create_service_object()
         self.coreV1Api.create_namespaced_service(namespace=NAMESPACE, body=service)
+
+    def _create_exchange_directory(self):
+        """Creates the exchange directory in the file system and sets permissions."""
+        logger.info(f"Creating exchange directory {self.exchange_dir}")
+        self.exchange_dir.mkdir(parents=True, exist_ok=True)
+        self.exchange_dir.chmod(0o777)
 
     def _create_grader_directories(self):
         """
@@ -211,6 +224,7 @@ class GraderServiceLauncher:
         # Configureate Pod template container
         # Volumes to mount as subPaths of PV
         sub_path_grader_home = str(self.course_dir.parent).strip("/")
+        sub_path_exchange = str(self.exchange_dir.relative_to(EXCHANGE_MNT_ROOT))
         # define the container to launch
         container = client.V1Container(
             name="grader-notebook",
