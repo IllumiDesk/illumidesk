@@ -1,5 +1,6 @@
 import logging
 import os
+import urllib.parse
 
 from nbgrader.api import Assignment
 from nbgrader.api import Course
@@ -35,7 +36,7 @@ def nbgrader_format_db_url(course_id: str) -> str:
     """
     course_id = LTIUtils().normalize_string(course_id)
     database_name = f"{org_name}_{course_id}"
-    return f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{database_name}"
+    return urllib.parse.quote(f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{database_name}")
 
 
 class NbGraderServiceHelper:

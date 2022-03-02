@@ -1,6 +1,6 @@
 # for kubernetes, use the --build-arg when building image or uncomment
-# ARG BASE_IMAGE=illumidesk/k8s-hub:1.1.2
-ARG BASE_IMAGE=illumidesk/jupyterhub:1.4.2
+ARG BASE_IMAGE=illumidesk/k8s-hub:1.1.2
+#ARG BASE_IMAGE=illumidesk/jupyterhub:1.4.2
 FROM "${BASE_IMAGE}"
 
 USER "${NB_UID}"

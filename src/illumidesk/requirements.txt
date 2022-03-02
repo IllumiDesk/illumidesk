@@ -102,6 +102,6 @@ wcwidth==0.2.5            # via prompt-toolkit
 webencodings==0.5.1       # via bleach
 websocket-client==0.59.0  # via kubernetes
 widgetsnbextension==3.5.1  # via ipywidgets
-
+boto3==1.21.9
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
