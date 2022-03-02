@@ -37,12 +37,12 @@ GRADER_IMAGE_PULL_POLICY = os.environ.get("GRADER_IMAGE_PULL_POLICY", "IfNotPres
 MNT_ROOT = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 
 GRADER_PVC = os.environ.get("GRADER_PVC", "grader-setup-pvc")
-if ENABLE_SHARED_PVC:
 
-    # shared directory to use with students and instructors
-    EXCHANGE_MNT_ROOT = os.environ.get(
-        "ILLUMIDESK_NB_EXCHANGE_MNT_ROOT", "/illumidesk-nb-exchange"
-    )
+# shared directory to use with students and instructors
+EXCHANGE_MNT_ROOT = os.environ.get(
+    "ILLUMIDESK_NB_EXCHANGE_MNT_ROOT", "/illumidesk-nb-exchange"
+)
+if ENABLE_SHARED_PVC:
     GRADER_EXCHANGE_SHARED_PVC = os.environ.get(
         "GRADER_SHARED_PVC", "exchange-shared-volume"
     )
@@ -100,9 +100,9 @@ class GraderServiceLauncher:
         self.course_dir = Path(
             f"{MNT_ROOT}/{self.org_name}/home/grader-{self.course_id}/{self.course_id}"
         )
-        if ENABLE_SHARED_PVC:
+        #if ENABLE_SHARED_PVC:
             # set the exchange directory path
-            self.exchange_dir = Path(EXCHANGE_MNT_ROOT, self.org_name, "exchange")
+        self.exchange_dir = Path(EXCHANGE_MNT_ROOT, self.org_name, "exchange")
 
     def grader_deployment_exists(self) -> bool:
         """Check if there is a deployment for the grader service name"""
@@ -132,8 +132,7 @@ class GraderServiceLauncher:
         """Deploy the grader service"""
         # first create the home directories for grader/course
         try:
-            if ENABLE_SHARED_PVC:
-                self._create_exchange_directory()
+            self._create_exchange_directory()
             self._create_grader_directories()
             self._create_nbgrader_files()
         except Exception as e:
@@ -253,19 +252,18 @@ class GraderServiceLauncher:
                         ),
                     ),
             ] 
-        
+        # Configureate Pod template container
+        # Volumes to mount as subPaths of PV
+        sub_path_exchange = str(self.exchange_dir.relative_to(EXCHANGE_MNT_ROOT))
+        # volume mount for shared pvc
+        grader_notebook_volume_mounts.append(
+            client.V1VolumeMount(
+                mount_path="/srv/nbgrader/exchange",
+                name=GRADER_EXCHANGE_SHARED_PVC,
+                sub_path=sub_path_exchange,
+            ),)
         # add exchange directory and notebook volume mounts, volumes for shared pvc
         if ENABLE_SHARED_PVC:
-            # Configureate Pod template container
-            # Volumes to mount as subPaths of PV
-            sub_path_exchange = str(self.exchange_dir.relative_to(EXCHANGE_MNT_ROOT))
-            # volume mount for shared pvc
-            grader_notebook_volume_mounts.append(
-                client.V1VolumeMount(
-                    mount_path="/srv/nbgrader/exchange",
-                    name=GRADER_EXCHANGE_SHARED_PVC,
-                    sub_path=sub_path_exchange,
-                ),)
             # persistent volume claim for shared pvc
             grader_notebook_volumes.append(
                     client.V1Volume(
