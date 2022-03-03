@@ -1,5 +1,6 @@
 import logging
 import os
+import urllib.parse
 
 from nbgrader.api import Assignment
 from nbgrader.api import Course
@@ -16,7 +17,7 @@ logger.setLevel(logging.DEBUG)
 
 nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
 nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT") or 5432
-nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
+nbgrader_db_password = urllib.parse.quote(os.environ.get("POSTGRES_NBGRADER_PASSWORD"), safe='')
 nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
 mnt_root = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 
