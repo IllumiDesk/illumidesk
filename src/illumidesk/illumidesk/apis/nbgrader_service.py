@@ -17,7 +17,7 @@ logger.setLevel(logging.DEBUG)
 
 nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
 nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT") or 5432
-nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
+nbgrader_db_password = urllib.parse.quote(os.environ.get("POSTGRES_NBGRADER_PASSWORD"), safe='')
 nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
 mnt_root = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 
@@ -36,7 +36,7 @@ def nbgrader_format_db_url(course_id: str) -> str:
     """
     course_id = LTIUtils().normalize_string(course_id)
     database_name = f"{org_name}_{course_id}"
-    return urllib.parse.quote(f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{database_name}")
+    return f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{database_name}"
 
 
 class NbGraderServiceHelper:

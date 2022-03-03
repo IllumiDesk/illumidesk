@@ -24,8 +24,7 @@ logger = logging.getLogger()
 
 logging.getLogger("asyncio").setLevel(logging.WARNING)
 
-# SHARED PVC
-ENABLE_SHARED_PVC = strtobool(os.environ.get("ENABLE_SHARED_PVC", "False"))
+
 # namespace to deploy new pods
 NAMESPACE = os.environ.get("ILLUMIDESK_K8S_NAMESPACE", "default")
 # image name for grader-notebooks
@@ -37,15 +36,10 @@ GRADER_IMAGE_PULL_POLICY = os.environ.get("GRADER_IMAGE_PULL_POLICY", "IfNotPres
 MNT_ROOT = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 
 GRADER_PVC = os.environ.get("GRADER_PVC", "grader-setup-pvc")
-
 # shared directory to use with students and instructors
 EXCHANGE_MNT_ROOT = os.environ.get(
     "ILLUMIDESK_NB_EXCHANGE_MNT_ROOT", "/illumidesk-nb-exchange"
 )
-if ENABLE_SHARED_PVC:
-    GRADER_EXCHANGE_SHARED_PVC = os.environ.get(
-        "GRADER_SHARED_PVC", "exchange-shared-volume"
-    )
 
 # user UI and GID to use within the grader container
 NB_UID = os.environ.get("NB_UID", 10001)
@@ -63,7 +57,7 @@ JUPYTERHUB_BASE_URL = os.environ.get("JUPYTERHUB_BASE_URL") or "/"
 
 # NBGrader database settings to save in nbgrader_config.py file
 nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
-nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
+nbgrader_db_password = urllib.parse.quote(os.environ.get("POSTGRES_NBGRADER_PASSWORD"), safe='')
 nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
 nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT")
 nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DB_NAME")
@@ -100,9 +94,8 @@ class GraderServiceLauncher:
         self.course_dir = Path(
             f"{MNT_ROOT}/{self.org_name}/home/grader-{self.course_id}/{self.course_id}"
         )
-        #if ENABLE_SHARED_PVC:
-            # set the exchange directory path
         self.exchange_dir = Path(EXCHANGE_MNT_ROOT, self.org_name, "exchange")
+            
 
     def grader_deployment_exists(self) -> bool:
         """Check if there is a deployment for the grader service name"""
@@ -132,6 +125,7 @@ class GraderServiceLauncher:
         """Deploy the grader service"""
         # first create the home directories for grader/course
         try:
+            
             self._create_exchange_directory()
             self._create_grader_directories()
             self._create_nbgrader_files()
@@ -193,7 +187,7 @@ class GraderServiceLauncher:
         grader_home_nbconfig_content = NBGRADER_HOME_CONFIG_TEMPLATE.format(
             grader_name=self.grader_name,
             course_id=self.course_id,
-            db_url=urllib.parse.quote(f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}"),
+            db_url=f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}",
         )
         grader_nbconfig_path.write_text(grader_home_nbconfig_content)
         # Write the nbgrader_config.py file at grader home directory
@@ -233,14 +227,21 @@ class GraderServiceLauncher:
           V1Deployment: a valid kubernetes deployment object
         """
         # Configureate Pod template container
-        # Volumes to mount as subPaths of PV
+        # sub path for grader home volume mount
         sub_path_grader_home = str(self.course_dir.parent).strip("/")
+        # sub path for exchange directory
+        sub_path_exchange = str(self.exchange_dir.relative_to(EXCHANGE_MNT_ROOT))
         # Volume mounts for grader
         grader_notebook_volume_mounts = [
                 client.V1VolumeMount(
                     mount_path=f"/home/{self.grader_name}",
                     name=GRADER_PVC,
                     sub_path=sub_path_grader_home,
+                ),
+                client.V1VolumeMount(
+                    mount_path="/srv/nbgrader/exchange",
+                    name=GRADER_PVC,
+                    sub_path=sub_path_exchange,
                 ),
             ]
         #Persistent Volume for grader
@@ -251,28 +252,8 @@ class GraderServiceLauncher:
                             claim_name=GRADER_PVC
                         ),
                     ),
-            ] 
-        # Configureate Pod template container
-        # Volumes to mount as subPaths of PV
-        sub_path_exchange = str(self.exchange_dir.relative_to(EXCHANGE_MNT_ROOT))
-        # volume mount for shared pvc
-        grader_notebook_volume_mounts.append(
-            client.V1VolumeMount(
-                mount_path="/srv/nbgrader/exchange",
-                name=GRADER_EXCHANGE_SHARED_PVC,
-                sub_path=sub_path_exchange,
-            ),)
-        # add exchange directory and notebook volume mounts, volumes for shared pvc
-        if ENABLE_SHARED_PVC:
-            # persistent volume claim for shared pvc
-            grader_notebook_volumes.append(
-                    client.V1Volume(
-                        name=GRADER_EXCHANGE_SHARED_PVC,
-                        persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
-                            claim_name=GRADER_EXCHANGE_SHARED_PVC
-                        ),
-                    ))
-
+            ]
+            
         
         # define the container to launch
         container = client.V1Container(
