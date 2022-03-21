@@ -35,9 +35,6 @@ EXCHANGE_MNT_ROOT = os.environ.get(
     "ILLUMIDESK_NB_EXCHANGE_MNT_ROOT", "/illumidesk-nb-exchange"
 )
 GRADER_PVC = os.environ.get("GRADER_PVC", "grader-setup-pvc")
-GRADER_EXCHANGE_SHARED_PVC = os.environ.get(
-    "GRADER_SHARED_PVC", "exchange-shared-volume"
-)
 
 # user UI and GID to use within the grader container
 NB_UID = os.environ.get("NB_UID", 10001)
@@ -184,7 +181,7 @@ class GraderServiceLauncher:
         grader_home_nbconfig_content = NBGRADER_HOME_CONFIG_TEMPLATE.format(
             grader_name=self.grader_name,
             course_id=self.course_id,
-            db_url=f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}",
+            db_url=f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{nbgrader_db_name}",
         )
         grader_nbconfig_path.write_text(grader_home_nbconfig_content)
         # Write the nbgrader_config.py file at grader home directory
@@ -278,7 +275,7 @@ class GraderServiceLauncher:
                 ),
                 client.V1VolumeMount(
                     mount_path="/srv/nbgrader/exchange",
-                    name=GRADER_EXCHANGE_SHARED_PVC,
+                    name=GRADER_PVC,
                     sub_path=sub_path_exchange,
                 ),
             ],
@@ -296,12 +293,6 @@ class GraderServiceLauncher:
                         name=GRADER_PVC,
                         persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
                             claim_name=GRADER_PVC
-                        ),
-                    ),
-                    client.V1Volume(
-                        name=GRADER_EXCHANGE_SHARED_PVC,
-                        persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
-                            claim_name=GRADER_EXCHANGE_SHARED_PVC
                         ),
                     ),
                 ],

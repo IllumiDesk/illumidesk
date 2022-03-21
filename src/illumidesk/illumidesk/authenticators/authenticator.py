@@ -60,7 +60,7 @@ async def setup_course_hook_lti11(
     jupyterhub_api = JupyterHubAPI()
 
     # normalize the name and course_id strings in authentication dictionary
-    username = authentication["name"]
+    name = authentication["name"]
     lms_user_id = authentication["auth_state"]["user_id"]
     user_role = authentication["auth_state"]["roles"].split(",")[0]
     course_id = lti_utils.normalize_string(
@@ -69,25 +69,28 @@ async def setup_course_hook_lti11(
     nb_service = NbGraderServiceHelper(course_id, True)
 
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
-    nb_service.add_user_to_nbgrader_gradebook(username, lms_user_id)
+    role = "STUDENT"
+    if not user_is_a_student(user_role) and user_is_an_instructor(user_role):
+        role = "INSTRUCTOR"
+    nb_service.add_user_to_nbgrader_gradebook(name, lms_user_id, role)
     # TODO: verify the logic to simplify groups creation and membership
-    if user_is_a_student(user_role):
+    if role == "STUDENT":
         try:
             # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
-            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, lms_user_id)
         except AddJupyterHubUserException as e:
             logger.error(
-                "An error when adding student username: %s to course_id: %s with exception %s",
-                (username, course_id, e),
+                "An error when adding student user_id: %s to course_id: %s with exception %s",
+                (lms_user_id, course_id, e),
             )
-    elif user_is_an_instructor(user_role):
+    elif role == "INSTRUCTOR":
         try:
             # assign the user in 'formgrade-<course_id>' group
-            await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
+            await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, lms_user_id)
         except AddJupyterHubUserException as e:
             logger.error(
-                "An error when adding instructor username: %s to course_id: %s with exception %s",
-                (username, course_id, e),
+                "An error when adding instructor user_id: %s to course_id: %s with exception %s",
+                (lms_user_id, course_id, e),
             )
 
     # launch the new grader-notebook as a service
@@ -128,30 +131,33 @@ async def setup_course_hook(
     # normalize the name and course_id strings in authentication dictionary
     course_id = lti_utils.normalize_string(authentication["auth_state"]["course_id"])
     nb_service = NbGraderServiceHelper(course_id, True)
-    username = lti_utils.normalize_string(authentication["name"])
     lms_user_id = authentication["auth_state"]["lms_user_id"]
+    email = authentication["auth_state"]["email"]
     user_role = authentication["auth_state"]["user_role"]
+    source = authentication["auth_state"]["source"]
+    source_type = authentication["auth_state"]["source_type"]
 
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
-    nb_service.add_user_to_nbgrader_gradebook(username, lms_user_id)
+    user = nb_service.add_user_to_nbgrader_gradebook(email, lms_user_id, source, source_type)
+    authentication["name"] = user["id"]
     # TODO: verify the logic to simplify groups creation and membership
     if user_is_a_student(user_role):
         try:
             # assign the user to 'nbgrader-<course_id>' group in jupyterhub and gradebook
-            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, username)
+            await jupyterhub_api.add_student_to_jupyterhub_group(course_id, user["id"])
         except AddJupyterHubUserException as e:
             logger.error(
-                "An error when adding student username: %s to course_id: %s with exception %s",
-                (username, course_id, e),
+                "An error when adding student user_id: %s to course_id: %s with exception %s",
+                (lms_user_id, course_id, e),
             )
     elif user_is_an_instructor(user_role):
         try:
             # assign the user in 'formgrade-<course_id>' group
-            await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, username)
+            await jupyterhub_api.add_instructor_to_jupyterhub_group(course_id, user["id"])
         except AddJupyterHubUserException as e:
             logger.error(
-                "An error when adding instructor username: %s to course_id: %s with exception %s",
-                (username, course_id, e),
+                "An error when adding instructor user_id: %s to course_id: %s with exception %s",
+                (lms_user_id, course_id, e),
             )
 
     # launch the new grader-notebook as a service
@@ -160,6 +166,48 @@ async def setup_course_hook(
     except Exception as e:
         logger.error("Unable to launch the shared grader notebook with exception %s", e)
 
+    return authentication
+
+
+async def setup_user_hook_auth0(
+    authenticator: Authenticator,
+    handler: RequestHandler,
+    authentication: Dict[str, str],
+) -> Dict[str, str]:
+    """
+    Calls the microservice to create a new user in case it does not exist.
+    The data needed is received from auth_state within authentication object. This
+    function assumes that the required k/v's in the auth_state dictionary are available,
+    since the Authenticator(s) validates the data beforehand.
+
+    This function requires `Authenticator.enable_auth_state = True` and is intended
+    to be used as a post_auth_hook.
+
+    Args:
+        authenticator: the JupyterHub Authenticator object
+        handler: the JupyterHub handler object
+        authentication: the authentication object returned by the
+          authenticator class
+
+    Returns:
+        authentication (Required): updated authentication object
+    """
+    lti_utils = LTIUtils()
+
+    # normalize the name and course_id strings in authentication dictionary
+    course_id = lti_utils.normalize_string(authentication["auth_state"]["course_id"])
+    nb_service = NbGraderServiceHelper(course_id, True)
+    oauth_user = authentication["auth_state"]["oauth_user"] or {}
+    
+    lms_user_id = oauth_user.get("user_id") or oauth_user.get("username") or oauth_user.get("sub")
+    email = oauth_user.get("email") or oauth_user.get("sub")
+    # user_role = authentication["auth_state"]["user_role"]
+    source = "auth0"
+    source_type = "generic-oauth"
+
+    # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
+    user = nb_service.add_user_to_nbgrader_gradebook(email, lms_user_id, source, source_type)
+    authentication["name"] = user["id"]
     return authentication
 
 
@@ -235,7 +283,9 @@ class LTI13Authenticator(OAuthenticator):
             course_id = lti_utils.normalize_string(course_id)
             self.log.debug("Normalized course label is %s" % course_id)
             username = ""
+            email = ""
             if "email" in jwt_decoded and jwt_decoded["email"]:
+                email = jwt_decoded["email"]
                 username = lti_utils.email_to_username(jwt_decoded["email"])
             elif "name" in jwt_decoded and jwt_decoded["name"]:
                 username = jwt_decoded["name"]
@@ -294,6 +344,7 @@ class LTI13Authenticator(OAuthenticator):
                 await process_resource_link_lti_13(self.log, course_id, jwt_decoded)
 
             lms_user_id = jwt_decoded["sub"] if "sub" in jwt_decoded else username
+            lms_id = (jwt_decoded.get("https://purl.imsglobal.org/spec/lti/claim/tool_platform") or {}).get("guid")
 
             # ensure the username is normalized
             self.log.debug("username is %s" % username)
@@ -303,14 +354,19 @@ class LTI13Authenticator(OAuthenticator):
             # ensure the user name is normalized
             username_normalized = lti_utils.normalize_string(username)
             self.log.debug("Assigned username is: %s" % username_normalized)
+            self.log.debug("Assigned id is: %s for username %s" % (lms_user_id, username))
 
             return {
-                "name": username_normalized,
+                "name": email or lms_user_id,
                 "auth_state": {
                     "course_id": course_id,
                     "user_role": user_role,
                     "lms_user_id": lms_user_id,
+                    "username": username,
+                    "email": email or lms_user_id,
                     "launch_return_url": launch_return_url,
+                    "source": lms_id,
+                    "source_type": "lti13"
                 },  # noqa: E231
             }
 
