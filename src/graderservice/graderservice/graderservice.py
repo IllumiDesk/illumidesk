@@ -50,6 +50,8 @@ GRADER_LIMITS_CPU = os.environ.get("GRADER_LIMITS_CPU") or "2000m"
 JUPYTERHUB_API_URL = os.environ.get("JUPYTERHUB_API_URL") or "http://hub:8081/hub/api"
 JUPYTERHUB_BASE_URL = os.environ.get("JUPYTERHUB_BASE_URL") or "/"
 
+CAMPUS_ID = os.environ.get("CAMPUS_ID")
+
 # NBGrader database settings to save in nbgrader_config.py file
 nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
 nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
@@ -266,6 +268,7 @@ class GraderServiceLauncher:
                 client.V1EnvVar(name="NB_UID", value=str(NB_UID)),
                 client.V1EnvVar(name="NB_GID", value=str(NB_GID)),
                 client.V1EnvVar(name="NB_USER", value=self.grader_name),
+                client.V1EnvVar(name="CAMPUS_ID", value=str(CAMPUS_ID)),
             ],
             volume_mounts=[
                 client.V1VolumeMount(
