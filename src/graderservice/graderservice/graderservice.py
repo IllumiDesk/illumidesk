@@ -6,7 +6,7 @@ from datetime import datetime
 from os import path
 from pathlib import Path
 from secrets import token_hex
-
+from secretsmanager.secretsmanager import SecretsManager
 from kubernetes import client
 from kubernetes import config
 from kubernetes.config import ConfigException
