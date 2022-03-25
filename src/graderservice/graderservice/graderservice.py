@@ -60,6 +60,9 @@ nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
 nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT")
 nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DB_NAME")
 
+aws_secret_arn = os.environ.get('AWS_SECRET_ARN')
+secretmanager = SecretsManager(aws_secret_arn, region_name='us-west-2', host=nbgrader_db_host)
+
 
 class GraderServiceLauncher:
     def __init__(self, org_name: str, course_id: str):
@@ -180,11 +183,16 @@ class GraderServiceLauncher:
         logger.info(
             f"Writing the nbgrader_config.py file at jupyter directory (within the grader home): {grader_nbconfig_path}"
         )
+        db_url = ''
+        if aws_secret_arn != '':
+            db_url = secretmanager.rds_connection(f'{self.org_name}_{self.course_id}')
+        else:
+            db_url = f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}"
         # write the file
         grader_home_nbconfig_content = NBGRADER_HOME_CONFIG_TEMPLATE.format(
             grader_name=self.grader_name,
             course_id=self.course_id,
-            db_url=f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}",
+            db_url=db_url,
         )
         grader_nbconfig_path.write_text(grader_home_nbconfig_content)
         # Write the nbgrader_config.py file at grader home directory
