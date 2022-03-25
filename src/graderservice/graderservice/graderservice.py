@@ -376,18 +376,19 @@ class GraderServiceLauncher:
                 }
             }
         }
-        deployment_status = f'{deployment} failed to deploy to organization: {namespace}'
+        deployment_status = f'{deployment} failed to deploy to organization: {namespace}', 404
         try:
             restart_deployment = self.apps_v1.patch_namespaced_deployment(deployment, namespace, body, pretty='true')
         except ApiException as e:
             logger.error("Exception when calling AppsV1Api->read_namespaced_deployment_status: %s\n" % e)
-            return deployment_status
+        except Exception as e:
+            logger.error(deployment_status, e)
         else:
             while restart_deployment.status.updated_replicas != restart_deployment.spec.replicas:
                 logger.info(f'Waiting for status to update for grader{deployment} to organization {namespace}')
                 time.sleep(5)
-            deployment_status = f'{deployment} successfully deployed to organization {namespace}'
-            return deployment_status
+            deployment_status = f'{deployment} successfully deployed to organization {namespace}', 200
+        return deployment_status
         
         
 

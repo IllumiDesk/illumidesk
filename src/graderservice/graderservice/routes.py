@@ -210,16 +210,15 @@ def restart_grader(org_name: str, course_id: str):
     launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
     try:
         restart_deployment_status = launcher.restart_deployment(f'grader-{course_id}',org_name)
-        
     except Exception as e:
         logger.error(f"Error restarting grader: {e}")
-        return jsonify(success=False, error=str(e)), 404
-    else:
-        logger.info(restart_deployment_status)
-        return jsonify(
-            success=True,
-            message=f"{restart_deployment_status}"
-        ), 200
+
+    logger.info(restart_deployment_status)
+    success = True if restart_deployment_status[1]==200 else False
+    return jsonify(
+        success=success,
+        message=f"{restart_deployment_status[0]}"
+    ), restart_deployment_status[1]
         
     
 
