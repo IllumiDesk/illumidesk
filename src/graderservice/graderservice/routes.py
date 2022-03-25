@@ -214,12 +214,13 @@ def restart_grader(org_name: str, course_id: str):
     except Exception as e:
         logger.error(f"Error restarting grader: {e}")
         return jsonify(success=False, error=str(e)), 404
-    logger.info(restart_deployment_status)
-    return jsonify(
-        success=True,
-        message=f"{restart_deployment_status}"
-    )
-    
+    else:
+        logger.info(restart_deployment_status)
+        return jsonify(
+            success=True,
+            message=f"{restart_deployment_status}"
+        ), 200
+        
     
 
 

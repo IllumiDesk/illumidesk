@@ -381,6 +381,7 @@ class GraderServiceLauncher:
             restart_deployment = self.apps_v1.patch_namespaced_deployment(deployment, namespace, body, pretty='true')
         except ApiException as e:
             logger.error("Exception when calling AppsV1Api->read_namespaced_deployment_status: %s\n" % e)
+            return deployment_status
         else:
             while restart_deployment.status.updated_replicas != restart_deployment.spec.replicas:
                 logger.info(f'Waiting for status to update for grader{deployment} to organization {namespace}')
@@ -388,5 +389,5 @@ class GraderServiceLauncher:
             deployment_status = f'{deployment} successfully deployed to organization {namespace}'
             return deployment_status
         
-        return deployment_status
+        
 
