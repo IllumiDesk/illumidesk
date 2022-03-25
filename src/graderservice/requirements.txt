@@ -73,6 +73,6 @@ websocket-client==0.59.0
 werkzeug==2.0.0
     # via flask
 
-secretsmanager-illumidesk==0.0.1
+secretsmanager-illumidesk==0.0.2
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

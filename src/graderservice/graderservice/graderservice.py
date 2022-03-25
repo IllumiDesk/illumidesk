@@ -6,10 +6,11 @@ from datetime import datetime
 from os import path
 from pathlib import Path
 from secrets import token_hex
-from secretsmanager.secretsmanager import SecretsManager
 from kubernetes import client
 from kubernetes import config
 from kubernetes.config import ConfigException
+from kubernetes.client.rest import ApiException
+import time
 
 from .templates import NBGRADER_COURSE_CONFIG_TEMPLATE
 from .templates import NBGRADER_HOME_CONFIG_TEMPLATE
@@ -60,8 +61,6 @@ nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
 nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT")
 nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DB_NAME")
 
-aws_secret_arn = os.environ.get('AWS_SECRET_ARN')
-secretmanager = SecretsManager(aws_secret_arn, region_name='us-west-2', host=nbgrader_db_host)
 
 
 class GraderServiceLauncher:
@@ -183,16 +182,11 @@ class GraderServiceLauncher:
         logger.info(
             f"Writing the nbgrader_config.py file at jupyter directory (within the grader home): {grader_nbconfig_path}"
         )
-        db_url = ''
-        if aws_secret_arn != '':
-            db_url = secretmanager.rds_connection(f'{self.org_name}_{self.course_id}')
-        else:
-            db_url = f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}"
         # write the file
         grader_home_nbconfig_content = NBGRADER_HOME_CONFIG_TEMPLATE.format(
             grader_name=self.grader_name,
             course_id=self.course_id,
-            db_url=db_url,
+            db_url=f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}",
         )
         grader_nbconfig_path.write_text(grader_home_nbconfig_content)
         # Write the nbgrader_config.py file at grader home directory
@@ -368,8 +362,8 @@ class GraderServiceLauncher:
                 logger.info(f"Jhub patch response:{api_response}")
 
     # Restarts deployment in namespace
-    def restart_deployment(v1_apps, deployment, namespace):
-        now = datetime.datetime.utcnow()
+    def restart_deployment(self, deployment, namespace):
+        now = datetime.utcnow()
         now = str(now.isoformat("T") + "Z")
         body = {
             'spec': {
@@ -382,7 +376,17 @@ class GraderServiceLauncher:
                 }
             }
         }
+        deployment_status = f'{deployment} failed to deploy to organization: {namespace}'
         try:
-            v1_apps.patch_namespaced_deployment(deployment, namespace, body, pretty='true')
+            restart_deployment = self.apps_v1.patch_namespaced_deployment(deployment, namespace, body, pretty='true')
         except ApiException as e:
-            print("Exception when calling AppsV1Api->read_namespaced_deployment_status: %s\n" % e)
+            logger.error("Exception when calling AppsV1Api->read_namespaced_deployment_status: %s\n" % e)
+        else:
+            while restart_deployment.status.updated_replicas != restart_deployment.spec.replicas:
+                logger.info(f'Waiting for status to update for grader{deployment} to organization {namespace}')
+                time.sleep(5)
+            deployment_status = f'{deployment} successfully deployed to organization {namespace}'
+            return deployment_status
+        
+        return deployment_status
+
