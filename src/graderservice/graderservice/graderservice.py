@@ -366,3 +366,23 @@ class GraderServiceLauncher:
                     name="hub", namespace=NAMESPACE, body=deployment
                 )
                 logger.info(f"Jhub patch response:{api_response}")
+
+    # Restarts deployment in namespace
+    def restart_deployment(v1_apps, deployment, namespace):
+        now = datetime.datetime.utcnow()
+        now = str(now.isoformat("T") + "Z")
+        body = {
+            'spec': {
+                'template':{
+                    'metadata': {
+                        'annotations': {
+                            'kubectl.kubernetes.io/restartedAt': now
+                        }
+                    }
+                }
+            }
+        }
+        try:
+            v1_apps.patch_namespaced_deployment(deployment, namespace, body, pretty='true')
+        except ApiException as e:
+            print("Exception when calling AppsV1Api->read_namespaced_deployment_status: %s\n" % e)
