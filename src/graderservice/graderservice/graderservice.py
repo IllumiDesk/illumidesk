@@ -386,7 +386,7 @@ class GraderServiceLauncher:
         else:
             while restart_deployment.status.updated_replicas != restart_deployment.spec.replicas:
                 logger.info(f'Waiting for status to update for grader{deployment} to organization {namespace}')
-                time.sleep(5)
+                time.sleep(10)
             deployment_status = f'{deployment} successfully deployed to organization {namespace}', 200
         return deployment_status
         
