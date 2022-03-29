@@ -28,7 +28,7 @@ ipython-genutils==0.2.0   # via nbformat, notebook, qtconsole, traitlets
 ipython==7.23.1           # via ipykernel, ipywidgets, jupyter-console
 ipywidgets==7.6.3         # via jupyter
 jedi==0.18.1              # via ipython
-jinja2==3.2.0
+jinja2==3.1.1
 oauthlib==3.2.0            # via jupyterhub, jupyterhub-kubespawner, nbconvert, notebook
 josepy==1.4.0             # via illumidesk (setup.py)
 jsonschema==3.2.0         # via jupyter-telemetry, nbformat, nbgrader
