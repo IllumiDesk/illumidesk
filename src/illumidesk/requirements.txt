@@ -37,7 +37,7 @@ jupyter-core==4.7.1       # via jupyter-client, nbconvert, nbformat, nbgrader, n
 jupyter-telemetry==0.1.0  # via jupyterhub
 jupyter==1.0.0            # via nbgrader
 jupyterhub-kubespawner==0.14.1  # via illumidesk (setup.py)
-git+git://github.com/jupyterhub/ltiauthenticator.git@71d86a9da2562df4bdcc9f374af834a172ac52d5  # via illumidesk (setup.py)
+jupyterhub-ltiauthenticator==1.3.0  # via illumidesk (setup.py)
 jupyterhub==1.4.1         # via jupyterhub-kubespawner, jupyterhub-ltiauthenticator, oauthenticator
 jupyterlab-widgets==1.0.0  # via ipywidgets
 jwcrypto==0.8             # via illumidesk (setup.py)
