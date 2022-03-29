@@ -43,7 +43,6 @@ jupyterlab-widgets==1.0.0  # via ipywidgets
 jwcrypto==0.8             # via illumidesk (setup.py)
 kubernetes==17.17.0       # via jupyterhub-kubespawner
 mako==1.1.4               # via alembic
-markupsafe==2.1.1         # via jinja2, mako
 matplotlib-inline==0.1.2  # via ipython
 mistune==0.8.4            # via nbconvert
 nbconvert==5.6.1          # via jupyter, nbgrader, notebook
