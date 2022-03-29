@@ -34,7 +34,7 @@ setup(
     license="Apache 2.0",
     packages=find_packages(exclude="./tests"),
     install_requires=[
-        "flask==1.1.2",
+        "flask==1.1.1",
         "flask-sqlalchemy==2.5.1",
         "gunicorn==20.0.4",
         "kubernetes==12.0.1",
