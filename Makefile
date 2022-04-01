@@ -60,11 +60,11 @@ push-all: ## push jupyterhub images to docker hub
 	@docker push ${OWNER}/k8s-hub:${JUPYTERHUB_DOCKER_K8_TAG}
 
 test: dev ## run tests for all packages
-	${VENV_BIN}/pytest -v src/async_nbgrader/async_nbgrader/tests
+
 	${VENV_BIN}/pytest -v src/formgradernext/tests
-	${VENV_BIN}/pytest -v src/graderservice/tests
-	${VENV_BIN}/pytest -v src/illumidesk/tests
-	${VENV_BIN}/pytest -v src/illumideskdummyauthenticator/tests
+	${VENV_BIN}/pytest -v src/graderservice
+	${VENV_BIN}/pytest -v src/illumidesk
+	${VENV_BIN}/pytest -v src/illumideskdummyauthenticator
 
 test-create-cov: ## create coverage report
 	${VENV_BIN}/pytest --cov=async_nbgrader src/async_nbgrader/async_nbgrader/tests
