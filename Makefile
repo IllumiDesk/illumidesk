@@ -60,7 +60,7 @@ push-all: ## push jupyterhub images to docker hub
 	@docker push ${OWNER}/k8s-hub:${JUPYTERHUB_DOCKER_K8_TAG}
 
 test: dev ## run tests for all packages
-
+	${VENV_BIN}/pytest -v src/async_nbgrader
 	${VENV_BIN}/pytest -v src/formgradernext/tests
 	${VENV_BIN}/pytest -v src/graderservice
 	${VENV_BIN}/pytest -v src/illumidesk
