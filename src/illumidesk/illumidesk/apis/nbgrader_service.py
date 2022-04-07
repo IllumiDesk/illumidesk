@@ -9,6 +9,8 @@ from sqlalchemy_utils import create_database
 from sqlalchemy_utils import database_exists
 
 from illumidesk.authenticators.utils import LTIUtils
+from secretsmanager.secretsmanager import SecretsManager
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -25,6 +27,12 @@ org_name = os.environ.get("ORGANIZATION_NAME") or "my-org"
 if not org_name:
     raise EnvironmentError("ORGANIZATION_NAME env-var is not set")
 
+aws_secret_arn = os.environ.get('AWS_SECRET_ARN')
+region = os.environ.get('AWS_REGION') or 'us-west-2'
+secretmanager = SecretsManager(aws_secret_arn, region_name=region)
+if secretmanager.host == "":
+    secretmanager.host = nbgrader_db_host
+
 
 def nbgrader_format_db_url(course_id: str) -> str:
     """
@@ -35,6 +43,10 @@ def nbgrader_format_db_url(course_id: str) -> str:
     """
     course_id = LTIUtils().normalize_string(course_id)
     database_name = f"{org_name}_{course_id}"
+    if aws_secret_arn != "" or aws_secret_arn is not None:
+        logger.info(f'secrets manager db secret : {secretmanager.db_secret}')
+        logger.info(f'secrets manager rds connection : {secretmanager.rds_connection(database_name)}')
+        return secretmanager.rds_connection(database_name)
     return f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{database_name}"
 
 

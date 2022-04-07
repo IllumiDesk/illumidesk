@@ -61,8 +61,10 @@ nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT")
 nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DB_NAME")
 
 aws_secret_arn = os.environ.get('AWS_SECRET_ARN')
-secretmanager = SecretsManager(aws_secret_arn, region_name='us-west-2', host=nbgrader_db_host)
-
+region = os.environ.get('AWS_REGION') or 'us-west-2'
+secretmanager = SecretsManager(aws_secret_arn, region_name=region)
+if secretmanager.host == "":
+    secretmanager.host = nbgrader_db_host
 
 class GraderServiceLauncher:
     def __init__(self, org_name: str, course_id: str):
@@ -184,7 +186,7 @@ class GraderServiceLauncher:
             f"Writing the nbgrader_config.py file at jupyter directory (within the grader home): {grader_nbconfig_path}"
         )
         db_url = ''
-        if aws_secret_arn != '':
+        if aws_secret_arn != "" or aws_secret_arn is not None:
             db_url = secretmanager.rds_connection(f'{self.org_name}_{self.course_id}')
         else:
             db_url = f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}"
