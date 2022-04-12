@@ -16,7 +16,7 @@ click==8.0.0
     # via flask
 flask-sqlalchemy==2.5.1
     # via graderservice (src/graderservice/setup.py)
-flask==1.1.2
+Flask==2.1.0
     # via
     #   flask-sqlalchemy
     #   graderservice (src/graderservice/setup.py)
