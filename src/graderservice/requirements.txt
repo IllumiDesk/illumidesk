@@ -70,7 +70,7 @@ urllib3==1.26.5
     #   requests
 websocket-client==0.59.0
     # via kubernetes
-werkzeug==2.0.0
+werkzeug==2.1.1
     # via flask
 
 secretsmanager-illumidesk==0.0.2
