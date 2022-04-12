@@ -32,7 +32,7 @@ itsdangerous==2.0.0
     # via flask
 jinja2==3.0.0
     # via flask
-kubernetes==12.0.1
+kubernetes==17.17.0
     # via graderservice (src/graderservice/setup.py)
 markupsafe==2.0.0
     # via jinja2
