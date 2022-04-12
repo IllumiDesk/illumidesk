@@ -61,7 +61,7 @@ class NbGraderServiceHelper:
 
         self.db_url = nbgrader_format_db_url()
 
-    def add_user_to_nbgrader_gradebook(self, email: str, external_user_id: str, source: str, source_type: str, role: str) -> None:
+    def add_user_to_nbgrader_gradebook(self, email: str, external_user_id: str, source: str, source_type: str, role_name: str = None) -> None:
         """
         Adds a user to the nbgrader gradebook database for the course.
 
@@ -70,6 +70,7 @@ class NbGraderServiceHelper:
             external_user_id: The user's id on the external system
             source: source from where user was authenticated
             source_type: source_type
+            role_name: role of the user
         Raises:
             InvalidEntry: when there was an error adding the user to the database
         """
@@ -80,7 +81,7 @@ class NbGraderServiceHelper:
 
         with Gradebook(self.db_url, course_id=self.course_id, campus_id=CAMPUS_ID) as gb:
             try:
-                user = gb.update_or_create_user_by_email(email, role=role, external_user_id=external_user_id, source=source, source_type=source_type)
+                user = gb.update_or_create_user_by_email(email, role_name=role_name, external_user_id=external_user_id, source=source, source_type=source_type)
                 logger.debug(
                     "Added user %s with external_user_id %s to gradebook"
                     % (email, external_user_id)

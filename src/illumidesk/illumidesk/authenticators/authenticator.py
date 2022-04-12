@@ -66,7 +66,7 @@ async def setup_course_hook_lti11(
     course_id = lti_utils.normalize_string(
         authentication["auth_state"]["context_label"]
     )
-    nb_service = NbGraderServiceHelper(course_id, True)
+    nb_service = NbGraderServiceHelper(course_id)
 
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
     role = "STUDENT"
@@ -130,7 +130,7 @@ async def setup_course_hook(
 
     # normalize the name and course_id strings in authentication dictionary
     course_id = lti_utils.normalize_string(authentication["auth_state"]["course_id"])
-    nb_service = NbGraderServiceHelper(course_id, True)
+    nb_service = NbGraderServiceHelper(course_id)
     lms_user_id = authentication["auth_state"]["lms_user_id"]
     email = authentication["auth_state"]["email"]
     user_role = authentication["auth_state"]["user_role"]
@@ -192,13 +192,16 @@ async def setup_user_hook_auth0(
     Returns:
         authentication (Required): updated authentication object
     """
-    lti_utils = LTIUtils()
 
     # normalize the name and course_id strings in authentication dictionary
-    course_id = lti_utils.normalize_string(authentication["auth_state"]["course_id"])
-    nb_service = NbGraderServiceHelper(course_id, True)
+    nb_service = NbGraderServiceHelper("dummy")
     oauth_user = authentication["auth_state"]["oauth_user"] or {}
-    
+
+    logger.info(
+        "Auth0 authentication: %s",
+        (authentication,),
+    )
+
     lms_user_id = oauth_user.get("user_id") or oauth_user.get("username") or oauth_user.get("sub")
     email = oauth_user.get("email") or oauth_user.get("sub")
     # user_role = authentication["auth_state"]["user_role"]
@@ -384,7 +387,7 @@ async def process_resource_link_lti_13(
         "https://purl.imsglobal.org/spec/lti/claim/resource_link"
     ]
     resource_link_title = resource_link["title"] or ""
-    nbgrader_service = NbGraderServiceHelper(course_id, True)
+    nbgrader_service = NbGraderServiceHelper(course_id)
     if resource_link_title:
         assignment_name = LTIUtils().normalize_string(resource_link_title)
         logger.debug(
