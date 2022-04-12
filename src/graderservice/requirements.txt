@@ -30,7 +30,7 @@ idna==2.10
     # via requests
 itsdangerous==2.0.0
     # via flask
-jinja2==3.1.1
+jinja2<3.1
     # via flask
 kubernetes==12.0.1
     # via graderservice (src/graderservice/setup.py)
