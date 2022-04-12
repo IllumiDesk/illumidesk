@@ -30,7 +30,7 @@ idna==2.10
     # via requests
 itsdangerous==2.0.0
     # via flask
-jinja2==3.0.0
+jinja2==3.0.3
     # via flask
 kubernetes==17.17.0
     # via graderservice (src/graderservice/setup.py)
@@ -70,7 +70,7 @@ urllib3==1.26.5
     #   requests
 websocket-client==0.59.0
     # via kubernetes
-werkzeug==2.0.0
+werkzeug==2.0.2
     # via flask
 
 # The following packages are considered to be unsafe in a requirements file:
