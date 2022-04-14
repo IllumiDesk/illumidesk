@@ -6,10 +6,12 @@ from datetime import datetime
 from os import path
 from pathlib import Path
 from secrets import token_hex
-from secretsmanager.secretsmanager import SecretsManager
 from kubernetes import client
 from kubernetes import config
 from kubernetes.config import ConfigException
+from kubernetes.client.rest import ApiException
+from secretsmanager.secretsmanager import SecretsManager
+import time
 
 from .templates import NBGRADER_COURSE_CONFIG_TEMPLATE
 from .templates import NBGRADER_HOME_CONFIG_TEMPLATE
@@ -368,3 +370,35 @@ class GraderServiceLauncher:
                     name="hub", namespace=NAMESPACE, body=deployment
                 )
                 logger.info(f"Jhub patch response:{api_response}")
+
+    # Restarts deployment in namespace
+    def restart_deployment(self, deployment, namespace):
+        now = datetime.utcnow()
+        now = str(now.isoformat("T") + "Z")
+        body = {
+            'spec': {
+                'template': {
+                    'metadata': {
+                        'annotations': {
+                            'kubectl.kubernetes.io/restartedAt': now
+                        }
+                    }
+                }
+            }
+        }
+        deployment_status = f'{deployment} failed to deploy to organization: {namespace}', 404
+        try:
+            restart_deployment = self.apps_v1.patch_namespaced_deployment(deployment, namespace, body, pretty='true')
+        except ApiException as e:
+            logger.error("Exception when calling AppsV1Api->read_namespaced_deployment_status: %s\n" % e)
+        except Exception as e:
+            logger.error(deployment_status, e)
+        else:
+            while restart_deployment.status.updated_replicas != restart_deployment.spec.replicas:
+                logger.info(f'Waiting for status to update for grader{deployment} to organization {namespace}')
+                time.sleep(5)
+            deployment_status = f'{deployment} successfully deployed to organization {namespace}', 200
+        return deployment_status
+        
+        
+
