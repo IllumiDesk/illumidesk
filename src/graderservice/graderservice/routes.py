@@ -220,8 +220,6 @@ def restart_grader(org_name: str, course_id: str):
         message=f"{restart_deployment_status[0]}"
     ), restart_deployment_status[1]
         
-    
-
 
 @grader_setup_bp.route("/healthcheck")
 def healthcheck():
