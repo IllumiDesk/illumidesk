@@ -58,7 +58,7 @@ ipywidgets==7.6.5
     # via jupyter
 jedi==0.18.0
     # via ipython
-jinja2==3.0.2
+jinja2==3.0.3
     # via
     #   nbconvert
     #   notebook
@@ -212,6 +212,7 @@ webencodings==0.5.1
     # via bleach
 widgetsnbextension==3.5.2
     # via ipywidgets
+secretsmanager-illumidesk==0.0.3
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

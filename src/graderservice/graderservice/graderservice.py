@@ -6,10 +6,12 @@ from datetime import datetime
 from os import path
 from pathlib import Path
 from secrets import token_hex
-
 from kubernetes import client
 from kubernetes import config
 from kubernetes.config import ConfigException
+from kubernetes.client.rest import ApiException
+from secretsmanager.secretsmanager import SecretsManager
+import time
 
 from .templates import NBGRADER_COURSE_CONFIG_TEMPLATE
 from .templates import NBGRADER_HOME_CONFIG_TEMPLATE
@@ -60,6 +62,11 @@ nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
 nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT")
 nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DB_NAME")
 
+aws_secret_arn = os.environ.get('AWS_SECRET_ARN')
+region = os.environ.get('AWS_REGION') or 'us-west-2'
+secretmanager = SecretsManager(aws_secret_arn, region_name=region)
+if secretmanager.host == "":
+    secretmanager.host = nbgrader_db_host
 
 class GraderServiceLauncher:
     def __init__(self, org_name: str, course_id: str):
@@ -180,11 +187,16 @@ class GraderServiceLauncher:
         logger.info(
             f"Writing the nbgrader_config.py file at jupyter directory (within the grader home): {grader_nbconfig_path}"
         )
+        db_url = ''
+        if aws_secret_arn != "" or aws_secret_arn is not None:
+            db_url = secretmanager.rds_connection(f'{self.org_name}_{self.course_id}')
+        else:
+            db_url = f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}"
         # write the file
         grader_home_nbconfig_content = NBGRADER_HOME_CONFIG_TEMPLATE.format(
             grader_name=self.grader_name,
             course_id=self.course_id,
-            db_url=f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}",
+            db_url=db_url,
         )
         grader_nbconfig_path.write_text(grader_home_nbconfig_content)
         # Write the nbgrader_config.py file at grader home directory
@@ -358,3 +370,35 @@ class GraderServiceLauncher:
                     name="hub", namespace=NAMESPACE, body=deployment
                 )
                 logger.info(f"Jhub patch response:{api_response}")
+
+    # Restarts deployment in namespace
+    def restart_deployment(self, deployment, namespace):
+        now = datetime.utcnow()
+        now = str(now.isoformat("T") + "Z")
+        body = {
+            'spec': {
+                'template': {
+                    'metadata': {
+                        'annotations': {
+                            'kubectl.kubernetes.io/restartedAt': now
+                        }
+                    }
+                }
+            }
+        }
+        deployment_status = f'{deployment} failed to deploy to organization: {namespace}', 404
+        try:
+            restart_deployment = self.apps_v1.patch_namespaced_deployment(deployment, namespace, body, pretty='true')
+        except ApiException as e:
+            logger.error("Exception when calling AppsV1Api->read_namespaced_deployment_status: %s\n" % e)
+        except Exception as e:
+            logger.error(deployment_status, e)
+        else:
+            while restart_deployment.status.updated_replicas != restart_deployment.spec.replicas:
+                logger.info(f'Waiting for status to update for grader{deployment} to organization {namespace}')
+                time.sleep(5)
+            deployment_status = f'{deployment} successfully deployed to organization {namespace}', 200
+        return deployment_status
+        
+        
+
