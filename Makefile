@@ -38,7 +38,7 @@ build-grader-setup-service: ## build grader-setup-service docker image
 
 build-hubs-k8: ## build jupyterhub images kubernetes setups
 	@docker build --build-arg BASE_IMAGE=${JUPYTERHUB_K8_BASE_IMAGE}:${JUPYTERHUB_K8_BASE_TAG} -t ${OWNER}/k8s-hub:base-${JUPYTERHUB_K8_BASE_TAG} src/illumidesk/. --no-cache
-	@docker build --build-arg BASE_IMAGE=${OWNER}/k8s-hub:base-${JUPYTERHUB_K8_BASE_TAG} -t ${OWNER}/k8s-hub:${JUPYTERHUB_K8_BASE_TAG} src/illumideskdummyauthenticator/. --no-cache
+	@docker build --build-arg BASE_IMAGE=${OWNER}/k8s-hub:base-${JUPYTERHUB_K8_BASE_TAG} --build-arg SSH_PRIVATE_KEY="$(SSH_PRIVATE_KEY)" -t ${OWNER}/k8s-hub:${JUPYTERHUB_K8_BASE_TAG} src/illumideskdummyauthenticator/. --no-cache
 
 build-hubs: ## build jupyterhub images for standard docker-compose and docker run setups
 	@docker build --build-arg BASE_IMAGE=${JUPYTERHUB_DOCKER_BASE_IMAGE} -t ${OWNER}/jupyterhub:base-${JUPYTERHUB_DOCKER_BASE_TAG} src/illumidesk/. --no-cache

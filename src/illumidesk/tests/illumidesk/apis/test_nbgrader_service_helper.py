@@ -37,10 +37,10 @@ class TestNbGraderServiceBaseHelper:
         Does add_user_to_nbgrader_gradebook method accept an empty username, or lms user id?
         """
         with pytest.raises(ValueError):
-            self.sut.add_user_to_nbgrader_gradebook(username="", lms_user_id="abc123")
+            self.sut.add_user_to_nbgrader_gradebook(email="", external_user_id="abc123", source="test", source_type="test")
 
         with pytest.raises(ValueError):
-            self.sut.add_user_to_nbgrader_gradebook(username="user1", lms_user_id="")
+            self.sut.add_user_to_nbgrader_gradebook(email="user1", external_user_id="", source="test", source_type="test")
 
 
 class TestNbGraderServiceHelper:
@@ -56,9 +56,9 @@ class TestNbGraderServiceHelper:
         monkeypatch.setattr(
             "illumidesk.apis.nbgrader_service.nbgrader_db_user", "test_user"
         )
-        monkeypatch.setattr("illumidesk.apis.nbgrader_service.org_name", "org-dummy")
+        monkeypatch.setattr("illumidesk.apis.nbgrader_service.nbgrader_db_name", "dummy_database")
 
         assert (
-            nbgrader_format_db_url("Course 1")
-            == "postgresql://test_user:test_pwd@test_host:5432/org-dummy_course1"
+            nbgrader_format_db_url()
+            == "postgresql://test_user:test_pwd@test_host:5432/dummy_database"
         )

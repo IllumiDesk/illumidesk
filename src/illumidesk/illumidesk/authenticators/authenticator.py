@@ -62,17 +62,21 @@ async def setup_course_hook_lti11(
     # normalize the name and course_id strings in authentication dictionary
     name = authentication["name"]
     lms_user_id = authentication["auth_state"]["user_id"]
+    email = authentication["auth_state"]["email"] or lms_user_id
     user_role = authentication["auth_state"]["roles"].split(",")[0]
     course_id = lti_utils.normalize_string(
         authentication["auth_state"]["context_label"]
     )
+
+    source = authentication["auth_state"]["source"] or "lti"
+    source_type = authentication["auth_state"]["source_type"] or "lti11"
     nb_service = NbGraderServiceHelper(course_id)
 
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
     role = "STUDENT"
     if not user_is_a_student(user_role) and user_is_an_instructor(user_role):
         role = "INSTRUCTOR"
-    nb_service.add_user_to_nbgrader_gradebook(name, lms_user_id, role)
+    nb_service.add_user_to_nbgrader_gradebook(email, lms_user_id, source, source_type, role)
     # TODO: verify the logic to simplify groups creation and membership
     if role == "STUDENT":
         try:
