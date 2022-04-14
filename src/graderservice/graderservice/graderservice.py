@@ -367,7 +367,7 @@ class GraderServiceLauncher:
         now = str(now.isoformat("T") + "Z")
         body = {
             'spec': {
-                'template':{
+                'template': {
                     'metadata': {
                         'annotations': {
                             'kubectl.kubernetes.io/restartedAt': now
