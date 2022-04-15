@@ -7,6 +7,8 @@ from nbgrader.api import Gradebook
 from nbgrader.api import InvalidEntry
 
 from illumidesk.authenticators.utils import LTIUtils
+from secretsmanager.secretsmanager import SecretsManager
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -28,11 +30,23 @@ CAMPUS_ID = os.environ.get("CAMPUS_ID")
 if not CAMPUS_ID:
     raise EnvironmentError("CAMPUS_ID env-var is not set")
 
+aws_secret_arn = os.environ.get('AWS_SECRET_ARN')
+region = os.environ.get('AWS_REGION') or 'us-west-2'
+secretmanager = SecretsManager(aws_secret_arn, region_name=region)
+if secretmanager.host == "":
+    secretmanager.host = nbgrader_db_host
+
+
 def nbgrader_format_db_url() -> str:
     """
     Returns the nbgrader database url
     """
+
+    if aws_secret_arn != "" or aws_secret_arn is not None:
+        return secretmanager.rds_connection(nbgrader_db_name)
     return f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{nbgrader_db_name}"
+
+
 
 
 class NbGraderServiceHelper:

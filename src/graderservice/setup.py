@@ -37,7 +37,7 @@ setup(
         "flask==1.1.2",
         "flask-sqlalchemy==2.5.1",
         "gunicorn==20.0.4",
-        "kubernetes==12.0.1",
+        "kubernetes==17.17.0",
     ],  # noqa: E231
     package_data={
         "": ["*.html"],

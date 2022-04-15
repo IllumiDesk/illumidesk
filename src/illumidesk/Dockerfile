@@ -1,6 +1,6 @@
 # for kubernetes, use the --build-arg when building image or uncomment
-# ARG BASE_IMAGE=jupyterhub/k8s-hub:1.1.2
-ARG BASE_IMAGE=jupyterhub/jupyterhub:1.4.2
+ARG BASE_IMAGE=jupyterhub/k8s-hub:1.1.2
+#ARG BASE_IMAGE=jupyterhub/jupyterhub:1.4.2
 ARG SSH_PRIVATE_KEY
 FROM "${BASE_IMAGE}"
 
