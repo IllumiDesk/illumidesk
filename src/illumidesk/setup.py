@@ -41,7 +41,7 @@ setup(
         "jupyterhub-ltiauthenticator==1.3.0",
         "jwcrypto==0.8",
         "secretsmanager-illumidesk==0.0.3",
-        "nbgrader==0.6.2",
+        "nbgrader @ git+ssh://git@github.com/IllumiDesk/illumidesk-next.git@feature/refactor-modals-lti#subdirectory=packages/nbgrader&egg=nbgrader"
         "oauthlib==3.1",
         "oauthenticator>=0.13.0",
         "pem==20.1.0",

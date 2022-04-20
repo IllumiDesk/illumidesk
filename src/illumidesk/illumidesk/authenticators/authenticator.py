@@ -173,31 +173,6 @@ async def setup_course_hook(
     return authentication
 
 
-async def setup_default_course_hook(
-    authenticator: Authenticator,
-    handler: RequestHandler,
-    authentication: Dict[str, str],
-) -> Dict[str, str]:
-    """
-    Args:
-        authenticator: the JupyterHub Authenticator object
-        handler: the JupyterHub handler object
-        authentication: the authentication object returned by the
-          authenticator class
-
-    Returns:
-        authentication (Required): updated authentication object
-    """
-
-    # launch the new grader-notebook as a service
-    try:
-        _ = await register_new_service(org_name=ORG_NAME, course_id="default_course")
-    except Exception as e:
-        logger.error("Unable to launch the shared grader notebook with exception %s", e)
-
-    return authentication
-
-
 async def setup_user_hook_auth0(
     authenticator: Authenticator,
     handler: RequestHandler,
@@ -240,6 +215,12 @@ async def setup_user_hook_auth0(
     # register the user (it doesn't matter if it is a student or instructor) with her/his lms_user_id in nbgrader
     user = nb_service.add_user_to_nbgrader_gradebook(email, lms_user_id, source, source_type)
     authentication["name"] = user["id"]
+    # launch the new grader-notebook as a service
+    try:
+        _ = await register_new_service(org_name=ORG_NAME, course_id="default_course")
+    except Exception as e:
+        logger.error("Unable to launch the shared grader notebook with exception %s", e)
+
     return authentication
 
 
