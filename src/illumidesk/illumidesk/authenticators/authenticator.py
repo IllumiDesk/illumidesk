@@ -217,7 +217,7 @@ async def setup_user_hook_auth0(
     authentication["name"] = user["id"]
     # launch the new grader-notebook as a service
     try:
-        _ = await register_new_service(org_name=ORG_NAME, course_id="default_course")
+        _ = await register_new_service(org_name=ORG_NAME, course_id="default-course")
     except Exception as e:
         logger.error("Unable to launch the shared grader notebook with exception %s", e)
 
