@@ -198,7 +198,7 @@ async def setup_user_hook_auth0(
     """
 
     # normalize the name and course_id strings in authentication dictionary
-    nb_service = NbGraderServiceHelper("dummy")
+    nb_service = NbGraderServiceHelper("default-course")
     oauth_user = authentication["auth_state"]["oauth_user"] or {}
 
     logger.info(
