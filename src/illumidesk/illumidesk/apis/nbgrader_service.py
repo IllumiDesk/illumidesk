@@ -9,6 +9,8 @@ from sqlalchemy_utils import create_database
 from sqlalchemy_utils import database_exists
 
 from illumidesk.authenticators.utils import LTIUtils
+from secretsmanager.secretsmanager import SecretsManager
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -18,6 +20,7 @@ nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
 nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT") or 5432
 nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
 nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
+nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DATABASE")
 mnt_root = os.environ.get("ILLUMIDESK_MNT_ROOT", "/illumidesk-courses")
 
 org_name = os.environ.get("ORGANIZATION_NAME") or "my-org"
@@ -25,16 +28,33 @@ org_name = os.environ.get("ORGANIZATION_NAME") or "my-org"
 if not org_name:
     raise EnvironmentError("ORGANIZATION_NAME env-var is not set")
 
+CAMPUS_ID = os.environ.get("CAMPUS_ID")
+if not CAMPUS_ID:
+    raise EnvironmentError("CAMPUS_ID env-var is not set")
 
-def nbgrader_format_db_url(course_id: str) -> str:
-    """
-    Returns the nbgrader database url with the format: <org_name>_<course-id>
+aws_secret_arn = os.environ.get('AWS_SECRET_ARN')
+region = os.environ.get('AWS_REGION') or 'us-west-2'
+secretmanager = SecretsManager(aws_secret_arn, region_name=region)
+if secretmanager.host == "":
+    secretmanager.host = nbgrader_db_host
 
-    Args:
-      course_id: the course id (usually associated with the course label) from which the launch was initiated.
+
+def nbgrader_format_db_url() -> str:
     """
-    course_id = LTIUtils().normalize_string(course_id)
-    database_name = f"{org_name}_{course_id}"
+    Returns the nbgrader database url
+    """
+
+    if aws_secret_arn:
+        return secretmanager.rds_connection(nbgrader_db_name)
+    return f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{nbgrader_db_name}"
+
+
+
+def jupyter_format_db_url() -> str:
+    """
+    Returns the jupyter database url with the format: campus-id.
+    """
+    database_name = CAMPUS_ID
     return f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{database_name}"
 
 
@@ -51,7 +71,7 @@ class NbGraderServiceHelper:
       database_name: the database name
     """
 
-    def __init__(self, course_id: str, check_database_exists: bool = False):
+    def __init__(self, course_id: str):
         if not course_id:
             raise ValueError("course_id missing")
 
@@ -62,41 +82,43 @@ class NbGraderServiceHelper:
         self.uid = int(os.environ.get("NB_GRADER_UID") or "10001")
         self.gid = int(os.environ.get("NB_GRADER_GID") or "100")
 
-        self.db_url = nbgrader_format_db_url(course_id)
-        self.database_name = f"{org_name}_{self.course_id}"
-        if check_database_exists:
-            self.create_database_if_not_exists()
+        self.db_url = nbgrader_format_db_url()
+        self.create_jupyterhub_database_if_not_exists()
 
-    def create_database_if_not_exists(self) -> None:
+    def create_jupyterhub_database_if_not_exists(self) -> None:
         """Creates a new database if it doesn't exist"""
-        conn_uri = nbgrader_format_db_url(self.course_id)
+        conn_uri = jupyter_format_db_url()
 
         if not database_exists(conn_uri):
             logger.debug("db not exist, create database")
             create_database(conn_uri)
 
-    def add_user_to_nbgrader_gradebook(self, username: str, lms_user_id: str) -> None:
+    def add_user_to_nbgrader_gradebook(self, email: str, external_user_id: str, source: str, source_type: str, role_name: str = None) -> None:
         """
         Adds a user to the nbgrader gradebook database for the course.
 
         Args:
-            username: The user's username
-            lms_user_id: The user's id on the LMS
+            email: The user's email
+            external_user_id: The user's id on the external system
+            source: source from where user was authenticated
+            source_type: source_type
+            role_name: role of the user
         Raises:
             InvalidEntry: when there was an error adding the user to the database
         """
-        if not username:
-            raise ValueError("username missing")
-        if not lms_user_id:
-            raise ValueError("lms_user_id missing")
+        if not email:
+            raise ValueError("email missing")
+        if not external_user_id:
+            raise ValueError("external_user_id missing")
 
-        with Gradebook(self.db_url, course_id=self.course_id) as gb:
+        with Gradebook(self.db_url, course_id=self.course_id, campus_id=CAMPUS_ID) as gb:
             try:
-                gb.update_or_create_student(username, lms_user_id=lms_user_id)
+                user = gb.update_or_create_user_by_email(email, role_name=role_name, external_user_id=external_user_id, source=source, source_type=source_type)
                 logger.debug(
-                    "Added user %s with lms_user_id %s to gradebook"
-                    % (username, lms_user_id)
+                    "Added user %s with external_user_id %s to gradebook"
+                    % (email, external_user_id)
                 )
+                return user.to_dict()
             except InvalidEntry as e:
                 logger.debug("Error during adding student to gradebook: %s" % e)
 
@@ -104,14 +126,14 @@ class NbGraderServiceHelper:
         """
         Updates the course in nbgrader database
         """
-        with Gradebook(self.db_url, course_id=self.course_id) as gb:
+        with Gradebook(self.db_url, course_id=self.course_id, campus_id=CAMPUS_ID) as gb:
             gb.update_course(self.course_id, **kwargs)
 
     def get_course(self) -> Course:
         """
         Gets the course model instance
         """
-        with Gradebook(self.db_url, course_id=self.course_id) as gb:
+        with Gradebook(self.db_url, course_id=self.course_id, campus_id=CAMPUS_ID) as gb:
             course = gb.check_course(self.course_id)
             logger.debug(f"course got from db:{course}")
             return course
@@ -131,7 +153,7 @@ class NbGraderServiceHelper:
             "Assignment name normalized %s to save in gradebook" % assignment_name
         )
         assignment = None
-        with Gradebook(self.db_url, course_id=self.course_id) as gb:
+        with Gradebook(self.db_url, course_id=self.course_id, campus_id=CAMPUS_ID) as gb:
             try:
                 assignment = gb.update_or_create_assignment(assignment_name, **kwargs)
                 logger.debug("Added assignment %s to gradebook" % assignment_name)

@@ -203,7 +203,23 @@ def assignment_dir_creation(org_name: str, course_id: str, assignment_name: str)
         success=True,
         message=f"Created new assignment directory: {assignment_dir}",
     )
+@grader_setup_bp.route(
+    "/services/<org_name>/<course_id>/restart", methods=["POST"]
+)
+def restart_grader(org_name: str, course_id: str):
+    launcher = GraderServiceLauncher(org_name=org_name, course_id=course_id)
+    try:
+        restart_deployment_status = launcher.restart_deployment(f'grader-{course_id}',org_name)
+    except Exception as e:
+        logger.error(f"Error restarting grader: {e}")
 
+    logger.info(restart_deployment_status)
+    success = True if restart_deployment_status[1]==200 else False
+    return jsonify(
+        success=success,
+        message=f"{restart_deployment_status[0]}"
+    ), restart_deployment_status[1]
+        
 
 @grader_setup_bp.route("/healthcheck")
 def healthcheck():

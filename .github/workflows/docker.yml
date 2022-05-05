@@ -47,8 +47,13 @@ jobs:
         run: |
           make -C main dev
 
+      - name: Copy SSH private key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: echo $SSH_PRIVATE_KEY | base64 --decode > ./ssh_pvt_key
+
       - name: Build Kubernetes JupyterHub Image
-        run: make -C main build-hubs-k8
+        run: make -C main build-hubs-k8 SSH_PRIVATE_KEY=$(cat ./ssh_pvt_key)
         env:
           # Full logs for CI build
           BUILDKIT_PROGRESS: plain

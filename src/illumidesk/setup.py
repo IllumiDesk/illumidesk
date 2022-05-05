@@ -38,9 +38,10 @@ setup(
     install_requires=[
         "josepy==1.4.0",
         "jupyterhub-kubespawner==0.14.1",
-        "jupyterhub-ltiauthenticator@git+git://github.com/jupyterhub/ltiauthenticator.git@71d86a9da2562df4bdcc9f374af834a172ac52d5",
+        "jupyterhub-ltiauthenticator==1.3.0",
         "jwcrypto==0.8",
-        "nbgrader==0.6.2",
+        "secretsmanager-illumidesk==0.0.3",
+        "nbgrader @ git+ssh://git@github.com/IllumiDesk/illumidesk-next.git@feature/refactor-modals-lti#subdirectory=packages/nbgrader&egg=nbgrader"
         "oauthlib==3.1",
         "oauthenticator>=0.13.0",
         "pem==20.1.0",

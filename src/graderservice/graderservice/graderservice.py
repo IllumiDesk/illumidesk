@@ -6,10 +6,12 @@ from datetime import datetime
 from os import path
 from pathlib import Path
 from secrets import token_hex
-
 from kubernetes import client
 from kubernetes import config
 from kubernetes.config import ConfigException
+from kubernetes.client.rest import ApiException
+from secretsmanager.secretsmanager import SecretsManager
+import time
 
 from .templates import NBGRADER_COURSE_CONFIG_TEMPLATE
 from .templates import NBGRADER_HOME_CONFIG_TEMPLATE
@@ -35,9 +37,6 @@ EXCHANGE_MNT_ROOT = os.environ.get(
     "ILLUMIDESK_NB_EXCHANGE_MNT_ROOT", "/illumidesk-nb-exchange"
 )
 GRADER_PVC = os.environ.get("GRADER_PVC", "grader-setup-pvc")
-GRADER_EXCHANGE_SHARED_PVC = os.environ.get(
-    "GRADER_SHARED_PVC", "exchange-shared-volume"
-)
 
 # user UI and GID to use within the grader container
 NB_UID = os.environ.get("NB_UID", 10001)
@@ -53,13 +52,20 @@ GRADER_LIMITS_CPU = os.environ.get("GRADER_LIMITS_CPU") or "2000m"
 JUPYTERHUB_API_URL = os.environ.get("JUPYTERHUB_API_URL") or "http://hub:8081/hub/api"
 JUPYTERHUB_BASE_URL = os.environ.get("JUPYTERHUB_BASE_URL") or "/"
 
+CAMPUS_ID = os.environ.get("CAMPUS_ID")
+
 # NBGrader database settings to save in nbgrader_config.py file
 nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
 nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
 nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
 nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT")
-nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DB_NAME")
+nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DATABASE") or "illumidesk"
 
+aws_secret_arn = os.environ.get('AWS_SECRET_ARN')
+region = os.environ.get('AWS_REGION') or 'us-west-2'
+secretmanager = SecretsManager(aws_secret_arn, region_name=region)
+if secretmanager.host == "":
+    secretmanager.host = nbgrader_db_host
 
 class GraderServiceLauncher:
     def __init__(self, org_name: str, course_id: str):
@@ -180,11 +186,16 @@ class GraderServiceLauncher:
         logger.info(
             f"Writing the nbgrader_config.py file at jupyter directory (within the grader home): {grader_nbconfig_path}"
         )
+        db_url = ''
+        if aws_secret_arn:
+            db_url = secretmanager.rds_connection(nbgrader_db_name)
+        else:
+            db_url = f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{nbgrader_db_name}"
         # write the file
         grader_home_nbconfig_content = NBGRADER_HOME_CONFIG_TEMPLATE.format(
             grader_name=self.grader_name,
             course_id=self.course_id,
-            db_url=f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{self.org_name}_{self.course_id}",
+            db_url=db_url,
         )
         grader_nbconfig_path.write_text(grader_home_nbconfig_content)
         # Write the nbgrader_config.py file at grader home directory
@@ -269,6 +280,12 @@ class GraderServiceLauncher:
                 client.V1EnvVar(name="NB_UID", value=str(NB_UID)),
                 client.V1EnvVar(name="NB_GID", value=str(NB_GID)),
                 client.V1EnvVar(name="NB_USER", value=self.grader_name),
+                client.V1EnvVar(name="CAMPUS_ID", value=str(CAMPUS_ID)),
+                client.V1EnvVar(name="POSTGRES_JUPYTERHUB_HOST", value=str(nbgrader_db_host)),
+                client.V1EnvVar(name="POSTGRES_JUPYTERHUB_USER", value=str(nbgrader_db_user)),
+                client.V1EnvVar(name="POSTGRES_JUPYTERHUB_PASSWORD", value=str(nbgrader_db_password)),
+                client.V1EnvVar(name="POSTGRES_JUPYTERHUB_PORT", value=str(nbgrader_db_port)),
+                client.V1EnvVar(name="POSTGRES_JUPYTERHUB_DB", value=str(nbgrader_db_name)),
             ],
             volume_mounts=[
                 client.V1VolumeMount(
@@ -278,7 +295,7 @@ class GraderServiceLauncher:
                 ),
                 client.V1VolumeMount(
                     mount_path="/srv/nbgrader/exchange",
-                    name=GRADER_EXCHANGE_SHARED_PVC,
+                    name=GRADER_PVC,
                     sub_path=sub_path_exchange,
                 ),
             ],
@@ -296,12 +313,6 @@ class GraderServiceLauncher:
                         name=GRADER_PVC,
                         persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
                             claim_name=GRADER_PVC
-                        ),
-                    ),
-                    client.V1Volume(
-                        name=GRADER_EXCHANGE_SHARED_PVC,
-                        persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
-                            claim_name=GRADER_EXCHANGE_SHARED_PVC
                         ),
                     ),
                 ],
@@ -358,3 +369,35 @@ class GraderServiceLauncher:
                     name="hub", namespace=NAMESPACE, body=deployment
                 )
                 logger.info(f"Jhub patch response:{api_response}")
+
+    # Restarts deployment in namespace
+    def restart_deployment(self, deployment, namespace):
+        now = datetime.utcnow()
+        now = str(now.isoformat("T") + "Z")
+        body = {
+            'spec': {
+                'template': {
+                    'metadata': {
+                        'annotations': {
+                            'kubectl.kubernetes.io/restartedAt': now
+                        }
+                    }
+                }
+            }
+        }
+        deployment_status = f'{deployment} failed to deploy to organization: {namespace}', 404
+        try:
+            restart_deployment = self.apps_v1.patch_namespaced_deployment(deployment, namespace, body, pretty='true')
+        except ApiException as e:
+            logger.error("Exception when calling AppsV1Api->read_namespaced_deployment_status: %s\n" % e)
+        except Exception as e:
+            logger.error(deployment_status, e)
+        else:
+            while restart_deployment.status.updated_replicas != restart_deployment.spec.replicas:
+                logger.info(f'Waiting for status to update for grader{deployment} to organization {namespace}')
+                time.sleep(5)
+            deployment_status = f'{deployment} successfully deployed to organization {namespace}', 200
+        return deployment_status
+        
+        
+

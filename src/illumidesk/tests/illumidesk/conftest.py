@@ -27,7 +27,7 @@ from illumidesk.authenticators.utils import LTIUtils
 @pytest.fixture(scope="module")
 def auth_state_dict():
     authenticator_auth_state = {
-        "name": "student1",
+        "name": "185d6c59731a553009ca9b59ca3a885100000",
         "auth_state": {
             "course_id": "intro101",
             "lms_user_id": "185d6c59731a553009ca9b59ca3a885100000",
@@ -63,7 +63,6 @@ def mock_nbhelper():
                     "illumidesk.apis.nbgrader_service.NbGraderServiceHelper",
                     # __init__=lambda x, y: None,
                     update_course=Mock(return_value=None),
-                    create_database_if_not_exists=Mock(),
                     add_user_to_nbgrader_gradebook=Mock(return_value=None),
                     register_assignment=Mock(return_value=None),
                     get_course=Mock(
