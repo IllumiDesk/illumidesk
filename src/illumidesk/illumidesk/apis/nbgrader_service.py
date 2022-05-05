@@ -5,6 +5,8 @@ from nbgrader.api import Assignment
 from nbgrader.api import Course
 from nbgrader.api import Gradebook
 from nbgrader.api import InvalidEntry
+from sqlalchemy_utils import create_database
+from sqlalchemy_utils import database_exists
 
 from illumidesk.authenticators.utils import LTIUtils
 from secretsmanager.secretsmanager import SecretsManager
@@ -42,11 +44,18 @@ def nbgrader_format_db_url() -> str:
     Returns the nbgrader database url
     """
 
-    if aws_secret_arn != "" or aws_secret_arn is not None:
+    if aws_secret_arn:
         return secretmanager.rds_connection(nbgrader_db_name)
     return f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{nbgrader_db_name}"
 
 
+
+def jupyter_format_db_url() -> str:
+    """
+    Returns the jupyter database url with the format: campus-id.
+    """
+    database_name = CAMPUS_ID
+    return f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:{nbgrader_db_port}/{database_name}"
 
 
 class NbGraderServiceHelper:
@@ -74,6 +83,15 @@ class NbGraderServiceHelper:
         self.gid = int(os.environ.get("NB_GRADER_GID") or "100")
 
         self.db_url = nbgrader_format_db_url()
+        self.create_jupyterhub_database_if_not_exists()
+
+    def create_jupyterhub_database_if_not_exists(self) -> None:
+        """Creates a new database if it doesn't exist"""
+        conn_uri = jupyter_format_db_url()
+
+        if not database_exists(conn_uri):
+            logger.debug("db not exist, create database")
+            create_database(conn_uri)
 
     def add_user_to_nbgrader_gradebook(self, email: str, external_user_id: str, source: str, source_type: str, role_name: str = None) -> None:
         """

@@ -59,7 +59,7 @@ nbgrader_db_host = os.environ.get("POSTGRES_NBGRADER_HOST")
 nbgrader_db_password = os.environ.get("POSTGRES_NBGRADER_PASSWORD")
 nbgrader_db_user = os.environ.get("POSTGRES_NBGRADER_USER")
 nbgrader_db_port = os.environ.get("POSTGRES_NBGRADER_PORT")
-nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DB_NAME")
+nbgrader_db_name = os.environ.get("POSTGRES_NBGRADER_DATABASE") or "illumidesk"
 
 aws_secret_arn = os.environ.get('AWS_SECRET_ARN')
 region = os.environ.get('AWS_REGION') or 'us-west-2'
@@ -187,7 +187,7 @@ class GraderServiceLauncher:
             f"Writing the nbgrader_config.py file at jupyter directory (within the grader home): {grader_nbconfig_path}"
         )
         db_url = ''
-        if aws_secret_arn != "" or aws_secret_arn is not None:
+        if aws_secret_arn:
             db_url = secretmanager.rds_connection(nbgrader_db_name)
         else:
             db_url = f"postgresql://{nbgrader_db_user}:{nbgrader_db_password}@{nbgrader_db_host}:5432/{nbgrader_db_name}"
@@ -281,6 +281,11 @@ class GraderServiceLauncher:
                 client.V1EnvVar(name="NB_GID", value=str(NB_GID)),
                 client.V1EnvVar(name="NB_USER", value=self.grader_name),
                 client.V1EnvVar(name="CAMPUS_ID", value=str(CAMPUS_ID)),
+                client.V1EnvVar(name="POSTGRES_JUPYTERHUB_HOST", value=str(nbgrader_db_host)),
+                client.V1EnvVar(name="POSTGRES_JUPYTERHUB_USER", value=str(nbgrader_db_user)),
+                client.V1EnvVar(name="POSTGRES_JUPYTERHUB_PASSWORD", value=str(nbgrader_db_password)),
+                client.V1EnvVar(name="POSTGRES_JUPYTERHUB_PORT", value=str(nbgrader_db_port)),
+                client.V1EnvVar(name="POSTGRES_JUPYTERHUB_DB", value=str(nbgrader_db_name)),
             ],
             volume_mounts=[
                 client.V1VolumeMount(

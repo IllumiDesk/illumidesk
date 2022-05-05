@@ -54,6 +54,11 @@ RUN wget https://configs.illumidesk.com/images/illumidesk-80.png \
  && cp -r /tmp/illumidesk-80.png /usr/local/share/jupyterhub/static/images/illumidesk-80.png \
  && chown "${NB_UID}" /srv/jupyterhub/illumidesk-80.png
 
+RUN wget https://raw.githubusercontent.com/jupyterhub/jupyterhub/main/examples/service-announcement/announcement.py \
+   && mkdir -p /etc/jupyterhub-services/ \
+ && cp -r /tmp/announcement.py /etc/jupyterhub-services/ \
+ && chown "${NB_UID}" /etc/jupyterhub-services/
+
 ENV PATH="/home/${NB_USER}/.local/bin:${PATH}"
 # ENV PYTHONUNBUFFERED 1
 
